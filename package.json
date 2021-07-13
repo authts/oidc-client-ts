@@ -47,7 +47,7 @@
   },
   "jest": {
     "clearMocks": true,
-    "testURL": "https://www.example.com/"
+    "testMatch": ["**/test/unit/*.test.ts"]
   },
   "engines": {
     "node": ">=10"

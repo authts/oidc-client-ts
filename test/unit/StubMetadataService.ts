@@ -1,24 +1,31 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-export class StubMetadataService{
-    resetSigningKeys(){ }
-    getMetadata(){
+export class StubMetadataService {
+    getMetadataResult: any;
+    getIssuerResult: any;
+    getAuthorizationEndpointResult: any;
+    getEndSessionEndpointResult: any;
+    userInfoEndpointResult: any;
+    getSigningKeysResult: any;
+
+    resetSigningKeys() { }
+    getMetadata() {
         return this.getMetadataResult;
     }
-    getIssuer(){
+    getIssuer() {
         return this.getIssuerResult;
     }
-    getAuthorizationEndpoint(){
+    getAuthorizationEndpoint() {
         return this.getAuthorizationEndpointResult;
     }
-    getEndSessionEndpoint(){
+    getEndSessionEndpoint() {
         return this.getEndSessionEndpointResult;
     }
-    getUserInfoEndpoint(){
+    getUserInfoEndpoint() {
         return this.userInfoEndpointResult;
     }
-    getSigningKeys(){
+    getSigningKeys() {
         return this.getSigningKeysResult;
     }
 }

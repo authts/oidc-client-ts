@@ -4,7 +4,11 @@
 import { Log } from '../../src/Log';
 
 export class StubJsonService {
-    getJson(url, token) {
+    url: any;
+    token: any;
+    result: any;
+
+    getJson(url: string, token?: string) {
         Log.debug("StubJsonService.getJson", this.result);
 
         this.url = url;

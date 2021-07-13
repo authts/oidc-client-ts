@@ -1,0 +1,681 @@
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
+import { Log } from '../../src/Log';
+import { MetadataService } from '../../src/MetadataService';
+import { OidcClientSettingsStore } from '../../src/OidcClientSettings';
+import { ResponseValidator } from '../../src/ResponseValidator';
+import { StateStore } from '../../src/StateStore';
+import { mocked } from 'ts-jest/utils';
+
+// workaround jest parse error
+jest.mock('../../jsrsasign/dist/jsrsasign.js', () => {
+    return {
+        jws: jest.fn(),
+        KEYUTIL: jest.fn(),
+        X509: jest.fn(),
+        crypto: jest.fn(),
+        hextob64u: jest.fn(),
+        b64tohex: jest.fn()
+    };
+});
+
+describe("OidcClientSettings", () => {
+
+    beforeEach(() => {
+        Log.logger = console;
+        Log.level = Log.NONE;
+    });
+
+    describe("client_id", () => {
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client'
+            });
+
+            // assert
+            expect(subject.client_id).toEqual("client");
+        });
+
+        it("should not allow setting if previously set", () => {
+            // arrange
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                authority: "http://sts"
+            });
+
+            // act
+            try {
+                subject.client_id = "diff";
+                fail("should not come here");
+            }
+            catch (e) {
+                expect(e.message).toContain("client_id");
+            }
+        });
+
+        it("should allow setting if not previously set", () => {
+            // arrange
+            let subject = new OidcClientSettingsStore({
+            });
+
+            // act
+            subject.client_id = "test";
+
+            // assert
+            expect(subject.client_id).toEqual("test");
+        });
+    });
+
+    describe("client_secret", () => {
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_secret: 'secret'
+            });
+
+            // assert
+            expect(subject.client_secret).toEqual("secret");
+        });
+    });
+
+    describe("response_type", () => {
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                response_type: "foo"
+            });
+
+            // assert
+            expect(subject.response_type).toEqual("foo");
+        });
+
+        it("should use default value", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client'
+            });
+
+            // assert
+            expect(subject.response_type).toEqual("id_token");
+        });
+
+    });
+
+    describe("scope", () => {
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                scope: "foo"
+            });
+
+            // assert
+            expect(subject.scope).toEqual("foo");
+        });
+
+        it("should use default value", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client'
+            });
+
+            // assert
+            expect(subject.scope).toEqual("openid");
+        });
+
+    });
+
+    describe("redirect_uri", () => {
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                redirect_uri: "foo"
+            });
+
+            // assert
+            expect(subject.redirect_uri).toEqual("foo");
+        });
+
+    });
+
+    describe("post_logout_redirect_uri", () => {
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                post_logout_redirect_uri: "http://app/loggedout"
+            });
+
+            // assert
+            expect(subject.post_logout_redirect_uri).toEqual("http://app/loggedout");
+        });
+    });
+
+    describe("prompt", () => {
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                prompt: "foo"
+            });
+
+            // assert
+            expect(subject.prompt).toEqual("foo");
+        });
+    });
+
+    describe("display", () => {
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                display: "foo"
+            });
+
+            // assert
+            expect(subject.display).toEqual("foo");
+        });
+    });
+
+    describe("max_age", () => {
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                max_age: 22
+            });
+
+            // assert
+            expect(subject.max_age).toEqual(22);
+        });
+    });
+
+    describe("ui_locales", () => {
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                ui_locales: "foo"
+            });
+
+            // assert
+            expect(subject.ui_locales).toEqual("foo");
+        });
+    });
+
+    describe("acr_values", () => {
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                acr_values: "foo"
+            });
+
+            // assert
+            expect(subject.acr_values).toEqual("foo");
+        });
+    });
+
+    describe("resource", () => {
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                resource: "foo"
+            });
+
+            // assert
+            expect(subject.resource).toEqual("foo");
+        });
+    });
+
+    describe("response_mode", () => {
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                response_mode: "foo"
+            });
+
+            // assert
+            expect(subject.response_mode).toEqual("foo");
+        });
+    });
+
+    describe("authority", () => {
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                authority: "http://sts"
+            });
+
+            // assert
+            expect(subject.authority).toEqual("http://sts");
+        });
+
+        it("should not allow setting if previously set", () => {
+            // arrange
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                authority: "http://sts"
+            });
+
+            // act
+            try {
+                subject.authority = "http://sts2";
+                fail("should not come here");
+            }
+            catch (e) {
+                expect(e.message).toContain("authority");
+            }
+        });
+
+        it("should allow setting if not previously set", () => {
+            // arrange
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client'
+            });
+
+            // act
+            subject.authority = "http://sts";
+
+            // assert
+            expect(subject.authority).toEqual("http://sts");
+        });
+    });
+
+    describe("metadataUrl", () => {
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                metadataUrl: "http://sts/metadata"
+            });
+
+            // assert
+            expect(subject.metadataUrl).toEqual("http://sts/metadata");
+        });
+
+        it("should infer value from authority", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                authority: "http://sts"
+            });
+
+            // assert
+            expect(subject.metadataUrl).toEqual("http://sts/.well-known/openid-configuration");
+        });
+    });
+
+    describe("metadata", () => {
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                metadata: { issuer: "test" }
+            });
+
+            // assert
+            expect(subject.metadata).toEqual({ issuer: "test" });
+        });
+
+        it("should store value", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+            });
+            subject.metadata = { issuer: "test" };
+
+            // assert
+            expect(subject.metadata).toEqual({ issuer: "test" });
+        });
+
+    });
+
+    describe("signingKeys", () => {
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                signingKeys: ["test"]
+            });
+
+            // assert
+            expect(subject.signingKeys).toEqual(["test"]);
+        });
+
+        it("should store value", () => {
+            // arrange
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+            });
+
+            // act
+            subject.signingKeys = ["test"];
+
+            // assert
+            expect(subject.signingKeys).toEqual(["test"]);
+        });
+
+    });
+
+    describe("filterProtocolClaims", () => {
+
+        it("should use default value", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+            });
+
+            // assert
+            expect(subject.filterProtocolClaims).toEqual(true);
+        });
+
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                filterProtocolClaims: true
+            });
+
+            // assert
+            expect(subject.filterProtocolClaims).toEqual(true);
+
+            // act
+            subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                filterProtocolClaims: false
+            });
+
+            // assert
+            expect(subject.filterProtocolClaims).toEqual(false);
+        });
+    });
+
+    describe("loadUserInfo", () => {
+
+        it("should use default value", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+            });
+
+            // assert
+            expect(subject.loadUserInfo).toEqual(true);
+        });
+
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                loadUserInfo: true
+            });
+
+            // assert
+            expect(subject.loadUserInfo).toEqual(true);
+
+            // act
+            subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                loadUserInfo: false
+            });
+
+            // assert
+            expect(subject.loadUserInfo).toEqual(false);
+        });
+    });
+
+    describe("staleStateAge", () => {
+
+        it("should use default value", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+            });
+
+            // assert
+            expect(subject.staleStateAge).toEqual(900);
+        });
+
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                staleStateAge: 100
+            });
+
+            // assert
+            expect(subject.staleStateAge).toEqual(100);
+        });
+    });
+
+    describe("clockSkew", () => {
+
+        it("should use default value", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client'
+            });
+
+            // assert
+            expect(subject.clockSkew).toEqual(5 * 60); // 5 mins
+        });
+
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                clockSkew: 10
+            });
+
+            // assert
+            expect(subject.clockSkew).toEqual(10);
+        });
+    });
+
+    describe("stateStore", () => {
+
+        it("should return value from initial settings", () => {
+            // arrange
+            let temp = {} as StateStore;
+
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                stateStore: temp
+            });
+
+            // assert
+            expect(subject.stateStore).toEqual(temp);
+        });
+    });
+
+    describe("stateStore", () => {
+
+        it("should return value from initial settings", () => {
+            // arrange
+            let temp = {} as StateStore;
+
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                stateStore: temp
+            });
+
+            // assert
+            expect(subject.stateStore).toEqual(temp);
+        });
+    });
+
+    describe("validator", () => {
+
+        it("should return value from initial settings", () => {
+            // arrange
+            const dummy = new OidcClientSettingsStore();
+            const mock = mocked(new ResponseValidator(dummy));
+            const settings: any = {
+                client_id: 'client',
+                ResponseValidatorCtor: () => mock
+            };
+
+            // act
+            let subject = new OidcClientSettingsStore(settings);
+
+            // assert
+            expect(subject.validator).toEqual(mock);
+        });
+    });
+
+    describe("metadataServiceCtor", () => {
+
+        it("should return value from initial settings", () => {
+            // arrange
+            const dummy = new OidcClientSettingsStore();
+            const mock = mocked(new MetadataService(dummy));
+            const settings: any = {
+                client_id: 'client',
+                MetadataServiceCtor: () => mock
+            };
+
+            // act
+            let subject = new OidcClientSettingsStore(settings);
+
+            // assert
+            expect(subject.metadataService).toEqual(mock);
+        });
+    });
+
+    describe("extraQueryParams", () => {
+
+        it("should use default value", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client'
+            });
+
+            // assert
+            expect(subject.extraQueryParams).toEqual({});
+        });
+
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                extraQueryParams: {
+                    'hd': 'domain.com'
+                }
+            });
+
+            // assert
+            expect(subject.extraQueryParams).toEqual({ 'hd': 'domain.com' });
+        });
+
+        it("should not set value from initial settings if not object, but set default value ({})", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                extraQueryParams: 123456 as unknown as Record<string, any>
+            });
+
+            // assert
+            expect(subject.extraQueryParams).toEqual({});
+        });
+
+        it("should set it if object", () => {
+            // arrange
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+            });
+
+            // act
+            subject.extraQueryParams = { 'hd': 'domain.com' };
+
+            // assert
+            expect(subject.extraQueryParams).toEqual({ 'hd': 'domain.com' });
+        });
+
+        it("should clear it if not object", () => {
+            // arrange
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                extraQueryParams: {
+                    'hd': 'domain.com',
+                }
+            });
+
+            // act
+            subject.extraQueryParams = undefined;
+
+            // assert
+            expect(subject.extraQueryParams).toEqual({});
+        });
+    })
+
+    describe("extraTokenParams", () => {
+
+        it("should use default value", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client'
+            });
+
+            // assert
+            expect(subject.extraTokenParams).toEqual({});
+        });
+
+        it("should return value from initial settings", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                extraTokenParams: {
+                    'resourceServer': 'abc'
+                }
+            });
+
+            // assert
+            expect(subject.extraTokenParams).toEqual({ 'resourceServer': 'abc' });
+        });
+
+        it("should not set value from initial settings if not object, but set default value ({})", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                extraTokenParams: 123456 as unknown as Record<string, any>
+            });
+
+            // assert
+            expect(subject.extraTokenParams).toEqual({});
+        });
+
+        it("should set it if object", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+            });
+            subject.extraTokenParams = { 'resourceServer': 'abc' };
+
+            // assert
+            expect(subject.extraTokenParams).toEqual({ 'resourceServer': 'abc' });
+        });
+
+        it("should clear it if not object", () => {
+            // act
+            let subject = new OidcClientSettingsStore({
+                client_id: 'client',
+                extraTokenParams: {
+                    'resourceServer': 'abc',
+                }
+            });
+            subject.extraTokenParams = undefined;
+
+            // assert
+            expect(subject.extraTokenParams).toEqual({});
+        });
+    });
+});

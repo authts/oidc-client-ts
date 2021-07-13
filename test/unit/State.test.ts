@@ -7,74 +7,98 @@ import { State } from '../../src/State';
 import { InMemoryWebStorage } from '../../src/InMemoryWebStorage';
 import { WebStorageStateStore } from '../../src/WebStorageStateStore';
 
-import chai from 'chai';
-chai.should();
-let assert = chai.assert;
+describe("State", () => {
 
-describe("State", function() {
-
-    beforeEach(function(){
+    beforeEach(() =>{
         Log.level = Log.NONE;
         Log.logger = console;
     });
 
-    describe("constructor", function() {
+    describe("constructor", () => {
 
-        it("should generate id", function() {
+        it("should generate id", () => {
+            // act
             var subject = new State();
-            subject.id.should.be.ok;
+
+            // assert
+            expect(subject.id).toBeDefined();
         });
 
-        it("should accept id", function() {
+        it("should accept id", () => {
+            // act
             var subject = new State({ id: 5 });
-            subject.id.should.be.equal(5);
+
+            // assert
+            expect(subject.id).toEqual(5);
         });
 
-        it("should accept data", function() {
+        it("should accept data", () => {
+            // act
             var subject = new State({ data: "test" });
-            subject.data.should.be.equal("test");
+
+            // assert
+            expect(subject.data).toEqual("test");
         });
 
-        it("should accept data as objects", function() {
+        it("should accept data as objects", () => {
+            // act
             var subject = new State({ data: { foo: "test" } });
-            subject.data.should.be.deep.equal({ foo: "test" });
+
+            // assert
+            expect(subject.data).toEqual({ foo: "test" });
         });
 
-        it("should accept created", function() {
+        it("should accept created", () => {
+            // act
             var subject = new State({ created: 1000 });
-            subject.created.should.be.equal(1000);
+
+            // assert
+            expect(subject.created).toEqual(1000);
         });
 
-        it("should use date.now for created", function() {
+        it("should use date.now for created", () => {
+            // arrange
             var oldNow = Date.now;
-            Date.now = function() {
+            Date.now = () => {
                 return 123 * 1000; // ms
             };
+
+            // act
             var subject = new State();
-            subject.created.should.be.equal(123);
+
+            // assert
+            expect(subject.created).toEqual(123);
             Date.now = oldNow;
         });
-        it("should accept request_type", function() {
+
+        it("should accept request_type", () => {
+            // act
             var subject = new State({ request_type: 'xoxo' });
-            subject.request_type.should.be.equal('xoxo');
+
+            // assert
+            expect(subject.request_type).toEqual('xoxo');
         });
     });
 
-    it("can serialize and then deserialize", function() {
+    it("can serialize and then deserialize", () => {
+        // arrange
         var subject1 = new State({ data: { foo: "test" }, created: 1000, request_type:'type' });
 
+        // act
         var storage = subject1.toStorageString();
         var subject2 = State.fromStorageString(storage);
 
-        subject2.should.be.deep.equal(subject1);
+
+        // assert
+        expect(subject2).toEqual(subject1);
     });
 
-    describe("clearStaleState", function() {
+    describe("clearStaleState", () => {
 
-        it("should remove old state entries", function(done) {
-
+        it("should remove old state entries", async () => {
+            // arrange
             let oldNow = Date.now;
-            Date.now = function() {
+            Date.now = () => {
                 return 200 * 1000; // ms
             };
 
@@ -100,20 +124,14 @@ describe("State", function() {
             inMemStore.setItem(prefix + s5.id, s5.toStorageString());
             inMemStore.setItem("junk5", "junk");
 
-            State.clearStaleState(store, 100).then(() => {
-                Log.debug("clearStaleState done");
+            // act
+            await State.clearStaleState(store, 100);
 
-                inMemStore.length.should.equal(8);
-                inMemStore.getItem(prefix + "s4").should.be.ok;
-                inMemStore.getItem(prefix + "s5").should.be.ok;
-
-                Date.now = oldNow;
-                done();
-            });
-
+            // assert
+            expect(inMemStore.length).toEqual(8);
+            expect(inMemStore.getItem(prefix + "s4")).toBeDefined();
+            expect(inMemStore.getItem(prefix + "s5")).toBeDefined();
+            Date.now = oldNow;
         });
-
     });
-
-
 });
