@@ -35,19 +35,20 @@
   },
   "homepage": "https://github.com/IdentityModel/oidc-client-js",
   "dependencies": {
-    "base64-js": "^1.5.1",
-    "crypto-js": "^4.0.0"
+    "jsrsasign": "^10.3.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.5.0",
-    "jsrsasign": "^8.0.24",
+    "@types/jsrsasign": "^8.0.13",
     "tsdx": "^0.14.1",
     "tslib": "^2.2.0",
     "typescript": "^4.2.4"
   },
   "jest": {
     "clearMocks": true,
-    "testMatch": ["**/test/unit/*.test.ts"]
+    "testMatch": [
+      "**/test/unit/*.test.ts"
+    ]
   },
   "engines": {
     "node": ">=10"

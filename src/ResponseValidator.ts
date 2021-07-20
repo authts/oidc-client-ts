@@ -19,13 +19,11 @@ export class ResponseValidator {
     private _settings: OidcClientSettingsStore;
     private _metadataService: MetadataService;
     private _userInfoService: UserInfoService;
-    private _joseUtil: typeof JoseUtil;
     private _tokenClient: TokenClient;
 
     constructor(settings: OidcClientSettingsStore,
         MetadataServiceCtor = MetadataService,
         UserInfoServiceCtor = UserInfoService,
-        joseUtil = JoseUtil,
         TokenClientCtor = TokenClient) {
         if (!settings) {
             Log.error("ResponseValidator.ctor: No settings passed to ResponseValidator");
@@ -35,7 +33,6 @@ export class ResponseValidator {
         this._settings = settings;
         this._metadataService = new MetadataServiceCtor(this._settings);
         this._userInfoService = new UserInfoServiceCtor(this._settings);
-        this._joseUtil = joseUtil;
         this._tokenClient = new TokenClientCtor(this._settings);
     }
 
@@ -300,7 +297,7 @@ export class ResponseValidator {
             Log.debug("ResponseValidator._validateIdTokenAttributes: Validaing JWT attributes; using clock skew (in seconds) of: ", clockSkewInSeconds);
 
             return this._settings.getEpochTime().then(now => {
-                return this._joseUtil.validateJwtAttributes(response.id_token, issuer, audience, clockSkewInSeconds, now).then(payload => {
+                return JoseUtil.validateJwtAttributes(response.id_token, issuer, audience, clockSkewInSeconds, now).then(payload => {
 
                     if (state.nonce && state.nonce !== payload.nonce) {
                         Log.error("ResponseValidator._validateIdTokenAttributes: Invalid nonce in id_token");
@@ -374,13 +371,14 @@ export class ResponseValidator {
             return Promise.reject(new Error("No nonce on state"));
         }
 
-        const jwt = this._joseUtil.parseJwt(response.id_token);
+        const jwt = JoseUtil.parseJwt(response.id_token);
         if (!jwt || !jwt.header || !jwt.payload) {
             Log.error("ResponseValidator._validateIdToken: Failed to parse id_token", jwt);
             return Promise.reject(new Error("Failed to parse id_token"));
         }
 
-        if (state.nonce !== jwt.payload.nonce) {
+        const payload: any = jwt.payload;
+        if (state.nonce !== payload.nonce) {
             Log.error("ResponseValidator._validateIdToken: Invalid nonce in id_token");
             return Promise.reject(new Error("Invalid nonce in id_token"));
         }
@@ -398,15 +396,15 @@ export class ResponseValidator {
                 let clockSkewInSeconds = this._settings.clockSkew;
                 Log.debug("ResponseValidator._validateIdToken: Validaing JWT; using clock skew (in seconds) of: ", clockSkewInSeconds);
 
-                return this._joseUtil.validateJwt(response.id_token, key, issuer, audience, clockSkewInSeconds).then(()=>{
+                return JoseUtil.validateJwt(response.id_token, key, issuer, audience, clockSkewInSeconds).then(()=>{
                     Log.debug("ResponseValidator._validateIdToken: JWT validation successful");
 
-                    if (!jwt.payload.sub) {
+                    if (!payload.sub) {
                         Log.error("ResponseValidator._validateIdToken: No sub present in id_token");
                         return Promise.reject(new Error("No sub present in id_token"));
                     }
 
-                    response.profile = jwt.payload;
+                    response.profile = payload;
                     return response;
                 });
             });
@@ -456,7 +454,7 @@ export class ResponseValidator {
             return Promise.reject(new Error("No id_token"));
         }
 
-        const jwt = this._joseUtil.parseJwt(response.id_token);
+        const jwt = JoseUtil.parseJwt(response.id_token);
         if (!jwt || !jwt.header) {
             Log.error("ResponseValidator._validateAccessToken: Failed to parse id_token", jwt);
             return Promise.reject(new Error("Failed to parse id_token"));
@@ -468,27 +466,27 @@ export class ResponseValidator {
             return Promise.reject(new Error("Unsupported alg: " + hashAlg));
         }
 
-        var hashBits = hashAlg.substr(2, 3);
-        if (!hashBits) {
-            Log.error("ResponseValidator._validateAccessToken: Unsupported alg:", hashAlg, hashBits);
+        const hashBitsString = hashAlg.substr(2, 3);
+        if (!hashBitsString) {
+            Log.error("ResponseValidator._validateAccessToken: Unsupported alg:", hashAlg, hashBitsString);
             return Promise.reject(new Error("Unsupported alg: " + hashAlg));
         }
 
-        hashBits = parseInt(hashBits);
+        const hashBits = parseInt(hashBitsString);
         if (hashBits !== 256 && hashBits !== 384 && hashBits !== 512) {
             Log.error("ResponseValidator._validateAccessToken: Unsupported alg:", hashAlg, hashBits);
             return Promise.reject(new Error("Unsupported alg: " + hashAlg));
         }
 
         let sha = "sha" + hashBits;
-        var hash = this._joseUtil.hashString(response.access_token, sha);
+        var hash = JoseUtil.hashString(response.access_token, sha);
         if (!hash) {
             Log.error("ResponseValidator._validateAccessToken: access_token hash failed:", sha);
             return Promise.reject(new Error("Failed to validate at_hash"));
         }
 
         var left = hash.substr(0, hash.length / 2);
-        var left_b64u = this._joseUtil.hexToBase64Url(left);
+        var left_b64u = JoseUtil.hexToBase64Url(left);
         if (left_b64u !== response.profile.at_hash) {
             Log.error("ResponseValidator._validateAccessToken: Failed to validate at_hash", left_b64u, response.profile.at_hash);
             return Promise.reject(new Error("Failed to validate at_hash"));

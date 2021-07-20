@@ -2,69 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log } from '../../src/Log';
-import { JoseUtil } from '../../src/JoseUtil';
 import { ResponseValidator } from '../../src/ResponseValidator';
+import { JoseUtil } from '../../src/JoseUtil';
 
 import { StubMetadataService } from './StubMetadataService';
-
-// workaround jest parse error
-jest.mock('../../jsrsasign/dist/jsrsasign.js', () => {
-    return {
-        jws: jest.fn(),
-        KEYUTIL: jest.fn(),
-        X509: jest.fn(),
-        crypto: jest.fn(),
-        hextob64u: jest.fn(),
-        b64tohex: jest.fn()
-    };
-});
-
-class MockJoseUtility {
-    parseJwtWasCalled: any;
-    parseJwtResult: any;
-    validateJwtWasCalled: any;
-    validateJwtResult: any;
-    hashStringWasCalled: any;
-    hashStringResult: any;
-    hexToBase64UrlCalled: any;
-    hexToBase64UrlResult: any;
-
-    parseJwt(jwt: any) {
-        this.parseJwtWasCalled = true;
-        if (this.parseJwtResult) {
-            Log.debug("MockJoseUtility.parseJwt", this.parseJwtResult)
-            return this.parseJwtResult;
-        }
-        return JoseUtil.parseJwt(jwt);
-    }
-
-    validateJwt(jwt: any, key: string, issuer: string, audience: string, clockSkew: number, now?: number, timeInsensitive = false) {
-        this.validateJwtWasCalled = true;
-        if (this.validateJwtResult) {
-            Log.debug("MockJoseUtility.validateJwt", this.validateJwtResult)
-            return this.validateJwtResult;
-        }
-        return JoseUtil.validateJwt(jwt, key, issuer, audience, clockSkew, now, timeInsensitive);
-    }
-
-    hashString(value: any, alg: string) {
-        this.hashStringWasCalled = true;
-        if (this.hashStringResult) {
-            Log.debug("MockJoseUtility.hashString", this.hashStringResult)
-            return this.hashStringResult;
-        }
-        return JoseUtil.hashString(value, alg);
-    }
-
-    hexToBase64Url(value: any) {
-        this.hexToBase64UrlCalled = true;
-        if (this.hexToBase64UrlResult) {
-            Log.debug("MockJoseUtility.hexToBase64Url", this.hexToBase64UrlResult)
-            return this.hexToBase64UrlResult;
-        }
-        return JoseUtil.hexToBase64Url(value);
-    }
-}
 
 class StubUserInfoService {
     getClaimsWasCalled: boolean;
@@ -84,8 +25,8 @@ class StubUserInfoService {
 class MockResponseValidator extends ResponseValidator {
     private _getSigningKeyForJwtSignedCalledCount: any;
 
-    constructor(settings: any, MetadataServiceCtor: any, UserInfoServiceCtor: any, joseUtil: any) {
-        super(settings, MetadataServiceCtor, UserInfoServiceCtor, joseUtil);
+    constructor(settings: any, MetadataServiceCtor: any, UserInfoServiceCtor: any) {
+        super(settings, MetadataServiceCtor, UserInfoServiceCtor);
     }
 
     _mock(name: string, ...args: any[]) {
@@ -155,7 +96,6 @@ describe("ResponseValidator", () => {
     let subject: MockResponseValidator;
     let stubMetadataService: any;
     let stubUserInfoService: any;
-    let mockJoseUtility: any;
 
     let stubState: any;
     let stubResponse: any;
@@ -182,9 +122,11 @@ describe("ResponseValidator", () => {
         };
         stubMetadataService = new StubMetadataService();
         stubUserInfoService = new StubUserInfoService();
-        mockJoseUtility = new MockJoseUtility();
 
-        subject = new MockResponseValidator(settings, () => stubMetadataService, () => stubUserInfoService, mockJoseUtility);
+        // restore spyOn
+        jest.restoreAllMocks();
+
+        subject = new MockResponseValidator(settings, () => stubMetadataService, () => stubUserInfoService);
     });
 
     describe("validateSignoutResponse", () => {
@@ -378,7 +320,7 @@ describe("ResponseValidator", () => {
             delete settings.authority;
             stubState.authority = "something different";
             stubResponse.id_token = id_token;
-            subject = new MockResponseValidator(settings, () => stubMetadataService, () => stubUserInfoService, mockJoseUtility);
+            subject = new MockResponseValidator(settings, () => stubMetadataService, () => stubUserInfoService);
 
             // act
             await subject._processSigninParams(stubState, stubResponse);
@@ -392,7 +334,7 @@ describe("ResponseValidator", () => {
             delete settings.client_id;
             stubState.client_id = "something different";
             stubResponse.id_token = id_token;
-            subject = new MockResponseValidator(settings, () => stubMetadataService, () => stubUserInfoService, mockJoseUtility);
+            subject = new MockResponseValidator(settings, () => stubMetadataService, () => stubUserInfoService);
 
             // act
             await subject._processSigninParams(stubState, stubResponse);
@@ -960,7 +902,9 @@ describe("ResponseValidator", () => {
             // arrange
             stubState.nonce = "invalid nonce";
             stubResponse.id_token = id_token;
-            mockJoseUtility.parseJwtResult = { header: { alg: "HS123" }, payload: "payload" };
+            jest.spyOn(JoseUtil, "parseJwt").mockImplementation(() => {
+                return { header: { alg: "HS123", typ: "JWT" }, payload: { } };
+            });
 
             // act
             try {
@@ -976,7 +920,9 @@ describe("ResponseValidator", () => {
             stubState.nonce = "nonce";
             stubResponse.id_token = id_token;
             stubMetadataService.getIssuerResult = Promise.reject(new Error("issuer"));
-            mockJoseUtility.parseJwtResult = { header: { alg: "HS123" }, payload: { nonce: stubState.nonce } };
+            jest.spyOn(JoseUtil, "parseJwt").mockImplementation(() => {
+                return { header: { alg: "HS123", typ: "JWT" }, payload: { nonce: stubState.nonce } };
+            });
 
             // act
             try {
@@ -993,7 +939,9 @@ describe("ResponseValidator", () => {
             stubResponse.id_token = id_token;
             stubMetadataService.getIssuerResult = Promise.resolve("test");
             stubMetadataService.getSigningKeysResult = Promise.reject(new Error("keys"));
-            mockJoseUtility.parseJwtResult = { header: { alg: "HS123" }, payload: { nonce: stubState.nonce } };
+            jest.spyOn(JoseUtil, "parseJwt").mockImplementation(() => {
+                return { header: { alg: "HS123", typ: "JWT" }, payload: { nonce: stubState.nonce } };
+            });
 
             // act
             try {
@@ -1010,7 +958,9 @@ describe("ResponseValidator", () => {
             stubResponse.id_token = id_token;
             stubMetadataService.getIssuerResult = Promise.resolve("test");
             stubMetadataService.getSigningKeysResult = Promise.resolve([]);
-            mockJoseUtility.parseJwtResult = { header: { alg: "HS123" }, payload: { nonce: stubState.nonce } };
+            jest.spyOn(JoseUtil, "parseJwt").mockImplementation(() => {
+                return { header: { alg: "HS123", typ: "JWT" }, payload: { nonce: stubState.nonce } };
+            });
 
             // act
             try {
@@ -1027,14 +977,18 @@ describe("ResponseValidator", () => {
             stubResponse.id_token = id_token;
             stubMetadataService.getIssuerResult = Promise.resolve("test");
             stubMetadataService.getSigningKeysResult = Promise.resolve([{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE', kty: "EC" }]);
-            mockJoseUtility.validateJwtResult = Promise.resolve();
-            mockJoseUtility.parseJwtResult = { header: { alg: "ES123" }, payload: { nonce: stubState.nonce, sub: "sub" } };
+            const validateJwtMock = jest.spyOn(JoseUtil, "validateJwt").mockImplementation(() => {
+                return Promise.resolve();
+            });
+            jest.spyOn(JoseUtil, "parseJwt").mockImplementation(() => {
+                return { header: { alg: "ES123", typ: "JWT" }, payload: { nonce: stubState.nonce, sub: "sub" } };
+            });
 
             // act
             await subject._validateIdToken(stubState, stubResponse);
 
             // assert
-            expect(mockJoseUtility.validateJwtWasCalled).toEqual(true);
+            expect(validateJwtMock).toHaveBeenCalled();
         });
 
         it("should set profile on result if successful", async () => {
@@ -1043,8 +997,12 @@ describe("ResponseValidator", () => {
             stubResponse.id_token = id_token;
             stubMetadataService.getIssuerResult = Promise.resolve("test");
             stubMetadataService.getSigningKeysResult = Promise.resolve([{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE', kty: "EC" }]);
-            mockJoseUtility.validateJwtResult = Promise.resolve();
-            mockJoseUtility.parseJwtResult = { header: { alg: "ES123" }, payload: { nonce: stubState.nonce, sub: "sub" } };
+            jest.spyOn(JoseUtil, "validateJwt").mockImplementation(() => {
+                return Promise.resolve();
+            });
+            jest.spyOn(JoseUtil, "parseJwt").mockImplementation(() => {
+                return { header: { alg: "ES123", typ: "JWT" }, payload: { nonce: stubState.nonce, sub: "sub" } };
+            });
 
             // act
             const response =  await subject._validateIdToken(stubState, stubResponse);
@@ -1123,7 +1081,9 @@ describe("ResponseValidator", () => {
             stubResponse.profile = {
                 at_hash: at_hash
             };
-            mockJoseUtility.parseJwtResult = { header: { alg: "bad" } };
+            jest.spyOn(JoseUtil, "parseJwt").mockImplementation(() => {
+                return { header: { alg: "bad", typ: "JWT" }, payload: {} };
+            });
 
             // act
             try {
@@ -1141,8 +1101,9 @@ describe("ResponseValidator", () => {
             stubResponse.profile = {
                 at_hash: at_hash
             };
-
-            mockJoseUtility.parseJwtResult = { header: { alg: "HS123" } };
+            jest.spyOn(JoseUtil, "parseJwt").mockImplementation(() => {
+                return { header: { alg: "HS123", typ: "JWT" }, payload: {} };
+            });
 
             // act
             try {
@@ -1160,8 +1121,9 @@ describe("ResponseValidator", () => {
             stubResponse.profile = {
                 at_hash: at_hash
             };
-
-            mockJoseUtility.parseJwtResult = { header: { alg: "abc" } };
+            jest.spyOn(JoseUtil, "parseJwt").mockImplementation(() => {
+                return { header: { alg: "abc", typ: "JWT" }, payload: {} };
+            });
 
             // act
             try {
@@ -1179,9 +1141,15 @@ describe("ResponseValidator", () => {
             stubResponse.profile = {
                 at_hash: at_hash
             };
-            mockJoseUtility.parseJwtResult = { header: { alg: "RS256" } };
-            mockJoseUtility.hashStringResult = "hash";
-            mockJoseUtility.hexToBase64UrlResult = "wrong";
+            jest.spyOn(JoseUtil, "parseJwt").mockImplementation(() => {
+                return { header: { alg: "RS256", typ: "JWT" }, payload: {} };
+            });
+            jest.spyOn(JoseUtil, "hashString").mockImplementation(() => {
+                return "hash";
+            })
+            jest.spyOn(JoseUtil, "hexToBase64Url").mockImplementation(() => {
+                return "wrong";
+            });
 
             // act
             try {
@@ -1199,11 +1167,6 @@ describe("ResponseValidator", () => {
             stubResponse.profile = {
                 at_hash: at_hash
             };
-
-            // TODO: port-ts - once jsrsasign is avaiable from jest this lines can be removed
-            mockJoseUtility.parseJwtResult = { header: { alg: "ES512" } };
-            mockJoseUtility.hashStringResult = "bla";
-            mockJoseUtility.hexToBase64UrlResult = stubResponse.profile.at_hash;
 
             // act
             const response = await subject._validateAccessToken(stubResponse);

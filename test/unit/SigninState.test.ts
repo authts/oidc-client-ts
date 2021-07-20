@@ -4,18 +4,6 @@
 import { Log } from '../../src/Log';
 import { SigninState } from '../../src/SigninState';
 
-// workaround jest parse error
-jest.mock('../../jsrsasign/dist/jsrsasign.js', () => {
-    return {
-        jws: jest.fn(),
-        KEYUTIL: jest.fn(),
-        X509: jest.fn(),
-        crypto: jest.fn(),
-        hextob64u: jest.fn().mockImplementation(() => "hextob64u"),
-        b64tohex: jest.fn()
-    };
-});
-
 describe("SigninState", () => {
 
     beforeEach(() =>{

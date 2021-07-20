@@ -8,18 +8,6 @@ import { ResponseValidator } from '../../src/ResponseValidator';
 import { StateStore } from '../../src/StateStore';
 import { mocked } from 'ts-jest/utils';
 
-// workaround jest parse error
-jest.mock('../../jsrsasign/dist/jsrsasign.js', () => {
-    return {
-        jws: jest.fn(),
-        KEYUTIL: jest.fn(),
-        X509: jest.fn(),
-        crypto: jest.fn(),
-        hextob64u: jest.fn(),
-        b64tohex: jest.fn()
-    };
-});
-
 describe("OidcClientSettings", () => {
 
     beforeEach(() => {
