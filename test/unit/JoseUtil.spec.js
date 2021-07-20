@@ -1,6 +1,8 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+// TODO: port-ts - adapt when jsrsasign is compaitble with jest
+
 import { JoseUtil as JoseUtilRsa } from '../../src/JoseUtilRsa';
 import { JoseUtil as JoseUtilJsrsasign } from '../../src/JoseUtil';
 import { Log } from '../../src/Log';
