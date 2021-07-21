@@ -23,7 +23,7 @@ describe("WebStorageStateStore", () => {
 
             // assert
             expect(p).toBeInstanceOf(Promise);
-            await p;
+            try { await p; } catch {}
         });
 
         it("should store item", async () => {
@@ -51,12 +51,13 @@ describe("WebStorageStateStore", () => {
 
     describe("remove", () => {
 
-        it("should return a promise", () => {
+        it("should return a promise", async () => {
             // act
             let p = subject.remove("key");
 
             // assert
             expect(p).toBeInstanceOf(Promise);
+            try { await p; } catch {}
         });
 
         it("should remove item", async () => {
@@ -107,12 +108,13 @@ describe("WebStorageStateStore", () => {
 
     describe("get", () => {
 
-        it("should return a promise", () => {
+        it("should return a promise", async () => {
             // act
             var p = subject.get("key");
 
             // assert
             expect(p).toBeInstanceOf(Promise);
+            try { await p; } catch {}
         });
 
         it("should return value if exists", async () => {
@@ -151,12 +153,13 @@ describe("WebStorageStateStore", () => {
 
     describe("getAllKeys", () => {
 
-        it("should return a promise", () => {
+        it("should return a promise", async () => {
             // act
             var p = subject.getAllKeys();
 
             // assert
             expect(p).toBeInstanceOf(Promise);
+            try { await p; } catch {}
         });
 
         it("should return keys", async () => {
