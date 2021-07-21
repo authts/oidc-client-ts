@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log } from './Log';
-import { Global } from './Global';
 import { MetadataService } from './MetadataService';
 import { OidcClientSettingsStore } from './OidcClientSettings';
 
@@ -14,7 +13,7 @@ export class TokenRevocationClient {
     private _XMLHttpRequestCtor: typeof XMLHttpRequest;
     private _metadataService: MetadataService;
 
-    constructor(settings: OidcClientSettingsStore, XMLHttpRequestCtor = Global.XMLHttpRequest, MetadataServiceCtor = MetadataService) {
+    constructor(settings: OidcClientSettingsStore, XMLHttpRequestCtor = XMLHttpRequest, MetadataServiceCtor = MetadataService) {
         if (!settings) {
             Log.error("TokenRevocationClient.ctor: No settings provided");
             throw new Error("No settings provided.");

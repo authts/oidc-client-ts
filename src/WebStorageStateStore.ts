@@ -2,13 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log } from './Log';
-import { Global } from './Global';
 
 export class WebStorageStateStore {
     private _store: Storage
     private _prefix: string
 
-    constructor({prefix = "oidc.", store = Global.localStorage} = {}) {
+    constructor({ prefix = "oidc.", store = localStorage } = {}) {
         this._store = store;
         this._prefix = prefix;
     }

@@ -3,9 +3,8 @@
 
 import { Log } from './Log';
 import { CheckSessionIFrame } from './CheckSessionIFrame';
-import { Global } from './Global';
 import { UserManager } from './UserManager';
-import { IntervalTimer } from './Timer';
+import { g_timer, IntervalTimer } from './Timer';
 
 export class SessionMonitor {
     private _userManager: UserManager;
@@ -15,7 +14,7 @@ export class SessionMonitor {
     private _sid: any;
     private _checkSessionIFrame?: CheckSessionIFrame;
 
-    constructor(userManager: UserManager, CheckSessionIFrameCtor = CheckSessionIFrame, timer = Global.timer) {
+    constructor(userManager: UserManager, CheckSessionIFrameCtor = CheckSessionIFrame, timer = g_timer) {
         if (!userManager) {
             Log.error("SessionMonitor.ctor: No user manager passed to SessionMonitor");
             throw new Error("userManager");

@@ -16,7 +16,6 @@ import { CheckSessionIFrame } from './CheckSessionIFrame';
 import { TokenRevocationClient } from './TokenRevocationClient';
 import { SessionMonitor } from './SessionMonitor';
 import { SessionStatus } from './SessionStatus';
-import { Global } from './Global';
 import { User } from './User';
 
 import { Version } from './Version';
@@ -41,6 +40,5 @@ export {
     CheckSessionIFrame,
     TokenRevocationClient,
     SessionMonitor,
-    Global,
     User
 };

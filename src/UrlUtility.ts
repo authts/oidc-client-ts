@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log } from './Log';
-import { Global } from './Global';
 
 export class UrlUtility {
     static addQueryParam(url: string, name: string, value: string) {
@@ -21,9 +20,9 @@ export class UrlUtility {
         return url;
     }
 
-    static parseUrlFragment(value?: string, delimiter = "#", global = Global) {
+    static parseUrlFragment(value?: string, delimiter = "#") {
         if (typeof value !== 'string') {
-            value = global.location.href;
+            value = location.href;
         }
 
         var idx = value.lastIndexOf(delimiter);

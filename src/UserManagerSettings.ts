@@ -6,7 +6,6 @@ import { RedirectNavigator } from './RedirectNavigator';
 import { PopupNavigator } from './PopupNavigator';
 import { IFrameNavigator } from './IFrameNavigator';
 import { WebStorageStateStore } from './WebStorageStateStore';
-import { Global } from './Global';
 import { SigninRequest } from './SigninRequest';
 
 const DefaultAccessTokenExpiringNotificationTime = 60;
@@ -95,7 +94,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         redirectNavigator = new RedirectNavigator(),
         popupNavigator = new PopupNavigator(),
         iframeNavigator = new IFrameNavigator(),
-        userStore = new WebStorageStateStore({ store: Global.sessionStorage })
+        userStore = new WebStorageStateStore({ store: sessionStorage })
     }: UserManagerSettings = {}) {
         super(arguments[0]);
 

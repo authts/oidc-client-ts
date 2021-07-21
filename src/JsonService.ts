@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log } from './Log';
-import { Global } from './Global';
 
 export class JsonService {
     private _contentTypes: string[];
@@ -11,7 +10,7 @@ export class JsonService {
 
     constructor(
         additionalContentTypes: string[] | null = null,
-        XMLHttpRequestCtor = Global.XMLHttpRequest,
+        XMLHttpRequestCtor = XMLHttpRequest,
         jwtHandler: any = null
     ) {
         if (additionalContentTypes && Array.isArray(additionalContentTypes))
