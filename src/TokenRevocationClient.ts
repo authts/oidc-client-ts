@@ -24,7 +24,7 @@ export class TokenRevocationClient {
         this._metadataService = new MetadataServiceCtor(this._settings);
     }
 
-    revoke(token: string, required: boolean, type = "access_token") {
+    async revoke(token: string, required: boolean, type = "access_token") {
         if (!token) {
             Log.error("TokenRevocationClient.revoke: No token provided");
             throw new Error("No token provided.");
@@ -35,22 +35,21 @@ export class TokenRevocationClient {
             throw new Error("Invalid token type.");
         }
 
-        return this._metadataService.getRevocationEndpoint().then(url => {
-            if (!url) {
-                if (required) {
-                    Log.error("TokenRevocationClient.revoke: Revocation not supported");
-                    throw new Error("Revocation not supported");
-                }
-
-                // not required, so don't error and just return
-                return;
+        const url = await this._metadataService.getRevocationEndpoint();
+        if (!url) {
+            if (required) {
+                Log.error("TokenRevocationClient.revoke: Revocation not supported");
+                throw new Error("Revocation not supported");
             }
 
-            Log.debug("TokenRevocationClient.revoke: Revoking " + type);
-            var client_id = this._settings.client_id;
-            var client_secret = this._settings.client_secret;
-            return this._revoke(url, client_id, client_secret, token, type);
-        });
+            // not required, so don't error and just return
+            return;
+        }
+
+        Log.debug("TokenRevocationClient.revoke: Revoking " + type);
+        var client_id = this._settings.client_id;
+        var client_secret = this._settings.client_secret;
+        return this._revoke(url, client_id, client_secret, token, type);
     }
 
     _revoke(url: string, client_id: string, client_secret: string | undefined, token: string, type: string) {

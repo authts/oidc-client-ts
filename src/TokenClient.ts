@@ -22,7 +22,7 @@ export class TokenClient {
         this._metadataService = new MetadataServiceCtor(this._settings);
     }
 
-    exchangeCode(args:any = {}): Promise<any> {
+    async exchangeCode(args:any = {}): Promise<any> {
         args = Object.assign({}, args);
 
         args.grant_type = args.grant_type || "authorization_code";
@@ -36,23 +36,23 @@ export class TokenClient {
 
         if (!args.code) {
             Log.error("TokenClient.exchangeCode: No code passed");
-            return Promise.reject(new Error("A code is required"));
+            throw new Error("A code is required");
         }
         if (!args.redirect_uri) {
             Log.error("TokenClient.exchangeCode: No redirect_uri passed");
-            return Promise.reject(new Error("A redirect_uri is required"));
+            throw new Error("A redirect_uri is required");
         }
         if (!args.code_verifier) {
             Log.error("TokenClient.exchangeCode: No code_verifier passed");
-            return Promise.reject(new Error("A code_verifier is required"));
+            throw new Error("A code_verifier is required");
         }
         if (!args.client_id) {
             Log.error("TokenClient.exchangeCode: No client_id passed");
-            return Promise.reject(new Error("A client_id is required"));
+            throw new Error("A client_id is required");
         }
         if (!args.client_secret && client_authentication == "client_secret_basic") {
             Log.error("TokenClient.exchangeCode: No client_secret passed");
-            return Promise.reject(new Error("A client_secret is required"));
+            throw new Error("A client_secret is required");
         }
 
         // Sending the client credentials using the Basic Auth method
@@ -63,16 +63,16 @@ export class TokenClient {
             delete args.client_secret;
         }
 
-        return this._metadataService.getTokenEndpoint(false).then(url => {
-            Log.debug("TokenClient.exchangeCode: Received token endpoint");
-            return this._jsonService.postForm(url as string, args, basicAuth).then(response => {
-                Log.debug("TokenClient.exchangeCode: response received");
-                return response;
-            });
-        });
+        const url = await this._metadataService.getTokenEndpoint(false);
+        Log.debug("TokenClient.exchangeCode: Received token endpoint");
+
+        const response = await this._jsonService.postForm(url as string, args, basicAuth);
+        Log.debug("TokenClient.exchangeCode: response received");
+
+        return response;
     }
 
-    exchangeRefreshToken(args: any = {}) {
+    async exchangeRefreshToken(args: any = {}) {
         args = Object.assign({}, args);
 
         args.grant_type = args.grant_type || "refresh_token";
@@ -85,11 +85,11 @@ export class TokenClient {
 
         if (!args.refresh_token) {
             Log.error("TokenClient.exchangeRefreshToken: No refresh_token passed");
-            return Promise.reject(new Error("A refresh_token is required"));
+            throw new Error("A refresh_token is required");
         }
         if (!args.client_id) {
             Log.error("TokenClient.exchangeRefreshToken: No client_id passed");
-            return Promise.reject(new Error("A client_id is required"));
+            throw new Error("A client_id is required");
         }
 
         // Sending the client credentials using the Basic Auth method
@@ -100,13 +100,12 @@ export class TokenClient {
             delete args.client_secret;
         }
 
-        return this._metadataService.getTokenEndpoint(false).then(url => {
-            Log.debug("TokenClient.exchangeRefreshToken: Received token endpoint");
+        const url = await this._metadataService.getTokenEndpoint(false);
+        Log.debug("TokenClient.exchangeRefreshToken: Received token endpoint");
 
-            return this._jsonService.postForm(url as string, args, basicAuth).then(response => {
-                Log.debug("TokenClient.exchangeRefreshToken: response received");
-                return response;
-            });
-        });
+        const response = await this._jsonService.postForm(url as string, args, basicAuth);
+        Log.debug("TokenClient.exchangeRefreshToken: response received");
+
+        return response;
     }
 }
