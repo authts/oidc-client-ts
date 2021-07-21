@@ -4,109 +4,83 @@
 import { Log } from '../../src/utils';
 import { JsonService } from '../../src/JsonService';
 
-class XMLHttpRequestMock {
-    method: any;
-    headers: Map<string, string>;
-    url: any;
-
-    responseHeaders: Map<string, string>;
-    responseText?: string;
-    status?: number;
-    statusText?: string;
-
-    constructor() {
-        this.headers = new Map();
-        this.responseHeaders = new Map();
-        this.responseText = undefined;
-        this.status = undefined;
-        this.statusText = undefined;
-
-        xmlHttpRequestMock = this;
-    }
-
-    open(method: string, url: string) {
-        this.method = method;
-        this.url = url;
-    }
-
-    setRequestHeader(header: string, value: string) {
-        this.headers.set(header, value);
-    }
-
-    getResponseHeader(name: string) {
-        return this.responseHeaders.get(name);
-    }
-
-    send(_body?: Document | BodyInit | null) {
-    }
-    onload(_ev: ProgressEvent) {
-    }
-    onerror(_ev: ProgressEvent) {
-    }
-}
-let xmlHttpRequestMock = new XMLHttpRequestMock();
-
 describe("JsonService", () => {
     let subject: JsonService;
+    let fetchMock: jest.Mock<any, any>
 
     beforeEach(() =>{
         Log.logger = console;
         Log.level = Log.NONE;
 
-        subject = new JsonService(null, XMLHttpRequestMock as unknown as typeof XMLHttpRequest);
+        fetchMock = jest.fn();
+        global.fetch = fetchMock;
+
+        subject = new JsonService();
     });
 
     describe("getJson", () => {
 
-        it("should return a promise", () => {
+        it("should return a promise", async () => {
             // act
             let p = subject.getJson("http://test");
 
             // assert
             expect(p).toBeInstanceOf(Promise);
+            try { await p; } catch {}
         });
 
-        it("should make GET request to url", () => {
+        it("should make GET request to url", async () => {
             // act
-            subject.getJson("http://test");
+            let p = subject.getJson("http://test");
 
             // assert
-            expect(xmlHttpRequestMock.method).toEqual('GET');
-            expect(xmlHttpRequestMock.url).toEqual('http://test');
+            expect(fetchMock).toBeCalledWith('http://test', {
+                headers: {},
+                method: 'GET'
+            });
+            try { await p; } catch {}
         });
 
-        it("should set token as authorization header", () => {
+        it("should set token as authorization header", async () => {
             // act
-            subject.getJson("http://test", "token");
+            let p = subject.getJson("http://test", "token");
 
             // assert
-            expect(xmlHttpRequestMock.headers.has('Authorization')).toEqual(true);
-            expect(xmlHttpRequestMock.headers.get('Authorization')).toEqual('Bearer token');
+            expect(fetchMock).toBeCalledWith('http://test', {
+                headers: { Authorization: 'Bearer token' },
+                method: 'GET'
+            });
+            try { await p; } catch {}
         });
 
         it("should fulfill promise when http response is 200", async () => {
+            // arrange
+            const json = { foo: 1, bar: 'test' };
+            fetchMock.mockResolvedValue({
+                status: 200,
+                headers: new Headers({
+                    'Content-Type': 'application/json'
+                }),
+                json: () => Promise.resolve(json)
+            });
+
             // act
-            let p = subject.getJson("http://test");
-            xmlHttpRequestMock.status = 200;
-            xmlHttpRequestMock.responseHeaders.set('Content-Type', 'application/json');
-            xmlHttpRequestMock.responseText = JSON.stringify({foo:1, bar:'test'});
-            xmlHttpRequestMock.onload(new ProgressEvent("dummy"));
-            let result = await p;
+            const result = await subject.getJson("http://test");
 
             // assert
-            expect(result).not.toBeUndefined();
-            expect(result.foo).toEqual(1);
-            expect(result.bar).toEqual("test");
+            expect(result).toEqual(json);
         });
 
         it("should reject promise when http response is not 200", async () => {
+            // arrange
+            fetchMock.mockResolvedValue({
+                status: 500,
+                statusText: "server error"
+            });
+
             // act
-            let p = subject.getJson("http://test");
-            xmlHttpRequestMock.status = 500;
-            xmlHttpRequestMock.statusText = "server error";
-            xmlHttpRequestMock.onload(new ProgressEvent("dummy"));
             try {
-                await p;
+                await subject.getJson("http://test");
                 fail("should not come here");
             } catch (error) {
                 expect(error).toBeInstanceOf(Error);
@@ -116,11 +90,12 @@ describe("JsonService", () => {
         });
 
         it("should reject promise when http response is error", async () => {
+            // arrange
+            fetchMock.mockRejectedValue({});
+
             // act
-            let p = subject.getJson("http://test");
-            xmlHttpRequestMock.onerror(new ProgressEvent("dummy"));
             try {
-                await p;
+                await subject.getJson("http://test");
                 fail("should not come here");
             } catch (error) {
                 expect(error).toBeInstanceOf(Error);
@@ -129,14 +104,19 @@ describe("JsonService", () => {
         });
 
         it("should reject promise when http response content type is not json", async () => {
+            // arrange
+            const json = { foo: 1, bar: 'test' };
+            fetchMock.mockResolvedValue({
+                status: 200,
+                headers: new Headers({
+                    'Content-Type': 'text/html'
+                }),
+                json: () => Promise.resolve(json)
+            });
+
             // act
-            let p = subject.getJson("http://test");
-            xmlHttpRequestMock.status = 200;
-            xmlHttpRequestMock.responseHeaders.set('Content-Type', 'text/html');
-            xmlHttpRequestMock.responseText = JSON.stringify({foo:1, bar:'test'});
-            xmlHttpRequestMock.onload(new ProgressEvent("dummy"));
             try {
-                await p;
+                await subject.getJson("http://test");
                 fail("should not come here");
             } catch (error) {
                 expect(error).toBeInstanceOf(Error);
@@ -146,18 +126,21 @@ describe("JsonService", () => {
 
         it("should accept custom content type in response", async () => {
             // arrange
-            subject = new JsonService(['foo/bar'], XMLHttpRequestMock as unknown as typeof XMLHttpRequest);
+            subject = new JsonService(['foo/bar']);
+            const json = { foo: 1, bar: 'test' };
+            fetchMock.mockResolvedValue({
+                status: 200,
+                headers: new Headers({
+                    'Content-Type': 'foo/bar'
+                }),
+                json: () => Promise.resolve(json)
+            });
 
             // act
-            let p = subject.getJson("http://test");
-            xmlHttpRequestMock.status = 200;
-            xmlHttpRequestMock.responseHeaders.set('Content-Type', 'foo/bar');
-            xmlHttpRequestMock.responseText = JSON.stringify({foo:1, bar:'test'});
-            xmlHttpRequestMock.onload(new ProgressEvent("dummy"));
-            let result = await p;
+            let result = await subject.getJson("http://test");
 
             // assert
-            expect(result.foo).toEqual(1);
+            expect(result).toEqual(json);
         });
     });
 });

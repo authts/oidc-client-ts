@@ -10,17 +10,15 @@ const RefreshTokenTypeHint = "refresh_token";
 
 export class TokenRevocationClient {
     private _settings: OidcClientSettingsStore
-    private _XMLHttpRequestCtor: typeof XMLHttpRequest;
     private _metadataService: MetadataService;
 
-    constructor(settings: OidcClientSettingsStore, XMLHttpRequestCtor = XMLHttpRequest, MetadataServiceCtor = MetadataService) {
+    constructor(settings: OidcClientSettingsStore, MetadataServiceCtor = MetadataService) {
         if (!settings) {
             Log.error("TokenRevocationClient.ctor: No settings provided");
             throw new Error("No settings provided.");
         }
 
         this._settings = settings;
-        this._XMLHttpRequestCtor = XMLHttpRequestCtor;
         this._metadataService = new MetadataServiceCtor(this._settings);
     }
 
@@ -52,37 +50,31 @@ export class TokenRevocationClient {
         return this._revoke(url, client_id, client_secret, token, type);
     }
 
-    _revoke(url: string, client_id: string, client_secret: string | undefined, token: string, type: string) {
+    async _revoke(url: string, client_id: string, client_secret: string | undefined, token: string, type: string) {
+        const headers: HeadersInit = {
+            "Content-Type": "application/x-www-form-urlencoded",
+        };
 
-        return new Promise<void>((resolve, reject) => {
+        const body = new URLSearchParams();
+        body.set("client_id", client_id);
+        if (client_secret) {
+            body.set("client_secret", client_secret);
+        }
+        body.set("token_type_hint", type);
+        body.set("token", token);
 
-            var xhr = new this._XMLHttpRequestCtor();
-            xhr.open("POST", url);
+        let response: Response;
+        try {
+            Log.debug("TokenRevocationClient.revoke, url: ", url);
+            response = await fetch(url, { method: 'POST', headers, body });
+        } catch (err) {
+            Log.error("TokenRevocationClient.revoke: network error");
+            throw new Error("Network Error");
+        }
 
-            xhr.onload = () => {
-                Log.debug("TokenRevocationClient.revoke: HTTP response received, status", xhr.status);
-
-                if (xhr.status === 200) {
-                    resolve();
-                }
-                else {
-                    reject(Error(xhr.statusText + " (" + xhr.status + ")"));
-                }
-            };
-            xhr.onerror = () => {
-                Log.debug("TokenRevocationClient.revoke: Network Error.")
-                reject("Network Error");
-            };
-
-            var body = "client_id=" + encodeURIComponent(client_id);
-            if (client_secret) {
-                body += "&client_secret=" + encodeURIComponent(client_secret);
-            }
-            body += "&token_type_hint=" + encodeURIComponent(type);
-            body += "&token=" + encodeURIComponent(token);
-
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.send(body);
-        });
+        Log.debug("TokenRevocationClient.revoke: HTTP response received, status", response.status);
+        if (response.status !== 200) {
+            throw new Error(response.statusText + " (" + response.status + ")");
+        }
     }
 }
