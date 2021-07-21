@@ -2,12 +2,23 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log } from './Log';
-import { Global } from './Global';
 import { Event } from './Event';
 
 const TimerDuration = 5; // seconds
 
-export type IntervalTimer = { setInterval: (cb: (...args: any[]) => void, duration?: number | undefined) => number; clearInterval: (handle: number) => void; };
+export type IntervalTimer = {
+    setInterval: (cb: (...args: any[]) => void, duration?: number | undefined) => number;
+    clearInterval: (handle: number) => void;
+};
+export const g_timer: IntervalTimer = {
+    setInterval: function (cb: (...args: any[]) => void, duration?: number): number {
+        // @ts-ignore
+        return setInterval(cb, duration);
+    },
+    clearInterval: function (handle: number): void {
+        return clearInterval(handle);
+    }
+};
 
 export class Timer extends Event {
     private _timer: IntervalTimer;
@@ -15,7 +26,7 @@ export class Timer extends Event {
     private _timerHandle: number | null;
     private _expiration: number;
 
-    constructor(name: string, timer = Global.timer, nowFunc?: (() => number)) {
+    constructor(name: string, timer = g_timer, nowFunc?: (() => number)) {
         super(name);
         this._timer = timer;
 

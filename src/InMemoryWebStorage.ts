@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from './Log';
+import { Log } from './utils';
 
 export class InMemoryWebStorage implements Storage {
     private _data: Record<string, any>;

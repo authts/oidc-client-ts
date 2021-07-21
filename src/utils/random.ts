@@ -19,7 +19,7 @@ function _uuidv4() {
     )
 }
 
-export default function random(): string {
+export function random(): string {
     const hasRandomValues = crypto && crypto.hasOwnProperty("getRandomValues");
     var uuid = hasRandomValues ? _cryptoUuidv4 : _uuidv4;
     return uuid().replace(/-/g, '');

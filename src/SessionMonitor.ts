@@ -1,11 +1,9 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from './Log';
+import { Log, g_timer, IntervalTimer } from './utils';
 import { CheckSessionIFrame } from './CheckSessionIFrame';
-import { Global } from './Global';
 import { UserManager } from './UserManager';
-import { IntervalTimer } from './Timer';
 
 export class SessionMonitor {
     private _userManager: UserManager;
@@ -15,7 +13,7 @@ export class SessionMonitor {
     private _sid: any;
     private _checkSessionIFrame?: CheckSessionIFrame;
 
-    constructor(userManager: UserManager, CheckSessionIFrameCtor = CheckSessionIFrame, timer = Global.timer) {
+    constructor(userManager: UserManager, CheckSessionIFrameCtor = CheckSessionIFrame, timer = g_timer) {
         if (!userManager) {
             Log.error("SessionMonitor.ctor: No user manager passed to SessionMonitor");
             throw new Error("userManager");

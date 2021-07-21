@@ -40,7 +40,7 @@
   "jest": {
     "clearMocks": true,
     "testMatch": [
-      "**/test/unit/*.test.ts"
+      "**/test/unit/**/*.test.ts"
     ]
   },
   "engines": {
