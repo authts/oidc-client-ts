@@ -2,9 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { OidcClientSettings, OidcClientSettingsStore } from './OidcClientSettings';
-import { RedirectNavigator } from './RedirectNavigator';
-import { PopupNavigator } from './PopupNavigator';
-import { IFrameNavigator } from './IFrameNavigator';
+import { RedirectNavigator, PopupNavigator, IFrameNavigator } from './navigators';
 import { WebStorageStateStore } from './WebStorageStateStore';
 import { SigninRequest } from './SigninRequest';
 

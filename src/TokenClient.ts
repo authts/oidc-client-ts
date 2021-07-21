@@ -3,7 +3,7 @@
 
 import { JsonService } from './JsonService';
 import { MetadataService } from './MetadataService';
-import { Log } from './Log';
+import { Log } from './utils';
 import { OidcClientSettingsStore } from './OidcClientSettings';
 
 export class TokenClient {

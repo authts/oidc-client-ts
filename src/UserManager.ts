@@ -1,7 +1,8 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from './Log';
+import { Log, JoseUtil } from './utils';
+import { INavigator, IFrameNavigator, PopupNavigator } from './navigators';
 import { OidcClient } from './OidcClient';
 import { UserManagerSettings, UserManagerSettingsStore } from './UserManagerSettings';
 import { User } from './User';
@@ -11,10 +12,6 @@ import { SessionMonitor } from './SessionMonitor';
 import { SigninRequest } from "./SigninRequest";
 import { TokenRevocationClient } from './TokenRevocationClient';
 import { TokenClient } from './TokenClient';
-import { JoseUtil } from './JoseUtil';
-import { INavigator } from './INavigator';
-import { IFrameNavigator } from './IFrameNavigator';
-import { PopupNavigator } from './PopupNavigator';
 import { SessionStatus } from './SessionStatus'
 import { SignoutResponse } from './SignoutResponse';
 
