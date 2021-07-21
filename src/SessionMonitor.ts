@@ -26,32 +26,33 @@ export class SessionMonitor {
         this._userManager.events.addUserLoaded(this._start.bind(this));
         this._userManager.events.addUserUnloaded(this._stop.bind(this));
 
-        Promise.resolve(this._userManager.getUser().then(user => {
-            // doing this manually here since calling getUser
-            // doesn't trigger load event.
-            if (user) {
-                this._start(user);
-            }
-            else if (this._settings.monitorAnonymousSession) {
-                this._userManager.querySessionStatus().then((session: any) => {
-                    let tmpUser = {
-                        session_state: session.session_state,
-                        profile: session.sub && session.sid ? {
-                            sub: session.sub,
-                            sid: session.sid
-                        } : null
-                    };
-                    this._start(tmpUser);
-                })
-                .catch((err: Error) => {
-                    // catch to suppress errors since we're in a ctor
-                    Log.error("SessionMonitor ctor: error from querySessionStatus:", err.message);
-                });
-            }
-        }).catch((err: Error) => {
+        Promise.resolve(this._init())
+        .catch((err: Error) => {
             // catch to suppress errors since we're in a ctor
-            Log.error("SessionMonitor ctor: error from getUser:", err.message);
-        }));
+            Log.error("SessionMonitor ctor: error:", err.message);
+        });
+    }
+
+    private async _init() {
+        const user = await this._userManager.getUser();
+        // doing this manually here since calling getUser
+        // doesn't trigger load event.
+        if (user) {
+            this._start(user);
+        }
+        else if (this._settings.monitorAnonymousSession) {
+            const session = await this._userManager.querySessionStatus();
+            if (session) {
+                let tmpUser = {
+                    session_state: session.session_state,
+                    profile: session.sub && session.sid ? {
+                        sub: session.sub,
+                        sid: session.sid
+                    } : null
+                };
+                this._start(tmpUser);
+            }
+        }
     }
 
     get _settings() {
@@ -70,7 +71,7 @@ export class SessionMonitor {
         return this._settings.stopCheckSessionOnError;
     }
 
-    _start(user: any) {
+    async _start(user: any) {
         let session_state = user.session_state;
 
         if (session_state) {
@@ -86,7 +87,8 @@ export class SessionMonitor {
             }
 
             if (!this._checkSessionIFrame) {
-                this._metadataService.getCheckSessionIframe().then(url => {
+                try {
+                    const url = await this._metadataService.getCheckSessionIframe();
                     if (url) {
                         Log.debug("SessionMonitor._start: Initializing check session iframe")
 
@@ -95,18 +97,18 @@ export class SessionMonitor {
                         let stopOnError = this._stopCheckSessionOnError;
 
                         this._checkSessionIFrame = new this._CheckSessionIFrameCtor(this._callback.bind(this), client_id, url, interval, stopOnError);
-                        this._checkSessionIFrame.load().then(() => {
-                            this._checkSessionIFrame &&
-                            this._checkSessionIFrame.start(session_state);
-                        });
+                        await this._checkSessionIFrame.load();
+                        this._checkSessionIFrame &&
+                        this._checkSessionIFrame.start(session_state);
                     }
                     else {
                         Log.warn("SessionMonitor._start: No check session iframe found in the metadata");
                     }
-                }).catch(err => {
+                }
+                catch (err) {
                     // catch to suppress errors since we're in non-promise callback
                     Log.error("SessionMonitor._start: Error from getCheckSessionIframe:", err.message);
-                });
+                }
             }
             else {
                 this._checkSessionIFrame.start(session_state);
@@ -125,10 +127,11 @@ export class SessionMonitor {
 
         if (this._settings.monitorAnonymousSession) {
             // using a timer to delay re-initialization to avoid race conditions during signout
-            let timerHandle = this._timer.setInterval(()=>{
+            let timerHandle = this._timer.setInterval(async () => {
                 this._timer.clearInterval(timerHandle);
 
-                this._userManager.querySessionStatus().then((session: any) => {
+                try {
+                    const session: any = await this._userManager.querySessionStatus();
                     let tmpUser = {
                         session_state: session.session_state,
                         profile: session.sub && session.sid ? {
@@ -137,18 +140,18 @@ export class SessionMonitor {
                         } : null
                     };
                     this._start(tmpUser);
-                })
-                .catch((err: Error) => {
+                }
+                catch(err) {
                     // catch to suppress errors since we're in a callback
                     Log.error("SessionMonitor: error from querySessionStatus:", err.message);
-                });
-
+                }
             }, 1000);
         }
     }
 
-    _callback() {
-        this._userManager.querySessionStatus().then((session: any) => {
+    async _callback() {
+        try {
+            const session: any = await this._userManager.querySessionStatus();
             var raiseEvent = true;
 
             if (session && this._checkSessionIFrame) {
@@ -182,11 +185,12 @@ export class SessionMonitor {
                     this._userManager.events._raiseUserSignedIn();
                 }
             }
-        }).catch((err: Error) => {
+        }
+        catch(err) {
             if (this._sub) {
                 Log.debug("SessionMonitor._callback: Error calling queryCurrentSigninSession; raising signed out event", err.message);
                 this._userManager.events._raiseUserSignedOut();
             }
-        });
+        }
     }
 }

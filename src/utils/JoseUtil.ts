@@ -34,24 +34,24 @@ export class JoseUtil {
                     key = X509.getPublicKeyFromCertHex(hex);
                 } else {
                     Log.error("JoseUtil.validateJwt: RSA key missing key material", key);
-                    return Promise.reject(new Error("RSA key missing key material"));
+                    throw new Error("RSA key missing key material");
                 }
             } else if (key.kty === "EC") {
                 if (key.crv && key.x && key.y) {
                     key = KeyUtil.getKey(key);
                 } else {
                     Log.error("JoseUtil.validateJwt: EC key missing key material", key);
-                    return Promise.reject(new Error("EC key missing key material"));
+                    throw new Error("EC key missing key material");
                 }
             } else {
                 Log.error("JoseUtil.validateJwt: Unsupported key type", key && key.kty);
-                return Promise.reject(new Error("Unsupported key type: " + key && key.kty));
+                throw new Error("Unsupported key type: " + key && key.kty);
             }
 
             return JoseUtil._validateJwt(jwt, key, issuer, audience, clockSkew, now, timeInsensitive);
         } catch (e) {
             Log.error(e && e.message || e);
-            return Promise.reject("JWT validation failed");
+            throw e;
         }
     }
 
@@ -66,31 +66,31 @@ export class JoseUtil {
 
         const parsedJwt = JoseUtil.parseJwt(jwt);
         if (!parsedJwt || !parsedJwt.payload) {
-            return Promise.reject(new Error("Failed to parse token"));
+            throw new Error("Failed to parse token");
         }
 
         const payload: any = parsedJwt.payload;
         if (!payload.iss) {
             Log.error("JoseUtil._validateJwt: issuer was not provided");
-            return Promise.reject(new Error("issuer was not provided"));
+            throw new Error("issuer was not provided");
         }
         if (payload.iss !== issuer) {
             Log.error("JoseUtil._validateJwt: Invalid issuer in token", payload.iss);
-            return Promise.reject(new Error("Invalid issuer in token: " + payload.iss));
+            throw new Error("Invalid issuer in token: " + payload.iss);
         }
 
         if (!payload.aud) {
             Log.error("JoseUtil._validateJwt: aud was not provided");
-            return Promise.reject(new Error("aud was not provided"));
+            throw new Error("aud was not provided");
         }
         var validAudience = payload.aud === audience || (Array.isArray(payload.aud) && payload.aud.indexOf(audience) >= 0);
         if (!validAudience) {
             Log.error("JoseUtil._validateJwt: Invalid audience in token", payload.aud);
-            return Promise.reject(new Error("Invalid audience in token: " + payload.aud));
+            throw new Error("Invalid audience in token: " + payload.aud);
         }
         if (payload.azp && payload.azp !== audience) {
             Log.error("JoseUtil._validateJwt: Invalid azp in token", payload.azp);
-            return Promise.reject(new Error("Invalid azp in token: " + payload.azp));
+            throw new Error("Invalid azp in token: " + payload.azp);
         }
 
         if (!timeInsensitive) {
@@ -99,46 +99,48 @@ export class JoseUtil {
 
             if (!payload.iat) {
                 Log.error("JoseUtil._validateJwt: iat was not provided");
-                return Promise.reject(new Error("iat was not provided"));
+                throw new Error("iat was not provided");
             }
             if (lowerNow < payload.iat) {
                 Log.error("JoseUtil._validateJwt: iat is in the future", payload.iat);
-                return Promise.reject(new Error("iat is in the future: " + payload.iat));
+                throw new Error("iat is in the future: " + payload.iat);
             }
 
             if (payload.nbf && lowerNow < payload.nbf) {
                 Log.error("JoseUtil._validateJwt: nbf is in the future", payload.nbf);
-                return Promise.reject(new Error("nbf is in the future: " + payload.nbf));
+                throw new Error("nbf is in the future: " + payload.nbf);
             }
 
             if (!payload.exp) {
                 Log.error("JoseUtil._validateJwt: exp was not provided");
-                return Promise.reject(new Error("exp was not provided"));
+                throw new Error("exp was not provided");
             }
             if (payload.exp < upperNow) {
                 Log.error("JoseUtil._validateJwt: exp is in the past", payload.exp);
-                return Promise.reject(new Error("exp is in the past:" + payload.exp));
+                throw new Error("exp is in the past:" + payload.exp);
             }
         }
 
-        return Promise.resolve(payload);
+        return payload;
     }
 
     static _validateJwt(jwt: any, key: string, issuer: string, audience: string, clockSkew: number, now?: number, timeInsensitive = false) {
+        const payload = JoseUtil.validateJwtAttributes(jwt, issuer, audience, clockSkew, now, timeInsensitive);
 
-        return JoseUtil.validateJwtAttributes(jwt, issuer, audience, clockSkew, now, timeInsensitive).then(payload => {
-            try {
-                if (!KJUR.jws.JWS.verify(jwt, key, AllowedSigningAlgs)) {
-                    Log.error("JoseUtil._validateJwt: signature validation failed");
-                    return Promise.reject(new Error("signature validation failed"));
-                }
+        let isValid: boolean;
+        try {
+            isValid = KJUR.jws.JWS.verify(jwt, key, AllowedSigningAlgs);
+        } catch (e) {
+            Log.error(e && e.message || e);
+            throw new Error("signature validation failed");
+        }
 
-                return payload;
-            } catch (e) {
-                Log.error(e && e.message || e);
-                return Promise.reject(new Error("signature validation failed"));
-            }
-        });
+        if (!isValid) {
+            Log.error("JoseUtil._validateJwt: signature validation failed");
+            throw new Error("signature validation failed");
+        }
+
+        return payload;
     }
 
     static hashString(value: any, alg: string) {

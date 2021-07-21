@@ -9,7 +9,7 @@ export class SignoutResponse {
     public error_uri?: string;
     public state?: any;
 
-    constructor(url: string) {
+    constructor(url?: string) {
         var values = UrlUtility.parseUrlFragment(url, "?");
 
         this.error = values.error;

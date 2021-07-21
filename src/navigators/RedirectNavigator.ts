@@ -14,7 +14,7 @@ export class RedirectNavigator implements INavigator, IWindow {
     navigate(params: any) {
         if (!params || !params.url) {
             Log.error("RedirectNavigator.navigate: No url provided");
-            return Promise.reject(new Error("No url provided"));
+            throw new Error("No url provided");
         }
 
         if (params.useReplaceToNavigate) {

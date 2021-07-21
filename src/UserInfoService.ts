@@ -26,96 +26,91 @@ export class UserInfoService {
         this._metadataService = new MetadataServiceCtor(this._settings);
     }
 
-    getClaims(token?: string) {
+    async getClaims(token?: string) {
         if (!token) {
             Log.error("UserInfoService.getClaims: No token passed");
-            return Promise.reject(new Error("A token is required"));
+            throw new Error("A token is required");
         }
 
-        return this._metadataService.getUserInfoEndpoint().then(url => {
-            Log.debug("UserInfoService.getClaims: received userinfo url", url);
+        const url = await this._metadataService.getUserInfoEndpoint();
+        Log.debug("UserInfoService.getClaims: received userinfo url", url);
 
-            return this._jsonService.getJson(url, token).then(claims => {
-                Log.debug("UserInfoService.getClaims: claims received", claims);
-                return claims;
-            });
-        });
+        const claims = await this._jsonService.getJson(url, token);
+        Log.debug("UserInfoService.getClaims: claims received", claims);
+
+        return claims;
     }
 
-    _getClaimsFromJwt(req: any) {
+    async _getClaimsFromJwt(req: any) {
         try {
             const jwt = JoseUtil.parseJwt(req.responseText);
             if (!jwt || !jwt.header || !jwt.payload) {
                 Log.error("UserInfoService._getClaimsFromJwt: Failed to parse JWT", jwt);
-                return Promise.reject(new Error("Failed to parse id_token"));
+                throw new Error("Failed to parse id_token");
             }
 
             const header: any = jwt.header;
             const payload: any = jwt.payload;
 
-            let issuerPromise;
+            let issuer: string;
             switch (this._settings.userInfoJwtIssuer) {
                 case 'OP':
-                    issuerPromise = this._metadataService.getIssuer();
+                    issuer = await this._metadataService.getIssuer();
                     break;
                 case 'ANY':
-                    issuerPromise = Promise.resolve(payload.iss);
+                    issuer = payload.iss;
                     break;
                 default:
-                    issuerPromise = Promise.resolve(this._settings.userInfoJwtIssuer);
+                    issuer = this._settings.userInfoJwtIssuer as string;
                     break;
             }
 
-            return issuerPromise.then(issuer => {
-                Log.debug("UserInfoService._getClaimsFromJwt: Received issuer:" + issuer);
+            Log.debug("UserInfoService._getClaimsFromJwt: Received issuer:" + issuer);
 
-                return this._metadataService.getSigningKeys().then(keys => {
-                    if (!keys) {
-                        Log.error("UserInfoService._getClaimsFromJwt: No signing keys from metadata");
-                        return Promise.reject(new Error("No signing keys from metadata"));
-                    }
+            let keys = await this._metadataService.getSigningKeys();
+            if (!keys) {
+                Log.error("UserInfoService._getClaimsFromJwt: No signing keys from metadata");
+                throw new Error("No signing keys from metadata");
+            }
 
-                    Log.debug("UserInfoService._getClaimsFromJwt: Received signing keys");
-                    let key;
-                    if (!header.kid) {
-                        keys = this._filterByAlg(keys, jwt.header.alg);
+            Log.debug("UserInfoService._getClaimsFromJwt: Received signing keys");
+            let key;
+            if (!header.kid) {
+                keys = this._filterByAlg(keys, jwt.header.alg);
 
-                        if (keys.length > 1) {
-                            Log.error("UserInfoService._getClaimsFromJwt: No kid found in id_token and more than one key found in metadata");
-                            return Promise.reject(new Error("No kid found in id_token and more than one key found in metadata"));
-                        }
-                        else {
-                            // kid is mandatory only when there are multiple keys in the referenced JWK Set document
-                            // see http://openid.net/specs/openid-connect-core-1_0.html#Signing
-                            key = keys[0];
-                        }
-                    }
-                    else {
-                        key = keys.filter(key => {
-                            return key.kid === header.kid;
-                        })[0];
-                    }
+                if (keys.length > 1) {
+                    Log.error("UserInfoService._getClaimsFromJwt: No kid found in id_token and more than one key found in metadata");
+                    throw new Error("No kid found in id_token and more than one key found in metadata");
+                }
+                else {
+                    // kid is mandatory only when there are multiple keys in the referenced JWK Set document
+                    // see http://openid.net/specs/openid-connect-core-1_0.html#Signing
+                    key = keys[0];
+                }
+            }
+            else {
+                key = keys.filter(key => {
+                    return key.kid === header.kid;
+                })[0];
+            }
 
-                    if (!key) {
-                        Log.error("UserInfoService._getClaimsFromJwt: No key matching kid or alg found in signing keys");
-                        return Promise.reject(new Error("No key matching kid or alg found in signing keys"));
-                    }
+            if (!key) {
+                Log.error("UserInfoService._getClaimsFromJwt: No key matching kid or alg found in signing keys");
+                throw new Error("No key matching kid or alg found in signing keys");
+            }
 
-                    let audience = this._settings.client_id;
+            let audience = this._settings.client_id;
 
-                    let clockSkewInSeconds = this._settings.clockSkew;
-                    Log.debug("UserInfoService._getClaimsFromJwt: Validaing JWT; using clock skew (in seconds) of: ", clockSkewInSeconds);
+            let clockSkewInSeconds = this._settings.clockSkew;
+            Log.debug("UserInfoService._getClaimsFromJwt: Validaing JWT; using clock skew (in seconds) of: ", clockSkewInSeconds);
 
-                    return JoseUtil.validateJwt(req.responseText, key, issuer, audience, clockSkewInSeconds, undefined, true).then(() => {
-                        Log.debug("UserInfoService._getClaimsFromJwt: JWT validation successful");
-                        return payload;
-                    });
-                });
-            });
+            await JoseUtil.validateJwt(req.responseText, key, issuer, audience, clockSkewInSeconds, undefined, true);
+            Log.debug("UserInfoService._getClaimsFromJwt: JWT validation successful");
+            return payload;
         }
         catch (e) {
             Log.error("UserInfoService._getClaimsFromJwt: Error parsing JWT response", e.message);
-            return Promise.reject(e);
+            throw e;
         }
     }
 

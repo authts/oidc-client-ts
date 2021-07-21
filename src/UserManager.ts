@@ -75,85 +75,81 @@ export class UserManager extends OidcClient {
         return this._events;
     }
 
-    getUser(): Promise<User | null> {
-        return this._loadUser().then(user => {
-            if (user) {
-                Log.info("UserManager.getUser: user loaded");
+    async getUser(): Promise<User | null> {
+        const user = await this._loadUser();
+        if (user) {
+            Log.info("UserManager.getUser: user loaded");
 
-                this._events.load(user, false);
+            this._events.load(user, false);
 
-                return user;
-            }
-            else {
-                Log.info("UserManager.getUser: user not found in storage");
-                return null;
-            }
-        });
+            return user;
+        }
+        else {
+            Log.info("UserManager.getUser: user not found in storage");
+            return null;
+        }
     }
 
-    removeUser(): Promise<void> {
-        return this.storeUser(null).then(() => {
-            Log.info("UserManager.removeUser: user removed from storage");
-            this._events.unload();
-        });
+    async removeUser(): Promise<void> {
+        await this.storeUser(null);
+        Log.info("UserManager.removeUser: user removed from storage");
+        this._events.unload();
     }
 
-    signinRedirect(args: any = {}): Promise<void> {
+    async signinRedirect(args: any = {}): Promise<void> {
         args = Object.assign({}, args);
 
         args.request_type = "si:r";
         let navParams = {
             useReplaceToNavigate : args.useReplaceToNavigate
         };
-        return this._signinStart(args, this._redirectNavigator, navParams).then(()=>{
-            Log.info("UserManager.signinRedirect: successful");
-        });
+        await this._signinStart(args, this._redirectNavigator, navParams);
+        Log.info("UserManager.signinRedirect: successful");
     }
-    signinRedirectCallback(url?: string): Promise<User> {
-        return this._signinEnd(url || this._redirectNavigator.url).then(user => {
-            if (user.profile && user.profile.sub) {
-                Log.info("UserManager.signinRedirectCallback: successful, signed in sub: ", user.profile.sub);
-            }
-            else {
-                Log.info("UserManager.signinRedirectCallback: no sub");
-            }
+    async signinRedirectCallback(url?: string): Promise<User> {
+        const user = await this._signinEnd(url || this._redirectNavigator.url);
+        if (user.profile && user.profile.sub) {
+            Log.info("UserManager.signinRedirectCallback: successful, signed in sub: ", user.profile.sub);
+        }
+        else {
+            Log.info("UserManager.signinRedirectCallback: no sub");
+        }
 
-            return user;
-        });
+        return user;
     }
 
-    signinPopup(args: any = {}): Promise<User> {
+    async signinPopup(args: any = {}): Promise<User> {
         args = Object.assign({}, args);
 
         args.request_type = "si:p";
         let url = args.redirect_uri || this.settings.popup_redirect_uri || this.settings.redirect_uri;
         if (!url) {
             Log.error("UserManager.signinPopup: No popup_redirect_uri or redirect_uri configured");
-            return Promise.reject(new Error("No popup_redirect_uri or redirect_uri configured"));
+            throw new Error("No popup_redirect_uri or redirect_uri configured");
         }
 
         args.redirect_uri = url;
         args.display = "popup";
 
-        return this._signin(args, this._popupNavigator, {
+        const user = await this._signin(args, this._popupNavigator, {
             startUrl: url,
             popupWindowFeatures: args.popupWindowFeatures || this.settings.popupWindowFeatures,
             popupWindowTarget: args.popupWindowTarget || this.settings.popupWindowTarget
-        }).then(user => {
-            if (user) {
-                if (user.profile && user.profile.sub) {
-                    Log.info("UserManager.signinPopup: signinPopup successful, signed in sub: ", user.profile.sub);
-                }
-                else {
-                    Log.info("UserManager.signinPopup: no sub");
-                }
-            }
-
-            return user;
         });
+        if (user) {
+            if (user.profile && user.profile.sub) {
+                Log.info("UserManager.signinPopup: signinPopup successful, signed in sub: ", user.profile.sub);
+            }
+            else {
+                Log.info("UserManager.signinPopup: no sub");
+            }
+        }
+
+        return user;
     }
-    signinPopupCallback(url?: string): Promise<User | null> {
-        return this._signinCallback(url, this._popupNavigator).then(user => {
+    async signinPopupCallback(url?: string): Promise<User | null> {
+        try {
+            const user = await this._signinCallback(url, this._popupNavigator);
             if (user) {
                 if (user.profile && user.profile.sub) {
                     Log.info("UserManager.signinPopupCallback: successful, signed in sub: ", user.profile.sub);
@@ -164,182 +160,166 @@ export class UserManager extends OidcClient {
             }
 
             return user;
-        }).catch(err=>{
+        }
+        catch (err) {
             Log.error("UserManager.signinPopupCallback error: " + err && err.message);
             return null;
-        });
+        }
     }
 
-    signinSilent(args: any = {}): Promise<User | null> {
+    async signinSilent(args: any = {}): Promise<User | null> {
         args = Object.assign({}, args);
 
         // first determine if we have a refresh token, or need to use iframe
-        return this._loadUser().then(user => {
-            if (user && user.refresh_token) {
-                args.refresh_token = user.refresh_token;
-                return this._useRefreshToken(args);
+        const user = await this._loadUser();
+        if (user && user.refresh_token) {
+            args.refresh_token = user.refresh_token;
+            return this._useRefreshToken(args);
+        }
+        else {
+            args.request_type = "si:s";
+            args.id_token_hint = args.id_token_hint || (this.settings.includeIdTokenInSilentRenew && user && user.id_token);
+            if (user && this._settings.validateSubOnSilentRenew) {
+                Log.debug("UserManager.signinSilent, subject prior to silent renew: ", user.profile.sub);
+                args.current_sub = user.profile.sub;
             }
-            else {
-                args.request_type = "si:s";
-                args.id_token_hint = args.id_token_hint || (this.settings.includeIdTokenInSilentRenew && user && user.id_token);
-                if (user && this._settings.validateSubOnSilentRenew) {
-                    Log.debug("UserManager.signinSilent, subject prior to silent renew: ", user.profile.sub);
-                    args.current_sub = user.profile.sub;
-                }
-                return this._signinSilentIframe(args);
-            }
-        });
+            return this._signinSilentIframe(args);
+        }
     }
 
-    _useRefreshToken(args: any = {}) {
-        return this._tokenClient.exchangeRefreshToken(args).then(result => {
-            if (!result) {
-                Log.error("UserManager._useRefreshToken: No response returned from token endpoint");
-                return Promise.reject("No response returned from token endpoint");
+    async _useRefreshToken(args: any = {}) {
+        const result = await this._tokenClient.exchangeRefreshToken(args);
+        if (!result) {
+            Log.error("UserManager._useRefreshToken: No response returned from token endpoint");
+            throw new Error("No response returned from token endpoint");
+        }
+        if (!result.access_token) {
+            Log.error("UserManager._useRefreshToken: No access token returned from token endpoint");
+            throw new Error("No access token returned from token endpoint");
+        }
+
+        const user = await this._loadUser();
+        if (user) {
+            if (result.id_token) {
+                await this._validateIdTokenFromTokenRefreshToken(user.profile, result.id_token);
             }
-            if (!result.access_token) {
-                Log.error("UserManager._useRefreshToken: No access token returned from token endpoint");
-                return Promise.reject("No access token returned from token endpoint");
-            }
 
-            return this._loadUser().then(user => {
-                if (user) {
-                    let idTokenValidation = Promise.resolve();
-                    if (result.id_token) {
-                        idTokenValidation = this._validateIdTokenFromTokenRefreshToken(user.profile, result.id_token);
-                    }
+            Log.debug("UserManager._useRefreshToken: refresh token response success");
+            user.id_token = result.id_token || user.id_token;
+            user.access_token = result.access_token || user.access_token;
+            user.refresh_token = /* TODO: port-TS result.refresh_token ||*/ user.refresh_token;
+            user.expires_in = result.expires_in;
 
-                    return idTokenValidation.then(() => {
-                        Log.debug("UserManager._useRefreshToken: refresh token response success");
-                        user.id_token = result.id_token || user.id_token;
-                        user.access_token = result.access_token || user.access_token;
-                        user.refresh_token = /* TODO: port-TS result.refresh_token ||*/ user.refresh_token;
-                        user.expires_in = result.expires_in;
-
-                        return this.storeUser(user).then(()=>{
-                            this._events.load(user);
-                            return user;
-                        });
-                    });
-                }
-                else {
-                    return null;
-                }
-            });
-        });
+            await this.storeUser(user);
+            this._events.load(user);
+            return user;
+        }
+        else {
+            return null;
+        }
     }
 
-    _validateIdTokenFromTokenRefreshToken(profile: any, id_token: string) {
-        return this._metadataService.getIssuer().then(issuer => {
-            return this.settings.getEpochTime().then(now => {
-                return JoseUtil.validateJwtAttributes(id_token, issuer, this._settings.client_id, this._settings.clockSkew, now).then(payload => {
-                    if (!payload) {
-                        Log.error("UserManager._validateIdTokenFromTokenRefreshToken: Failed to validate id_token");
-                        return Promise.reject(new Error("Failed to validate id_token"));
-                    }
-                    if (payload.sub !== profile.sub) {
-                        Log.error("UserManager._validateIdTokenFromTokenRefreshToken: sub in id_token does not match current sub");
-                        return Promise.reject(new Error("sub in id_token does not match current sub"));
-                    }
-                    if (payload.auth_time && payload.auth_time !== profile.auth_time) {
-                        Log.error("UserManager._validateIdTokenFromTokenRefreshToken: auth_time in id_token does not match original auth_time");
-                        return Promise.reject(new Error("auth_time in id_token does not match original auth_time"));
-                    }
-                    if (payload.azp && payload.azp !== profile.azp) {
-                        Log.error("UserManager._validateIdTokenFromTokenRefreshToken: azp in id_token does not match original azp");
-                        return Promise.reject(new Error("azp in id_token does not match original azp"));
-                    }
-                    if (!payload.azp && profile.azp) {
-                        Log.error("UserManager._validateIdTokenFromTokenRefreshToken: azp not in id_token, but present in original id_token");
-                        return Promise.reject(new Error("azp not in id_token, but present in original id_token"));
-                    }
-                    return Promise.resolve();
-                });
-            });
-        });
+    async _validateIdTokenFromTokenRefreshToken(profile: any, id_token: string) {
+        const issuer = await this._metadataService.getIssuer();
+        const now = await this.settings.getEpochTime();
+        const payload = await JoseUtil.validateJwtAttributes(id_token, issuer, this._settings.client_id, this._settings.clockSkew, now);
+        if (!payload) {
+            Log.error("UserManager._validateIdTokenFromTokenRefreshToken: Failed to validate id_token");
+            throw new Error("Failed to validate id_token");
+        }
+        if (payload.sub !== profile.sub) {
+            Log.error("UserManager._validateIdTokenFromTokenRefreshToken: sub in id_token does not match current sub");
+            throw new Error("sub in id_token does not match current sub");
+        }
+        if (payload.auth_time && payload.auth_time !== profile.auth_time) {
+            Log.error("UserManager._validateIdTokenFromTokenRefreshToken: auth_time in id_token does not match original auth_time");
+            throw new Error("auth_time in id_token does not match original auth_time");
+        }
+        if (payload.azp && payload.azp !== profile.azp) {
+            Log.error("UserManager._validateIdTokenFromTokenRefreshToken: azp in id_token does not match original azp");
+            throw new Error("azp in id_token does not match original azp");
+        }
+        if (!payload.azp && profile.azp) {
+            Log.error("UserManager._validateIdTokenFromTokenRefreshToken: azp not in id_token, but present in original id_token");
+            throw new Error("azp not in id_token, but present in original id_token");
+        }
     }
 
-    _signinSilentIframe(args: any = {}) {
+    async _signinSilentIframe(args: any = {}) {
         let url = args.redirect_uri || this.settings.silent_redirect_uri || this.settings.redirect_uri;
         if (!url) {
             Log.error("UserManager.signinSilent: No silent_redirect_uri configured");
-            return Promise.reject(new Error("No silent_redirect_uri configured"));
+            throw new Error("No silent_redirect_uri configured");
         }
 
         args.redirect_uri = url;
         args.prompt = args.prompt || "none";
 
-        return this._signin(args, this._iframeNavigator, {
+        const user = await this._signin(args, this._iframeNavigator, {
             startUrl: url,
             silentRequestTimeout: args.silentRequestTimeout || this.settings.silentRequestTimeout
-        }).then(user => {
-            if (user) {
-                if (user.profile && user.profile.sub) {
-                    Log.info("UserManager.signinSilent: successful, signed in sub: ", user.profile.sub);
-                }
-                else {
-                    Log.info("UserManager.signinSilent: no sub");
-                }
-            }
-
-            return user;
         });
+        if (user) {
+            if (user.profile && user.profile.sub) {
+                Log.info("UserManager.signinSilent: successful, signed in sub: ", user.profile.sub);
+            }
+            else {
+                Log.info("UserManager.signinSilent: no sub");
+            }
+        }
+
+        return user;
     }
 
-    signinSilentCallback(url?: string): Promise<User> {
-        return this._signinCallback(url, this._iframeNavigator).then(user => {
-            if (user) {
-                if (user.profile && user.profile.sub) {
-                    Log.info("UserManager.signinSilentCallback: successful, signed in sub: ", user.profile.sub);
-                }
-                else {
-                    Log.info("UserManager.signinSilentCallback: no sub");
-                }
+    async signinSilentCallback(url?: string): Promise<User> {
+        const user = await this._signinCallback(url, this._iframeNavigator);
+        if (user) {
+            if (user.profile && user.profile.sub) {
+                Log.info("UserManager.signinSilentCallback: successful, signed in sub: ", user.profile.sub);
             }
+            else {
+                Log.info("UserManager.signinSilentCallback: no sub");
+            }
+        }
 
-            return user;
-        });
+        return user;
     }
 
-    signinCallback(url?: string): Promise<User | null> {
-        return this.readSigninResponseState(url).then(({state}) => {
-            if (state.request_type === "si:r") {
-                return this.signinRedirectCallback(url);
-            }
-            if (state.request_type === "si:p") {
-                return this.signinPopupCallback(url);
-            }
-            if (state.request_type === "si:s") {
-                return this.signinSilentCallback(url);
-            }
-            return Promise.reject(new Error("invalid response_type in state"));
-        });
+    async signinCallback(url?: string): Promise<User | null> {
+        const { state } = await this.readSigninResponseState(url);
+        if (state.request_type === "si:r") {
+            return this.signinRedirectCallback(url);
+        }
+        if (state.request_type === "si:p") {
+            return this.signinPopupCallback(url);
+        }
+        if (state.request_type === "si:s") {
+            return this.signinSilentCallback(url);
+        }
+        throw new Error("invalid response_type in state");
     }
 
-    signoutCallback(url?: string, keepOpen = false): Promise<void> {
-        // @ts-ignore
-        return this.readSignoutResponseState(url).then(({state, response}) => {
-            if (state) {
-                if (state.request_type === "so:r") {
-                    return this.signoutRedirectCallback(url);
-                }
-                if (state.request_type === "so:p") {
-                    return this.signoutPopupCallback(url, keepOpen);
-                }
-                return Promise.reject(new Error("invalid response_type in state"));
+    async signoutCallback(url?: string, keepOpen = false): Promise<void> {
+        const { state } = await this.readSignoutResponseState(url);
+        if (state) {
+            if (state.request_type === "so:r") {
+                await this.signoutRedirectCallback(url);
             }
-            return response;
-        });
+            if (state.request_type === "so:p") {
+                await this.signoutPopupCallback(url, keepOpen);
+            }
+            throw new Error("invalid response_type in state");
+        }
     }
 
-    querySessionStatus(args: any = {}): Promise<SessionStatus | null> {
+    async querySessionStatus(args: any = {}): Promise<SessionStatus | null> {
         args = Object.assign({}, args);
 
         args.request_type = "si:s"; // this acts like a signin silent
         let url = args.redirect_uri || this.settings.silent_redirect_uri || this.settings.redirect_uri;
         if (!url) {
             Log.error("UserManager.querySessionStatus: No silent_redirect_uri configured");
-            return Promise.reject(new Error("No silent_redirect_uri configured"));
+            throw new Error("No silent_redirect_uri configured");
         }
 
         args.redirect_uri = url;
@@ -348,92 +328,88 @@ export class UserManager extends OidcClient {
         args.scope = args.scope || "openid";
         args.skipUserInfo = true;
 
-        return this._signinStart(args, this._iframeNavigator, {
+        const navResponse = await this._signinStart(args, this._iframeNavigator, {
             startUrl: url,
             silentRequestTimeout: args.silentRequestTimeout || this.settings.silentRequestTimeout
-        }).then((navResponse: any) => {
-            return this.processSigninResponse(navResponse.url).then(signinResponse => {
-                Log.debug("UserManager.querySessionStatus: got signin response");
+        });
+        try {
+            const signinResponse = await this.processSigninResponse(navResponse.url);
+            Log.debug("UserManager.querySessionStatus: got signin response");
 
-                if (signinResponse.session_state && signinResponse.profile.sub) {
-                    Log.info("UserManager.querySessionStatus: querySessionStatus success for sub: ",  signinResponse.profile.sub);
+            if (signinResponse.session_state && signinResponse.profile.sub) {
+                Log.info("UserManager.querySessionStatus: querySessionStatus success for sub: ",  signinResponse.profile.sub);
+                return {
+                    session_state: signinResponse.session_state,
+                    sub: signinResponse.profile.sub,
+                    sid: signinResponse.profile.sid
+                };
+            }
+            else {
+                Log.info("querySessionStatus successful, user not authenticated");
+                return null;
+            }
+        }
+        catch (err) {
+            if (err.session_state && this.settings.monitorAnonymousSession) {
+                if (err.message == "login_required" ||
+                    err.message == "consent_required" ||
+                    err.message == "interaction_required" ||
+                    err.message == "account_selection_required"
+                ) {
+                    Log.info("UserManager.querySessionStatus: querySessionStatus success for anonymous user");
                     return {
-                        session_state: signinResponse.session_state,
-                        sub: signinResponse.profile.sub,
-                        sid: signinResponse.profile.sid
+                        session_state: err.session_state
                     };
-                }
-                else {
-                    Log.info("querySessionStatus successful, user not authenticated");
-                    return null;
-                }
-            })
-            .catch(err => {
-                if (err.session_state && this.settings.monitorAnonymousSession) {
-                    if (err.message == "login_required" ||
-                        err.message == "consent_required" ||
-                        err.message == "interaction_required" ||
-                        err.message == "account_selection_required"
-                    ) {
-                        Log.info("UserManager.querySessionStatus: querySessionStatus success for anonymous user");
-                        return {
-                            session_state: err.session_state
-                        };
-                    }
-                }
-
-                throw err;
-            });
-        });
-    }
-
-    _signin(args: any, navigator: INavigator, navigatorParams: any = {}): Promise<User> {
-        return this._signinStart(args, navigator, navigatorParams).then((navResponse: any) => {
-            return this._signinEnd(navResponse.url, args);
-        });
-    }
-    _signinStart(args: any, navigator: INavigator, navigatorParams: any = {}) {
-        return navigator.prepare(navigatorParams).then(handle => {
-            Log.debug("UserManager._signinStart: got navigator window handle");
-
-            return this.createSigninRequest(args).then(signinRequest => {
-                Log.debug("UserManager._signinStart: got signin request");
-
-                navigatorParams.url = signinRequest.url;
-                navigatorParams.id = signinRequest.state.id;
-
-                return handle.navigate(navigatorParams);
-            }).catch(err => {
-                Log.debug("UserManager._signinStart: Error after preparing navigator, closing navigator window");
-                handle.close();
-                throw err;
-            });
-        });
-    }
-    _signinEnd(url: string, args: any = {}): Promise<User> {
-        return this.processSigninResponse(url).then(signinResponse => {
-            Log.debug("UserManager._signinEnd: got signin response");
-
-            let user = new User(signinResponse);
-
-            if (args.current_sub) {
-                if (args.current_sub !== user.profile.sub) {
-                    Log.debug("UserManager._signinEnd: current user does not match user returned from signin. sub from signin: ", user.profile.sub);
-                    return Promise.reject(new Error("login_required"));
-                }
-                else {
-                    Log.debug("UserManager._signinEnd: current user matches user returned from signin");
                 }
             }
 
-            return this.storeUser(user).then(() => {
-                Log.debug("UserManager._signinEnd: user stored");
+            throw err;
+        }
+    }
 
-                this._events.load(user);
+    async _signin(args: any, navigator: INavigator, navigatorParams: any = {}): Promise<User> {
+        const navResponse = await this._signinStart(args, navigator, navigatorParams);
+        return this._signinEnd(navResponse.url, args);
+    }
+    async _signinStart(args: any, navigator: INavigator, navigatorParams: any = {}) {
+        const handle = await navigator.prepare(navigatorParams);
+        Log.debug("UserManager._signinStart: got navigator window handle");
 
-                return user;
-            });
-        });
+        try {
+            const signinRequest = await this.createSigninRequest(args);
+            Log.debug("UserManager._signinStart: got signin request");
+
+            navigatorParams.url = signinRequest.url;
+            navigatorParams.id = signinRequest.state.id;
+
+            return handle.navigate(navigatorParams);
+        }
+        catch (err) {
+            Log.debug("UserManager._signinStart: Error after preparing navigator, closing navigator window");
+            handle.close();
+            throw err;
+        }
+    }
+    async _signinEnd(url: string, args: any = {}): Promise<User> {
+        const signinResponse = await this.processSigninResponse(url);
+        Log.debug("UserManager._signinEnd: got signin response");
+
+        let user = new User(signinResponse);
+        if (args.current_sub) {
+            if (args.current_sub !== user.profile.sub) {
+                Log.debug("UserManager._signinEnd: current user does not match user returned from signin. sub from signin: ", user.profile.sub);
+                throw new Error("login_required");
+            }
+            else {
+                Log.debug("UserManager._signinEnd: current user matches user returned from signin");
+            }
+        }
+
+        await this.storeUser(user);
+        Log.debug("UserManager._signinEnd: user stored");
+        this._events.load(user);
+
+        return user;
     }
     _signinCallback(url: string | undefined, navigator: IFrameNavigator | PopupNavigator): Promise<User> {
         Log.debug("UserManager._signinCallback");
@@ -443,7 +419,7 @@ export class UserManager extends OidcClient {
         return navigator.callback(url, undefined, delimiter);
     }
 
-    signoutRedirect(args: any = {}): Promise<void> {
+    async signoutRedirect(args: any = {}): Promise<void> {
         args = Object.assign({}, args);
 
         args.request_type = "so:r";
@@ -454,18 +430,16 @@ export class UserManager extends OidcClient {
         let navParams = {
             useReplaceToNavigate : args.useReplaceToNavigate
         };
-        return this._signoutStart(args, this._redirectNavigator, navParams).then(()=>{
-            Log.info("UserManager.signoutRedirect: successful");
-        });
+        await this._signoutStart(args, this._redirectNavigator, navParams);
+        Log.info("UserManager.signoutRedirect: successful");
     }
-    signoutRedirectCallback(url?: string): Promise<SignoutResponse> {
-        return this._signoutEnd(url || this._redirectNavigator.url).then(response=>{
-            Log.info("UserManager.signoutRedirectCallback: successful");
-            return response;
-        });
+    async signoutRedirectCallback(url?: string): Promise<SignoutResponse> {
+        const response = await this._signoutEnd(url || this._redirectNavigator.url);
+        Log.info("UserManager.signoutRedirectCallback: successful");
+        return response;
     }
 
-    signoutPopup(args: any = {}): Promise<void> {
+    async signoutPopup(args: any = {}): Promise<void> {
         args = Object.assign({}, args);
 
         args.request_type = "so:p";
@@ -481,134 +455,124 @@ export class UserManager extends OidcClient {
             args.state = args.state || {};
         }
 
-        return this._signout(args, this._popupNavigator, {
+        await this._signout(args, this._popupNavigator, {
             startUrl: url,
             popupWindowFeatures: args.popupWindowFeatures || this.settings.popupWindowFeatures,
             popupWindowTarget: args.popupWindowTarget || this.settings.popupWindowTarget
-        }).then(() => {
-            Log.info("UserManager.signoutPopup: successful");
         });
+        Log.info("UserManager.signoutPopup: successful");
     }
-    signoutPopupCallback(url: any, keepOpen: any) {
+    async signoutPopupCallback(url: any, keepOpen: any) {
         if (typeof(keepOpen) === 'undefined' && typeof(url) === 'boolean') {
             keepOpen = url;
             url = null;
         }
 
         let delimiter = '?';
-        return this._popupNavigator.callback(url, keepOpen, delimiter).then(() => {
-            Log.info("UserManager.signoutPopupCallback: successful");
-        });
+        await this._popupNavigator.callback(url, keepOpen, delimiter);
+        Log.info("UserManager.signoutPopupCallback: successful");
     }
 
-    _signout(args: any, navigator: INavigator, navigatorParams: any = {}) {
-        return this._signoutStart(args, navigator, navigatorParams).then((navResponse: any) => {
-            return this._signoutEnd(navResponse.url);
-        });
+    async _signout(args: any, navigator: INavigator, navigatorParams: any = {}) {
+        const navResponse = await this._signoutStart(args, navigator, navigatorParams);
+        return this._signoutEnd(navResponse.url);
     }
-    _signoutStart(args: any = {}, navigator: INavigator, navigatorParams: any = {}) {
-        return navigator.prepare(navigatorParams).then(handle => {
-            Log.debug("UserManager._signoutStart: got navigator window handle");
+    async _signoutStart(args: any = {}, navigator: INavigator, navigatorParams: any = {}) {
+        const handle = await navigator.prepare(navigatorParams);
+        Log.debug("UserManager._signoutStart: got navigator window handle");
 
-            return this._loadUser().then(user => {
-                Log.debug("UserManager._signoutStart: loaded current user from storage");
+        try {
+            const user = await this._loadUser();
+            Log.debug("UserManager._signoutStart: loaded current user from storage");
 
-                var revokePromise = this._settings.revokeAccessTokenOnSignout ? this._revokeInternal(user) : Promise.resolve(true);
-                return revokePromise.then(() => {
+            if (this._settings.revokeAccessTokenOnSignout) {
+                await this._revokeInternal(user);
+            }
 
-                    var id_token = args.id_token_hint || user && user.id_token;
-                    if (id_token) {
-                        Log.debug("UserManager._signoutStart: Setting id_token into signout request");
-                        args.id_token_hint = id_token;
-                    }
+            var id_token = args.id_token_hint || user && user.id_token;
+            if (id_token) {
+                Log.debug("UserManager._signoutStart: Setting id_token into signout request");
+                args.id_token_hint = id_token;
+            }
 
-                    return this.removeUser().then(() => {
-                        Log.debug("UserManager._signoutStart: user removed, creating signout request");
+            await this.removeUser();
+            Log.debug("UserManager._signoutStart: user removed, creating signout request");
 
-                        return this.createSignoutRequest(args).then(signoutRequest => {
-                            Log.debug("UserManager._signoutStart: got signout request");
+            const signoutRequest = await this.createSignoutRequest(args);
+            Log.debug("UserManager._signoutStart: got signout request");
 
-                            navigatorParams.url = signoutRequest.url;
-                            if (signoutRequest.state) {
-                                navigatorParams.id = signoutRequest.state.id;
-                            }
-                            return handle.navigate(navigatorParams);
-                        });
-                    });
-                });
-            }).catch(err => {
-                Log.debug("UserManager._signoutStart: Error after preparing navigator, closing navigator window");
-                handle.close();
-                throw err;
-            });
-        });
+            navigatorParams.url = signoutRequest.url;
+            if (signoutRequest.state) {
+                navigatorParams.id = signoutRequest.state.id;
+            }
+            return handle.navigate(navigatorParams);
+        }
+        catch (err) {
+            Log.debug("UserManager._signoutStart: Error after preparing navigator, closing navigator window");
+            handle.close();
+            throw err;
+        }
     }
-    _signoutEnd(url: string) {
-        return this.processSignoutResponse(url).then(signoutResponse => {
-            Log.debug("UserManager._signoutEnd: got signout response");
+    async _signoutEnd(url: string) {
+        const signoutResponse = await this.processSignoutResponse(url);
+        Log.debug("UserManager._signoutEnd: got signout response");
 
-            return signoutResponse;
-        });
+        return signoutResponse;
     }
 
-    revokeAccessToken(): Promise<void> {
-        return this._loadUser().then(user => {
-            return this._revokeInternal(user, true).then(success => {
-                if (success && user) {
-                    Log.debug("UserManager.revokeAccessToken: removing token properties from user and re-storing");
+    async revokeAccessToken(): Promise<void> {
+        const user = await this._loadUser();
+        const success = await this._revokeInternal(user, true);
+        if (success && user) {
+            Log.debug("UserManager.revokeAccessToken: removing token properties from user and re-storing");
 
-                    user.access_token = "";
-                    user.refresh_token = "";
-                    user.expires_at = 0;
-                    user.token_type = "";
+            user.access_token = "";
+            user.refresh_token = "";
+            user.expires_at = 0;
+            user.token_type = "";
 
-                    this.storeUser(user).then(() => {
-                        Log.debug("UserManager.revokeAccessToken: user stored");
-                        this._events.load(user);
-                    });
-                }
-            });
-        }).then(()=>{
-            Log.info("UserManager.revokeAccessToken: access token revoked successfully");
-        });
+            await this.storeUser(user);
+            Log.debug("UserManager.revokeAccessToken: user stored");
+            this._events.load(user);
+        }
+
+        Log.info("UserManager.revokeAccessToken: access token revoked successfully");
     }
 
-    _revokeInternal(user: User | null, required = false) {
+    async _revokeInternal(user: User | null, required = false): Promise<boolean> {
         if (user) {
             var access_token = user.access_token;
             var refresh_token = user.refresh_token;
 
-            return this._revokeAccessTokenInternal(access_token, required)
-                .then(atSuccess => {
-                    return this._revokeRefreshTokenInternal(refresh_token, required)
-                        .then(rtSuccess => {
-                            if (!atSuccess && !rtSuccess) {
-                                Log.debug("UserManager.revokeAccessToken: no need to revoke due to no token(s), or JWT format");
-                            }
+            const atSuccess = await this._revokeAccessTokenInternal(access_token, required);
+            const rtSuccess = await this._revokeRefreshTokenInternal(refresh_token, required);
+            if (!atSuccess && !rtSuccess) {
+                Log.debug("UserManager.revokeAccessToken: no need to revoke due to no token(s), or JWT format");
+            }
 
-                            return atSuccess || rtSuccess;
-                        });
-                });
+            return atSuccess || rtSuccess;
         }
 
-        return Promise.resolve(false);
+        return false;
     }
 
-    _revokeAccessTokenInternal(access_token: string, required: boolean): Promise<boolean> {
+    async _revokeAccessTokenInternal(access_token: string, required: boolean): Promise<boolean> {
         // check for JWT vs. reference token
         if (!access_token || access_token.indexOf('.') >= 0) {
-            return Promise.resolve(false);
+            return false;
         }
 
-        return this._tokenRevocationClient.revoke(access_token, required).then(() => true);
+        await this._tokenRevocationClient.revoke(access_token, required);
+        return true;
     }
 
-    _revokeRefreshTokenInternal(refresh_token: string, required: boolean): Promise<boolean> {
+    async _revokeRefreshTokenInternal(refresh_token: string, required: boolean): Promise<boolean> {
         if (!refresh_token) {
-            return Promise.resolve(false);
+            return false;
         }
 
-        return this._tokenRevocationClient.revoke(refresh_token, required, "refresh_token").then(() => true);
+        await this._tokenRevocationClient.revoke(refresh_token, required, "refresh_token");
+        return true;
     }
 
     startSilentRenew(): void {
@@ -623,16 +587,15 @@ export class UserManager extends OidcClient {
         return `user:${this.settings.authority}:${this.settings.client_id}`;
     }
 
-    _loadUser() {
-        return this._userStore.get(this._userStoreKey).then(storageString => {
-            if (storageString) {
-                Log.debug("UserManager._loadUser: user storageString loaded");
-                return User.fromStorageString(storageString);
-            }
+    async _loadUser() {
+        const storageString = await this._userStore.get(this._userStoreKey);
+        if (storageString) {
+            Log.debug("UserManager._loadUser: user storageString loaded");
+            return User.fromStorageString(storageString);
+        }
 
-            Log.debug("UserManager._loadUser: no user storageString");
-            return null;
-        });
+        Log.debug("UserManager._loadUser: no user storageString");
+        return null;
     }
 
     storeUser(user: User | null): Promise<void | string | null> {
