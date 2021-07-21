@@ -1,6 +1,9 @@
+# oidc-client-ts
+
+[![Stable Release](https://img.shields.io/npm/v/oidc-client-ts.svg)](https://npm.im/react-oidc-context)
 ![Pipeline](https://github.com/pamapa/oidc-client-ts/workflows/Release/badge.svg)
 
-# oidc-client-ts
+
 Library to provide OpenID Connect (OIDC) and OAuth2 protocol support for client-side, browser-based JavaScript client
 applications. Also included is support for user session and access token management.
 
@@ -59,7 +62,7 @@ npm test
 
 
 ## Contributing
-All are welcome on the [issue tracker](https://github.com/pamapa/oidc-client-ts/issues).
+We appreciate feedback and contribution to this repo!
 
 
 ## License
