@@ -22,7 +22,7 @@ export class UserInfoService {
         }
 
         this._settings = settings;
-        this._jsonService = new JsonServiceCtor(undefined, undefined, this._getClaimsFromJwt.bind(this));
+        this._jsonService = new JsonServiceCtor(undefined, this._getClaimsFromJwt.bind(this));
         this._metadataService = new MetadataServiceCtor(this._settings);
     }
 
@@ -41,9 +41,9 @@ export class UserInfoService {
         return claims;
     }
 
-    async _getClaimsFromJwt(req: any) {
+    async _getClaimsFromJwt(responseText: string) {
         try {
-            const jwt = JoseUtil.parseJwt(req.responseText);
+            const jwt = JoseUtil.parseJwt(responseText);
             if (!jwt || !jwt.header || !jwt.payload) {
                 Log.error("UserInfoService._getClaimsFromJwt: Failed to parse JWT", jwt);
                 throw new Error("Failed to parse id_token");
@@ -104,7 +104,7 @@ export class UserInfoService {
             let clockSkewInSeconds = this._settings.clockSkew;
             Log.debug("UserInfoService._getClaimsFromJwt: Validaing JWT; using clock skew (in seconds) of: ", clockSkewInSeconds);
 
-            await JoseUtil.validateJwt(req.responseText, key, issuer, audience, clockSkewInSeconds, undefined, true);
+            await JoseUtil.validateJwt(responseText, key, issuer, audience, clockSkewInSeconds, undefined, true);
             Log.debug("UserInfoService._getClaimsFromJwt: JWT validation successful");
             return payload;
         }
