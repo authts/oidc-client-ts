@@ -1,12 +1,25 @@
 {
-  "name": "oidc-client",
-  "version": "1.11.5",
+  "name": "oidc-client-ts",
+  "version": "2.0.0-alpha0",
   "description": "OpenID Connect (OIDC) & OAuth2 client library",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com:pamapa/oidc-client-ts.git"
+  },
+  "homepage": "https://github.com/pamapa/oidc-client-ts#readme",
+  "license": "Apache-2.0",
   "main": "dist/index.js",
-  "module": "dist/oidc-client.esm.js",
+  "module": "dist/oidc-client-ts.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"
+  ],
+  "keywords": [
+    "authentication",
+    "oauth2",
+    "oidc",
+    "openid",
+    "OpenID Connect"
   ],
   "scripts": {
     "start": "tsdx watch",
@@ -14,26 +27,6 @@
     "test": "tsdx test",
     "lint": "tsdx lint"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/IdentityModel/oidc-client-js.git"
-  },
-  "author": "Brock Allen & Dominick Baier",
-  "contributors": [
-    {
-      "name": "Brock Allen",
-      "email": "brockallen@gmail.com"
-    },
-    {
-      "name": "Dominick Baier",
-      "email": "dbaier@leastprivilege.com"
-    }
-  ],
-  "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/IdentityModel/oidc-client-js/issues"
-  },
-  "homepage": "https://github.com/IdentityModel/oidc-client-js",
   "dependencies": {
     "jsrsasign": "^10.3.0"
   },
