@@ -1,4 +1,4 @@
-![Pipeline](https://github.com/pamapa/oidc-client-ts/workflows/release/badge.svg)
+![Pipeline](https://github.com/pamapa/oidc-client-ts/workflows/Release/badge.svg)
 
 # oidc-client-ts
 Library to provide OpenID Connect (OIDC) and OAuth2 protocol support for client-side, browser-based JavaScript client applications. Also included is support for user session and access token management.

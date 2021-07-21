@@ -11,13 +11,11 @@ export class UserInfoService {
     private _settings: OidcClientSettingsStore;
     private _jsonService: JsonService;
     private _metadataService: MetadataService;
-    private _joseUtil: typeof JoseUtil;
 
     constructor(
         settings: OidcClientSettingsStore,
         JsonServiceCtor = JsonService,
-        MetadataServiceCtor = MetadataService,
-        joseUtil = JoseUtil
+        MetadataServiceCtor = MetadataService
     ) {
         if (!settings) {
             Log.error("UserInfoService.ctor: No settings passed");
@@ -27,7 +25,6 @@ export class UserInfoService {
         this._settings = settings;
         this._jsonService = new JsonServiceCtor(undefined, undefined, this._getClaimsFromJwt.bind(this));
         this._metadataService = new MetadataServiceCtor(this._settings);
-        this._joseUtil = joseUtil;
     }
 
     getClaims(token?: string) {
@@ -48,13 +45,14 @@ export class UserInfoService {
 
     _getClaimsFromJwt(req: any) {
         try {
-            const jwt = this._joseUtil.parseJwt(req.responseText);
+            const jwt = JoseUtil.parseJwt(req.responseText);
             if (!jwt || !jwt.header || !jwt.payload) {
                 Log.error("UserInfoService._getClaimsFromJwt: Failed to parse JWT", jwt);
                 return Promise.reject(new Error("Failed to parse id_token"));
             }
 
-            var kid = jwt.header.kid;
+            const header: any = jwt.header;
+            const payload: any = jwt.payload;
 
             let issuerPromise;
             switch (this._settings.userInfoJwtIssuer) {
@@ -62,7 +60,7 @@ export class UserInfoService {
                     issuerPromise = this._metadataService.getIssuer();
                     break;
                 case 'ANY':
-                    issuerPromise = Promise.resolve(jwt.payload.iss);
+                    issuerPromise = Promise.resolve(payload.iss);
                     break;
                 default:
                     issuerPromise = Promise.resolve(this._settings.userInfoJwtIssuer);
@@ -80,7 +78,7 @@ export class UserInfoService {
 
                     Log.debug("UserInfoService._getClaimsFromJwt: Received signing keys");
                     let key;
-                    if (!kid) {
+                    if (!header.kid) {
                         keys = this._filterByAlg(keys, jwt.header.alg);
 
                         if (keys.length > 1) {
@@ -95,7 +93,7 @@ export class UserInfoService {
                     }
                     else {
                         key = keys.filter(key => {
-                            return key.kid === kid;
+                            return key.kid === header.kid;
                         })[0];
                     }
 
@@ -109,9 +107,9 @@ export class UserInfoService {
                     let clockSkewInSeconds = this._settings.clockSkew;
                     Log.debug("UserInfoService._getClaimsFromJwt: Validaing JWT; using clock skew (in seconds) of: ", clockSkewInSeconds);
 
-                    return this._joseUtil.validateJwt(req.responseText, key, issuer, audience, clockSkewInSeconds, undefined, true).then(() => {
+                    return JoseUtil.validateJwt(req.responseText, key, issuer, audience, clockSkewInSeconds, undefined, true).then(() => {
                         Log.debug("UserInfoService._getClaimsFromJwt: JWT validation successful");
-                        return jwt.payload;
+                        return payload;
                     });
                 });
             });

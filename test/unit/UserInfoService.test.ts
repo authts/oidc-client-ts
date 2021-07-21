@@ -6,18 +6,6 @@ import { UserInfoService } from '../../src/UserInfoService';
 import { StubJsonService } from './StubJsonService';
 import { StubMetadataService } from './StubMetadataService';
 
-// workaround jest parse error
-jest.mock('../../jsrsasign/dist/jsrsasign.js', () => {
-    return {
-        jws: jest.fn(),
-        KEYUTIL: jest.fn(),
-        X509: jest.fn(),
-        crypto: jest.fn(),
-        hextob64u: jest.fn(),
-        b64tohex: jest.fn()
-    };
-});
-
 describe("UserInfoService", () => {
     let subject: UserInfoService;
     let stubJsonService: any;

@@ -27,15 +27,13 @@ export class UserManager extends OidcClient {
     private readonly _sessionMonitor: SessionMonitor | null;
     private readonly _tokenRevocationClient: TokenRevocationClient;
     private readonly _tokenClient: TokenClient;
-    private readonly _joseUtil: typeof JoseUtil;
 
     constructor(
         settings: UserManagerSettings = {},
         SilentRenewServiceCtor = SilentRenewService,
         SessionMonitorCtor = SessionMonitor,
         TokenRevocationClientCtor = TokenRevocationClient,
-        TokenClientCtor = TokenClient,
-        joseUtil = JoseUtil
+        TokenClientCtor = TokenClient
     ) {
         super(settings);
         this._settings = new UserManagerSettingsStore(settings);
@@ -57,7 +55,6 @@ export class UserManager extends OidcClient {
 
         this._tokenRevocationClient = new TokenRevocationClientCtor(this._settings);
         this._tokenClient = new TokenClientCtor(this._settings);
-        this._joseUtil = joseUtil;
     }
 
     get settings(): UserManagerSettingsStore {
@@ -238,7 +235,7 @@ export class UserManager extends OidcClient {
     _validateIdTokenFromTokenRefreshToken(profile: any, id_token: string) {
         return this._metadataService.getIssuer().then(issuer => {
             return this.settings.getEpochTime().then(now => {
-                return this._joseUtil.validateJwtAttributes(id_token, issuer, this._settings.client_id, this._settings.clockSkew, now).then(payload => {
+                return JoseUtil.validateJwtAttributes(id_token, issuer, this._settings.client_id, this._settings.clockSkew, now).then(payload => {
                     if (!payload) {
                         Log.error("UserManager._validateIdTokenFromTokenRefreshToken: Failed to validate id_token");
                         return Promise.reject(new Error("Failed to validate id_token"));

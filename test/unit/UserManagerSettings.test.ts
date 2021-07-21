@@ -5,18 +5,6 @@ import { Log } from '../../src/Log';
 import { UserManagerSettingsStore } from '../../src/UserManagerSettings';
 import { WebStorageStateStore } from '../../src/WebStorageStateStore';
 
-// workaround jest parse error
-jest.mock('../../jsrsasign/dist/jsrsasign.js', () => {
-    return {
-        jws: jest.fn(),
-        KEYUTIL: jest.fn(),
-        X509: jest.fn(),
-        crypto: jest.fn(),
-        hextob64u: jest.fn(),
-        b64tohex: jest.fn()
-    };
-});
-
 describe("UserManagerSettings", () => {
 
     beforeEach(() => {
