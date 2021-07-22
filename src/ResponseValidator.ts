@@ -38,7 +38,7 @@ export class ResponseValidator {
     async validateSigninResponse(state: SigninState, response: SigninResponse) {
         Log.debug("ResponseValidator.validateSigninResponse");
 
-        response = await this._processSigninParams(state, response);
+        response = this._processSigninParams(state, response);
         Log.debug("ResponseValidator.validateSigninResponse: state processed");
 
         response = await this._validateTokens(state, response);
