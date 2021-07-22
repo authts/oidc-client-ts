@@ -1,6 +1,6 @@
 # oidc-client-ts
 
-[![Stable Release](https://img.shields.io/npm/v/oidc-client-ts.svg)](https://npm.im/react-oidc-context)
+[![Stable Release](https://img.shields.io/npm/v/oidc-client-ts.svg)](https://npm.im/oidc-client-ts)
 ![Pipeline](https://github.com/pamapa/oidc-client-ts/workflows/Release/badge.svg)
 
 
