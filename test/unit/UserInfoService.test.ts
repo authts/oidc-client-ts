@@ -3,22 +3,20 @@
 
 import { UserInfoService } from '../../src/UserInfoService';
 import { MetadataService } from '../../src/MetadataService';
-
-import { StubJsonService } from './StubJsonService';
+import { JsonService } from '../../src/JsonService';
 
 describe("UserInfoService", () => {
     let subject: UserInfoService;
     let metadataService: MetadataService;
-    let stubJsonService: any;
+    let jsonService: JsonService;
 
     beforeEach(() => {
         const settings: any = {};
-        stubJsonService = new StubJsonService();
-        // @ts-ignore
-        subject = new UserInfoService(settings, () => stubJsonService);
+        subject = new UserInfoService(settings);
 
-        // access private member
+        // access private members
         metadataService = subject["_metadataService"];
+        jsonService = subject["_jsonService"];
     });
 
     describe("getClaims", () => {
@@ -45,14 +43,14 @@ describe("UserInfoService", () => {
         it("should call userinfo endpoint and pass token", async () => {
             // arrange
             jest.spyOn(metadataService, "getUserInfoEndpoint").mockImplementation(() => Promise.resolve("http://sts/userinfo"));
-            stubJsonService.result = Promise.resolve("test");
+            const getJsonMock = jest.spyOn(jsonService, "getJson")
+                .mockImplementation(() => Promise.resolve('test'));
 
             // act
             await subject.getClaims("token");
 
             // assert
-            expect(stubJsonService.url).toEqual("http://sts/userinfo");
-            expect(stubJsonService.token).toEqual("token");
+            expect(getJsonMock).toBeCalledWith("http://sts/userinfo", "token");
         });
 
         it("should fail when dependencies fail", async () => {
@@ -79,7 +77,7 @@ describe("UserInfoService", () => {
                 nonce:'nonce', at_hash:"athash",
                 iat:5, nbf:10, exp:20
             }
-            stubJsonService.result = Promise.resolve(expectedClaims);
+            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(expectedClaims));
 
             // act
             const claims = await subject.getClaims("token");

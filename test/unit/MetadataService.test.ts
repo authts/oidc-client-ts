@@ -3,22 +3,23 @@
 
 import { Log } from '../../src/utils';
 import { MetadataService } from '../../src/MetadataService';
-
-import { StubJsonService } from './StubJsonService';
+import { JsonService } from '../../src/JsonService';
 
 describe("MetadataService", () => {
-    let subject: MetadataService;
-    let stubJsonService: any;
     let settings: any
+    let subject: MetadataService;
+
+    let jsonService: JsonService;
 
     beforeEach(() => {
         Log.logger = console;
         Log.level = Log.NONE;
 
         settings = {};
-        stubJsonService = new StubJsonService();
-        // @ts-ignore
-        subject = new MetadataService(settings, () => stubJsonService);
+        subject = new MetadataService(settings);
+
+        // access private member
+        jsonService = subject["_jsonService"];
     });
 
     describe("getMetadata", () => {
@@ -59,44 +60,47 @@ describe("MetadataService", () => {
         it("should use metadataUrl to make json call", () => {
             // arrange
             settings.metadataUrl = "http://sts/metadata";
-            stubJsonService.result = Promise.resolve('test');
+            const getJsonMock = jest.spyOn(jsonService, "getJson")
+                .mockImplementation(() => Promise.resolve('test'));
 
             // act
             subject.getMetadata();
 
             // assert
-            expect(stubJsonService.url).toEqual("http://sts/metadata");
+            expect(getJsonMock).toBeCalledWith("http://sts/metadata");
         });
 
         it("should return metadata from json call", async () => {
             // arrange
             settings.metadataUrl = "http://sts/metadata";
-            stubJsonService.result = Promise.resolve({"test":"data"});
+            const json = { "test": "data" };
+            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
 
             // act
             const result = await subject.getMetadata();
 
             // assert
-            expect(result).toEqual({"test":"data"});
+            expect(result).toEqual(json);
         });
 
         it("should cache metadata from json call", async () => {
             // arrange
             settings.metadataUrl = "http://sts/metadata";
-            stubJsonService.result = Promise.resolve({test:"value"});
+            const json = { test: "value" };
+            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
 
             // act
             await subject.getMetadata();
 
             // assert
-            expect(settings.metadata).toEqual({test:"value"});
+            expect(settings.metadata).toEqual(json);
         });
 
         it("should merge metadata from seed", async () => {
             // arrange
             settings.metadataUrl = "http://sts/metadata";
             settings.metadataSeed = {test1:"one"};
-            stubJsonService.result = Promise.resolve({test2:"two"});
+            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({test2:"two"}));
 
             // act
             const result = await subject.getMetadata();
@@ -109,7 +113,7 @@ describe("MetadataService", () => {
         it("should fail if json call fails", async () => {
             // arrange
             settings.metadataUrl = "http://sts/metadata";
-            stubJsonService.result = Promise.reject(new Error("test"));
+            jest.spyOn(jsonService, "getJson").mockRejectedValue(new Error("test"));
 
             // act
             try {
@@ -162,7 +166,7 @@ describe("MetadataService", () => {
          it("should fail if json call to load metadata fails", async () => {
             // arrange
             settings.metadataUrl = "http://sts/metadata";
-            stubJsonService.result = Promise.reject(new Error("test"));
+            jest.spyOn(jsonService, "getJson").mockRejectedValue(new Error("test"));
 
             // act
             try {
@@ -324,7 +328,7 @@ describe("MetadataService", () => {
             settings.metadata = {
                 jwks_uri: "http://sts/metadata/keys"
             };
-            stubJsonService.result = Promise.resolve({});
+            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({}));
 
             // act
             try {
@@ -340,16 +344,20 @@ describe("MetadataService", () => {
             settings.metadata = {
                 jwks_uri: "http://sts/metadata/keys"
             };
-            stubJsonService.result = Promise.resolve({keys:[{
-                use:'sig',
-                kid:"test"
-            }]});
+            const json = {
+                keys: [{
+                    use:'sig',
+                    kid:"test"
+                }]
+            };
+            const getJsonMock = jest.spyOn(jsonService, "getJson")
+                .mockImplementation(() => Promise.resolve(json));
 
             // act
             await subject.getSigningKeys();
 
             // assert
-            expect(stubJsonService.url).toEqual("http://sts/metadata/keys");
+            expect(getJsonMock).toBeCalledWith("http://sts/metadata/keys");
         });
 
         it("should return keys from jwks_uri", async () => {
@@ -360,10 +368,11 @@ describe("MetadataService", () => {
             const expectedKeys = [{
                 use:'sig',
                 kid:"test"
-            }]
-            stubJsonService.result = Promise.resolve({
+            }];
+            const json = {
                 keys: expectedKeys
-            });
+            };
+            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
 
             // act
             const result = await subject.getSigningKeys();
@@ -380,10 +389,11 @@ describe("MetadataService", () => {
             const expectedKeys = [{
                 use:'sig',
                 kid:"test"
-            }]
-            stubJsonService.result = Promise.resolve({
+            }];
+            const json = {
                 keys: expectedKeys
-            });
+            };
+            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
 
             // act
             await subject.getSigningKeys();
