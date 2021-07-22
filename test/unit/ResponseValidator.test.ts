@@ -3,29 +3,15 @@
 
 import { Log, JoseUtil } from '../../src/utils';
 import { ResponseValidator } from '../../src/ResponseValidator';
-
-import { StubMetadataService } from './StubMetadataService';
-
-class StubUserInfoService {
-    getClaimsWasCalled: boolean;
-    getClaimsResult: any;
-
-    constructor() {
-        this.getClaimsWasCalled = false;
-    }
-
-    getClaims() {
-        this.getClaimsWasCalled = true;
-        return this.getClaimsResult;
-    }
-}
+import { MetadataService } from '../../src/MetadataService';
+import { UserInfoService } from '../../src/UserInfoService';
 
 // TODO: port-ts - replace with jest.mock
 class MockResponseValidator extends ResponseValidator {
     private _getSigningKeyForJwtSignedCalledCount: any;
 
-    constructor(settings: any, MetadataServiceCtor: any, UserInfoServiceCtor: any) {
-        super(settings, MetadataServiceCtor, UserInfoServiceCtor);
+    constructor(settings: any) {
+        super(settings);
     }
 
     _mock(name: string, ...args: any[]) {
@@ -91,13 +77,15 @@ describe("ResponseValidator", () => {
     let access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSIsImtpZCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSJ9.eyJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo0NDMzMy9jb3JlIiwiYXVkIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzMzMvY29yZS9yZXNvdXJjZXMiLCJleHAiOjE0NTkxMzM1MDEsIm5iZiI6MTQ1OTEyOTkwMSwiY2xpZW50X2lkIjoianMudG9rZW5tYW5hZ2VyIiwic2NvcGUiOlsib3BlbmlkIiwicHJvZmlsZSIsImVtYWlsIiwicmVhZCIsIndyaXRlIl0sInN1YiI6Ijg4NDIxMTEzIiwiYXV0aF90aW1lIjoxNDU5MTI5ODk4LCJpZHAiOiJpZHNydiIsImFtciI6WyJwYXNzd29yZCJdfQ.ldCBx4xF_WIj6S9unppYAzXFKMs5ce7sKuse-nleFbzwRbZ-VNubLOlnpsFzquJIyTlGLekqLWnsfpAmaORQBtv5ZoaUHxC_s5APLWGC9Io19tF8NxWVmX2OK3cwHWQ5HtFkILQdYR9l3Bf5RIQK4ixbrKJN7OyzoLAen0FgEXDn-dXMAhFJDl123G7pBaayQb8ic44y808cfKlu3wwP2QkDEzgW-L0avvjN95zji5528c32L2LBMveRklcOXO6Gb0alcFw6PysfJotsNo9WahJWu404mSl3Afc-4jCWjoTL7PBL-xciPmq9iCNAgqVS7GN1s1WsnBW2R4kGLy-kcQ";
     let at_hash = "JgDUCyoatJyEmGiiWbwOhA";
 
-    let settings: any;
-    let subject: MockResponseValidator;
-    let stubMetadataService: any;
-    let stubUserInfoService: any;
-
     let stubState: any;
     let stubResponse: any;
+    let settings: any;
+    let subject: MockResponseValidator;
+
+    let metadataService: MetadataService;
+    let userInfoService: UserInfoService;
+
+
 
     beforeEach(() => {
         Log.logger = console;
@@ -119,13 +107,15 @@ describe("ResponseValidator", () => {
             authority: "op",
             client_id: 'client'
         };
-        stubMetadataService = new StubMetadataService();
-        stubUserInfoService = new StubUserInfoService();
 
         // restore spyOn
         jest.restoreAllMocks();
 
-        subject = new MockResponseValidator(settings, () => stubMetadataService, () => stubUserInfoService);
+        subject = new MockResponseValidator(settings);
+
+        // access private members
+        metadataService = subject["_metadataService"];
+        userInfoService = subject["_userInfoService"];
     });
 
     describe("validateSignoutResponse", () => {
@@ -319,7 +309,7 @@ describe("ResponseValidator", () => {
             delete settings.authority;
             stubState.authority = "something different";
             stubResponse.id_token = id_token;
-            subject = new MockResponseValidator(settings, () => stubMetadataService, () => stubUserInfoService);
+            subject = new MockResponseValidator(settings);
 
             // act
             await subject._processSigninParams(stubState, stubResponse);
@@ -333,7 +323,7 @@ describe("ResponseValidator", () => {
             delete settings.client_id;
             stubState.client_id = "something different";
             stubResponse.id_token = id_token;
-            subject = new MockResponseValidator(settings, () => stubMetadataService, () => stubUserInfoService);
+            subject = new MockResponseValidator(settings);
 
             // act
             await subject._processSigninParams(stubState, stubResponse);
@@ -484,13 +474,13 @@ describe("ResponseValidator", () => {
             stubResponse.isOpenIdConnect = true;
             stubResponse.profile = { a: 'apple', b: 'banana' };
             stubResponse.access_token = "access_token";
-            stubUserInfoService.getClaimsResult = Promise.resolve({ c: 'carrot' });
+            const getClaimMock = jest.spyOn(userInfoService, "getClaims").mockImplementation(() => Promise.resolve({ c: 'carrot' }));
 
             // act
             await subject._processClaims({}, stubResponse);
 
             // assert
-            expect(stubUserInfoService.getClaimsWasCalled).toEqual(true);
+            expect(getClaimMock).toBeCalled();
             // @ts-ignore
             expect(subject._mergeClaimsWasCalled).toEqual(true);
         });
@@ -502,13 +492,13 @@ describe("ResponseValidator", () => {
             stubResponse.isOpenIdConnect = false;
             stubResponse.profile = { a: 'apple', b: 'banana' };
             stubResponse.access_token = "access_token";
-            stubUserInfoService.getClaimsResult = Promise.resolve({ c: 'carrot' });
+            const getClaimMock = jest.spyOn(userInfoService, "getClaims").mockImplementation(() => Promise.resolve({ c: 'carrot' }));
 
             // act
             await subject._processClaims({}, stubResponse);
 
             // assert
-            expect(stubUserInfoService.getClaimsWasCalled).toEqual(false);
+            expect(getClaimMock).not.toBeCalled();
         });
 
         it("should not load and merge user info claims when loadUserInfo not configured", async () => {
@@ -518,13 +508,13 @@ describe("ResponseValidator", () => {
             stubResponse.isOpenIdConnect = true;
             stubResponse.profile = { a: 'apple', b: 'banana' };
             stubResponse.access_token = "access_token";
-            stubUserInfoService.getClaimsResult = Promise.resolve({ c: 'carrot' });
+            const getClaimMock = jest.spyOn(userInfoService, "getClaims").mockImplementation(() => Promise.resolve({ c: 'carrot' }));
 
             // act
             await subject._processClaims({}, stubResponse);
 
             // assert
-            expect(stubUserInfoService.getClaimsWasCalled).toEqual(false);
+            expect(getClaimMock).not.toBeCalled();
         });
 
         it("should not load user info claims if no access token", async () => {
@@ -533,13 +523,13 @@ describe("ResponseValidator", () => {
 
             stubResponse.isOpenIdConnect = true;
             stubResponse.profile = { a: 'apple', b: 'banana' };
-            stubUserInfoService.getClaimsResult = Promise.resolve({ c: 'carrot' });
+            const getClaimMock = jest.spyOn(userInfoService, "getClaims").mockImplementation(() => Promise.resolve({ c: 'carrot' }));
 
             // act
             await subject._processClaims({}, stubResponse);
 
             // assert
-            expect(stubUserInfoService.getClaimsWasCalled).toEqual(false);
+            expect(getClaimMock).not.toBeCalled();
         });
     });
 
@@ -803,7 +793,7 @@ describe("ResponseValidator", () => {
         it("should fail if loading keys fails.", async () => {
             // arrange
             const jwt = { header: { kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }};
-            stubMetadataService.getSigningKeysResult = Promise.reject(new Error("keys"));
+            jest.spyOn(metadataService, "getSigningKeys").mockRejectedValue(new Error("keys"));
 
             // act
             try {
@@ -817,7 +807,8 @@ describe("ResponseValidator", () => {
         it("should fetch suitable signing key for the jwt.", async () => {
             // arrange
             const jwt = { header: { kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }};
-            stubMetadataService.getSigningKeysResult = Promise.resolve([{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }, { kid: 'other_key' } ])
+            const keys = [{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }, { kid: 'other_key' } ];
+            jest.spyOn(metadataService, "getSigningKeys").mockImplementation(() => Promise.resolve(keys));
 
             // act
             const result = await subject._getSigningKeyForJwt(jwt);
@@ -832,7 +823,8 @@ describe("ResponseValidator", () => {
         it("should retry once if suitable signing key is not found.", async () => {
             // arrange
             const jwt = { header: { kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }};
-            stubMetadataService.getSigningKeysResult = Promise.resolve([ { kid: 'other_key' } ])
+            const keys = [{ kid: 'other_key' }];
+            jest.spyOn(metadataService, "getSigningKeys").mockImplementation(() => Promise.resolve(keys));
 
             // act
             await subject._getSigningKeyForJwtWithSingleRetry(jwt);
@@ -845,7 +837,8 @@ describe("ResponseValidator", () => {
         it("should not retry if suitable signing key is found.", async () => {
             // arrange
             const jwt = { header: { kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }};
-            stubMetadataService.getSigningKeysResult = Promise.resolve([ { kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' } ])
+            const keys = [{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }];
+            jest.spyOn(metadataService, "getSigningKeys").mockImplementation(() => Promise.resolve(keys));
 
             // act
             await subject._getSigningKeyForJwtWithSingleRetry(jwt);
@@ -886,8 +879,9 @@ describe("ResponseValidator", () => {
             // arrange
             stubState.client_id = "invalid client_id";
             stubResponse.id_token = id_token;
-            stubMetadataService.getIssuerResult = Promise.resolve("test");
-            stubMetadataService.getSigningKeysResult = Promise.resolve([{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }]);
+            jest.spyOn(metadataService, "getIssuer").mockRejectedValue(new Error("test"));
+            const keys = [{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }];
+            jest.spyOn(metadataService, "getSigningKeys").mockImplementation(() => Promise.resolve(keys));
 
             // act
             try {
@@ -918,7 +912,7 @@ describe("ResponseValidator", () => {
             // arrange
             stubState.nonce = "nonce";
             stubResponse.id_token = id_token;
-            stubMetadataService.getIssuerResult = Promise.reject(new Error("issuer"));
+            jest.spyOn(metadataService, "getIssuer").mockRejectedValue(new Error("issuer"));
             jest.spyOn(JoseUtil, "parseJwt").mockImplementation(() => {
                 return { header: { alg: "HS123", typ: "JWT" }, payload: { nonce: stubState.nonce } };
             });
@@ -936,8 +930,8 @@ describe("ResponseValidator", () => {
             // arrange
             stubState.nonce = "nonce";
             stubResponse.id_token = id_token;
-            stubMetadataService.getIssuerResult = Promise.resolve("test");
-            stubMetadataService.getSigningKeysResult = Promise.reject(new Error("keys"));
+            jest.spyOn(metadataService, "getIssuer").mockImplementation(() => Promise.resolve("test"));
+            jest.spyOn(metadataService, "getSigningKeys").mockRejectedValue(new Error("keys"));
             jest.spyOn(JoseUtil, "parseJwt").mockImplementation(() => {
                 return { header: { alg: "HS123", typ: "JWT" }, payload: { nonce: stubState.nonce } };
             });
@@ -955,8 +949,8 @@ describe("ResponseValidator", () => {
             // arrange
             stubState.nonce = "nonce";
             stubResponse.id_token = id_token;
-            stubMetadataService.getIssuerResult = Promise.resolve("test");
-            stubMetadataService.getSigningKeysResult = Promise.resolve([]);
+            jest.spyOn(metadataService, "getIssuer").mockImplementation(() => Promise.resolve("test"));
+            jest.spyOn(metadataService, "getSigningKeys").mockImplementation(() => Promise.resolve([]));
             jest.spyOn(JoseUtil, "parseJwt").mockImplementation(() => {
                 return { header: { alg: "HS123", typ: "JWT" }, payload: { nonce: stubState.nonce } };
             });
@@ -974,8 +968,9 @@ describe("ResponseValidator", () => {
             // arrange
             stubState.nonce = "nonce";
             stubResponse.id_token = id_token;
-            stubMetadataService.getIssuerResult = Promise.resolve("test");
-            stubMetadataService.getSigningKeysResult = Promise.resolve([{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE', kty: "EC" }]);
+            jest.spyOn(metadataService, "getIssuer").mockImplementation(() => Promise.resolve("test"));
+            const keys = [{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE', kty: "EC" }];
+            jest.spyOn(metadataService, "getSigningKeys").mockImplementation(() => Promise.resolve(keys));
             const validateJwtMock = jest.spyOn(JoseUtil, "validateJwt").mockImplementation(() => {
                 return Promise.resolve();
             });
@@ -994,8 +989,9 @@ describe("ResponseValidator", () => {
             // arrange
             stubState.nonce = "nonce";
             stubResponse.id_token = id_token;
-            stubMetadataService.getIssuerResult = Promise.resolve("test");
-            stubMetadataService.getSigningKeysResult = Promise.resolve([{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE', kty: "EC" }]);
+            jest.spyOn(metadataService, "getIssuer").mockImplementation(() => Promise.resolve("test"));
+            const keys = [{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE', kty: "EC" }];
+            jest.spyOn(metadataService, "getSigningKeys").mockImplementation(() => Promise.resolve(keys));
             jest.spyOn(JoseUtil, "validateJwt").mockImplementation(() => {
                 return Promise.resolve();
             });

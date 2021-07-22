@@ -11,11 +11,9 @@ import { SignoutRequest } from '../../src/SignoutRequest';
 import { SignoutResponse } from '../../src/SignoutResponse';
 
 import { StubResponseValidator } from './StubResponseValidator';
-import { StubMetadataService } from './StubMetadataService';
 
 describe("OidcClient", () => {
     let stubResponseValidator: StubResponseValidator;
-    let stubMetadataService: StubMetadataService;
     let settings: any;
     let subject: OidcClient;
 
@@ -24,7 +22,6 @@ describe("OidcClient", () => {
         Log.level = Log.NONE;
 
         stubResponseValidator = new StubResponseValidator();
-        stubMetadataService = new StubMetadataService();
 
         // restore spyOn
         jest.restoreAllMocks();
@@ -34,8 +31,7 @@ describe("OidcClient", () => {
             client_id: 'client',
             redirect_uri: "http://app",
             post_logout_redirect_uri: "http://app",
-            ResponseValidatorCtor: () => stubResponseValidator,
-            MetadataServiceCtor: () => stubMetadataService
+            ResponseValidatorCtor: () => stubResponseValidator
         };
         subject = new OidcClient(settings);
     });
@@ -73,20 +69,11 @@ describe("OidcClient", () => {
 
     });
 
-    describe("metadataService", () => {
-
-        it("should be MetadataService", () => {
-            // assert
-            expect(subject.metadataService).toEqual(stubMetadataService);
-        });
-
-    });
-
     describe("createSigninRequest", () => {
 
         it("should return a promise", async () => {
             // arrange
-            stubMetadataService.getAuthorizationEndpointResult = Promise.resolve("http://sts/authorize");
+            jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
 
             // act
             var p = subject.createSigninRequest();
@@ -98,7 +85,7 @@ describe("OidcClient", () => {
 
         it("should return SigninRequest", async () => {
             // arrange
-            stubMetadataService.getAuthorizationEndpointResult = Promise.resolve("http://sts/authorize");
+            jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
 
             // act
             var request = await subject.createSigninRequest();
@@ -109,7 +96,7 @@ describe("OidcClient", () => {
 
         it("should pass params to SigninRequest", async () => {
             // arrange
-            stubMetadataService.getAuthorizationEndpointResult = Promise.resolve("http://sts/authorize");
+            jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
 
             // act
             var request = await subject.createSigninRequest({
@@ -152,7 +139,7 @@ describe("OidcClient", () => {
 
         it("should pass state in place of data to SigninRequest", async () => {
             // arrange
-            stubMetadataService.getAuthorizationEndpointResult = Promise.resolve("http://sts/authorize");
+            jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
 
             // act
             var request = await subject.createSigninRequest({
@@ -219,7 +206,7 @@ describe("OidcClient", () => {
 
         it("should fail if metadata fails", async () => {
             // arrange
-            stubMetadataService.getAuthorizationEndpointResult = Promise.reject(new Error("test"));
+            jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockRejectedValue(new Error("test"));
 
             // act
             try {
@@ -232,7 +219,7 @@ describe("OidcClient", () => {
 
         it("should fail if seting state into store fails", async () => {
             // arrange
-            stubMetadataService.getAuthorizationEndpointResult = Promise.resolve("http://sts/authorize");
+            jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
             jest.spyOn(subject.settings.stateStore, "set").mockRejectedValue(new Error("foo"));
 
             // act
@@ -246,7 +233,7 @@ describe("OidcClient", () => {
 
         it("should store state", async () => {
             // arrange
-            stubMetadataService.getAuthorizationEndpointResult = Promise.resolve("http://sts/authorize");
+            jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
             const setMock = jest.spyOn(subject.settings.stateStore, "set").mockImplementation(() => Promise.resolve());
 
             // act
@@ -370,7 +357,7 @@ describe("OidcClient", () => {
 
         it("should return a promise", async () => {
             // arrange
-            stubMetadataService.getEndSessionEndpointResult = Promise.resolve("http://sts/signout");
+            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
 
             // act
             var p = subject.createSignoutRequest();
@@ -382,7 +369,7 @@ describe("OidcClient", () => {
 
         it("should return SignoutRequest", async () => {
             // arrange
-            stubMetadataService.getEndSessionEndpointResult = Promise.resolve("http://sts/signout");
+            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
 
             // act
             var request = await subject.createSignoutRequest();
@@ -393,7 +380,7 @@ describe("OidcClient", () => {
 
         it("should pass state in place of data to SignoutRequest", async () => {
             // arrange
-            stubMetadataService.getEndSessionEndpointResult = Promise.resolve("http://sts/signout");
+            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
 
             // act
             const request = await subject.createSignoutRequest({
@@ -413,7 +400,7 @@ describe("OidcClient", () => {
 
         it("should pass params to SignoutRequest", async () => {
             // arrange
-            stubMetadataService.getEndSessionEndpointResult = Promise.resolve("http://sts/signout");
+            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
 
             // act
             const request = await subject.createSignoutRequest({
@@ -433,7 +420,7 @@ describe("OidcClient", () => {
 
         it("should fail if metadata fails", async () => {
             // arrange
-            stubMetadataService.getEndSessionEndpointResult = Promise.reject(new Error("test"));
+            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockRejectedValue(new Error("test"));
 
             // act
             try {
@@ -446,7 +433,7 @@ describe("OidcClient", () => {
 
         it("should fail if no signout endpoint on metadata", async () => {
             // arrange
-            stubMetadataService.getEndSessionEndpointResult = Promise.resolve(undefined);
+            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve(undefined));
 
             // act
             try {
@@ -459,7 +446,7 @@ describe("OidcClient", () => {
 
         it("should store state", async () => {
             // arrange
-            stubMetadataService.getEndSessionEndpointResult = Promise.resolve("http://sts/signout");
+            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
             const setMock = jest.spyOn(subject.settings.stateStore, "set").mockImplementation(() => Promise.resolve());
 
             // act
@@ -473,7 +460,7 @@ describe("OidcClient", () => {
 
         it("should not generate state if no data", async () => {
             // arrange
-            stubMetadataService.getEndSessionEndpointResult = Promise.resolve("http://sts/signout");
+            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
             const setMock = jest.spyOn(subject.settings.stateStore, "set").mockImplementation(() => Promise.resolve());
 
             // act

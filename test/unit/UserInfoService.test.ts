@@ -2,21 +2,23 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { UserInfoService } from '../../src/UserInfoService';
+import { MetadataService } from '../../src/MetadataService';
 
 import { StubJsonService } from './StubJsonService';
-import { StubMetadataService } from './StubMetadataService';
 
 describe("UserInfoService", () => {
     let subject: UserInfoService;
+    let metadataService: MetadataService;
     let stubJsonService: any;
-    let stubMetadataService: any;
 
     beforeEach(() => {
         const settings: any = {};
         stubJsonService = new StubJsonService();
-        stubMetadataService = new StubMetadataService();
         // @ts-ignore
-        subject = new UserInfoService(settings, () => stubJsonService, () => stubMetadataService);
+        subject = new UserInfoService(settings, () => stubJsonService);
+
+        // access private member
+        metadataService = subject["_metadataService"];
     });
 
     describe("getClaims", () => {
@@ -42,7 +44,7 @@ describe("UserInfoService", () => {
 
         it("should call userinfo endpoint and pass token", async () => {
             // arrange
-            stubMetadataService.userInfoEndpointResult = Promise.resolve("http://sts/userinfo");
+            jest.spyOn(metadataService, "getUserInfoEndpoint").mockImplementation(() => Promise.resolve("http://sts/userinfo"));
             stubJsonService.result = Promise.resolve("test");
 
             // act
@@ -55,7 +57,7 @@ describe("UserInfoService", () => {
 
         it("should fail when dependencies fail", async () => {
             // arrange
-            stubMetadataService.userInfoEndpointResult = Promise.reject(new Error("test"));
+            jest.spyOn(metadataService, "getUserInfoEndpoint").mockRejectedValue(new Error("test"));
 
             // act
             try {
@@ -68,7 +70,7 @@ describe("UserInfoService", () => {
 
         it("should return claims", async () => {
             // arrange
-            stubMetadataService.userInfoEndpointResult = Promise.resolve("http://sts/userinfo");
+            jest.spyOn(metadataService, "getUserInfoEndpoint").mockImplementation(() => Promise.resolve("http://sts/userinfo"));
             const expectedClaims = {
                 foo: 1, bar: 'test',
                 aud:'some_aud', iss:'issuer',
