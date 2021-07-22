@@ -10,12 +10,10 @@ import { SigninRequest } from '../../src/SigninRequest';
 import { SignoutRequest } from '../../src/SignoutRequest';
 import { SignoutResponse } from '../../src/SignoutResponse';
 
-import { StubStateStore } from './StubStateStore';
 import { StubResponseValidator } from './StubResponseValidator';
 import { StubMetadataService } from './StubMetadataService';
 
 describe("OidcClient", () => {
-    let stubStore: any;
     let stubResponseValidator: StubResponseValidator;
     let stubMetadataService: StubMetadataService;
     let settings: any;
@@ -25,16 +23,17 @@ describe("OidcClient", () => {
         Log.logger = console;
         Log.level = Log.NONE;
 
-        stubStore = new StubStateStore();
         stubResponseValidator = new StubResponseValidator();
         stubMetadataService = new StubMetadataService();
+
+        // restore spyOn
+        jest.restoreAllMocks();
 
         settings = {
             authority: 'authority',
             client_id: 'client',
             redirect_uri: "http://app",
             post_logout_redirect_uri: "http://app",
-            stateStore: stubStore,
             ResponseValidatorCtor: () => stubResponseValidator,
             MetadataServiceCtor: () => stubMetadataService
         };
@@ -234,7 +233,7 @@ describe("OidcClient", () => {
         it("should fail if seting state into store fails", async () => {
             // arrange
             stubMetadataService.getAuthorizationEndpointResult = Promise.resolve("http://sts/authorize");
-            stubStore.error = "foo";
+            jest.spyOn(subject.settings.stateStore, "set").mockRejectedValue(new Error("foo"));
 
             // act
             try {
@@ -248,12 +247,13 @@ describe("OidcClient", () => {
         it("should store state", async () => {
             // arrange
             stubMetadataService.getAuthorizationEndpointResult = Promise.resolve("http://sts/authorize");
+            const setMock = jest.spyOn(subject.settings.stateStore, "set").mockImplementation(() => Promise.resolve());
 
             // act
             await subject.createSigninRequest();
 
             // assert
-            expect(stubStore.item).toBeDefined();
+            expect(setMock).toBeCalled();
         });
     });
 
@@ -270,7 +270,7 @@ describe("OidcClient", () => {
 
         it("should fail if no state on response", async () => {
             // arrange
-            stubStore.item = "state";
+            jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve("state"));
 
             // act
             try {
@@ -283,7 +283,7 @@ describe("OidcClient", () => {
 
         it("should fail if storage fails", async () => {
             // arrange
-            stubStore.error = "fail";
+            jest.spyOn(subject.settings.stateStore, "get").mockRejectedValue(new Error("fail"));
 
             // act
             try {
@@ -296,7 +296,8 @@ describe("OidcClient", () => {
 
         it("should deserialize stored state and return state and response", async () => {
             // arrange
-            stubStore.item = new SigninState({ id: '1', nonce: '2', authority:'authority', client_id:'client', request_type:'type' }).toStorageString();
+            const item = new SigninState({ id: '1', nonce: '2', authority:'authority', client_id:'client', request_type:'type' }).toStorageString();
+            jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item));
 
             // act
             let { state, response } = await subject.readSigninResponseState("state=1")
@@ -324,7 +325,7 @@ describe("OidcClient", () => {
 
         it("should fail if no state on response", async () => {
             // arrange
-            stubStore.item = "state";
+            jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve("state"));
 
             // act
             try {
@@ -337,7 +338,7 @@ describe("OidcClient", () => {
 
         it("should fail if storage fails", async () => {
             // arrange
-            stubStore.error = "fail";
+            jest.spyOn(subject.settings.stateStore, "remove").mockRejectedValue(new Error("fail"));
 
             // act
             try {
@@ -350,7 +351,8 @@ describe("OidcClient", () => {
 
         it("should deserialize stored state and call validator", async () => {
             // arrange
-            stubStore.item = new SigninState({ id: '1', nonce: '2', authority:'authority', client_id:'client' }).toStorageString();
+            const item = new SigninState({ id: '1', nonce: '2', authority:'authority', client_id:'client' }).toStorageString();
+            jest.spyOn(subject.settings.stateStore, "remove").mockImplementation(() => Promise.resolve(item));
 
             // act
             let response = await subject.processSigninResponse("state=1");
@@ -458,6 +460,7 @@ describe("OidcClient", () => {
         it("should store state", async () => {
             // arrange
             stubMetadataService.getEndSessionEndpointResult = Promise.resolve("http://sts/signout");
+            const setMock = jest.spyOn(subject.settings.stateStore, "set").mockImplementation(() => Promise.resolve());
 
             // act
             await subject.createSignoutRequest({
@@ -465,18 +468,19 @@ describe("OidcClient", () => {
             });
 
             // assert
-            expect(stubStore.item).toBeDefined();
+            expect(setMock).toBeCalled();
         });
 
         it("should not generate state if no data", async () => {
             // arrange
             stubMetadataService.getEndSessionEndpointResult = Promise.resolve("http://sts/signout");
+            const setMock = jest.spyOn(subject.settings.stateStore, "set").mockImplementation(() => Promise.resolve());
 
             // act
             await subject.createSignoutRequest();
 
             // assert
-            expect(stubStore.item).toBeUndefined();
+            expect(setMock).not.toBeCalled();
         });
     });
 
@@ -510,7 +514,7 @@ describe("OidcClient", () => {
 
         it("should fail if storage fails", async () => {
             // arrange
-            stubStore.error = "fail";
+            jest.spyOn(subject.settings.stateStore, "get").mockRejectedValue(new Error("fail"));
 
             // act
             try {
@@ -523,7 +527,8 @@ describe("OidcClient", () => {
 
         it("should deserialize stored state and return state and response", async () => {
             // arrange
-            stubStore.item = new State({ id: '1', request_type:'type' }).toStorageString();
+            const item = new State({ id: '1', request_type:'type' }).toStorageString();
+            jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item));
 
             // act
             const { state, response } = await subject.readSignoutResponseState("state=1");
@@ -537,7 +542,8 @@ describe("OidcClient", () => {
 
         it("should call validator with state even if error in response", async () => {
             // arrange
-            stubStore.item = new State({ id: '1', data:"bar" }).toStorageString();
+            const item = new State({ id: '1', data:"bar" }).toStorageString();
+            jest.spyOn(subject.settings.stateStore, "remove").mockImplementation(() => Promise.resolve(item));
 
             // act
             const response = await subject.processSignoutResponse("state=1&error=foo");
@@ -579,7 +585,7 @@ describe("OidcClient", () => {
 
         it("should fail if storage fails", async () => {
             // arrange
-            stubStore.error = "fail";
+            jest.spyOn(subject.settings.stateStore, "remove").mockRejectedValue(new Error("fail"));
 
             // act
             try {
@@ -592,7 +598,8 @@ describe("OidcClient", () => {
 
         it("should deserialize stored state and call validator", async () => {
             // arrange
-            stubStore.item = new State({ id: '1' }).toStorageString();
+            const item = new State({ id: '1' }).toStorageString();
+            jest.spyOn(subject.settings.stateStore, "remove").mockImplementation(() => Promise.resolve(item));
 
             // act
             const response = await subject.processSignoutResponse("state=1");
@@ -604,7 +611,8 @@ describe("OidcClient", () => {
 
         it("should call validator with state even if error in response", async () => {
             // arrange
-            stubStore.item = new State({ id: '1', data:"bar" }).toStorageString();
+            const item = new State({ id: '1', data:"bar" }).toStorageString();
+            jest.spyOn(subject.settings.stateStore, "remove").mockImplementation(() => Promise.resolve(item));
 
             // act
             const response = await subject.processSignoutResponse("state=1&error=foo");
