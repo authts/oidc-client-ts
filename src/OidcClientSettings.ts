@@ -164,8 +164,8 @@ export class OidcClientSettingsStore {
         this._mergeClaims = !!mergeClaims;
 
         this._stateStore = stateStore;
-        this._validator = new ResponseValidatorCtor(this);
         this._metadataService = new MetadataServiceCtor(this);
+        this._validator = new ResponseValidatorCtor(this, this._metadataService);
 
         this._extraQueryParams = typeof extraQueryParams === 'object' ? extraQueryParams : {};
         this._extraTokenParams = typeof extraTokenParams === 'object' ? extraTokenParams : {};

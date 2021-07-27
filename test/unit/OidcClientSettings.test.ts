@@ -507,7 +507,8 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // arrange
             const dummy = new OidcClientSettingsStore();
-            const mock = mocked(new ResponseValidator(dummy));
+            const metadataService = new MetadataService(dummy);
+            const mock = mocked(new ResponseValidator(dummy, metadataService));
             const settings: any = {
                 client_id: 'client',
                 ResponseValidatorCtor: () => mock

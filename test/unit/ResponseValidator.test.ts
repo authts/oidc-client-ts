@@ -35,19 +35,18 @@ describe("ResponseValidator", () => {
             state: 'the_id',
             isOpenIdConnect: false
         };
-
         settings = {
             authority: "op",
             client_id: 'client'
         };
+        metadataService = new MetadataService(settings);
 
         // restore spyOn
         jest.restoreAllMocks();
 
-        subject = new ResponseValidator(settings);
+        subject = new ResponseValidator(settings, metadataService);
 
         // access private members
-        metadataService = subject["_metadataService"];
         userInfoService = subject["_userInfoService"];
     });
 
@@ -241,7 +240,7 @@ describe("ResponseValidator", () => {
             delete settings.authority;
             stubState.authority = "something different";
             stubResponse.id_token = id_token;
-            subject = new ResponseValidator(settings);
+            subject = new ResponseValidator(settings, metadataService);
 
             // act
             await subject._processSigninParams(stubState, stubResponse);
@@ -255,7 +254,7 @@ describe("ResponseValidator", () => {
             delete settings.client_id;
             stubState.client_id = "something different";
             stubResponse.id_token = id_token;
-            subject = new ResponseValidator(settings);
+            subject = new ResponseValidator(settings, metadataService);
 
             // act
             await subject._processSigninParams(stubState, stubResponse);

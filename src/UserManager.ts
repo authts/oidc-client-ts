@@ -50,8 +50,8 @@ export class UserManager extends OidcClient {
             this._sessionMonitor = new SessionMonitorCtor(this);
         }
 
-        this._tokenRevocationClient = new TokenRevocationClientCtor(this._settings);
-        this._tokenClient = new TokenClientCtor(this._settings);
+        this._tokenRevocationClient = new TokenRevocationClientCtor(this._settings, this._settings.metadataService);
+        this._tokenClient = new TokenClientCtor(this._settings, this._settings.metadataService);
     }
 
     get settings(): UserManagerSettingsStore {

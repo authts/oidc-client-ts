@@ -11,11 +11,13 @@ describe("UserInfoService", () => {
     let jsonService: JsonService;
 
     beforeEach(() => {
-        const settings: any = {};
-        subject = new UserInfoService(settings);
+        const settings: any = {
+        };
+        metadataService = new MetadataService(settings);
+
+        subject = new UserInfoService(settings, metadataService);
 
         // access private members
-        metadataService = subject["_metadataService"];
         jsonService = subject["_jsonService"];
     });
 

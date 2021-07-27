@@ -21,7 +21,7 @@ export class ResponseValidator {
     private _tokenClient: TokenClient;
 
     constructor(settings: OidcClientSettingsStore,
-        MetadataServiceCtor = MetadataService,
+        metadataService: MetadataService,
         UserInfoServiceCtor = UserInfoService,
         TokenClientCtor = TokenClient) {
         if (!settings) {
@@ -30,9 +30,9 @@ export class ResponseValidator {
         }
 
         this._settings = settings;
-        this._metadataService = new MetadataServiceCtor(this._settings);
-        this._userInfoService = new UserInfoServiceCtor(this._settings);
-        this._tokenClient = new TokenClientCtor(this._settings);
+        this._metadataService = metadataService;
+        this._userInfoService = new UserInfoServiceCtor(this._settings, metadataService);
+        this._tokenClient = new TokenClientCtor(this._settings, metadataService);
     }
 
     async validateSigninResponse(state: SigninState, response: SigninResponse) {
