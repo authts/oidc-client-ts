@@ -11,7 +11,11 @@ const OidcMetadataUrlPath = '.well-known/openid-configuration';
 export class MetadataService {
     private _settings: OidcClientSettingsStore
     private _jsonService: JsonService
+
+    // cache
     private _metadataUrl: string | undefined
+    private _signingKeys: any[] | null;
+    private _metadata: Partial<OidcMetadata> | null;
 
     constructor(settings: OidcClientSettingsStore, JsonServiceCtor = JsonService) {
         if (!settings) {
@@ -21,7 +25,20 @@ export class MetadataService {
 
         this._settings = settings;
         this._jsonService = new JsonServiceCtor(['application/jwk-set+json']);
+
         this._metadataUrl = undefined
+
+        this._signingKeys = null;
+        if (this._settings.signingKeys) {
+            Log.debug("MetadataService.ctor: Using signingKeys from settings");
+            this._signingKeys = this._settings.signingKeys;
+        }
+
+        this._metadata = null;
+        if (this._settings.metadata) {
+            Log.debug("MetadataService.ctor: Using metadata from settings");
+            this._metadata = this._settings.metadata;
+        }
     }
 
     get metadataUrl(): string {
@@ -45,13 +62,13 @@ export class MetadataService {
     }
 
     resetSigningKeys() {
-        this._settings.signingKeys = undefined
+        this._signingKeys = null
     }
 
     async getMetadata(): Promise<Partial<OidcMetadata>> {
-        if (this._settings.metadata) {
-            Log.debug("MetadataService.getMetadata: Returning metadata from settings");
-            return this._settings.metadata;
+        if (this._metadata) {
+            Log.debug("MetadataService.getMetadata: Returning metadata from cache");
+            return this._metadata;
         }
 
         if (!this.metadataUrl) {
@@ -64,8 +81,8 @@ export class MetadataService {
 
         Log.debug("MetadataService.getMetadata: json received");
         var seed = this._settings.metadataSeed || {};
-        this._settings.metadata = Object.assign({}, seed, metadata) as Partial<OidcMetadata>;
-        return this._settings.metadata;
+        this._metadata = Object.assign({}, seed, metadata) as Partial<OidcMetadata>;
+        return this._metadata;
     }
 
     getIssuer() {
@@ -121,9 +138,9 @@ export class MetadataService {
     }
 
     async getSigningKeys() {
-        if (this._settings.signingKeys) {
-            Log.debug("MetadataService.getSigningKeys: Returning signingKeys from settings");
-            return this._settings.signingKeys;
+        if (this._signingKeys) {
+            Log.debug("MetadataService.getSigningKeys: Returning signingKeys from cache");
+            return this._signingKeys;
         }
 
         const jwks_uri = await this.getKeysEndpoint(false);
@@ -137,7 +154,7 @@ export class MetadataService {
             throw new Error("Missing keys on keyset");
         }
 
-        this._settings.signingKeys = keySet.keys;
-        return this._settings.signingKeys;
+        this._signingKeys = keySet.keys;
+        return this._signingKeys;
     }
 }

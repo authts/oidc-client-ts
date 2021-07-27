@@ -257,26 +257,14 @@ export class OidcClientSettingsStore {
 
         return this._metadataUrl;
     }
-
-    // settable/cachable metadata values
     get metadata() {
         return this._metadata;
-    }
-    set metadata(value) {
-        this._metadata = value;
     }
     get metadataSeed() {
         return this._metadataSeed;
     }
-    set metadataSeed(value) {
-        this._metadataSeed = value;
-    }
-
     get signingKeys() {
         return this._signingKeys;
-    }
-    set signingKeys(value) {
-        this._signingKeys = value;
     }
 
     // behavior flags

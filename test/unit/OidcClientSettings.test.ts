@@ -313,18 +313,6 @@ describe("OidcClientSettings", () => {
             // assert
             expect(subject.metadata).toEqual({ issuer: "test" });
         });
-
-        it("should store value", () => {
-            // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
-            });
-            subject.metadata = { issuer: "test" };
-
-            // assert
-            expect(subject.metadata).toEqual({ issuer: "test" });
-        });
-
     });
 
     describe("signingKeys", () => {
@@ -338,20 +326,6 @@ describe("OidcClientSettings", () => {
             // assert
             expect(subject.signingKeys).toEqual(["test"]);
         });
-
-        it("should store value", () => {
-            // arrange
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
-            });
-
-            // act
-            subject.signingKeys = ["test"];
-
-            // assert
-            expect(subject.signingKeys).toEqual(["test"]);
-        });
-
     });
 
     describe("filterProtocolClaims", () => {

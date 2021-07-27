@@ -23,7 +23,6 @@ describe("MetadataService", () => {
     });
 
     describe("getMetadata", () => {
-
         it("should return a promise", async () => {
             // act
             const p = subject.getMetadata();
@@ -35,7 +34,10 @@ describe("MetadataService", () => {
 
         it("should use metadata on settings", async () => {
             // arrange
-            settings.metadata = "test";
+            settings = {
+                metadata: "test",
+            };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject.getMetadata();
@@ -45,9 +47,6 @@ describe("MetadataService", () => {
         });
 
         it("should require metadataUrl", async () => {
-            // arrange
-            delete settings.metadataUrl;
-
             // act
             try {
                 await subject.getMetadata();
@@ -57,14 +56,14 @@ describe("MetadataService", () => {
             }
         });
 
-        it("should use metadataUrl to make json call", () => {
+        it("should use metadataUrl to make json call", async () => {
             // arrange
             settings.metadataUrl = "http://sts/metadata";
             const getJsonMock = jest.spyOn(jsonService, "getJson")
                 .mockImplementation(() => Promise.resolve('test'));
 
             // act
-            subject.getMetadata();
+            await subject.getMetadata();
 
             // assert
             expect(getJsonMock).toBeCalledWith("http://sts/metadata");
@@ -93,7 +92,8 @@ describe("MetadataService", () => {
             await subject.getMetadata();
 
             // assert
-            expect(settings.metadata).toEqual(json);
+            const _metadata = subject["_metadata"] // access private member
+            expect(_metadata).toEqual(json);
         });
 
         it("should merge metadata from seed", async () => {
@@ -107,7 +107,8 @@ describe("MetadataService", () => {
 
             // assert
             expect(result).toEqual({test1:"one", test2:"two"});
-            expect(settings.metadata).toEqual({test1:"one", test2:"two"});
+            const _metadata = subject["_metadata"] // access private member
+            expect(_metadata).toEqual({test1:"one", test2:"two"});
         });
 
         it("should fail if json call fails", async () => {
@@ -138,9 +139,12 @@ describe("MetadataService", () => {
 
         it("should use metadata on settings", async () => {
             // arrange
-            settings.metadata = {
-                issuer: "test"
+            settings = {
+                metadata: {
+                    issuer: "test"
+                },
             };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject._getMetadataProperty("issuer");
@@ -151,8 +155,11 @@ describe("MetadataService", () => {
 
         it("should fail if no data on metadata", async () => {
             // arrange
-            settings.metadata = {
+            settings = {
+                metadata: {
+                }
             };
+            subject = new MetadataService(settings);
 
             // act
             try {
@@ -176,16 +183,18 @@ describe("MetadataService", () => {
                 expect(err.message).toContain("test");
             }
         });
-
     });
 
     describe("getAuthorizationEndpoint", () => {
 
         it("should return value from metadata", async () => {
             // arrange
-            settings.metadata = {
-                authorization_endpoint: "http://sts/authorize"
+            settings = {
+                metadata: {
+                    authorization_endpoint: "http://sts/authorize"
+                }
             };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject.getAuthorizationEndpoint();
@@ -200,9 +209,12 @@ describe("MetadataService", () => {
 
         it("should return value from", async () => {
             // arrange
-            settings.metadata = {
-                userinfo_endpoint: "http://sts/userinfo"
+            settings = {
+                metadata: {
+                    userinfo_endpoint: "http://sts/userinfo"
+                }
             };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject.getUserInfoEndpoint();
@@ -217,9 +229,12 @@ describe("MetadataService", () => {
 
         it("should return value from", async () => {
             // arrange
-            settings.metadata = {
-                end_session_endpoint: "http://sts/signout"
+            settings = {
+                metadata: {
+                    end_session_endpoint: "http://sts/signout"
+                }
             };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject.getEndSessionEndpoint();
@@ -230,8 +245,11 @@ describe("MetadataService", () => {
 
         it("should support optional value", async () => {
             // arrange
-            settings.metadata = {
+            settings = {
+                metadata: {
+                }
             };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject.getEndSessionEndpoint();
@@ -246,9 +264,12 @@ describe("MetadataService", () => {
 
         it("should return value from", async () => {
             // arrange
-            settings.metadata = {
-                check_session_iframe: "http://sts/check_session"
+            settings = {
+                metadata: {
+                    check_session_iframe: "http://sts/check_session"
+                }
             };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject.getCheckSessionIframe();
@@ -259,8 +280,11 @@ describe("MetadataService", () => {
 
         it("should support optional value", async () => {
             // arrange
-            settings.metadata = {
+            settings = {
+                metadata: {
+                }
             };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject.getCheckSessionIframe();
@@ -275,9 +299,12 @@ describe("MetadataService", () => {
 
         it("should return value from", async () => {
             // arrange
-            settings.metadata = {
-                issuer: "http://sts"
+            settings = {
+                metadata: {
+                    issuer: "http://sts"
+                }
             };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject.getIssuer();
@@ -301,7 +328,10 @@ describe("MetadataService", () => {
 
         it("should use signingKeys on settings", async () => {
             // arrange
-            settings.signingKeys = "test";
+            settings = {
+                signingKeys: "test"
+            };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject.getSigningKeys();
@@ -312,7 +342,10 @@ describe("MetadataService", () => {
 
         it("should fail if metadata does not have jwks_uri", async () => {
             // arrange
-            settings.metadata = "test";
+            settings = {
+                metadata: "test"
+            };
+            subject = new MetadataService(settings);
 
             // act
             try {
@@ -325,9 +358,13 @@ describe("MetadataService", () => {
 
         it("should fail if keys missing on keyset from jwks_uri", async () => {
             // arrange
-            settings.metadata = {
-                jwks_uri: "http://sts/metadata/keys"
+            settings = {
+                metadata: {
+                    jwks_uri: "http://sts/metadata/keys"
+                }
             };
+            subject = new MetadataService(settings);
+            jsonService = subject["_jsonService"]; // access private member
             jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({}));
 
             // act
@@ -341,9 +378,13 @@ describe("MetadataService", () => {
 
         it("should make json call to jwks_uri", async () => {
             // arrange
-            settings.metadata = {
-                jwks_uri: "http://sts/metadata/keys"
+            settings = {
+                metadata: {
+                    jwks_uri: "http://sts/metadata/keys"
+                }
             };
+            subject = new MetadataService(settings);
+            jsonService = subject["_jsonService"]; // access private member
             const json = {
                 keys: [{
                     use:'sig',
@@ -362,9 +403,13 @@ describe("MetadataService", () => {
 
         it("should return keys from jwks_uri", async () => {
             // arrange
-            settings.metadata = {
-                jwks_uri: "http://sts/metadata/keys"
+            settings = {
+                metadata: {
+                    jwks_uri: "http://sts/metadata/keys"
+                }
             };
+            subject = new MetadataService(settings);
+            jsonService = subject["_jsonService"]; // access private member
             const expectedKeys = [{
                 use:'sig',
                 kid:"test"
@@ -381,11 +426,15 @@ describe("MetadataService", () => {
             expect(result).toEqual(expectedKeys);
         });
 
-        it("should cache keys in settings", async () => {
+        it("should cache keys from json call", async () => {
             // arrange
-            settings.metadata = {
-                jwks_uri: "http://sts/metadata/keys"
+            settings = {
+                metadata: {
+                    jwks_uri: "http://sts/metadata/keys"
+                }
             };
+            subject = new MetadataService(settings);
+            jsonService = subject["_jsonService"]; // access private member
             const expectedKeys = [{
                 use:'sig',
                 kid:"test"
@@ -399,7 +448,8 @@ describe("MetadataService", () => {
             await subject.getSigningKeys();
 
             // assert
-            expect(settings.signingKeys).toEqual(expectedKeys);
+            const _signingKeys = subject["_signingKeys"] // access private member
+            expect(_signingKeys).toEqual(expectedKeys);
         });
     });
 });
