@@ -3,13 +3,10 @@
 
 import { Log } from '../../src/utils';
 import { MetadataService } from '../../src/MetadataService';
-import { JsonService } from '../../src/JsonService';
 
 describe("MetadataService", () => {
     let settings: any
     let subject: MetadataService;
-
-    let jsonService: JsonService;
 
     beforeEach(() => {
         Log.logger = console;
@@ -17,9 +14,6 @@ describe("MetadataService", () => {
 
         settings = {};
         subject = new MetadataService(settings);
-
-        // access private member
-        jsonService = subject["_jsonService"];
     });
 
     describe("getMetadata", () => {
@@ -58,7 +52,11 @@ describe("MetadataService", () => {
 
         it("should use metadataUrl to make json call", async () => {
             // arrange
-            settings.metadataUrl = "http://sts/metadata";
+            settings = {
+                metadataUrl: "http://sts/metadata"
+            };
+            subject = new MetadataService(settings);
+            const jsonService = subject["_jsonService"]; // access private member
             const getJsonMock = jest.spyOn(jsonService, "getJson")
                 .mockImplementation(() => Promise.resolve('test'));
 
@@ -71,7 +69,11 @@ describe("MetadataService", () => {
 
         it("should return metadata from json call", async () => {
             // arrange
-            settings.metadataUrl = "http://sts/metadata";
+            settings = {
+                metadataUrl: "http://sts/metadata"
+            };
+            subject = new MetadataService(settings);
+            const jsonService = subject["_jsonService"]; // access private member
             const json = { "test": "data" };
             jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
 
@@ -84,7 +86,11 @@ describe("MetadataService", () => {
 
         it("should cache metadata from json call", async () => {
             // arrange
-            settings.metadataUrl = "http://sts/metadata";
+            settings = {
+                metadataUrl: "http://sts/metadata"
+            };
+            subject = new MetadataService(settings);
+            const jsonService = subject["_jsonService"]; // access private member
             const json = { test: "value" };
             jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
 
@@ -98,8 +104,12 @@ describe("MetadataService", () => {
 
         it("should merge metadata from seed", async () => {
             // arrange
-            settings.metadataUrl = "http://sts/metadata";
-            settings.metadataSeed = {test1:"one"};
+            settings = {
+                metadataUrl: "http://sts/metadata",
+                metadataSeed: {test1:"one"}
+            };
+            subject = new MetadataService(settings);
+            const jsonService = subject["_jsonService"]; // access private member
             jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({test2:"two"}));
 
             // act
@@ -113,7 +123,11 @@ describe("MetadataService", () => {
 
         it("should fail if json call fails", async () => {
             // arrange
-            settings.metadataUrl = "http://sts/metadata";
+            settings = {
+                metadataUrl: "http://sts/metadata"
+            };
+            subject = new MetadataService(settings);
+            const jsonService = subject["_jsonService"]; // access private member
             jest.spyOn(jsonService, "getJson").mockRejectedValue(new Error("test"));
 
             // act
@@ -172,7 +186,11 @@ describe("MetadataService", () => {
 
          it("should fail if json call to load metadata fails", async () => {
             // arrange
-            settings.metadataUrl = "http://sts/metadata";
+            settings = {
+                metadataUrl: "http://sts/metadata"
+            };
+            subject = new MetadataService(settings);
+            const jsonService = subject["_jsonService"]; // access private member
             jest.spyOn(jsonService, "getJson").mockRejectedValue(new Error("test"));
 
             // act
@@ -364,7 +382,7 @@ describe("MetadataService", () => {
                 }
             };
             subject = new MetadataService(settings);
-            jsonService = subject["_jsonService"]; // access private member
+            const jsonService = subject["_jsonService"]; // access private member
             jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({}));
 
             // act
@@ -384,7 +402,7 @@ describe("MetadataService", () => {
                 }
             };
             subject = new MetadataService(settings);
-            jsonService = subject["_jsonService"]; // access private member
+            const jsonService = subject["_jsonService"]; // access private member
             const json = {
                 keys: [{
                     use:'sig',
@@ -409,7 +427,7 @@ describe("MetadataService", () => {
                 }
             };
             subject = new MetadataService(settings);
-            jsonService = subject["_jsonService"]; // access private member
+            const jsonService = subject["_jsonService"]; // access private member
             const expectedKeys = [{
                 use:'sig',
                 kid:"test"
@@ -434,7 +452,7 @@ describe("MetadataService", () => {
                 }
             };
             subject = new MetadataService(settings);
-            jsonService = subject["_jsonService"]; // access private member
+            const jsonService = subject["_jsonService"]; // access private member
             const expectedKeys = [{
                 use:'sig',
                 kid:"test"

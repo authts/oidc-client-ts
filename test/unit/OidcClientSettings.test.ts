@@ -230,17 +230,6 @@ describe("OidcClientSettings", () => {
             // assert
             expect(subject.metadataUrl).toEqual("http://sts/metadata");
         });
-
-        it("should infer value from authority", () => {
-            // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
-                authority: "http://sts"
-            });
-
-            // assert
-            expect(subject.metadataUrl).toEqual("http://sts/.well-known/openid-configuration");
-        });
     });
 
     describe("metadata", () => {

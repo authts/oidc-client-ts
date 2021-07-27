@@ -8,8 +8,6 @@ import { MetadataService } from './MetadataService';
 import { OidcMetadata } from './OidcMetadata'
 import { StateStore } from './StateStore'
 
-const OidcMetadataUrlPath = '.well-known/openid-configuration';
-
 const DefaultResponseType = "id_token";
 const DefaultScope = "openid";
 const DefaultClientAuthentication = "client_secret_post" // The default value must be client_secret_basic, as explained in https://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication
@@ -193,7 +191,6 @@ export class OidcClientSettingsStore {
         return this._client_authentication;
     }
 
-
     // optional protocol params
     get prompt() {
         return this._prompt;
@@ -217,23 +214,11 @@ export class OidcClientSettingsStore {
         return this._response_mode;
     }
 
-
     // metadata
     get authority() {
         return this._authority;
     }
     get metadataUrl() {
-        if (!this._metadataUrl) {
-            this._metadataUrl = this.authority;
-
-            if (this._metadataUrl && this._metadataUrl.indexOf(OidcMetadataUrlPath) < 0) {
-                if (this._metadataUrl[this._metadataUrl.length - 1] !== '/') {
-                    this._metadataUrl += '/';
-                }
-                this._metadataUrl += OidcMetadataUrlPath;
-            }
-        }
-
         return this._metadataUrl;
     }
     get metadata() {

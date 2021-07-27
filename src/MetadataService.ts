@@ -13,7 +13,7 @@ export class MetadataService {
     private _jsonService: JsonService
 
     // cache
-    private _metadataUrl: string | undefined
+    private _metadataUrl: string | null;
     private _signingKeys: any[] | null;
     private _metadata: Partial<OidcMetadata> | null;
 
@@ -26,7 +26,16 @@ export class MetadataService {
         this._settings = settings;
         this._jsonService = new JsonServiceCtor(['application/jwk-set+json']);
 
-        this._metadataUrl = undefined
+        this._metadataUrl = null;
+        if (this._settings.metadataUrl) {
+            this._metadataUrl = this._settings.metadataUrl;
+        } else if (this._settings.authority) {
+            this._metadataUrl = this._settings.authority;
+            if (this._metadataUrl[this._metadataUrl.length - 1] !== '/') {
+                this._metadataUrl += '/';
+            }
+            this._metadataUrl += OidcMetadataUrlPath;
+        }
 
         this._signingKeys = null;
         if (this._settings.signingKeys) {
@@ -41,26 +50,6 @@ export class MetadataService {
         }
     }
 
-    get metadataUrl(): string {
-        if (!this._metadataUrl) {
-            if (this._settings.metadataUrl) {
-                this._metadataUrl = this._settings.metadataUrl;
-            }
-            else {
-                this._metadataUrl = this._settings.authority;
-
-                if (this._metadataUrl && this._metadataUrl.indexOf(OidcMetadataUrlPath) < 0) {
-                    if (this._metadataUrl[this._metadataUrl.length - 1] !== '/') {
-                        this._metadataUrl += '/';
-                    }
-                    this._metadataUrl += OidcMetadataUrlPath;
-                }
-            }
-        }
-
-        return this._metadataUrl || "";
-    }
-
     resetSigningKeys() {
         this._signingKeys = null
     }
@@ -71,13 +60,13 @@ export class MetadataService {
             return this._metadata;
         }
 
-        if (!this.metadataUrl) {
+        if (!this._metadataUrl) {
             Log.error("MetadataService.getMetadata: No authority or metadataUrl configured on settings");
             throw new Error("No authority or metadataUrl configured on settings");
         }
 
-        Log.debug("MetadataService.getMetadata: getting metadata from", this.metadataUrl);
-        const metadata = await this._jsonService.getJson(this.metadataUrl);
+        Log.debug("MetadataService.getMetadata: getting metadata from", this._metadataUrl);
+        const metadata = await this._jsonService.getJson(this._metadataUrl);
 
         Log.debug("MetadataService.getMetadata: json received");
         var seed = this._settings.metadataSeed || {};
