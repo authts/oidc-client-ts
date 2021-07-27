@@ -1,7 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from './utils';
 import { ClockService } from './ClockService';
 import { WebStorageStateStore } from './WebStorageStateStore';
 import { ResponseValidator } from './ResponseValidator';
@@ -71,7 +70,7 @@ export interface OidcClientSettings {
 }
 
 export class OidcClientSettingsStore {
-    private _authority?: string;
+    private _authority: string;
     private _metadataUrl?: string;
     private _metadata?: Partial<OidcMetadata>;
     private _metadataSeed?: Partial<OidcMetadata>;
@@ -110,7 +109,7 @@ export class OidcClientSettingsStore {
 
     constructor({
         // metadata related
-        authority, metadataUrl, metadata, signingKeys, metadataSeed,
+        authority = "", metadataUrl, metadata, signingKeys, metadataSeed,
         // client related
         client_id = "", client_secret, response_type = DefaultResponseType, scope = DefaultScope,
         redirect_uri, post_logout_redirect_uri,
@@ -175,16 +174,6 @@ export class OidcClientSettingsStore {
     get client_id() {
         return this._client_id;
     }
-    set client_id(value) {
-        if (!this._client_id) {
-            // one-time set only
-            this._client_id = value;
-        }
-        else {
-            Log.error("OidcClientSettings.set_client_id: client_id has already been assigned.")
-            throw new Error("client_id has already been assigned.")
-        }
-    }
     get client_secret() {
         return this._client_secret;
     }
@@ -232,16 +221,6 @@ export class OidcClientSettingsStore {
     // metadata
     get authority() {
         return this._authority;
-    }
-    set authority(value) {
-        if (!this._authority) {
-            // one-time set only
-            this._authority = value;
-        }
-        else {
-            Log.error("OidcClientSettings.set_authority: authority has already been assigned.")
-            throw new Error("authority has already been assigned.")
-        }
     }
     get metadataUrl() {
         if (!this._metadataUrl) {
@@ -297,28 +276,12 @@ export class OidcClientSettingsStore {
         return this._metadataService;
     }
 
-    // extra query params
+    // extra
     get extraQueryParams() {
         return this._extraQueryParams;
     }
-    set extraQueryParams(value) {
-        if (typeof value === 'object'){
-            this._extraQueryParams = value;
-        } else {
-            this._extraQueryParams = {};
-        }
-    }
-
-    // extra token params
     get extraTokenParams() {
         return this._extraTokenParams;
-    }
-    set extraTokenParams(value) {
-        if (typeof value === 'object'){
-            this._extraTokenParams = value;
-        } else {
-            this._extraTokenParams = {};
-        }
     }
 
     // get the time

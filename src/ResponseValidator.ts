@@ -86,21 +86,12 @@ export class ResponseValidator {
             throw new Error("No authority on state");
         }
 
-        // this allows the authority to be loaded from the signin state
-        if (!this._settings.authority) {
-            this._settings.authority = state.authority;
-        }
-        // ensure we're using the correct authority if the authority is not loaded from signin state
-        else if (this._settings.authority && this._settings.authority !== state.authority) {
+        // ensure we're using the correct authority
+        if (this._settings.authority !== state.authority) {
             Log.error("ResponseValidator._processSigninParams: authority mismatch on settings vs. signin state");
             throw new Error("authority mismatch on settings vs. signin state");
         }
-        // this allows the client_id to be loaded from the signin state
-        if (!this._settings.client_id) {
-            this._settings.client_id = state.client_id;
-        }
-        // ensure we're using the correct client_id if the client_id is not loaded from signin state
-        else if (this._settings.client_id && this._settings.client_id !== state.client_id) {
+        if (this._settings.client_id && this._settings.client_id !== state.client_id) {
             Log.error("ResponseValidator._processSigninParams: client_id mismatch on settings vs. signin state");
             throw new Error("client_id mismatch on settings vs. signin state");
         }

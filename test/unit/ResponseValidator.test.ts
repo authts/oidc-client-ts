@@ -235,34 +235,6 @@ describe("ResponseValidator", () => {
             }
         });
 
-        it("should assign the authority on the settings if not already assigned", async () => {
-            // arrange
-            delete settings.authority;
-            stubState.authority = "something different";
-            stubResponse.id_token = id_token;
-            subject = new ResponseValidator(settings, metadataService);
-
-            // act
-            await subject._processSigninParams(stubState, stubResponse);
-
-            // assert
-            expect(settings.authority).toEqual("something different");
-        });
-
-        it("should assign the client_id on the settings if not already assigned", async () => {
-            // arrange
-            delete settings.client_id;
-            stubState.client_id = "something different";
-            stubResponse.id_token = id_token;
-            subject = new ResponseValidator(settings, metadataService);
-
-            // act
-            await subject._processSigninParams(stubState, stubResponse);
-
-            // assert
-            expect(settings.client_id).toEqual("something different");
-        });
-
         it("should validate that the client state matches response state", async () => {
             // arrange
             stubResponse.state = "not_the_id";

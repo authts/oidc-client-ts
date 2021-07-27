@@ -26,35 +26,6 @@ describe("OidcClientSettings", () => {
             // assert
             expect(subject.client_id).toEqual("client");
         });
-
-        it("should not allow setting if previously set", () => {
-            // arrange
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
-                authority: "http://sts"
-            });
-
-            // act
-            try {
-                subject.client_id = "diff";
-                fail("should not come here");
-            }
-            catch (e) {
-                expect(e.message).toContain("client_id");
-            }
-        });
-
-        it("should allow setting if not previously set", () => {
-            // arrange
-            let subject = new OidcClientSettingsStore({
-            });
-
-            // act
-            subject.client_id = "test";
-
-            // assert
-            expect(subject.client_id).toEqual("test");
-        });
     });
 
     describe("client_secret", () => {
@@ -242,36 +213,6 @@ describe("OidcClientSettings", () => {
                 client_id: 'client',
                 authority: "http://sts"
             });
-
-            // assert
-            expect(subject.authority).toEqual("http://sts");
-        });
-
-        it("should not allow setting if previously set", () => {
-            // arrange
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
-                authority: "http://sts"
-            });
-
-            // act
-            try {
-                subject.authority = "http://sts2";
-                fail("should not come here");
-            }
-            catch (e) {
-                expect(e.message).toContain("authority");
-            }
-        });
-
-        it("should allow setting if not previously set", () => {
-            // arrange
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client'
-            });
-
-            // act
-            subject.authority = "http://sts";
 
             // assert
             expect(subject.authority).toEqual("http://sts");
@@ -550,35 +491,6 @@ describe("OidcClientSettings", () => {
             // assert
             expect(subject.extraQueryParams).toEqual({});
         });
-
-        it("should set it if object", () => {
-            // arrange
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
-            });
-
-            // act
-            subject.extraQueryParams = { 'hd': 'domain.com' };
-
-            // assert
-            expect(subject.extraQueryParams).toEqual({ 'hd': 'domain.com' });
-        });
-
-        it("should clear it if not object", () => {
-            // arrange
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
-                extraQueryParams: {
-                    'hd': 'domain.com',
-                }
-            });
-
-            // act
-            subject.extraQueryParams = undefined;
-
-            // assert
-            expect(subject.extraQueryParams).toEqual({});
-        });
     })
 
     describe("extraTokenParams", () => {
@@ -612,31 +524,6 @@ describe("OidcClientSettings", () => {
                 client_id: 'client',
                 extraTokenParams: 123456 as unknown as Record<string, any>
             });
-
-            // assert
-            expect(subject.extraTokenParams).toEqual({});
-        });
-
-        it("should set it if object", () => {
-            // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
-            });
-            subject.extraTokenParams = { 'resourceServer': 'abc' };
-
-            // assert
-            expect(subject.extraTokenParams).toEqual({ 'resourceServer': 'abc' });
-        });
-
-        it("should clear it if not object", () => {
-            // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
-                extraTokenParams: {
-                    'resourceServer': 'abc',
-                }
-            });
-            subject.extraTokenParams = undefined;
 
             // assert
             expect(subject.extraTokenParams).toEqual({});
