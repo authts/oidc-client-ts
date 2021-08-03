@@ -3,101 +3,22 @@
 
 import { Log, JoseUtil } from '../../src/utils';
 import { ResponseValidator } from '../../src/ResponseValidator';
-
-import { StubMetadataService } from './StubMetadataService';
-
-class StubUserInfoService {
-    getClaimsWasCalled: boolean;
-    getClaimsResult: any;
-
-    constructor() {
-        this.getClaimsWasCalled = false;
-    }
-
-    getClaims() {
-        this.getClaimsWasCalled = true;
-        return this.getClaimsResult;
-    }
-}
-
-// TODO: port-ts - replace with jest.mock
-class MockResponseValidator extends ResponseValidator {
-    private _getSigningKeyForJwtSignedCalledCount: any;
-
-    constructor(settings: any, MetadataServiceCtor: any, UserInfoServiceCtor: any) {
-        super(settings, MetadataServiceCtor, UserInfoServiceCtor);
-    }
-
-    _mock(name: string, ...args: any[]) {
-        Log.debug("mock called", name);
-
-        // @ts-ignore
-        this[name + "WasCalled"] = true;
-
-        // @ts-ignore
-        const result = this[name + "Result"]
-        if (result) {
-            Log.debug("mock returning result", result);
-            return result;
-        }
-
-        Log.debug("mock calling super");
-        // @ts-ignore
-        return super[name](...args);
-    }
-
-    _processSigninParams(...args: any[]) {
-        return this._mock("_processSigninParams", ...args);
-    }
-    _validateTokens(...args: any[]) {
-        return this._mock("_validateTokens", ...args);
-    }
-    _processClaims(...args: any[]) {
-        return this._mock("_processClaims", ...args);
-    }
-    _mergeClaims(...args: any[]) {
-        return this._mock("_mergeClaims", ...args);
-    }
-
-    _getSigningKeyForJwt(...args: any[]) {
-        this._getSigningKeyForJwtSignedCalledCount = (this._getSigningKeyForJwtSignedCalledCount || 0) + 1;
-        return this._mock("_getSigningKeyForJwt", ...args);
-    }
-    _getSigningKeyForJwtWithSingleRetry(...args: any[]) {
-        this._getSigningKeyForJwtSignedCalledCount = 0;
-        return this._mock("_getSigningKeyForJwtWithSingleRetry", ...args);
-    }
-
-    _validateIdTokenAndAccessToken(...args: any[]) {
-        return this._mock("_validateIdTokenAndAccessToken", ...args);
-    }
-    _validateIdToken(...args: any[]) {
-        return this._mock("_validateIdToken", ...args);
-    }
-    validateJwt(...args: any[]) {
-        return this._mock("validateJwt", ...args);
-    }
-    _validateAccessToken(...args: any[]) {
-        return this._mock("_validateAccessToken", ...args);
-    }
-
-    _filterProtocolClaims(...args: any[]) {
-        return this._mock("_filterProtocolClaims", ...args);
-    }
-}
+import { MetadataService } from '../../src/MetadataService';
+import { UserInfoService } from '../../src/UserInfoService';
+import { SigninState } from '../../src/SigninState';
 
 describe("ResponseValidator", () => {
     let id_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSIsImtpZCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSJ9.eyJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo0NDMzMy9jb3JlIiwiYXVkIjoianMudG9rZW5tYW5hZ2VyIiwiZXhwIjoxNDU5MTMwMjAxLCJuYmYiOjE0NTkxMjk5MDEsIm5vbmNlIjoiNzIyMTAwNTIwOTk3MjM4MiIsImlhdCI6MTQ1OTEyOTkwMSwiYXRfaGFzaCI6IkpnRFVDeW9hdEp5RW1HaWlXYndPaEEiLCJzaWQiOiIwYzVmMDYxZTYzOThiMWVjNmEwYmNlMmM5NDFlZTRjNSIsInN1YiI6Ijg4NDIxMTEzIiwiYXV0aF90aW1lIjoxNDU5MTI5ODk4LCJpZHAiOiJpZHNydiIsImFtciI6WyJwYXNzd29yZCJdfQ.f6S1Fdd0UQScZAFBzXwRiVsUIPQnWZLSe07kdtjANRZDZXf5A7yDtxOftgCx5W0ONQcDFVpLGPgTdhp7agZkPpCFutzmwr0Rr9G7E7mUN4xcIgAABhmRDfzDayFBEu6VM8wEWTChezSWtx2xG_2zmVJxxmNV0jvkaz0bu7iin-C_UZg6T-aI9FZDoKRGXZP9gF65FQ5pQ4bCYQxhKcvjjUfs0xSHGboL7waN6RfDpO4vvVR1Kz-PQhIRyFAJYRuoH4PdMczHYtFCb-k94r-7TxEU0vp61ww4WntbPvVWwUbCUgsEtmDzAZT-NEJVhWztNk1ip9wDPXzZ2hEhDAPJ7A";
     let access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSIsImtpZCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSJ9.eyJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo0NDMzMy9jb3JlIiwiYXVkIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzMzMvY29yZS9yZXNvdXJjZXMiLCJleHAiOjE0NTkxMzM1MDEsIm5iZiI6MTQ1OTEyOTkwMSwiY2xpZW50X2lkIjoianMudG9rZW5tYW5hZ2VyIiwic2NvcGUiOlsib3BlbmlkIiwicHJvZmlsZSIsImVtYWlsIiwicmVhZCIsIndyaXRlIl0sInN1YiI6Ijg4NDIxMTEzIiwiYXV0aF90aW1lIjoxNDU5MTI5ODk4LCJpZHAiOiJpZHNydiIsImFtciI6WyJwYXNzd29yZCJdfQ.ldCBx4xF_WIj6S9unppYAzXFKMs5ce7sKuse-nleFbzwRbZ-VNubLOlnpsFzquJIyTlGLekqLWnsfpAmaORQBtv5ZoaUHxC_s5APLWGC9Io19tF8NxWVmX2OK3cwHWQ5HtFkILQdYR9l3Bf5RIQK4ixbrKJN7OyzoLAen0FgEXDn-dXMAhFJDl123G7pBaayQb8ic44y808cfKlu3wwP2QkDEzgW-L0avvjN95zji5528c32L2LBMveRklcOXO6Gb0alcFw6PysfJotsNo9WahJWu404mSl3Afc-4jCWjoTL7PBL-xciPmq9iCNAgqVS7GN1s1WsnBW2R4kGLy-kcQ";
     let at_hash = "JgDUCyoatJyEmGiiWbwOhA";
 
-    let settings: any;
-    let subject: MockResponseValidator;
-    let stubMetadataService: any;
-    let stubUserInfoService: any;
-
     let stubState: any;
     let stubResponse: any;
+    let settings: any;
+    let subject: ResponseValidator;
+
+    let metadataService: MetadataService;
+    let userInfoService: UserInfoService;
 
     beforeEach(() => {
         Log.logger = console;
@@ -114,18 +35,19 @@ describe("ResponseValidator", () => {
             state: 'the_id',
             isOpenIdConnect: false
         };
-
         settings = {
             authority: "op",
             client_id: 'client'
         };
-        stubMetadataService = new StubMetadataService();
-        stubUserInfoService = new StubUserInfoService();
+        metadataService = new MetadataService(settings);
 
         // restore spyOn
         jest.restoreAllMocks();
 
-        subject = new MockResponseValidator(settings, () => stubMetadataService, () => stubUserInfoService);
+        subject = new ResponseValidator(settings, metadataService);
+
+        // access private members
+        userInfoService = subject["_userInfoService"];
     });
 
     describe("validateSignoutResponse", () => {
@@ -182,80 +104,79 @@ describe("ResponseValidator", () => {
 
         it("should process signin params", async () => {
             // arrange
-            // @ts-ignore
-            subject._processSigninParamsResult = Promise.resolve(stubResponse);
-            // @ts-ignore
-            subject._validateTokensResult = Promise.resolve(stubResponse);
+            const _processSigninParamsMock = jest.spyOn(subject, "_processSigninParams")
+                .mockImplementation(() => stubResponse);
+            jest.spyOn(subject, "_validateTokens")
+                .mockImplementation(() => Promise.resolve(stubResponse));
 
             // act
             await subject.validateSigninResponse(stubState, stubResponse);
 
             // assert
-            // @ts-ignore
-            expect(subject._processSigninParamsWasCalled).toEqual(true);
+            expect(_processSigninParamsMock).toBeCalled();
         });
 
         it("should validate tokens", async () => {
             // arrange
-            // @ts-ignore
-            subject._processSigninParamsResult = Promise.resolve(stubResponse);
-            // @ts-ignore
-            subject._validateTokensResult = Promise.resolve(stubResponse);
+            jest.spyOn(subject, "_processSigninParams")
+                .mockImplementation(() => stubResponse);
+            const _validateTokensMock = jest.spyOn(subject, "_validateTokens")
+                .mockImplementation(() => Promise.resolve(stubResponse));
 
             // act
             await subject.validateSigninResponse(stubState, stubResponse);
 
             // assert
-            // @ts-ignore
-            expect(subject._validateTokensWasCalled).toEqual(true);
+            expect(_validateTokensMock).toBeCalled();
         });
 
         it("should not validate tokens if state fails", async () => {
             // arrange
-            // @ts-ignore
-            subject._processSigninParamsResult = Promise.reject("error");
-            // @ts-ignore
-            subject._validateTokensResult = Promise.resolve(stubResponse);
+            jest.spyOn(subject, "_processSigninParams")
+                .mockImplementation(() => { throw new Error("error") });
+            const _validateTokensMock = jest.spyOn(subject, "_validateTokens")
+                .mockImplementation(() => Promise.resolve(stubResponse));
 
             // act
             try {
                 await subject.validateSigninResponse(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
-                // @ts-ignore
-                expect(subject._validateTokensWasCalled).toBeUndefined();
+                expect(_validateTokensMock).not.toBeCalled();
             }
         });
 
         it("should process claims", async () => {
             // arrange
-            // @ts-ignore
-            subject._processSigninParamsResult = Promise.resolve(stubResponse);
-            // @ts-ignore
-            subject._validateTokensResult = Promise.resolve(stubResponse);
+            jest.spyOn(subject, "_processSigninParams")
+                .mockImplementation(() => stubResponse);
+            jest.spyOn(subject, "_validateTokens")
+                .mockImplementation(() => Promise.resolve(stubResponse));
+            const _processClaimsMock = jest.spyOn(subject, "_processClaims")
+                .mockImplementation(() => Promise.resolve(stubResponse));
 
             // act
             await subject.validateSigninResponse(stubState, stubResponse);
 
             // assert
-            // @ts-ignore
-            expect(subject._processClaimsWasCalled).toEqual(true);
+            expect(_processClaimsMock).toBeCalled();
         });
 
         it("should not process claims if state fails", async () => {
             // arrange
-            // @ts-ignore
-            subject._processSigninParamsResult = Promise.resolve(stubResponse);
-            // @ts-ignore
-            subject._validateTokensResult = Promise.reject("error");
+            jest.spyOn(subject, "_processSigninParams")
+                .mockImplementation(() => stubResponse);
+            jest.spyOn(subject, "_validateTokens")
+                .mockImplementation(() => Promise.reject("error"));
+            const _processClaimsMock = jest.spyOn(subject, "_processClaims")
+                .mockImplementation(() => Promise.resolve(stubResponse));
 
             // act
             try {
                 await subject.validateSigninResponse(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
-                // @ts-ignore
-                expect(subject._processClaimsWasCalled).toBeUndefined();
+                expect(_processClaimsMock).not.toBeCalled();
             }
         });
     });
@@ -312,34 +233,6 @@ describe("ResponseValidator", () => {
             } catch (err) {
                 expect(err.message).toContain('client_id mismatch');
             }
-        });
-
-        it("should assign the authority on the settings if not already assigned", async () => {
-            // arrange
-            delete settings.authority;
-            stubState.authority = "something different";
-            stubResponse.id_token = id_token;
-            subject = new MockResponseValidator(settings, () => stubMetadataService, () => stubUserInfoService);
-
-            // act
-            await subject._processSigninParams(stubState, stubResponse);
-
-            // assert
-            expect(settings.authority).toEqual("something different");
-        });
-
-        it("should assign the client_id on the settings if not already assigned", async () => {
-            // arrange
-            delete settings.client_id;
-            stubState.client_id = "something different";
-            stubResponse.id_token = id_token;
-            subject = new MockResponseValidator(settings, () => stubMetadataService, () => stubUserInfoService);
-
-            // act
-            await subject._processSigninParams(stubState, stubResponse);
-
-            // assert
-            expect(settings.client_id).toEqual("something different");
         });
 
         it("should validate that the client state matches response state", async () => {
@@ -454,92 +347,97 @@ describe("ResponseValidator", () => {
 
         it("should filter protocol claims if OIDC", async () => {
             // arrange
+            const state = new SigninState();
             stubResponse.isOpenIdConnect = true;
             stubResponse.profile = { a: 'apple', b: 'banana' };
+            const _filterProtocolClaimsMock = jest.spyOn(subject, "_filterProtocolClaims")
+                .mockImplementation((profile) => profile);
 
             // act
-            await subject._processClaims({}, stubResponse);
+            await subject._processClaims(state, stubResponse);
 
             // assert
-            // @ts-ignore
-            expect(subject._filterProtocolClaimsWasCalled).toEqual(true);
+            expect(_filterProtocolClaimsMock).toBeCalled();
         });
 
         it("should not filter protocol claims if not OIDC", async () => {
             // arrange
+            const state = new SigninState();
             stubResponse.isOpenIdConnect = false;
+            const _filterProtocolClaimsMock = jest.spyOn(subject, "_filterProtocolClaims")
+                .mockImplementation((profile) => profile);
 
             // act
-            await subject._processClaims({}, stubResponse);
+            await subject._processClaims(state, stubResponse);
 
             // assert
-            // @ts-ignore
-            expect(subject._filterProtocolClaimsWasCalled).toBeUndefined();
+            expect(_filterProtocolClaimsMock).not.toBeCalled();
         });
 
         it("should load and merge user info claims when loadUserInfo configured", async () => {
             // arrange
+            const state = new SigninState();
             settings.loadUserInfo = true;
-
             stubResponse.isOpenIdConnect = true;
             stubResponse.profile = { a: 'apple', b: 'banana' };
             stubResponse.access_token = "access_token";
-            stubUserInfoService.getClaimsResult = Promise.resolve({ c: 'carrot' });
+            const getClaimMock = jest.spyOn(userInfoService, "getClaims").mockImplementation(() => Promise.resolve({ c: 'carrot' }));
+            const _mergeClaimsMock = jest.spyOn(subject, "_mergeClaims")
+                .mockImplementation((profile) => profile);
 
             // act
-            await subject._processClaims({}, stubResponse);
+            await subject._processClaims(state, stubResponse);
 
             // assert
-            expect(stubUserInfoService.getClaimsWasCalled).toEqual(true);
-            // @ts-ignore
-            expect(subject._mergeClaimsWasCalled).toEqual(true);
+            expect(getClaimMock).toBeCalled();
+            expect(_mergeClaimsMock).toBeCalled();
         });
 
         it("should not run if reqest was not openid", async () => {
             // arrange
+            const state = new SigninState();
             settings.loadUserInfo = true;
-
             stubResponse.isOpenIdConnect = false;
             stubResponse.profile = { a: 'apple', b: 'banana' };
             stubResponse.access_token = "access_token";
-            stubUserInfoService.getClaimsResult = Promise.resolve({ c: 'carrot' });
+            const getClaimMock = jest.spyOn(userInfoService, "getClaims").mockImplementation(() => Promise.resolve({ c: 'carrot' }));
 
             // act
-            await subject._processClaims({}, stubResponse);
+            await subject._processClaims(state, stubResponse);
 
             // assert
-            expect(stubUserInfoService.getClaimsWasCalled).toEqual(false);
+            expect(getClaimMock).not.toBeCalled();
         });
 
         it("should not load and merge user info claims when loadUserInfo not configured", async () => {
             // arrange
+            const state = new SigninState();
             settings.loadUserInfo = false;
-
             stubResponse.isOpenIdConnect = true;
             stubResponse.profile = { a: 'apple', b: 'banana' };
             stubResponse.access_token = "access_token";
-            stubUserInfoService.getClaimsResult = Promise.resolve({ c: 'carrot' });
+            const getClaimMock = jest.spyOn(userInfoService, "getClaims").mockImplementation(() => Promise.resolve({ c: 'carrot' }));
 
             // act
-            await subject._processClaims({}, stubResponse);
+            await subject._processClaims(state, stubResponse);
 
             // assert
-            expect(stubUserInfoService.getClaimsWasCalled).toEqual(false);
+            expect(getClaimMock).not.toBeCalled();
         });
 
         it("should not load user info claims if no access token", async () => {
             // arrange
+            const state = new SigninState();
             settings.loadUserInfo = true;
-
             stubResponse.isOpenIdConnect = true;
             stubResponse.profile = { a: 'apple', b: 'banana' };
-            stubUserInfoService.getClaimsResult = Promise.resolve({ c: 'carrot' });
+            const getClaimMock = jest.spyOn(userInfoService, "getClaims").mockImplementation(() => Promise.resolve({ c: 'carrot' }));
 
             // act
-            await subject._processClaims({}, stubResponse);
+            await subject._processClaims(state, stubResponse);
 
             // assert
-            expect(stubUserInfoService.getClaimsWasCalled).toEqual(false);
+            expect(getClaimMock).not.toBeCalled();
         });
     });
 
@@ -710,47 +608,49 @@ describe("ResponseValidator", () => {
             // arrange
             stubResponse.id_token = "id_token";
             stubResponse.access_token = "access_token";
-            // @ts-ignore
-            subject._validateIdTokenAndAccessTokenResult = Promise.resolve(stubResponse);
+            const _validateIdTokenAndAccessTokenMock = jest.spyOn(subject, "_validateIdTokenAndAccessToken")
+                .mockImplementation(() => Promise.resolve(stubResponse));
+            const _validateIdTokenMock = jest.spyOn(subject, "_validateIdToken")
+                .mockImplementation(() => Promise.resolve(stubResponse));
 
             // act
             subject._validateTokens(stubState, stubResponse);
 
             // assert
-            // @ts-ignore
-            expect(subject._validateIdTokenAndAccessTokenWasCalled).toEqual(true);
-            // @ts-ignore
-            expect(subject._validateIdTokenWasCalled).toBeUndefined();
+            expect(_validateIdTokenAndAccessTokenMock).toBeCalled();
+            expect(_validateIdTokenMock).not.toBeCalled();
         });
 
         it("should validate just id_token", async () => {
             // arrange
             stubResponse.id_token = "id_token";
-            // @ts-ignore
-            subject._validateIdTokenResult = Promise.resolve(stubResponse);
+            const _validateIdTokenAndAccessTokenMock = jest.spyOn(subject, "_validateIdTokenAndAccessToken")
+                .mockImplementation(() => Promise.resolve(stubResponse));
+            const _validateIdTokenMock = jest.spyOn(subject, "_validateIdToken")
+                .mockImplementation(() => Promise.resolve(stubResponse));
 
             // act
             subject._validateTokens(stubState, stubResponse);
 
             // assert
-            // @ts-ignore
-            expect(subject._validateIdTokenWasCalled).toEqual(true);
-            // @ts-ignore
-            expect(subject._validateIdTokenAndAccessTokenWasCalled).toBeUndefined();
+            expect(_validateIdTokenAndAccessTokenMock).not.toBeCalled();
+            expect(_validateIdTokenMock).toBeCalled();
         });
 
         it("should not validate if only access_token", async () => {
             // arrange
             stubResponse.access_token = "access_token";
+            const _validateIdTokenAndAccessTokenMock = jest.spyOn(subject, "_validateIdTokenAndAccessToken")
+                .mockImplementation(() => Promise.resolve(stubResponse));
+            const _validateIdTokenMock = jest.spyOn(subject, "_validateIdToken")
+                .mockImplementation(() => Promise.resolve(stubResponse));
 
             // act
             subject._validateTokens(stubState, stubResponse);
 
             // assert
-            // @ts-ignore
-            expect(subject._validateIdTokenWasCalled).toBeUndefined();
-            // @ts-ignore
-            expect(subject._validateIdTokenAndAccessTokenWasCalled).toBeUndefined();
+            expect(_validateIdTokenAndAccessTokenMock).not.toBeCalled();
+            expect(_validateIdTokenMock).not.toBeCalled();
         });
     });
 
@@ -763,37 +663,35 @@ describe("ResponseValidator", () => {
             stubResponse.profile = {
                 at_hash: at_hash
             };
-            // @ts-ignore
-            subject._validateIdTokenResult = Promise.resolve(stubResponse);
-            // @ts-ignore
-            subject._validateAccessTokenResult = Promise.resolve(stubResponse);
+            const _validateIdTokenMock = jest.spyOn(subject, "_validateIdToken")
+                .mockImplementation(() => Promise.resolve(stubResponse));
+            const _validateAccessTokenMock = jest.spyOn(subject, "_validateAccessToken")
+                .mockImplementation(() => stubResponse);
 
             // act
             await subject._validateIdTokenAndAccessToken(stubState, stubResponse);
 
             // assert
-            // @ts-ignore
-            expect(subject._validateIdTokenWasCalled).toEqual(true);
-            // @ts-ignore
-            expect(subject._validateAccessTokenWasCalled).toEqual(true);
+            expect(_validateIdTokenMock).toBeCalled();
+            expect(_validateAccessTokenMock).toBeCalled();
         });
 
         it("should not access_token if id_token validation fails", async () => {
             // arrange
             stubResponse.id_token = "id_token";
             stubResponse.access_token = "access_token";
-            // @ts-ignore
-            subject._validateIdTokenResult = Promise.reject(new Error("error"));
+            const _validateIdTokenMock = jest.spyOn(subject, "_validateIdToken")
+                .mockImplementation(() => Promise.reject(new Error("error")));
+            const _validateAccessTokenMock = jest.spyOn(subject, "_validateAccessToken")
+                .mockImplementation(() => stubResponse);
 
             // act
             try {
                 await subject._validateIdTokenAndAccessToken(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
-                // @ts-ignore
-                expect(subject._validateIdTokenWasCalled).toEqual(true);
-                // @ts-ignore
-                expect(subject._validateAccessTokenWasCalled).toBeUndefined();
+                expect(_validateIdTokenMock).toBeCalled();
+                expect(_validateAccessTokenMock).not.toBeCalled();
             }
         });
     });
@@ -803,7 +701,7 @@ describe("ResponseValidator", () => {
         it("should fail if loading keys fails.", async () => {
             // arrange
             const jwt = { header: { kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }};
-            stubMetadataService.getSigningKeysResult = Promise.reject(new Error("keys"));
+            jest.spyOn(metadataService, "getSigningKeys").mockRejectedValue(new Error("keys"));
 
             // act
             try {
@@ -817,7 +715,8 @@ describe("ResponseValidator", () => {
         it("should fetch suitable signing key for the jwt.", async () => {
             // arrange
             const jwt = { header: { kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }};
-            stubMetadataService.getSigningKeysResult = Promise.resolve([{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }, { kid: 'other_key' } ])
+            const keys = [{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }, { kid: 'other_key' } ];
+            jest.spyOn(metadataService, "getSigningKeys").mockImplementation(() => Promise.resolve(keys));
 
             // act
             const result = await subject._getSigningKeyForJwt(jwt);
@@ -832,27 +731,33 @@ describe("ResponseValidator", () => {
         it("should retry once if suitable signing key is not found.", async () => {
             // arrange
             const jwt = { header: { kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }};
-            stubMetadataService.getSigningKeysResult = Promise.resolve([ { kid: 'other_key' } ])
+            const keys = [{ kid: 'other_key' }];
+            jest.spyOn(metadataService, "getSigningKeys")
+                .mockImplementation(() => Promise.resolve(keys));
+            const _getSigningKeyForJwtMock = jest.spyOn(subject, "_getSigningKeyForJwt")
+                .mockImplementation(() => Promise.resolve(undefined));
 
             // act
             await subject._getSigningKeyForJwtWithSingleRetry(jwt);
 
             // assert
-            // @ts-ignore
-            expect(subject._getSigningKeyForJwtSignedCalledCount).toEqual(2);
+            expect(_getSigningKeyForJwtMock).toBeCalledTimes(2);
         })
 
         it("should not retry if suitable signing key is found.", async () => {
             // arrange
             const jwt = { header: { kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }};
-            stubMetadataService.getSigningKeysResult = Promise.resolve([ { kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' } ])
+            const keys = [{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }];
+            jest.spyOn(metadataService, "getSigningKeys")
+                .mockImplementation(() => Promise.resolve(keys));
+            const _getSigningKeyForJwtMock = jest.spyOn(subject, "_getSigningKeyForJwt")
+                .mockImplementation((jwt) => Promise.resolve(jwt));
 
             // act
             await subject._getSigningKeyForJwtWithSingleRetry(jwt);
 
             // assert
-            // @ts-ignore
-            expect(subject._getSigningKeyForJwtSignedCalledCount).toEqual(1);
+            expect(_getSigningKeyForJwtMock).toBeCalledTimes(1);
         })
     })
 
@@ -886,8 +791,9 @@ describe("ResponseValidator", () => {
             // arrange
             stubState.client_id = "invalid client_id";
             stubResponse.id_token = id_token;
-            stubMetadataService.getIssuerResult = Promise.resolve("test");
-            stubMetadataService.getSigningKeysResult = Promise.resolve([{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }]);
+            jest.spyOn(metadataService, "getIssuer").mockRejectedValue(new Error("test"));
+            const keys = [{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }];
+            jest.spyOn(metadataService, "getSigningKeys").mockImplementation(() => Promise.resolve(keys));
 
             // act
             try {
@@ -918,7 +824,7 @@ describe("ResponseValidator", () => {
             // arrange
             stubState.nonce = "nonce";
             stubResponse.id_token = id_token;
-            stubMetadataService.getIssuerResult = Promise.reject(new Error("issuer"));
+            jest.spyOn(metadataService, "getIssuer").mockRejectedValue(new Error("issuer"));
             jest.spyOn(JoseUtil, "parseJwt").mockImplementation(() => {
                 return { header: { alg: "HS123", typ: "JWT" }, payload: { nonce: stubState.nonce } };
             });
@@ -936,8 +842,8 @@ describe("ResponseValidator", () => {
             // arrange
             stubState.nonce = "nonce";
             stubResponse.id_token = id_token;
-            stubMetadataService.getIssuerResult = Promise.resolve("test");
-            stubMetadataService.getSigningKeysResult = Promise.reject(new Error("keys"));
+            jest.spyOn(metadataService, "getIssuer").mockImplementation(() => Promise.resolve("test"));
+            jest.spyOn(metadataService, "getSigningKeys").mockRejectedValue(new Error("keys"));
             jest.spyOn(JoseUtil, "parseJwt").mockImplementation(() => {
                 return { header: { alg: "HS123", typ: "JWT" }, payload: { nonce: stubState.nonce } };
             });
@@ -955,8 +861,8 @@ describe("ResponseValidator", () => {
             // arrange
             stubState.nonce = "nonce";
             stubResponse.id_token = id_token;
-            stubMetadataService.getIssuerResult = Promise.resolve("test");
-            stubMetadataService.getSigningKeysResult = Promise.resolve([]);
+            jest.spyOn(metadataService, "getIssuer").mockImplementation(() => Promise.resolve("test"));
+            jest.spyOn(metadataService, "getSigningKeys").mockImplementation(() => Promise.resolve([]));
             jest.spyOn(JoseUtil, "parseJwt").mockImplementation(() => {
                 return { header: { alg: "HS123", typ: "JWT" }, payload: { nonce: stubState.nonce } };
             });
@@ -974,8 +880,9 @@ describe("ResponseValidator", () => {
             // arrange
             stubState.nonce = "nonce";
             stubResponse.id_token = id_token;
-            stubMetadataService.getIssuerResult = Promise.resolve("test");
-            stubMetadataService.getSigningKeysResult = Promise.resolve([{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE', kty: "EC" }]);
+            jest.spyOn(metadataService, "getIssuer").mockImplementation(() => Promise.resolve("test"));
+            const keys = [{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE', kty: "EC" }];
+            jest.spyOn(metadataService, "getSigningKeys").mockImplementation(() => Promise.resolve(keys));
             const validateJwtMock = jest.spyOn(JoseUtil, "validateJwt").mockImplementation(() => {
                 return Promise.resolve();
             });
@@ -994,8 +901,9 @@ describe("ResponseValidator", () => {
             // arrange
             stubState.nonce = "nonce";
             stubResponse.id_token = id_token;
-            stubMetadataService.getIssuerResult = Promise.resolve("test");
-            stubMetadataService.getSigningKeysResult = Promise.resolve([{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE', kty: "EC" }]);
+            jest.spyOn(metadataService, "getIssuer").mockImplementation(() => Promise.resolve("test"));
+            const keys = [{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE', kty: "EC" }];
+            jest.spyOn(metadataService, "getSigningKeys").mockImplementation(() => Promise.resolve(keys));
             jest.spyOn(JoseUtil, "validateJwt").mockImplementation(() => {
                 return Promise.resolve();
             });

@@ -12,7 +12,7 @@ export class PopupNavigator implements INavigator {
         return Promise.resolve(popup);
     }
 
-    callback(url: string, keepOpen: boolean, delimiter: string) {
+    callback(url: string | undefined, keepOpen: boolean, delimiter: string) {
         Log.debug("PopupNavigator.callback");
 
         try {

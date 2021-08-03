@@ -11,19 +11,15 @@ export class UserInfoService {
     private _jsonService: JsonService;
     private _metadataService: MetadataService;
 
-    constructor(
-        settings: OidcClientSettingsStore,
-        JsonServiceCtor = JsonService,
-        MetadataServiceCtor = MetadataService
-    ) {
+    constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
         if (!settings) {
             Log.error("UserInfoService.ctor: No settings passed");
             throw new Error("settings");
         }
 
         this._settings = settings;
-        this._jsonService = new JsonServiceCtor(undefined, this._getClaimsFromJwt.bind(this));
-        this._metadataService = new MetadataServiceCtor(this._settings);
+        this._jsonService = new JsonService(undefined, this._getClaimsFromJwt.bind(this));
+        this._metadataService = metadataService;
     }
 
     async getClaims(token?: string) {

@@ -12,14 +12,14 @@ export class TokenRevocationClient {
     private _settings: OidcClientSettingsStore
     private _metadataService: MetadataService;
 
-    constructor(settings: OidcClientSettingsStore, MetadataServiceCtor = MetadataService) {
+    constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
         if (!settings) {
             Log.error("TokenRevocationClient.ctor: No settings provided");
             throw new Error("No settings provided.");
         }
 
         this._settings = settings;
-        this._metadataService = new MetadataServiceCtor(this._settings);
+        this._metadataService = metadataService;
     }
 
     async revoke(token: string, required: boolean, type = "access_token") {

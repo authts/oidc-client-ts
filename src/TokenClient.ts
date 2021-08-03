@@ -11,7 +11,7 @@ export class TokenClient {
     private _jsonService: JsonService;
     private _metadataService: MetadataService;
 
-    constructor(settings: OidcClientSettingsStore, JsonServiceCtor = JsonService, MetadataServiceCtor = MetadataService) {
+    constructor(settings: OidcClientSettingsStore, metadataService: MetadataService, JsonServiceCtor = JsonService) {
         if (!settings) {
             Log.error("TokenClient.ctor: No settings passed");
             throw new Error("settings");
@@ -19,7 +19,7 @@ export class TokenClient {
 
         this._settings = settings;
         this._jsonService = new JsonServiceCtor();
-        this._metadataService = new MetadataServiceCtor(this._settings);
+        this._metadataService = metadataService;
     }
 
     async exchangeCode(args:any = {}): Promise<any> {

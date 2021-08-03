@@ -11,7 +11,11 @@ const OidcMetadataUrlPath = '.well-known/openid-configuration';
 export class MetadataService {
     private _settings: OidcClientSettingsStore
     private _jsonService: JsonService
-    private _metadataUrl: string | undefined
+
+    // cache
+    private _metadataUrl: string | null;
+    private _signingKeys: any[] | null;
+    private _metadata: Partial<OidcMetadata> | null;
 
     constructor(settings: OidcClientSettingsStore, JsonServiceCtor = JsonService) {
         if (!settings) {
@@ -21,51 +25,53 @@ export class MetadataService {
 
         this._settings = settings;
         this._jsonService = new JsonServiceCtor(['application/jwk-set+json']);
-        this._metadataUrl = undefined
-    }
 
-    get metadataUrl(): string {
-        if (!this._metadataUrl) {
-            if (this._settings.metadataUrl) {
-                this._metadataUrl = this._settings.metadataUrl;
+        this._metadataUrl = null;
+        if (this._settings.metadataUrl) {
+            this._metadataUrl = this._settings.metadataUrl;
+        } else if (this._settings.authority) {
+            this._metadataUrl = this._settings.authority;
+            if (this._metadataUrl[this._metadataUrl.length - 1] !== '/') {
+                this._metadataUrl += '/';
             }
-            else {
-                this._metadataUrl = this._settings.authority;
-
-                if (this._metadataUrl && this._metadataUrl.indexOf(OidcMetadataUrlPath) < 0) {
-                    if (this._metadataUrl[this._metadataUrl.length - 1] !== '/') {
-                        this._metadataUrl += '/';
-                    }
-                    this._metadataUrl += OidcMetadataUrlPath;
-                }
-            }
+            this._metadataUrl += OidcMetadataUrlPath;
         }
 
-        return this._metadataUrl || "";
+        this._signingKeys = null;
+        if (this._settings.signingKeys) {
+            Log.debug("MetadataService.ctor: Using signingKeys from settings");
+            this._signingKeys = this._settings.signingKeys;
+        }
+
+        this._metadata = null;
+        if (this._settings.metadata) {
+            Log.debug("MetadataService.ctor: Using metadata from settings");
+            this._metadata = this._settings.metadata;
+        }
     }
 
     resetSigningKeys() {
-        this._settings.signingKeys = undefined
+        this._signingKeys = null
     }
 
     async getMetadata(): Promise<Partial<OidcMetadata>> {
-        if (this._settings.metadata) {
-            Log.debug("MetadataService.getMetadata: Returning metadata from settings");
-            return this._settings.metadata;
+        if (this._metadata) {
+            Log.debug("MetadataService.getMetadata: Returning metadata from cache");
+            return this._metadata;
         }
 
-        if (!this.metadataUrl) {
+        if (!this._metadataUrl) {
             Log.error("MetadataService.getMetadata: No authority or metadataUrl configured on settings");
             throw new Error("No authority or metadataUrl configured on settings");
         }
 
-        Log.debug("MetadataService.getMetadata: getting metadata from", this.metadataUrl);
-        const metadata = await this._jsonService.getJson(this.metadataUrl);
+        Log.debug("MetadataService.getMetadata: getting metadata from", this._metadataUrl);
+        const metadata = await this._jsonService.getJson(this._metadataUrl);
 
         Log.debug("MetadataService.getMetadata: json received");
         var seed = this._settings.metadataSeed || {};
-        this._settings.metadata = Object.assign({}, seed, metadata) as Partial<OidcMetadata>;
-        return this._settings.metadata;
+        this._metadata = Object.assign({}, seed, metadata) as Partial<OidcMetadata>;
+        return this._metadata;
     }
 
     getIssuer() {
@@ -121,9 +127,9 @@ export class MetadataService {
     }
 
     async getSigningKeys() {
-        if (this._settings.signingKeys) {
-            Log.debug("MetadataService.getSigningKeys: Returning signingKeys from settings");
-            return this._settings.signingKeys;
+        if (this._signingKeys) {
+            Log.debug("MetadataService.getSigningKeys: Returning signingKeys from cache");
+            return this._signingKeys;
         }
 
         const jwks_uri = await this.getKeysEndpoint(false);
@@ -137,7 +143,7 @@ export class MetadataService {
             throw new Error("Missing keys on keyset");
         }
 
-        this._settings.signingKeys = keySet.keys;
-        return this._settings.signingKeys;
+        this._signingKeys = keySet.keys;
+        return this._signingKeys;
     }
 }

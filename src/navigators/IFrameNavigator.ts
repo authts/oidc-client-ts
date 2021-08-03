@@ -12,7 +12,7 @@ export class IFrameNavigator implements INavigator {
         return Promise.resolve(frame);
     }
 
-    callback(url: string) {
+    callback(url: string | undefined) {
         Log.debug("IFrameNavigator.callback");
 
         try {

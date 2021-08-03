@@ -12,11 +12,10 @@ export type IntervalTimer = {
 };
 export const g_timer: IntervalTimer = {
     setInterval: function (cb: (...args: any[]) => void, duration?: number): number {
-        // @ts-ignore
-        return setInterval(cb, duration);
+        return window.setInterval(cb, duration);
     },
     clearInterval: function (handle: number): void {
-        return clearInterval(handle);
+        return window.clearInterval(handle);
     }
 };
 

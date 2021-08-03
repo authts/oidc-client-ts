@@ -50,8 +50,8 @@ export class UserManager extends OidcClient {
             this._sessionMonitor = new SessionMonitorCtor(this);
         }
 
-        this._tokenRevocationClient = new TokenRevocationClientCtor(this._settings);
-        this._tokenClient = new TokenClientCtor(this._settings);
+        this._tokenRevocationClient = new TokenRevocationClientCtor(this._settings, this._settings.metadataService);
+        this._tokenClient = new TokenClientCtor(this._settings, this._settings.metadataService);
     }
 
     get settings(): UserManagerSettingsStore {
@@ -147,23 +147,13 @@ export class UserManager extends OidcClient {
 
         return user;
     }
-    async signinPopupCallback(url?: string): Promise<User | null> {
+    async signinPopupCallback(url?: string): Promise<void> {
         try {
-            const user = await this._signinCallback(url, this._popupNavigator);
-            if (user) {
-                if (user.profile && user.profile.sub) {
-                    Log.info("UserManager.signinPopupCallback: successful, signed in sub: ", user.profile.sub);
-                }
-                else {
-                    Log.info("UserManager.signinPopupCallback: no sub");
-                }
-            }
-
-            return user;
+            await this._signinCallback(url, this._popupNavigator);
+            Log.info("UserManager.signinPopupCallback: successful");
         }
         catch (err) {
             Log.error("UserManager.signinPopupCallback error: " + err && err.message);
-            return null;
         }
     }
 
@@ -271,18 +261,9 @@ export class UserManager extends OidcClient {
         return user;
     }
 
-    async signinSilentCallback(url?: string): Promise<User> {
-        const user = await this._signinCallback(url, this._iframeNavigator);
-        if (user) {
-            if (user.profile && user.profile.sub) {
-                Log.info("UserManager.signinSilentCallback: successful, signed in sub: ", user.profile.sub);
-            }
-            else {
-                Log.info("UserManager.signinSilentCallback: no sub");
-            }
-        }
-
-        return user;
+    async signinSilentCallback(url?: string): Promise<void> {
+        await this._signinCallback(url, this._iframeNavigator);
+        Log.info("UserManager.signinSilentCallback: successful");
     }
 
     async signinCallback(url?: string): Promise<User | null> {
@@ -291,10 +272,12 @@ export class UserManager extends OidcClient {
             return this.signinRedirectCallback(url);
         }
         if (state.request_type === "si:p") {
-            return this.signinPopupCallback(url);
+            await this.signinPopupCallback(url);
+            return null;
         }
         if (state.request_type === "si:s") {
-            return this.signinSilentCallback(url);
+            await this.signinSilentCallback(url);
+            return null;
         }
         throw new Error("invalid response_type in state");
     }
@@ -411,12 +394,11 @@ export class UserManager extends OidcClient {
 
         return user;
     }
-    _signinCallback(url: string | undefined, navigator: IFrameNavigator | PopupNavigator): Promise<User> {
+    _signinCallback(url: string | undefined, navigator: IFrameNavigator | PopupNavigator): Promise<void> {
         Log.debug("UserManager._signinCallback");
         let useQuery = this._settings.response_mode === "query" || (!this._settings.response_mode && SigninRequest.isCode(this._settings.response_type));
         let delimiter = useQuery ? "?" : "#";
-        // @ts-ignore
-        return navigator.callback(url, undefined, delimiter);
+        return navigator.callback(url, false, delimiter);
     }
 
     async signoutRedirect(args: any = {}): Promise<void> {
@@ -598,16 +580,16 @@ export class UserManager extends OidcClient {
         return null;
     }
 
-    storeUser(user: User | null): Promise<void | string | null> {
+    async storeUser(user: User | null): Promise<void> {
         if (user) {
             Log.debug("UserManager.storeUser: storing user");
 
             var storageString = user.toStorageString();
-            return this._userStore.set(this._userStoreKey, storageString);
+            await this._userStore.set(this._userStoreKey, storageString);
         }
         else {
             Log.debug("storeUser.storeUser: removing user");
-            return this._userStore.remove(this._userStoreKey);
+            await this._userStore.remove(this._userStoreKey);
         }
     }
 }

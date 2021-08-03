@@ -114,7 +114,7 @@ export class PopupWindow implements IWindow {
         }
     }
 
-    static notifyOpener(url: string, keepOpen: boolean, delimiter: string) {
+    static notifyOpener(url: string | undefined, keepOpen: boolean, delimiter: string) {
         if (window.opener) {
             url = url || window.location.href;
             if (url) {

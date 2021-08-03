@@ -1,15 +1,12 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from './utils';
 import { ClockService } from './ClockService';
 import { WebStorageStateStore } from './WebStorageStateStore';
 import { ResponseValidator } from './ResponseValidator';
 import { MetadataService } from './MetadataService';
 import { OidcMetadata } from './OidcMetadata'
 import { StateStore } from './StateStore'
-
-const OidcMetadataUrlPath = '.well-known/openid-configuration';
 
 const DefaultResponseType = "id_token";
 const DefaultScope = "openid";
@@ -71,7 +68,7 @@ export interface OidcClientSettings {
 }
 
 export class OidcClientSettingsStore {
-    private _authority?: string;
+    private _authority: string;
     private _metadataUrl?: string;
     private _metadata?: Partial<OidcMetadata>;
     private _metadataSeed?: Partial<OidcMetadata>;
@@ -110,7 +107,7 @@ export class OidcClientSettingsStore {
 
     constructor({
         // metadata related
-        authority, metadataUrl, metadata, signingKeys, metadataSeed,
+        authority = "", metadataUrl, metadata, signingKeys, metadataSeed,
         // client related
         client_id = "", client_secret, response_type = DefaultResponseType, scope = DefaultScope,
         redirect_uri, post_logout_redirect_uri,
@@ -164,8 +161,8 @@ export class OidcClientSettingsStore {
         this._mergeClaims = !!mergeClaims;
 
         this._stateStore = stateStore;
-        this._validator = new ResponseValidatorCtor(this);
         this._metadataService = new MetadataServiceCtor(this);
+        this._validator = new ResponseValidatorCtor(this, this._metadataService);
 
         this._extraQueryParams = typeof extraQueryParams === 'object' ? extraQueryParams : {};
         this._extraTokenParams = typeof extraTokenParams === 'object' ? extraTokenParams : {};
@@ -174,16 +171,6 @@ export class OidcClientSettingsStore {
     // client config
     get client_id() {
         return this._client_id;
-    }
-    set client_id(value) {
-        if (!this._client_id) {
-            // one-time set only
-            this._client_id = value;
-        }
-        else {
-            Log.error("OidcClientSettings.set_client_id: client_id has already been assigned.")
-            throw new Error("client_id has already been assigned.")
-        }
     }
     get client_secret() {
         return this._client_secret;
@@ -203,7 +190,6 @@ export class OidcClientSettingsStore {
     get client_authentication() {
         return this._client_authentication;
     }
-
 
     // optional protocol params
     get prompt() {
@@ -228,55 +214,21 @@ export class OidcClientSettingsStore {
         return this._response_mode;
     }
 
-
     // metadata
     get authority() {
         return this._authority;
     }
-    set authority(value) {
-        if (!this._authority) {
-            // one-time set only
-            this._authority = value;
-        }
-        else {
-            Log.error("OidcClientSettings.set_authority: authority has already been assigned.")
-            throw new Error("authority has already been assigned.")
-        }
-    }
     get metadataUrl() {
-        if (!this._metadataUrl) {
-            this._metadataUrl = this.authority;
-
-            if (this._metadataUrl && this._metadataUrl.indexOf(OidcMetadataUrlPath) < 0) {
-                if (this._metadataUrl[this._metadataUrl.length - 1] !== '/') {
-                    this._metadataUrl += '/';
-                }
-                this._metadataUrl += OidcMetadataUrlPath;
-            }
-        }
-
         return this._metadataUrl;
     }
-
-    // settable/cachable metadata values
     get metadata() {
         return this._metadata;
-    }
-    set metadata(value) {
-        this._metadata = value;
     }
     get metadataSeed() {
         return this._metadataSeed;
     }
-    set metadataSeed(value) {
-        this._metadataSeed = value;
-    }
-
     get signingKeys() {
         return this._signingKeys;
-    }
-    set signingKeys(value) {
-        this._signingKeys = value;
     }
 
     // behavior flags
@@ -309,28 +261,12 @@ export class OidcClientSettingsStore {
         return this._metadataService;
     }
 
-    // extra query params
+    // extra
     get extraQueryParams() {
         return this._extraQueryParams;
     }
-    set extraQueryParams(value) {
-        if (typeof value === 'object'){
-            this._extraQueryParams = value;
-        } else {
-            this._extraQueryParams = {};
-        }
-    }
-
-    // extra token params
     get extraTokenParams() {
         return this._extraTokenParams;
-    }
-    set extraTokenParams(value) {
-        if (typeof value === 'object'){
-            this._extraTokenParams = value;
-        } else {
-            this._extraTokenParams = {};
-        }
     }
 
     // get the time

@@ -4,25 +4,19 @@
 import { Log } from '../../src/utils';
 import { MetadataService } from '../../src/MetadataService';
 
-import { StubJsonService } from './StubJsonService';
-
 describe("MetadataService", () => {
-    let subject: MetadataService;
-    let stubJsonService: any;
     let settings: any
+    let subject: MetadataService;
 
     beforeEach(() => {
         Log.logger = console;
         Log.level = Log.NONE;
 
         settings = {};
-        stubJsonService = new StubJsonService();
-        // @ts-ignore
-        subject = new MetadataService(settings, () => stubJsonService);
+        subject = new MetadataService(settings);
     });
 
     describe("getMetadata", () => {
-
         it("should return a promise", async () => {
             // act
             const p = subject.getMetadata();
@@ -34,7 +28,10 @@ describe("MetadataService", () => {
 
         it("should use metadata on settings", async () => {
             // arrange
-            settings.metadata = "test";
+            settings = {
+                metadata: "test",
+            };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject.getMetadata();
@@ -44,9 +41,6 @@ describe("MetadataService", () => {
         });
 
         it("should require metadataUrl", async () => {
-            // arrange
-            delete settings.metadataUrl;
-
             // act
             try {
                 await subject.getMetadata();
@@ -56,60 +50,85 @@ describe("MetadataService", () => {
             }
         });
 
-        it("should use metadataUrl to make json call", () => {
+        it("should use metadataUrl to make json call", async () => {
             // arrange
-            settings.metadataUrl = "http://sts/metadata";
-            stubJsonService.result = Promise.resolve('test');
-
-            // act
-            subject.getMetadata();
-
-            // assert
-            expect(stubJsonService.url).toEqual("http://sts/metadata");
-        });
-
-        it("should return metadata from json call", async () => {
-            // arrange
-            settings.metadataUrl = "http://sts/metadata";
-            stubJsonService.result = Promise.resolve({"test":"data"});
-
-            // act
-            const result = await subject.getMetadata();
-
-            // assert
-            expect(result).toEqual({"test":"data"});
-        });
-
-        it("should cache metadata from json call", async () => {
-            // arrange
-            settings.metadataUrl = "http://sts/metadata";
-            stubJsonService.result = Promise.resolve({test:"value"});
+            settings = {
+                metadataUrl: "http://sts/metadata"
+            };
+            subject = new MetadataService(settings);
+            const jsonService = subject["_jsonService"]; // access private member
+            const getJsonMock = jest.spyOn(jsonService, "getJson")
+                .mockImplementation(() => Promise.resolve('test'));
 
             // act
             await subject.getMetadata();
 
             // assert
-            expect(settings.metadata).toEqual({test:"value"});
+            expect(getJsonMock).toBeCalledWith("http://sts/metadata");
+        });
+
+        it("should return metadata from json call", async () => {
+            // arrange
+            settings = {
+                metadataUrl: "http://sts/metadata"
+            };
+            subject = new MetadataService(settings);
+            const jsonService = subject["_jsonService"]; // access private member
+            const json = { "test": "data" };
+            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
+
+            // act
+            const result = await subject.getMetadata();
+
+            // assert
+            expect(result).toEqual(json);
+        });
+
+        it("should cache metadata from json call", async () => {
+            // arrange
+            settings = {
+                metadataUrl: "http://sts/metadata"
+            };
+            subject = new MetadataService(settings);
+            const jsonService = subject["_jsonService"]; // access private member
+            const json = { test: "value" };
+            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
+
+            // act
+            await subject.getMetadata();
+
+            // assert
+            const _metadata = subject["_metadata"] // access private member
+            expect(_metadata).toEqual(json);
         });
 
         it("should merge metadata from seed", async () => {
             // arrange
-            settings.metadataUrl = "http://sts/metadata";
-            settings.metadataSeed = {test1:"one"};
-            stubJsonService.result = Promise.resolve({test2:"two"});
+            settings = {
+                metadataUrl: "http://sts/metadata",
+                metadataSeed: {test1:"one"}
+            };
+            subject = new MetadataService(settings);
+            const jsonService = subject["_jsonService"]; // access private member
+            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({test2:"two"}));
 
             // act
             const result = await subject.getMetadata();
 
             // assert
             expect(result).toEqual({test1:"one", test2:"two"});
-            expect(settings.metadata).toEqual({test1:"one", test2:"two"});
+            const _metadata = subject["_metadata"] // access private member
+            expect(_metadata).toEqual({test1:"one", test2:"two"});
         });
 
         it("should fail if json call fails", async () => {
             // arrange
-            settings.metadataUrl = "http://sts/metadata";
-            stubJsonService.result = Promise.reject(new Error("test"));
+            settings = {
+                metadataUrl: "http://sts/metadata"
+            };
+            subject = new MetadataService(settings);
+            const jsonService = subject["_jsonService"]; // access private member
+            jest.spyOn(jsonService, "getJson").mockRejectedValue(new Error("test"));
 
             // act
             try {
@@ -134,9 +153,12 @@ describe("MetadataService", () => {
 
         it("should use metadata on settings", async () => {
             // arrange
-            settings.metadata = {
-                issuer: "test"
+            settings = {
+                metadata: {
+                    issuer: "test"
+                },
             };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject._getMetadataProperty("issuer");
@@ -147,8 +169,11 @@ describe("MetadataService", () => {
 
         it("should fail if no data on metadata", async () => {
             // arrange
-            settings.metadata = {
+            settings = {
+                metadata: {
+                }
             };
+            subject = new MetadataService(settings);
 
             // act
             try {
@@ -161,8 +186,12 @@ describe("MetadataService", () => {
 
          it("should fail if json call to load metadata fails", async () => {
             // arrange
-            settings.metadataUrl = "http://sts/metadata";
-            stubJsonService.result = Promise.reject(new Error("test"));
+            settings = {
+                metadataUrl: "http://sts/metadata"
+            };
+            subject = new MetadataService(settings);
+            const jsonService = subject["_jsonService"]; // access private member
+            jest.spyOn(jsonService, "getJson").mockRejectedValue(new Error("test"));
 
             // act
             try {
@@ -172,16 +201,18 @@ describe("MetadataService", () => {
                 expect(err.message).toContain("test");
             }
         });
-
     });
 
     describe("getAuthorizationEndpoint", () => {
 
         it("should return value from metadata", async () => {
             // arrange
-            settings.metadata = {
-                authorization_endpoint: "http://sts/authorize"
+            settings = {
+                metadata: {
+                    authorization_endpoint: "http://sts/authorize"
+                }
             };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject.getAuthorizationEndpoint();
@@ -196,9 +227,12 @@ describe("MetadataService", () => {
 
         it("should return value from", async () => {
             // arrange
-            settings.metadata = {
-                userinfo_endpoint: "http://sts/userinfo"
+            settings = {
+                metadata: {
+                    userinfo_endpoint: "http://sts/userinfo"
+                }
             };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject.getUserInfoEndpoint();
@@ -213,9 +247,12 @@ describe("MetadataService", () => {
 
         it("should return value from", async () => {
             // arrange
-            settings.metadata = {
-                end_session_endpoint: "http://sts/signout"
+            settings = {
+                metadata: {
+                    end_session_endpoint: "http://sts/signout"
+                }
             };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject.getEndSessionEndpoint();
@@ -226,8 +263,11 @@ describe("MetadataService", () => {
 
         it("should support optional value", async () => {
             // arrange
-            settings.metadata = {
+            settings = {
+                metadata: {
+                }
             };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject.getEndSessionEndpoint();
@@ -242,9 +282,12 @@ describe("MetadataService", () => {
 
         it("should return value from", async () => {
             // arrange
-            settings.metadata = {
-                check_session_iframe: "http://sts/check_session"
+            settings = {
+                metadata: {
+                    check_session_iframe: "http://sts/check_session"
+                }
             };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject.getCheckSessionIframe();
@@ -255,8 +298,11 @@ describe("MetadataService", () => {
 
         it("should support optional value", async () => {
             // arrange
-            settings.metadata = {
+            settings = {
+                metadata: {
+                }
             };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject.getCheckSessionIframe();
@@ -271,9 +317,12 @@ describe("MetadataService", () => {
 
         it("should return value from", async () => {
             // arrange
-            settings.metadata = {
-                issuer: "http://sts"
+            settings = {
+                metadata: {
+                    issuer: "http://sts"
+                }
             };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject.getIssuer();
@@ -297,7 +346,10 @@ describe("MetadataService", () => {
 
         it("should use signingKeys on settings", async () => {
             // arrange
-            settings.signingKeys = "test";
+            settings = {
+                signingKeys: "test"
+            };
+            subject = new MetadataService(settings);
 
             // act
             const result = await subject.getSigningKeys();
@@ -308,7 +360,10 @@ describe("MetadataService", () => {
 
         it("should fail if metadata does not have jwks_uri", async () => {
             // arrange
-            settings.metadata = "test";
+            settings = {
+                metadata: "test"
+            };
+            subject = new MetadataService(settings);
 
             // act
             try {
@@ -321,10 +376,14 @@ describe("MetadataService", () => {
 
         it("should fail if keys missing on keyset from jwks_uri", async () => {
             // arrange
-            settings.metadata = {
-                jwks_uri: "http://sts/metadata/keys"
+            settings = {
+                metadata: {
+                    jwks_uri: "http://sts/metadata/keys"
+                }
             };
-            stubJsonService.result = Promise.resolve({});
+            subject = new MetadataService(settings);
+            const jsonService = subject["_jsonService"]; // access private member
+            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({}));
 
             // act
             try {
@@ -337,33 +396,46 @@ describe("MetadataService", () => {
 
         it("should make json call to jwks_uri", async () => {
             // arrange
-            settings.metadata = {
-                jwks_uri: "http://sts/metadata/keys"
+            settings = {
+                metadata: {
+                    jwks_uri: "http://sts/metadata/keys"
+                }
             };
-            stubJsonService.result = Promise.resolve({keys:[{
-                use:'sig',
-                kid:"test"
-            }]});
+            subject = new MetadataService(settings);
+            const jsonService = subject["_jsonService"]; // access private member
+            const json = {
+                keys: [{
+                    use:'sig',
+                    kid:"test"
+                }]
+            };
+            const getJsonMock = jest.spyOn(jsonService, "getJson")
+                .mockImplementation(() => Promise.resolve(json));
 
             // act
             await subject.getSigningKeys();
 
             // assert
-            expect(stubJsonService.url).toEqual("http://sts/metadata/keys");
+            expect(getJsonMock).toBeCalledWith("http://sts/metadata/keys");
         });
 
         it("should return keys from jwks_uri", async () => {
             // arrange
-            settings.metadata = {
-                jwks_uri: "http://sts/metadata/keys"
+            settings = {
+                metadata: {
+                    jwks_uri: "http://sts/metadata/keys"
+                }
             };
+            subject = new MetadataService(settings);
+            const jsonService = subject["_jsonService"]; // access private member
             const expectedKeys = [{
                 use:'sig',
                 kid:"test"
-            }]
-            stubJsonService.result = Promise.resolve({
+            }];
+            const json = {
                 keys: expectedKeys
-            });
+            };
+            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
 
             // act
             const result = await subject.getSigningKeys();
@@ -372,24 +444,30 @@ describe("MetadataService", () => {
             expect(result).toEqual(expectedKeys);
         });
 
-        it("should cache keys in settings", async () => {
+        it("should cache keys from json call", async () => {
             // arrange
-            settings.metadata = {
-                jwks_uri: "http://sts/metadata/keys"
+            settings = {
+                metadata: {
+                    jwks_uri: "http://sts/metadata/keys"
+                }
             };
+            subject = new MetadataService(settings);
+            const jsonService = subject["_jsonService"]; // access private member
             const expectedKeys = [{
                 use:'sig',
                 kid:"test"
-            }]
-            stubJsonService.result = Promise.resolve({
+            }];
+            const json = {
                 keys: expectedKeys
-            });
+            };
+            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
 
             // act
             await subject.getSigningKeys();
 
             // assert
-            expect(settings.signingKeys).toEqual(expectedKeys);
+            const _signingKeys = subject["_signingKeys"] // access private member
+            expect(_signingKeys).toEqual(expectedKeys);
         });
     });
 });

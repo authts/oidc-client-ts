@@ -112,7 +112,7 @@ export class IFrameWindow implements IWindow {
         return location.protocol + "//" + location.host;
     }
 
-    static notifyParent(url: string) {
+    static notifyParent(url: string | undefined) {
         Log.debug("IFrameWindow.notifyParent");
         url = url || window.location.href;
         if (url) {
