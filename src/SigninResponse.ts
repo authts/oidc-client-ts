@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { UrlUtility } from './utils';
+import { UrlUtility } from "./utils";
 
 const OidcScope = "openid";
 
@@ -29,7 +29,7 @@ export class SigninResponse {
 
     constructor(url?: string, delimiter = "#") {
 
-        var values = UrlUtility.parseUrlFragment(url, delimiter);
+        const values = UrlUtility.parseUrlFragment(url, delimiter);
 
         this.error = values.error;
         this.error_description = values.error_description;
@@ -50,21 +50,21 @@ export class SigninResponse {
 
     get expires_in(): number | undefined {
         if (this.expires_at) {
-            let now = Math.floor(Date.now() / 1000);
+            const now = Math.floor(Date.now() / 1000);
             return this.expires_at - now;
         }
         return undefined;
     }
     set expires_in(value: number | undefined) {
-        if (typeof value === 'number' && value > 0) {
-            let expires_in = Math.floor(value);
-            let now = Math.floor(Date.now() / 1000);
+        if (typeof value === "number" && value > 0) {
+            const expires_in = Math.floor(value);
+            const now = Math.floor(Date.now() / 1000);
             this.expires_at = now + expires_in;
         }
     }
 
     get expired() {
-        let expires_in = this.expires_in;
+        const expires_in = this.expires_in;
         if (expires_in !== undefined) {
             return expires_in <= 0;
         }

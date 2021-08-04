@@ -1,9 +1,9 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from './utils';
-import { MetadataService } from './MetadataService';
-import { OidcClientSettingsStore } from './OidcClientSettings';
+import { Log } from "./utils";
+import { MetadataService } from "./MetadataService";
+import { OidcClientSettingsStore } from "./OidcClientSettings";
 
 const AccessTokenTypeHint = "access_token";
 const RefreshTokenTypeHint = "refresh_token";
@@ -45,8 +45,8 @@ export class TokenRevocationClient {
         }
 
         Log.debug("TokenRevocationClient.revoke: Revoking " + type);
-        var client_id = this._settings.client_id;
-        var client_secret = this._settings.client_secret;
+        const client_id = this._settings.client_id;
+        const client_secret = this._settings.client_secret;
         return this._revoke(url, client_id, client_secret, token, type);
     }
 
@@ -66,7 +66,7 @@ export class TokenRevocationClient {
         let response: Response;
         try {
             Log.debug("TokenRevocationClient.revoke, url: ", url);
-            response = await fetch(url, { method: 'POST', headers, body });
+            response = await fetch(url, { method: "POST", headers, body });
         } catch (err) {
             Log.error("TokenRevocationClient.revoke: network error");
             throw new Error("Network Error");

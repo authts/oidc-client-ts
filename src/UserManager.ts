@@ -1,19 +1,19 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, JoseUtil } from './utils';
-import { INavigator, IFrameNavigator, PopupNavigator } from './navigators';
-import { OidcClient } from './OidcClient';
-import { UserManagerSettings, UserManagerSettingsStore } from './UserManagerSettings';
-import { User } from './User';
-import { UserManagerEvents } from './UserManagerEvents';
-import { SilentRenewService } from './SilentRenewService';
-import { SessionMonitor } from './SessionMonitor';
+import { Log, JoseUtil } from "./utils";
+import { INavigator, IFrameNavigator, PopupNavigator } from "./navigators";
+import { OidcClient } from "./OidcClient";
+import { UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
+import { User } from "./User";
+import { UserManagerEvents } from "./UserManagerEvents";
+import { SilentRenewService } from "./SilentRenewService";
+import { SessionMonitor } from "./SessionMonitor";
 import { SigninRequest } from "./SigninRequest";
-import { TokenRevocationClient } from './TokenRevocationClient';
-import { TokenClient } from './TokenClient';
-import { SessionStatus } from './SessionStatus'
-import { SignoutResponse } from './SignoutResponse';
+import { TokenRevocationClient } from "./TokenRevocationClient";
+import { TokenClient } from "./TokenClient";
+import { SessionStatus } from "./SessionStatus";
+import { SignoutResponse } from "./SignoutResponse";
 
 export class UserManager extends OidcClient {
     protected _settings!: UserManagerSettingsStore /* TODO: port-ts */
@@ -100,7 +100,7 @@ export class UserManager extends OidcClient {
         args = Object.assign({}, args);
 
         args.request_type = "si:r";
-        let navParams = {
+        const navParams = {
             useReplaceToNavigate : args.useReplaceToNavigate
         };
         await this._signinStart(args, this._redirectNavigator, navParams);
@@ -122,7 +122,7 @@ export class UserManager extends OidcClient {
         args = Object.assign({}, args);
 
         args.request_type = "si:p";
-        let url = args.redirect_uri || this.settings.popup_redirect_uri || this.settings.redirect_uri;
+        const url = args.redirect_uri || this.settings.popup_redirect_uri || this.settings.redirect_uri;
         if (!url) {
             Log.error("UserManager.signinPopup: No popup_redirect_uri or redirect_uri configured");
             throw new Error("No popup_redirect_uri or redirect_uri configured");
@@ -236,7 +236,7 @@ export class UserManager extends OidcClient {
     }
 
     async _signinSilentIframe(args: any = {}) {
-        let url = args.redirect_uri || this.settings.silent_redirect_uri || this.settings.redirect_uri;
+        const url = args.redirect_uri || this.settings.silent_redirect_uri || this.settings.redirect_uri;
         if (!url) {
             Log.error("UserManager.signinSilent: No silent_redirect_uri configured");
             throw new Error("No silent_redirect_uri configured");
@@ -299,7 +299,7 @@ export class UserManager extends OidcClient {
         args = Object.assign({}, args);
 
         args.request_type = "si:s"; // this acts like a signin silent
-        let url = args.redirect_uri || this.settings.silent_redirect_uri || this.settings.redirect_uri;
+        const url = args.redirect_uri || this.settings.silent_redirect_uri || this.settings.redirect_uri;
         if (!url) {
             Log.error("UserManager.querySessionStatus: No silent_redirect_uri configured");
             throw new Error("No silent_redirect_uri configured");
@@ -377,7 +377,7 @@ export class UserManager extends OidcClient {
         const signinResponse = await this.processSigninResponse(url);
         Log.debug("UserManager._signinEnd: got signin response");
 
-        let user = new User(signinResponse);
+        const user = new User(signinResponse);
         if (args.current_sub) {
             if (args.current_sub !== user.profile.sub) {
                 Log.debug("UserManager._signinEnd: current user does not match user returned from signin. sub from signin: ", user.profile.sub);
@@ -396,8 +396,8 @@ export class UserManager extends OidcClient {
     }
     _signinCallback(url: string | undefined, navigator: IFrameNavigator | PopupNavigator): Promise<void> {
         Log.debug("UserManager._signinCallback");
-        let useQuery = this._settings.response_mode === "query" || (!this._settings.response_mode && SigninRequest.isCode(this._settings.response_type));
-        let delimiter = useQuery ? "?" : "#";
+        const useQuery = this._settings.response_mode === "query" || (!this._settings.response_mode && SigninRequest.isCode(this._settings.response_type));
+        const delimiter = useQuery ? "?" : "#";
         return navigator.callback(url, false, delimiter);
     }
 
@@ -405,11 +405,11 @@ export class UserManager extends OidcClient {
         args = Object.assign({}, args);
 
         args.request_type = "so:r";
-        let postLogoutRedirectUri = args.post_logout_redirect_uri || this.settings.post_logout_redirect_uri;
-        if (postLogoutRedirectUri){
+        const postLogoutRedirectUri = args.post_logout_redirect_uri || this.settings.post_logout_redirect_uri;
+        if (postLogoutRedirectUri) {
             args.post_logout_redirect_uri = postLogoutRedirectUri;
         }
-        let navParams = {
+        const navParams = {
             useReplaceToNavigate : args.useReplaceToNavigate
         };
         await this._signoutStart(args, this._redirectNavigator, navParams);
@@ -425,10 +425,10 @@ export class UserManager extends OidcClient {
         args = Object.assign({}, args);
 
         args.request_type = "so:p";
-        let url = args.post_logout_redirect_uri || this.settings.popup_post_logout_redirect_uri || this.settings.post_logout_redirect_uri;
+        const url = args.post_logout_redirect_uri || this.settings.popup_post_logout_redirect_uri || this.settings.post_logout_redirect_uri;
         args.post_logout_redirect_uri = url;
         args.display = "popup";
-        if (args.post_logout_redirect_uri){
+        if (args.post_logout_redirect_uri) {
             // we're putting a dummy entry in here because we
             // need a unique id from the state for notification
             // to the parent window, which is necessary if we
@@ -445,12 +445,12 @@ export class UserManager extends OidcClient {
         Log.info("UserManager.signoutPopup: successful");
     }
     async signoutPopupCallback(url: any, keepOpen: any) {
-        if (typeof(keepOpen) === 'undefined' && typeof(url) === 'boolean') {
+        if (typeof(keepOpen) === "undefined" && typeof(url) === "boolean") {
             keepOpen = url;
             url = null;
         }
 
-        let delimiter = '?';
+        const delimiter = "?";
         await this._popupNavigator.callback(url, keepOpen, delimiter);
         Log.info("UserManager.signoutPopupCallback: successful");
     }
@@ -471,7 +471,7 @@ export class UserManager extends OidcClient {
                 await this._revokeInternal(user);
             }
 
-            var id_token = args.id_token_hint || user && user.id_token;
+            const id_token = args.id_token_hint || user && user.id_token;
             if (id_token) {
                 Log.debug("UserManager._signoutStart: Setting id_token into signout request");
                 args.id_token_hint = id_token;
@@ -523,8 +523,8 @@ export class UserManager extends OidcClient {
 
     async _revokeInternal(user: User | null, required = false): Promise<boolean> {
         if (user) {
-            var access_token = user.access_token;
-            var refresh_token = user.refresh_token;
+            const access_token = user.access_token;
+            const refresh_token = user.refresh_token;
 
             const atSuccess = await this._revokeAccessTokenInternal(access_token, required);
             const rtSuccess = await this._revokeRefreshTokenInternal(refresh_token, required);
@@ -540,7 +540,7 @@ export class UserManager extends OidcClient {
 
     async _revokeAccessTokenInternal(access_token: string, required: boolean): Promise<boolean> {
         // check for JWT vs. reference token
-        if (!access_token || access_token.indexOf('.') >= 0) {
+        if (!access_token || access_token.indexOf(".") >= 0) {
             return false;
         }
 
@@ -584,7 +584,7 @@ export class UserManager extends OidcClient {
         if (user) {
             Log.debug("UserManager.storeUser: storing user");
 
-            var storageString = user.toStorageString();
+            const storageString = user.toStorageString();
             await this._userStore.set(this._userStoreKey, storageString);
         }
         else {

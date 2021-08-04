@@ -1,8 +1,8 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from '../utils';
-import { IWindow } from './IWindow';
+import { Log } from "../utils";
+import { IWindow } from "./IWindow";
 
 const DefaultTimeout = 10000;
 
@@ -41,7 +41,7 @@ export class IFrameWindow implements IWindow {
             this._error("No url provided");
         }
         else {
-            let timeout = params.silentRequestTimeout || DefaultTimeout;
+            const timeout = params.silentRequestTimeout || DefaultTimeout;
             Log.debug("IFrameWindow.navigate: Using timeout of:", timeout);
             this._timer = window.setTimeout(this._timeout.bind(this), timeout);
             this._frame!.src = params.url;
@@ -96,9 +96,9 @@ export class IFrameWindow implements IWindow {
         if (this._timer && this._frame &&
             e.origin === this._origin &&
             e.source === this._frame.contentWindow &&
-            (typeof e.data === 'string' && (e.data.startsWith('http://') || e.data.startsWith('https://')))
+            (typeof e.data === "string" && (e.data.startsWith("http://") || e.data.startsWith("https://")))
         ) {
-            let url = e.data;
+            const url = e.data;
             if (url) {
                 this._success({ url: url });
             }

@@ -1,16 +1,16 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from './utils';
-import { OidcClientSettings, OidcClientSettingsStore } from './OidcClientSettings';
-import { ErrorResponse } from './ErrorResponse';
-import { SigninRequest } from './SigninRequest';
-import { SigninResponse } from './SigninResponse';
-import { SignoutRequest } from './SignoutRequest';
-import { SignoutResponse } from './SignoutResponse';
-import { SigninState } from './SigninState';
-import { StateStore } from './StateStore';
-import { State } from './State';
+import { Log } from "./utils";
+import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
+import { ErrorResponse } from "./ErrorResponse";
+import { SigninRequest } from "./SigninRequest";
+import { SigninResponse } from "./SigninResponse";
+import { SignoutRequest } from "./SignoutRequest";
+import { SignoutResponse } from "./SignoutResponse";
+import { SigninState } from "./SigninState";
+import { StateStore } from "./StateStore";
+import { State } from "./State";
 
 export class OidcClient {
     protected _settings: OidcClientSettingsStore
@@ -37,18 +37,18 @@ export class OidcClient {
     }
 
     async createSigninRequest({
-            response_type, scope, redirect_uri,
-            // data was meant to be the place a caller could indicate the data to
-            // have round tripped, but people were getting confused, so i added state (since that matches the spec)
-            // and so now if data is not passed, but state is then state will be used
-            data, state, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
-            resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo
-        }: any = {},
-        stateStore?: StateStore
+        response_type, scope, redirect_uri,
+        // data was meant to be the place a caller could indicate the data to
+        // have round tripped, but people were getting confused, so i added state (since that matches the spec)
+        // and so now if data is not passed, but state is then state will be used
+        data, state, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
+        resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo
+    }: any = {},
+    stateStore?: StateStore
     ): Promise<SigninRequest> {
         Log.debug("OidcClient.createSigninRequest");
 
-        let client_id = this._settings.client_id;
+        const client_id = this._settings.client_id;
         response_type = response_type || this._settings.response_type;
         scope = scope || this._settings.scope;
         redirect_uri = redirect_uri || this._settings.redirect_uri;
@@ -64,7 +64,7 @@ export class OidcClient {
         extraQueryParams = extraQueryParams || this._settings.extraQueryParams;
         extraTokenParams = extraTokenParams || this._settings.extraTokenParams;
 
-        let authority = this._settings.authority;
+        const authority = this._settings.authority;
 
         if (SigninRequest.isCode(response_type) && response_type !== "code") {
             throw new Error("OpenID Connect hybrid flow is not supported");
@@ -73,7 +73,7 @@ export class OidcClient {
         const url = await this._metadataService.getAuthorizationEndpoint();
         Log.debug("OidcClient.createSigninRequest: Received authorization endpoint", url);
 
-        let signinRequest = new SigninRequest({
+        const signinRequest = new SigninRequest({
             url,
             client_id,
             redirect_uri,
@@ -87,7 +87,7 @@ export class OidcClient {
             skipUserInfo
         });
 
-        var signinState = signinRequest.state;
+        const signinState = signinRequest.state;
         stateStore = stateStore || this._stateStore;
         await stateStore.set(signinState.id, signinState.toStorageString());
         return signinRequest;
@@ -96,12 +96,12 @@ export class OidcClient {
     async readSigninResponseState(url?: string, stateStore: StateStore | null = null, removeState = false) {
         Log.debug("OidcClient.readSigninResponseState");
 
-        let useQuery = this._settings.response_mode === "query" ||
+        const useQuery = this._settings.response_mode === "query" ||
             (!this._settings.response_mode &&
                 this._settings.response_type && SigninRequest.isCode(this._settings.response_type));
-        let delimiter = useQuery ? "?" : "#";
+        const delimiter = useQuery ? "?" : "#";
 
-        var response = new SigninResponse(url, delimiter);
+        const response = new SigninResponse(url, delimiter);
         if (!response.state) {
             Log.error("OidcClient.readSigninResponseState: No state in response");
             throw new Error("No state in response");
@@ -109,7 +109,7 @@ export class OidcClient {
 
         stateStore = stateStore || this._stateStore;
 
-        var stateApi = removeState ? stateStore.remove.bind(stateStore) : stateStore.get.bind(stateStore);
+        const stateApi = removeState ? stateStore.remove.bind(stateStore) : stateStore.get.bind(stateStore);
 
         const storedStateString = await stateApi(response.state);
         if (!storedStateString) {
@@ -117,7 +117,7 @@ export class OidcClient {
             throw new Error("No matching state found in storage");
         }
 
-        let state = SigninState.fromStorageString(storedStateString);
+        const state = SigninState.fromStorageString(storedStateString);
         return {state, response};
     }
 
@@ -130,9 +130,9 @@ export class OidcClient {
     }
 
     async createSignoutRequest({
-            id_token_hint, data, state, post_logout_redirect_uri, extraQueryParams, request_type
-        }: any = {},
-        stateStore: StateStore | null = null
+        id_token_hint, data, state, post_logout_redirect_uri, extraQueryParams, request_type
+    }: any = {},
+    stateStore: StateStore | null = null
     ) {
         Log.debug("OidcClient.createSignoutRequest");
 
@@ -147,7 +147,7 @@ export class OidcClient {
 
         Log.debug("OidcClient.createSignoutRequest: Received end session endpoint", url);
 
-        let request = new SignoutRequest({
+        const request = new SignoutRequest({
             url,
             id_token_hint,
             post_logout_redirect_uri,
@@ -156,7 +156,7 @@ export class OidcClient {
             request_type
         });
 
-        var signoutState = request.state;
+        const signoutState = request.state;
         if (signoutState) {
             Log.debug("OidcClient.createSignoutRequest: Signout request has state to persist");
 
@@ -168,10 +168,10 @@ export class OidcClient {
     }
 
     async readSignoutResponseState(url?: string, stateStore: StateStore | null = null, removeState = false)
-        : Promise<{ state: undefined | State, response: SignoutResponse }> {
+        : Promise<{ state: undefined | State; response: SignoutResponse }> {
         Log.debug("OidcClient.readSignoutResponseState");
 
-        var response = new SignoutResponse(url);
+        const response = new SignoutResponse(url);
         if (!response.state) {
             Log.debug("OidcClient.readSignoutResponseState: No state in response");
 
@@ -183,18 +183,18 @@ export class OidcClient {
             return {state: undefined, response};
         }
 
-        var stateKey = response.state;
+        const stateKey = response.state;
 
         stateStore = stateStore || this._stateStore;
 
-        var stateApi = removeState ? stateStore.remove.bind(stateStore) : stateStore.get.bind(stateStore);
+        const stateApi = removeState ? stateStore.remove.bind(stateStore) : stateStore.get.bind(stateStore);
         const storedStateString = await stateApi(stateKey);
         if (!storedStateString) {
             Log.error("OidcClient.readSignoutResponseState: No matching state found in storage");
             throw new Error("No matching state found in storage");
         }
 
-        let state = State.fromStorageString(storedStateString);
+        const state = State.fromStorageString(storedStateString);
         return {state, response};
     }
 

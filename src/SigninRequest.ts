@@ -1,8 +1,8 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, UrlUtility } from './utils';
-import { SigninState } from './SigninState';
+import { Log, UrlUtility } from "./utils";
+import { SigninState } from "./SigninState";
 
 export class SigninRequest {
     public readonly url: string;
@@ -40,8 +40,8 @@ export class SigninRequest {
             throw new Error("authority");
         }
 
-        let oidc = SigninRequest.isOidc(response_type);
-        let code = SigninRequest.isCode(response_type);
+        const oidc = SigninRequest.isOidc(response_type);
+        const code = SigninRequest.isCode(response_type);
 
         if (!response_mode) {
             response_mode = SigninRequest.isCode(response_type) ? "query" : null;
@@ -67,36 +67,36 @@ export class SigninRequest {
             url = UrlUtility.addQueryParam(url, "code_challenge_method", "S256");
         }
 
-        var optional: any = { prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, request, request_uri, response_mode };
-        for(let key in optional){
+        const optional: any = { prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, request, request_uri, response_mode };
+        for (const key in optional) {
             if (optional[key]) {
                 url = UrlUtility.addQueryParam(url, key, optional[key]);
             }
         }
 
-        for(let key in extraQueryParams){
-            url = UrlUtility.addQueryParam(url, key, extraQueryParams[key])
+        for (const key in extraQueryParams) {
+            url = UrlUtility.addQueryParam(url, key, extraQueryParams[key]);
         }
 
         this.url = url;
     }
 
     static isOidc(response_type: string) {
-        var result = response_type.split(/\s+/g).filter(function(item) {
+        const result = response_type.split(/\s+/g).filter(function(item) {
             return item === "id_token";
         });
         return !!(result[0]);
     }
 
     static isOAuth(response_type: string) {
-        var result = response_type.split(/\s+/g).filter(function(item) {
+        const result = response_type.split(/\s+/g).filter(function(item) {
             return item === "token";
         });
         return !!(result[0]);
     }
 
     static isCode(response_type: string) {
-        var result = response_type.split(/\s+/g).filter(function(item) {
+        const result = response_type.split(/\s+/g).filter(function(item) {
             return item === "code";
         });
         return !!(result[0]);

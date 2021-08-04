@@ -1,8 +1,8 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from './Log';
-import { Event } from './Event';
+import { Log } from "./Log";
+import { Event } from "./Event";
 
 const TimerDuration = 5; // seconds
 
@@ -50,7 +50,7 @@ export class Timer extends Event {
         }
 
         duration = Math.floor(duration);
-        var expiration = this.now + duration;
+        const expiration = this.now + duration;
         if (this.expiration === expiration && this._timerHandle) {
             // no need to reinitialize to same expiration, so bail out
             Log.debug("Timer.init timer " + this._name + " skipping initialization since already initialized for expiration:", this.expiration);
@@ -65,7 +65,7 @@ export class Timer extends Event {
         // we're using a fairly short timer and then checking the expiration in the
         // callback to handle scenarios where the browser device sleeps, and then
         // the timers end up getting delayed.
-        var timerDuration = TimerDuration;
+        let timerDuration = TimerDuration;
         if (duration < timerDuration) {
             timerDuration = duration;
         }
@@ -85,7 +85,7 @@ export class Timer extends Event {
     }
 
     _callback() {
-        var diff = this._expiration - this.now;
+        const diff = this._expiration - this.now;
         Log.debug("Timer.callback; " + this._name + " timer expires in:", diff);
 
         if (this._expiration <= this.now) {

@@ -8,11 +8,11 @@ export interface Logger {
     warn(...args: any[]): void;
 }
 
-let nopLogger: Logger = {
-    debug(){},
-    info(){},
-    warn(){},
-    error(){}
+const nopLogger: Logger = {
+    debug() {},
+    info() {},
+    warn() {},
+    error() {}
 };
 
 const NONE = 0;
@@ -25,22 +25,22 @@ let logger: Logger;
 let level: number;
 
 export class Log {
-    static get NONE() {return NONE};
-    static get ERROR() {return ERROR};
-    static get WARN() {return WARN};
-    static get INFO() {return INFO};
-    static get DEBUG() {return DEBUG};
+    static get NONE() {return NONE;}
+    static get ERROR() {return ERROR;}
+    static get WARN() {return WARN;}
+    static get INFO() {return INFO;}
+    static get DEBUG() {return DEBUG;}
 
-    static reset(){
+    static reset() {
         level = INFO;
         logger = nopLogger;
     }
 
-    static get level(){
+    static get level() {
         return level;
     }
     static set level(value: number) {
-        if (NONE <= value && value <= DEBUG){
+        if (NONE <= value && value <= DEBUG) {
             level = value;
         }
         else {
@@ -56,22 +56,22 @@ export class Log {
     }
 
     static debug(...args: any[]) {
-        if (level >= DEBUG){
+        if (level >= DEBUG) {
             logger.debug.apply(logger, Array.from(args));
         }
     }
     static info(...args: any[]) {
-        if (level >= INFO){
+        if (level >= INFO) {
             logger.info.apply(logger, Array.from(args));
         }
     }
     static warn(...args: any[]) {
-        if (level >= WARN){
+        if (level >= WARN) {
             logger.warn.apply(logger, Array.from(args));
         }
     }
     static error(...args: any[]) {
-        if (level >= ERROR){
+        if (level >= ERROR) {
             logger.error.apply(logger, Array.from(args));
         }
     }

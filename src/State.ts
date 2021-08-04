@@ -1,8 +1,8 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, random } from './utils';
-import { StateStore } from './StateStore';
+import { Log, random } from "./utils";
+import { StateStore } from "./StateStore";
 
 export class State {
     private _id: any;
@@ -16,7 +16,7 @@ export class State {
         this._id = id || random();
         this._data = data;
 
-        if (typeof created === 'number' && created > 0) {
+        if (typeof created === "number" && created > 0) {
             this._created = created;
         }
         else {
@@ -54,19 +54,19 @@ export class State {
     }
 
     static async clearStaleState(storage: StateStore, age: number) {
-        var cutoff = Date.now() / 1000 - age;
+        const cutoff = Date.now() / 1000 - age;
 
         const keys = await storage.getAllKeys();
         Log.debug("State.clearStaleState: got keys", keys);
 
         for (let i = 0; i < keys.length; i++) {
-            let key = keys[i];
+            const key = keys[i];
             const item = await storage.get(key);
             let remove = false;
 
             if (item) {
                 try {
-                    var state = State.fromStorageString(item)
+                    const state = State.fromStorageString(item);
 
                     Log.debug("State.clearStaleState: got item from key: ", key, state.created);
                     if (state.created <= cutoff) {

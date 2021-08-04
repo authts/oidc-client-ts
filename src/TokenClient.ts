@@ -1,10 +1,10 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { JsonService } from './JsonService';
-import { MetadataService } from './MetadataService';
-import { Log } from './utils';
-import { OidcClientSettingsStore } from './OidcClientSettings';
+import { JsonService } from "./JsonService";
+import { MetadataService } from "./MetadataService";
+import { Log } from "./utils";
+import { OidcClientSettingsStore } from "./OidcClientSettings";
 
 export class TokenClient {
     private _settings: OidcClientSettingsStore;
@@ -30,8 +30,8 @@ export class TokenClient {
         args.client_secret = args.client_secret || this._settings.client_secret;
         args.redirect_uri = args.redirect_uri || this._settings.redirect_uri;
 
-        var basicAuth: string | undefined = undefined;
-        var client_authentication = args._client_authentication || this._settings.client_authentication;
+        let basicAuth: string | undefined = undefined;
+        const client_authentication = args._client_authentication || this._settings.client_authentication;
         delete args._client_authentication;
 
         if (!args.code) {
@@ -56,9 +56,9 @@ export class TokenClient {
         }
 
         // Sending the client credentials using the Basic Auth method
-        if(client_authentication == "client_secret_basic")
+        if (client_authentication == "client_secret_basic")
         {
-            basicAuth = args.client_id + ':' + args.client_secret;
+            basicAuth = args.client_id + ":" + args.client_secret;
             delete args.client_id;
             delete args.client_secret;
         }
@@ -79,8 +79,8 @@ export class TokenClient {
         args.client_id = args.client_id || this._settings.client_id;
         args.client_secret = args.client_secret || this._settings.client_secret;
 
-        var basicAuth: string | undefined = undefined;
-        var client_authentication = args._client_authentication || this._settings.client_authentication;
+        let basicAuth: string | undefined = undefined;
+        const client_authentication = args._client_authentication || this._settings.client_authentication;
         delete args._client_authentication;
 
         if (!args.refresh_token) {
@@ -93,9 +93,9 @@ export class TokenClient {
         }
 
         // Sending the client credentials using the Basic Auth method
-        if(client_authentication == "client_secret_basic")
+        if (client_authentication == "client_secret_basic")
         {
-            basicAuth = args.client_id + ':' + args.client_secret;
+            basicAuth = args.client_id + ":" + args.client_secret;
             delete args.client_id;
             delete args.client_secret;
         }

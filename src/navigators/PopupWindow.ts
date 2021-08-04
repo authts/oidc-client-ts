@@ -1,11 +1,11 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, UrlUtility } from '../utils';
-import { IWindow } from './IWindow';
+import { Log, UrlUtility } from "../utils";
+import { IWindow } from "./IWindow";
 
 const CheckForPopupClosedInterval = 500;
-const DefaultPopupFeatures = 'location=no,toolbar=no,width=500,height=500,left=100,top=100;';
+const DefaultPopupFeatures = "location=no,toolbar=no,width=500,height=500,left=100,top=100;";
 //const DefaultPopupFeatures = 'location=no,toolbar=no,width=500,height=500,left=100,top=100;resizable=yes';
 
 const DefaultPopupTarget = "_blank";
@@ -24,10 +24,10 @@ export class PopupWindow implements IWindow {
             this._reject = reject;
         });
 
-        let target = params.popupWindowTarget || DefaultPopupTarget;
-        let features = params.popupWindowFeatures || DefaultPopupFeatures;
+        const target = params.popupWindowTarget || DefaultPopupTarget;
+        const features = params.popupWindowFeatures || DefaultPopupFeatures;
 
-        this._popup = window.open('', target, features);
+        this._popup = window.open("", target, features);
         this._checkForPopupClosedTimer = null;
         if (this._popup) {
             Log.debug("PopupWindow.ctor: popup successfully created");
@@ -118,12 +118,12 @@ export class PopupWindow implements IWindow {
         if (window.opener) {
             url = url || window.location.href;
             if (url) {
-                var data = UrlUtility.parseUrlFragment(url, delimiter);
+                const data = UrlUtility.parseUrlFragment(url, delimiter);
 
                 if (data.state) {
-                    var name = "popupCallback_" + data.state;
+                    const name = "popupCallback_" + data.state;
                     // @ts-ignore
-                    var callback = window.opener[name];
+                    const callback = window.opener[name];
                     if (callback) {
                         Log.debug("PopupWindow.notifyOpener: passing url message to opener");
                         callback(url, keepOpen);

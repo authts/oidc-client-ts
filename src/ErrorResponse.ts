@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from './utils';
+import { Log } from "./utils";
 
 export class ErrorResponse extends Error {
     public readonly name: string;
@@ -16,7 +16,7 @@ export class ErrorResponse extends Error {
     constructor({
         error, error_description, error_uri, state, session_state
     }: any) {
-         if (!error) {
+        if (!error) {
             Log.error("No error passed to ErrorResponse");
             throw new Error("error");
         }

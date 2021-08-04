@@ -1,42 +1,42 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { ClockService } from './ClockService';
-import { WebStorageStateStore } from './WebStorageStateStore';
-import { ResponseValidator } from './ResponseValidator';
-import { MetadataService } from './MetadataService';
-import { OidcMetadata } from './OidcMetadata'
-import { StateStore } from './StateStore'
+import { ClockService } from "./ClockService";
+import { WebStorageStateStore } from "./WebStorageStateStore";
+import { ResponseValidator } from "./ResponseValidator";
+import { MetadataService } from "./MetadataService";
+import { OidcMetadata } from "./OidcMetadata";
+import { StateStore } from "./StateStore";
 
 const DefaultResponseType = "id_token";
 const DefaultScope = "openid";
-const DefaultClientAuthentication = "client_secret_post" // The default value must be client_secret_basic, as explained in https://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication
+const DefaultClientAuthentication = "client_secret_post"; // The default value must be client_secret_basic, as explained in https://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication
 const DefaultStaleStateAge = 60 * 15; // seconds
 const DefaultClockSkewInSeconds = 60 * 5;
 
 export interface OidcClientSettings {
     /** The URL of the OIDC/OAuth2 provider */
-    authority?: string,
-    metadataUrl?: string,
+    authority?: string;
+    metadataUrl?: string;
     /** Provide metadata when authority server does not allow CORS on the metadata endpoint */
-    metadata?: Partial<OidcMetadata>,
+    metadata?: Partial<OidcMetadata>;
     /** Can be used to seed or add additional values to the results of the discovery request */
-    metadataSeed?: Partial<OidcMetadata>,
+    metadataSeed?: Partial<OidcMetadata>;
     /** Provide signingKeys when authority server does not allow CORS on the jwks uri */
-    signingKeys?: any[],
+    signingKeys?: any[];
 
     /** Your client application's identifier as registered with the OIDC/OAuth2 */
-    client_id?: string,
-    client_secret?: string,
+    client_id?: string;
+    client_secret?: string;
     /** The type of response desired from the OIDC/OAuth2 provider (default: 'id_token') */
-    response_type?: string,
+    response_type?: string;
     /** The scope being requested from the OIDC/OAuth2 provider (default: 'openid') */
-    scope?: string,
+    scope?: string;
     /** The redirect URI of your client application to receive a response from the OIDC/OAuth2 provider */
-    redirect_uri?: string,
+    redirect_uri?: string;
     /** The OIDC/OAuth2 post-logout redirect URI */
-    post_logout_redirect_uri?: string,
-    client_authentication?: string,
+    post_logout_redirect_uri?: string;
+    client_authentication?: string;
 
     prompt?: string;
     display?: string;
@@ -55,7 +55,7 @@ export interface OidcClientSettings {
     /** The window of time (in seconds) to allow the current time to deviate when validating id_token's iat, nbf, and exp values (default: 300) */
     clockSkew?: number;
     clockService?: ClockService;
-    userInfoJwtIssuer?: 'ANY' | 'OP' | string;
+    userInfoJwtIssuer?: "ANY" | "OP" | string;
     mergeClaims?: boolean;
 
     stateStore?: StateStore;
@@ -95,7 +95,7 @@ export class OidcClientSettingsStore {
     private _staleStateAge: number;
     private _clockSkew: number;
     private _clockService: ClockService;
-    private _userInfoJwtIssuer?: 'ANY' | 'OP' | string;
+    private _userInfoJwtIssuer?: "ANY" | "OP" | string;
     private _mergeClaims?: boolean;
 
     private _stateStore: StateStore;
@@ -119,7 +119,7 @@ export class OidcClientSettingsStore {
         staleStateAge = DefaultStaleStateAge,
         clockSkew = DefaultClockSkewInSeconds,
         clockService = new ClockService(),
-        userInfoJwtIssuer = 'OP',
+        userInfoJwtIssuer = "OP",
         mergeClaims = false,
         // other behavior
         stateStore = new WebStorageStateStore(),
@@ -164,8 +164,8 @@ export class OidcClientSettingsStore {
         this._metadataService = new MetadataServiceCtor(this);
         this._validator = new ResponseValidatorCtor(this, this._metadataService);
 
-        this._extraQueryParams = typeof extraQueryParams === 'object' ? extraQueryParams : {};
-        this._extraTokenParams = typeof extraTokenParams === 'object' ? extraTokenParams : {};
+        this._extraQueryParams = typeof extraQueryParams === "object" ? extraQueryParams : {};
+        this._extraTokenParams = typeof extraTokenParams === "object" ? extraTokenParams : {};
     }
 
     // client config

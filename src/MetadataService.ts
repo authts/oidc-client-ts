@@ -1,12 +1,12 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from './utils';
-import { JsonService } from './JsonService';
-import { OidcClientSettingsStore } from './OidcClientSettings';
-import { OidcMetadata } from './OidcMetadata';
+import { Log } from "./utils";
+import { JsonService } from "./JsonService";
+import { OidcClientSettingsStore } from "./OidcClientSettings";
+import { OidcMetadata } from "./OidcMetadata";
 
-const OidcMetadataUrlPath = '.well-known/openid-configuration';
+const OidcMetadataUrlPath = ".well-known/openid-configuration";
 
 export class MetadataService {
     private _settings: OidcClientSettingsStore
@@ -24,15 +24,15 @@ export class MetadataService {
         }
 
         this._settings = settings;
-        this._jsonService = new JsonServiceCtor(['application/jwk-set+json']);
+        this._jsonService = new JsonServiceCtor(["application/jwk-set+json"]);
 
         this._metadataUrl = null;
         if (this._settings.metadataUrl) {
             this._metadataUrl = this._settings.metadataUrl;
         } else if (this._settings.authority) {
             this._metadataUrl = this._settings.authority;
-            if (this._metadataUrl[this._metadataUrl.length - 1] !== '/') {
-                this._metadataUrl += '/';
+            if (this._metadataUrl[this._metadataUrl.length - 1] !== "/") {
+                this._metadataUrl += "/";
             }
             this._metadataUrl += OidcMetadataUrlPath;
         }
@@ -51,7 +51,7 @@ export class MetadataService {
     }
 
     resetSigningKeys() {
-        this._signingKeys = null
+        this._signingKeys = null;
     }
 
     async getMetadata(): Promise<Partial<OidcMetadata>> {
@@ -69,7 +69,7 @@ export class MetadataService {
         const metadata = await this._jsonService.getJson(this._metadataUrl);
 
         Log.debug("MetadataService.getMetadata: json received");
-        var seed = this._settings.metadataSeed || {};
+        const seed = this._settings.metadataSeed || {};
         this._metadata = Object.assign({}, seed, metadata) as Partial<OidcMetadata>;
         return this._metadata;
     }

@@ -1,18 +1,18 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { OidcClientSettings, OidcClientSettingsStore } from './OidcClientSettings';
-import { RedirectNavigator, PopupNavigator, IFrameNavigator } from './navigators';
-import { WebStorageStateStore } from './WebStorageStateStore';
-import { SigninRequest } from './SigninRequest';
+import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
+import { RedirectNavigator, PopupNavigator, IFrameNavigator } from "./navigators";
+import { WebStorageStateStore } from "./WebStorageStateStore";
+import { SigninRequest } from "./SigninRequest";
 
 const DefaultAccessTokenExpiringNotificationTime = 60;
 const DefaultCheckSessionInterval = 2000;
 
 export interface UserManagerSettings extends OidcClientSettings {
     /** The URL for the page containing the call to signinPopupCallback to handle the callback from the OIDC/OAuth2 */
-    popup_redirect_uri?: string,
-    popup_post_logout_redirect_uri?: string,
+    popup_redirect_uri?: string;
+    popup_post_logout_redirect_uri?: string;
     /** The features parameter to window.open for the popup signin window.
      *  default: 'location=no,toolbar=no,width=500,height=500,left=100,top=100'
      */
@@ -146,7 +146,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     get silent_redirect_uri() {
         return this._silent_redirect_uri;
     }
-     get silentRequestTimeout() {
+    get silentRequestTimeout() {
         return this._silentRequestTimeout;
     }
     get automaticSilentRenew() {
@@ -171,10 +171,10 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     get checkSessionInterval() {
         return this._checkSessionInterval;
     }
-    get stopCheckSessionOnError(){
+    get stopCheckSessionOnError() {
         return this._stopCheckSessionOnError;
     }
-    get query_status_response_type(){
+    get query_status_response_type() {
         return this._query_status_response_type;
     }
     get revokeAccessTokenOnSignout() {
