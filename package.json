@@ -26,7 +26,8 @@
     "build": "tsdx build",
     "test": "tsdx test",
     "lint": "eslint ./src/**/*.ts",
-    "lint:fix": "eslint ./src/**/*.ts --fix"
+    "lint:fix": "eslint ./src/**/*.ts --fix",
+    "sample": "node samples/VanillaJS/server.js"
   },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^4.29.0",
