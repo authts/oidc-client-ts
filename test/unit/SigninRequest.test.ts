@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { SigninRequest } from '../../src/SigninRequest';
+import { SigninRequest } from "../../src/SigninRequest";
 
 describe("SigninRequest", () => {
 
@@ -33,7 +33,7 @@ describe("SigninRequest", () => {
                 fail("should not come here");
             }
             catch (e) {
-                expect(e.message).toContain('url');
+                expect(e.message).toContain("url");
             }
         });
 
@@ -47,7 +47,7 @@ describe("SigninRequest", () => {
                 fail("should not come here");
             }
             catch (e) {
-                expect(e.message).toContain('client_id');
+                expect(e.message).toContain("client_id");
             }
         });
 
@@ -61,7 +61,7 @@ describe("SigninRequest", () => {
                 fail("should not come here");
             }
             catch (e) {
-                expect(e.message).toContain('redirect_uri');
+                expect(e.message).toContain("redirect_uri");
             }
         });
 
@@ -75,7 +75,7 @@ describe("SigninRequest", () => {
                 fail("should not come here");
             }
             catch (e) {
-                expect(e.message).toContain('response_type');
+                expect(e.message).toContain("response_type");
             }
         });
 
@@ -89,7 +89,7 @@ describe("SigninRequest", () => {
                 fail("should not come here");
             }
             catch (e) {
-                expect(e.message).toContain('scope');
+                expect(e.message).toContain("scope");
             }
         });
 
@@ -103,7 +103,7 @@ describe("SigninRequest", () => {
                 fail("should not come here");
             }
             catch (e) {
-                expect(e.message).toContain('authority');
+                expect(e.message).toContain("authority");
             }
         });
     });
@@ -137,7 +137,7 @@ describe("SigninRequest", () => {
 
         it("should include state", () => {
             // assert
-            expect(subject.url).toContain("state=" + subject.state.id);
+            expect(subject.url).toContain("state=" + subject.state?.id);
         });
 
         it("should include prompt", () => {
@@ -264,21 +264,21 @@ describe("SigninRequest", () => {
         it("should include extra query params", () => {
             // arrange
             settings.extraQueryParams = {
-                'hd': 'domain.com',
-                'foo': 'bar'
+                "hd": "domain.com",
+                "foo": "bar"
             };
 
             // act
             subject = new SigninRequest(settings);
 
             // assert
-            expect(subject.url).toContain('hd=domain.com&foo=bar');
+            expect(subject.url).toContain("hd=domain.com&foo=bar");
         });
 
         it("should store extra token params in state", () => {
             // arrange
             settings.extraTokenParams = {
-                'resourceServer': 'abc',
+                "resourceServer": "abc",
             };
 
             // act
@@ -286,7 +286,7 @@ describe("SigninRequest", () => {
 
             // assert
             expect(subject.state.extraTokenParams).toEqual({
-                'resourceServer': 'abc'
+                "resourceServer": "abc"
             });
         });
 

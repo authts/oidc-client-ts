@@ -1,13 +1,14 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from '../../src/utils';
-import { UserManager } from '../../src/UserManager';
-import { UserManagerSettings, UserManagerSettingsStore } from '../../src/UserManagerSettings';
-import { User } from '../../src/User';
-import { WebStorageStateStore } from '../../src/WebStorageStateStore';
+import { Log } from "../../src/utils";
+import { UserManager } from "../../src/UserManager";
+import { UserManagerSettings, UserManagerSettingsStore } from "../../src/UserManagerSettings";
+import { User } from "../../src/User";
+import { WebStorageStateStore } from "../../src/WebStorageStateStore";
 
-import { mocked } from 'ts-jest/utils';
+import { mocked } from "ts-jest/utils";
+import { INavigator } from "../../src/navigators";
 
 describe("UserManager", () => {
     let settings: UserManagerSettings;
@@ -18,7 +19,7 @@ describe("UserManager", () => {
         Log.logger = console;
         Log.level = Log.NONE;
 
-        userStoreMock = mocked(new WebStorageStateStore())
+        userStoreMock = mocked(new WebStorageStateStore());
 
         settings = {
             authority: "http://sts/oidc",
@@ -47,12 +48,15 @@ describe("UserManager", () => {
 
     describe("userLoaded", () => {
 
-        it("should be able to call getUser without recursion", async () => {
+        it("should be able to call getUser without recursion", () => {
             // arrange
             const user = new User({ id_token: "id_token" });
             userStoreMock.item = user.toStorageString();
 
-            subject.events.addUserLoaded(async (_user) => {
+            // lamda function is never called but complier thinks it returns Promise
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            subject.events.addUserLoaded(async (user) => {
+                Log.debug("event.load", user);
                 await subject.getUser();
             });
 
@@ -77,13 +81,11 @@ describe("UserManager", () => {
 
             let navArgs: any = null;
 
-            // @ts-ignore
-            subject._signin = function(args: any, nav: any, arg_navArgs: any) {
-                Log.debug("_signin", args, nav, navArgs);
-
-                navArgs = arg_navArgs;
-                return Promise.resolve()
-            }
+            subject["_signin"] = function(args: any, navigator: INavigator, navigatorParams: any = {}) {
+                Log.debug("_signin", args, navigator, navigatorParams);
+                navArgs = navigatorParams;
+                return Promise.resolve(user);
+            };
 
             // act
             await subject.signinSilent();
@@ -104,12 +106,11 @@ describe("UserManager", () => {
             subject = new UserManager(settings);
 
             let navArgs: any = null;
-
-            // @ts-ignore
-            subject._signin = function(args: any, nav: any, arg_navArgs: any) {
-                navArgs = arg_navArgs;
-                return Promise.resolve()
-            }
+            subject["_signin"] = function(args: any, navigator: INavigator, navigatorParams: any = {}) {
+                Log.debug("_signin", args, navigator, navigatorParams);
+                navArgs = navigatorParams;
+                return Promise.resolve(user);
+            };
 
             // act
             await subject.signinSilent({ silentRequestTimeout: 234 });
@@ -120,7 +121,7 @@ describe("UserManager", () => {
 
         it("should pass prompt from params", async () =>{
             // arrange
-            const user = new User({id_token:"id_token"})
+            const user = new User({id_token:"id_token"});
             userStoreMock.item = user.toStorageString();
 
             settings = {
@@ -130,18 +131,17 @@ describe("UserManager", () => {
             subject = new UserManager(settings);
 
             let args: any = null;
-
-            // @ts-ignore
-            subject._signin = function(arg_args: any, nav: any, navArgs: any) {
+            subject["_signin"] = function(arg_args: any, navigator: INavigator, navigatorParams: any = {}) {
+                Log.debug("_signin", args, navigator, navigatorParams);
                 args = arg_args;
-                return Promise.resolve()
-            }
+                return Promise.resolve(user);
+            };
 
             // act
             await subject.signinSilent({ prompt:"foo" });
 
             // assert
-            expect(args.prompt).toEqual("foo");
+            expect(args?.prompt).toEqual("foo");
         });
 
         it("should work when having no User present", async () => {
@@ -152,10 +152,10 @@ describe("UserManager", () => {
             };
             subject = new UserManager(settings);
 
-            // @ts-ignore
-            subject._signin = function(args: any, nav: any, arg_navArgs: any) {
-                return Promise.resolve()
-            }
+            subject["_signin"] = function(args: any, navigator: INavigator, navigatorParams: any = {}) {
+                Log.debug("_signin", args, navigator, navigatorParams);
+                return Promise.resolve(new User({}));
+            };
 
             // act
             await subject.signinSilent({ prompt:"foo" });

@@ -1,8 +1,8 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { WebStorageStateStore } from '../../src/WebStorageStateStore';
-import { InMemoryWebStorage } from '../../src/InMemoryWebStorage';
+import { WebStorageStateStore } from "../../src/WebStorageStateStore";
+import { InMemoryWebStorage } from "../../src/InMemoryWebStorage";
 
 describe("WebStorageStateStore", () => {
     let prefix: string;
@@ -19,17 +19,18 @@ describe("WebStorageStateStore", () => {
 
         it("should return a promise", async () => {
             // act
-            let p = subject.set("key", "value");
+            const p = subject.set("key", "value");
 
             // assert
             expect(p).toBeInstanceOf(Promise);
+            // eslint-disable-next-line no-empty
             try { await p; } catch {}
         });
 
         it("should store item", async () => {
             // act
             await subject.set("key", "value");
-            let result = await store.getItem("key");
+            const result = store.getItem("key");
 
             // assert
             expect(result).toEqual("value");
@@ -44,7 +45,7 @@ describe("WebStorageStateStore", () => {
             await subject.set("key", "value");
 
             // assert
-            let result = await store.getItem(prefix + "key");
+            const result = store.getItem(prefix + "key");
             expect(result).toEqual("value");
         });
     });
@@ -53,20 +54,21 @@ describe("WebStorageStateStore", () => {
 
         it("should return a promise", async () => {
             // act
-            let p = subject.remove("key");
+            const p = subject.remove("key");
 
             // assert
             expect(p).toBeInstanceOf(Promise);
+            // eslint-disable-next-line no-empty
             try { await p; } catch {}
         });
 
         it("should remove item", async () => {
             // arrange
-            await store.setItem("key", "value");
+            store.setItem("key", "value");
 
             // act
             await subject.remove("key");
-            let result = await store.getItem("key");
+            const result = store.getItem("key");
 
             // assert
             expect(result).toBeUndefined();
@@ -74,10 +76,10 @@ describe("WebStorageStateStore", () => {
 
         it("should return value if exists", async () => {
             // arrange
-            await store.setItem("key", "test");
+            store.setItem("key", "test");
 
             // act
-            let result = await subject.remove("key");
+            const result = await subject.remove("key");
 
             // assert
             expect(result).toEqual("test");
@@ -85,7 +87,7 @@ describe("WebStorageStateStore", () => {
 
         it("should return undefined if doesn't exist", async () => {
             // act
-            let result = await subject.remove("key");
+            const result = await subject.remove("key");
 
             // assert
             expect(result).toBeUndefined();
@@ -98,7 +100,7 @@ describe("WebStorageStateStore", () => {
             await subject.set("key", "value");
 
             // act
-            let result = await subject.remove("key");
+            const result = await subject.remove("key");
 
             // assert
             expect(result).toEqual("value");
@@ -110,19 +112,20 @@ describe("WebStorageStateStore", () => {
 
         it("should return a promise", async () => {
             // act
-            var p = subject.get("key");
+            const p = subject.get("key");
 
             // assert
             expect(p).toBeInstanceOf(Promise);
+            // eslint-disable-next-line no-empty
             try { await p; } catch {}
         });
 
         it("should return value if exists", async () => {
             // arrange
-            await store.setItem("key", "test");
+            store.setItem("key", "test");
 
             // act
-            let result = await subject.get("key");
+            const result = await subject.get("key");
 
             // assert
             expect(result).toEqual("test");
@@ -130,7 +133,7 @@ describe("WebStorageStateStore", () => {
 
         it("should return undefined if doesn't exist", async () => {
             // act
-            let result = await subject.get("key");
+            const result = await subject.get("key");
 
             // assert
             expect(result).toBeUndefined();
@@ -143,7 +146,7 @@ describe("WebStorageStateStore", () => {
             store.setItem("foo.key", "value");
 
             // act
-            let result = await subject.get("key");
+            const result = await subject.get("key");
 
             // assert
             expect(result).toEqual("value");
@@ -155,20 +158,21 @@ describe("WebStorageStateStore", () => {
 
         it("should return a promise", async () => {
             // act
-            var p = subject.getAllKeys();
+            const p = subject.getAllKeys();
 
             // assert
             expect(p).toBeInstanceOf(Promise);
+            // eslint-disable-next-line no-empty
             try { await p; } catch {}
         });
 
         it("should return keys", async () => {
             // arrange
-            await store.setItem("key1", "test");
-            await store.setItem("key2", "test");
+            store.setItem("key1", "test");
+            store.setItem("key2", "test");
 
             // act
-            let result = await subject.getAllKeys();
+            const result = await subject.getAllKeys();
 
             // assert
             expect(result).toStrictEqual(["key1", "key2"]);
@@ -178,11 +182,11 @@ describe("WebStorageStateStore", () => {
             // arrange
             prefix = "foo.";
             subject = new WebStorageStateStore({ prefix: prefix, store: store });
-            await store.setItem("foo.key1", "test");
-            await store.setItem("foo.key2", "test");
+            store.setItem("foo.key1", "test");
+            store.setItem("foo.key2", "test");
 
             // act
-            let result = await subject.getAllKeys();
+            const result = await subject.getAllKeys();
 
             // assert
             expect(result).toStrictEqual(["key1", "key2"]);
@@ -190,7 +194,7 @@ describe("WebStorageStateStore", () => {
 
         it("should return empty keys when empty", async () => {
             // act
-            let result = await subject.getAllKeys();
+            const result = await subject.getAllKeys();
 
             // assert
             expect(result).toStrictEqual([]);

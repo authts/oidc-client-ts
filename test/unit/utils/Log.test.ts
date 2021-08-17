@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, Logger } from '../../../src/utils';
+import { Log, Logger } from "../../../src/utils";
 
 describe("Log", () => {
     beforeEach(() => {
@@ -13,7 +13,7 @@ describe("Log", () => {
 
         it("should not log when set to NONE", () => {
             // arrange
-            let stub = new StubLog();
+            const stub = new StubLog();
             Log.logger = stub;
             Log.level = Log.NONE;
 
@@ -30,7 +30,7 @@ describe("Log", () => {
 
         it("should not log info or warn for ERROR level", () => {
             // arrange
-            let stub = new StubLog();
+            const stub = new StubLog();
             Log.logger = stub;
             Log.level = Log.ERROR;
 
@@ -47,7 +47,7 @@ describe("Log", () => {
 
         it("should not log info for WARN level", () => {
             // arrange
-            let stub = new StubLog();
+            const stub = new StubLog();
             Log.logger = stub;
             Log.level = Log.WARN;
 
@@ -64,7 +64,7 @@ describe("Log", () => {
 
         it("should log to all for INFO level", () => {
             // arrange
-            let stub = new StubLog();
+            const stub = new StubLog();
             Log.logger = stub;
             Log.level = Log.INFO;
 
@@ -84,7 +84,7 @@ describe("Log", () => {
 
         it("should use the logger specified", () => {
             // arrange
-            let stub = new StubLog();
+            const stub = new StubLog();
             Log.logger = stub;
 
             // act

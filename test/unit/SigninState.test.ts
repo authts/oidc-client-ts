@@ -1,8 +1,8 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from '../../src/utils';
-import { SigninState } from '../../src/SigninState';
+import { Log } from "../../src/utils";
+import { SigninState } from "../../src/SigninState";
 
 describe("SigninState", () => {
 
@@ -15,7 +15,7 @@ describe("SigninState", () => {
 
         it("should call base ctor", () => {
             // act
-            var subject = new SigninState({ id: 5, created:6, data:7 });
+            const subject = new SigninState({ id: 5, created:6, data:7 });
 
             // assert
             expect(subject.id).toEqual(5);
@@ -25,7 +25,7 @@ describe("SigninState", () => {
 
         it("should accept nonce", () => {
             // act
-            var subject = new SigninState({ nonce: 5 });
+            const subject = new SigninState({ nonce: 5 });
 
             // assert
             expect(subject.nonce).toEqual(5);
@@ -33,7 +33,7 @@ describe("SigninState", () => {
 
         it("should generate nonce", () => {
             // act
-            var subject = new SigninState({ nonce: true });
+            const subject = new SigninState({ nonce: true });
 
             // assert
             expect(subject.nonce).toBeDefined();
@@ -41,7 +41,7 @@ describe("SigninState", () => {
 
         it("should accept redirect_uri", () => {
             // act
-            var subject = new SigninState({ redirect_uri: "http://cb" });
+            const subject = new SigninState({ redirect_uri: "http://cb" });
 
             // assert
             expect(subject.redirect_uri).toEqual("http://cb");
@@ -49,7 +49,7 @@ describe("SigninState", () => {
 
         it("should accept code_verifier", () => {
             // act
-            var subject = new SigninState({ code_verifier: 5 });
+            const subject = new SigninState({ code_verifier: 5 });
 
             // assert
             expect(subject.code_verifier).toEqual(5);
@@ -57,7 +57,7 @@ describe("SigninState", () => {
 
         it("should generate code_verifier", () => {
             // act
-            var subject = new SigninState({ code_verifier: true });
+            const subject = new SigninState({ code_verifier: true });
 
             // assert
             expect(subject.code_verifier).toBeDefined();
@@ -66,9 +66,8 @@ describe("SigninState", () => {
         it("should generate code_challenge", () => {
             // arrange
 
-
             // act
-            var subject = new SigninState({ code_verifier: true });
+            const subject = new SigninState({ code_verifier: true });
 
             // assert
             expect(subject.code_challenge).toBeDefined();
@@ -76,7 +75,7 @@ describe("SigninState", () => {
 
         it("should accept client_id", () => {
             // act
-            var subject = new SigninState({ client_id: "client" });
+            const subject = new SigninState({ client_id: "client" });
 
             // assert
             expect(subject.client_id).toEqual("client");
@@ -84,7 +83,7 @@ describe("SigninState", () => {
 
         it("should accept authority", () => {
             // act
-            var subject = new SigninState({ authority: "test" });
+            const subject = new SigninState({ authority: "test" });
 
             // assert
             expect(subject.authority).toEqual("test");
@@ -92,26 +91,26 @@ describe("SigninState", () => {
 
         it("should accept request_type", () => {
             // act
-            var subject = new SigninState({ request_type: 'xoxo' });
+            const subject = new SigninState({ request_type: "xoxo" });
 
             // assert
-            expect(subject.request_type).toEqual('xoxo');
+            expect(subject.request_type).toEqual("xoxo");
         });
 
         it("should accept extraTokenParams", () => {
             // act
-            var subject = new SigninState({
-                extraTokenParams: { 'resourceServer' : 'abc' }
+            const subject = new SigninState({
+                extraTokenParams: { "resourceServer" : "abc" }
             });
 
             // assert
-            expect(subject.extraTokenParams).toEqual({ 'resourceServer' : 'abc' });
+            expect(subject.extraTokenParams).toEqual({ "resourceServer" : "abc" });
         });
     });
 
     it("can serialize and then deserialize", () => {
         // arrange
-        var subject1 = new SigninState({
+        const subject1 = new SigninState({
             nonce: true,
             data: { foo: "test" },
             created: 1000,
@@ -119,12 +118,12 @@ describe("SigninState", () => {
             authority: "authority",
             redirect_uri: "http://cb",
             code_verifier: true,
-            request_type: 'type'
+            request_type: "type"
         });
 
         // act
-        var storage = subject1.toStorageString();
-        var subject2 = SigninState.fromStorageString(storage);
+        const storage = subject1.toStorageString();
+        const subject2 = SigninState.fromStorageString(storage);
 
         // assert
         expect(subject2).toEqual(subject1);

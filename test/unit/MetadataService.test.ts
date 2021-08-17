@@ -1,11 +1,11 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from '../../src/utils';
-import { MetadataService } from '../../src/MetadataService';
+import { Log } from "../../src/utils";
+import { MetadataService } from "../../src/MetadataService";
 
 describe("MetadataService", () => {
-    let settings: any
+    let settings: any;
     let subject: MetadataService;
 
     beforeEach(() => {
@@ -23,6 +23,7 @@ describe("MetadataService", () => {
 
             // assert
             expect(p).toBeInstanceOf(Promise);
+            // eslint-disable-next-line no-empty
             try { await p; } catch {}
         });
 
@@ -46,7 +47,7 @@ describe("MetadataService", () => {
                 await subject.getMetadata();
                 fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('metadataUrl');
+                expect(err.message).toContain("metadataUrl");
             }
         });
 
@@ -58,7 +59,7 @@ describe("MetadataService", () => {
             subject = new MetadataService(settings);
             const jsonService = subject["_jsonService"]; // access private member
             const getJsonMock = jest.spyOn(jsonService, "getJson")
-                .mockImplementation(() => Promise.resolve('test'));
+                .mockImplementation(() => Promise.resolve("test"));
 
             // act
             await subject.getMetadata();
@@ -98,7 +99,7 @@ describe("MetadataService", () => {
             await subject.getMetadata();
 
             // assert
-            const _metadata = subject["_metadata"] // access private member
+            const _metadata = subject["_metadata"]; // access private member
             expect(_metadata).toEqual(json);
         });
 
@@ -117,7 +118,7 @@ describe("MetadataService", () => {
 
             // assert
             expect(result).toEqual({test1:"one", test2:"two"});
-            const _metadata = subject["_metadata"] // access private member
+            const _metadata = subject["_metadata"]; // access private member
             expect(_metadata).toEqual({test1:"one", test2:"two"});
         });
 
@@ -144,10 +145,11 @@ describe("MetadataService", () => {
 
         it("should return a promise", async () => {
             // act
-            var p = subject._getMetadataProperty("issuer");
+            const p = subject._getMetadataProperty("issuer");
 
             // assert
             expect(p).toBeInstanceOf(Promise);
+            // eslint-disable-next-line no-empty
             try { await p; } catch {}
         });
 
@@ -184,7 +186,7 @@ describe("MetadataService", () => {
             }
         });
 
-         it("should fail if json call to load metadata fails", async () => {
+        it("should fail if json call to load metadata fails", async () => {
             // arrange
             settings = {
                 metadataUrl: "http://sts/metadata"
@@ -337,10 +339,11 @@ describe("MetadataService", () => {
 
         it("should return a promise", async () => {
             // act
-            var p = subject.getSigningKeys();
+            const p = subject.getSigningKeys();
 
             // assert
             expect(p).toBeInstanceOf(Promise);
+            // eslint-disable-next-line no-empty
             try { await p; } catch {}
         });
 
@@ -370,7 +373,7 @@ describe("MetadataService", () => {
                 await subject.getSigningKeys();
                 fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('jwks_uri');
+                expect(err.message).toContain("jwks_uri");
             }
         });
 
@@ -390,7 +393,7 @@ describe("MetadataService", () => {
                 await subject.getSigningKeys();
                 fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('keyset');
+                expect(err.message).toContain("keyset");
             }
         });
 
@@ -405,7 +408,7 @@ describe("MetadataService", () => {
             const jsonService = subject["_jsonService"]; // access private member
             const json = {
                 keys: [{
-                    use:'sig',
+                    use:"sig",
                     kid:"test"
                 }]
             };
@@ -429,7 +432,7 @@ describe("MetadataService", () => {
             subject = new MetadataService(settings);
             const jsonService = subject["_jsonService"]; // access private member
             const expectedKeys = [{
-                use:'sig',
+                use:"sig",
                 kid:"test"
             }];
             const json = {
@@ -454,7 +457,7 @@ describe("MetadataService", () => {
             subject = new MetadataService(settings);
             const jsonService = subject["_jsonService"]; // access private member
             const expectedKeys = [{
-                use:'sig',
+                use:"sig",
                 kid:"test"
             }];
             const json = {
@@ -466,7 +469,7 @@ describe("MetadataService", () => {
             await subject.getSigningKeys();
 
             // assert
-            const _signingKeys = subject["_signingKeys"] // access private member
+            const _signingKeys = subject["_signingKeys"]; // access private member
             expect(_signingKeys).toEqual(expectedKeys);
         });
     });

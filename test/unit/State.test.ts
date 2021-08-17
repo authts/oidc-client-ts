@@ -1,11 +1,11 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from '../../src/utils';
-import { State } from '../../src/State';
+import { Log } from "../../src/utils";
+import { State } from "../../src/State";
 
-import { InMemoryWebStorage } from '../../src/InMemoryWebStorage';
-import { WebStorageStateStore } from '../../src/WebStorageStateStore';
+import { InMemoryWebStorage } from "../../src/InMemoryWebStorage";
+import { WebStorageStateStore } from "../../src/WebStorageStateStore";
 
 describe("State", () => {
 
@@ -18,7 +18,7 @@ describe("State", () => {
 
         it("should generate id", () => {
             // act
-            var subject = new State();
+            const subject = new State();
 
             // assert
             expect(subject.id).toBeDefined();
@@ -26,7 +26,7 @@ describe("State", () => {
 
         it("should accept id", () => {
             // act
-            var subject = new State({ id: 5 });
+            const subject = new State({ id: 5 });
 
             // assert
             expect(subject.id).toEqual(5);
@@ -34,7 +34,7 @@ describe("State", () => {
 
         it("should accept data", () => {
             // act
-            var subject = new State({ data: "test" });
+            const subject = new State({ data: "test" });
 
             // assert
             expect(subject.data).toEqual("test");
@@ -42,7 +42,7 @@ describe("State", () => {
 
         it("should accept data as objects", () => {
             // act
-            var subject = new State({ data: { foo: "test" } });
+            const subject = new State({ data: { foo: "test" } });
 
             // assert
             expect(subject.data).toEqual({ foo: "test" });
@@ -50,7 +50,7 @@ describe("State", () => {
 
         it("should accept created", () => {
             // act
-            var subject = new State({ created: 1000 });
+            const subject = new State({ created: 1000 });
 
             // assert
             expect(subject.created).toEqual(1000);
@@ -58,13 +58,13 @@ describe("State", () => {
 
         it("should use date.now for created", () => {
             // arrange
-            var oldNow = Date.now;
+            const oldNow = Date.now;
             Date.now = () => {
                 return 123 * 1000; // ms
             };
 
             // act
-            var subject = new State();
+            const subject = new State();
 
             // assert
             expect(subject.created).toEqual(123);
@@ -73,21 +73,20 @@ describe("State", () => {
 
         it("should accept request_type", () => {
             // act
-            var subject = new State({ request_type: 'xoxo' });
+            const subject = new State({ request_type: "xoxo" });
 
             // assert
-            expect(subject.request_type).toEqual('xoxo');
+            expect(subject.request_type).toEqual("xoxo");
         });
     });
 
     it("can serialize and then deserialize", () => {
         // arrange
-        var subject1 = new State({ data: { foo: "test" }, created: 1000, request_type:'type' });
+        const subject1 = new State({ data: { foo: "test" }, created: 1000, request_type:"type" });
 
         // act
-        var storage = subject1.toStorageString();
-        var subject2 = State.fromStorageString(storage);
-
+        const storage = subject1.toStorageString();
+        const subject2 = State.fromStorageString(storage);
 
         // assert
         expect(subject2).toEqual(subject1);
@@ -97,20 +96,20 @@ describe("State", () => {
 
         it("should remove old state entries", async () => {
             // arrange
-            let oldNow = Date.now;
+            const oldNow = Date.now;
             Date.now = () => {
                 return 200 * 1000; // ms
             };
 
-            let prefix = "prefix.";
-            let inMemStore = new InMemoryWebStorage();
-            let store = new WebStorageStateStore({ prefix: prefix, store: inMemStore });
+            const prefix = "prefix.";
+            const inMemStore = new InMemoryWebStorage();
+            const store = new WebStorageStateStore({ prefix: prefix, store: inMemStore });
 
-            let s1 = new State({ id: "s1", created: 50 });
-            let s2 = new State({ id: "s2", created: 99 });
-            let s3 = new State({ id: "s3", created: 100 });
-            let s4 = new State({ id: "s4", created: 101 });
-            let s5 = new State({ id: "s5", created: 150 });
+            const s1 = new State({ id: "s1", created: 50 });
+            const s2 = new State({ id: "s2", created: 99 });
+            const s3 = new State({ id: "s3", created: 100 });
+            const s4 = new State({ id: "s4", created: 101 });
+            const s5 = new State({ id: "s5", created: 150 });
 
             inMemStore.setItem("junk0", "junk");
             inMemStore.setItem(prefix + s1.id, s1.toStorageString());

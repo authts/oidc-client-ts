@@ -1,14 +1,14 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from '../../src/utils';
-import { OidcClient } from '../../src/OidcClient';
-import { OidcClientSettingsStore } from '../../src/OidcClientSettings';
-import { SigninState } from '../../src/SigninState';
-import { State } from '../../src/State';
-import { SigninRequest } from '../../src/SigninRequest';
-import { SignoutRequest } from '../../src/SignoutRequest';
-import { SignoutResponse } from '../../src/SignoutResponse';
+import { Log } from "../../src/utils";
+import { OidcClient } from "../../src/OidcClient";
+import { OidcClientSettingsStore } from "../../src/OidcClientSettings";
+import { SigninState } from "../../src/SigninState";
+import { State } from "../../src/State";
+import { SigninRequest } from "../../src/SigninRequest";
+import { SignoutRequest } from "../../src/SignoutRequest";
+import { SignoutResponse } from "../../src/SignoutResponse";
 
 describe("OidcClient", () => {
     let settings: any;
@@ -22,8 +22,8 @@ describe("OidcClient", () => {
         jest.restoreAllMocks();
 
         settings = {
-            authority: 'authority',
-            client_id: 'client',
+            authority: "authority",
+            client_id: "client",
             redirect_uri: "http://app",
             post_logout_redirect_uri: "http://app"
         };
@@ -45,7 +45,7 @@ describe("OidcClient", () => {
 
         it("should accept OidcClientSettings", () => {
             // arrange
-            let settings = {
+            const settings = {
                 client_id: "client"
             };
 
@@ -70,11 +70,12 @@ describe("OidcClient", () => {
             jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
 
             // act
-            var p = subject.createSigninRequest();
+            const p = subject.createSigninRequest();
 
             // assert
             expect(p).toBeInstanceOf(Promise);
-            try { await p; } catch(_err) {}
+            // eslint-disable-next-line no-empty
+            try { await p; } catch {}
         });
 
         it("should return SigninRequest", async () => {
@@ -82,7 +83,7 @@ describe("OidcClient", () => {
             jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
 
             // act
-            var request = await subject.createSigninRequest();
+            const request = await subject.createSigninRequest();
 
             // assert
             expect(request).toBeInstanceOf(SigninRequest);
@@ -93,26 +94,26 @@ describe("OidcClient", () => {
             jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
 
             // act
-            var request = await subject.createSigninRequest({
-                data: 'foo',
-                response_type: 'bar',
-                response_mode: 'mode',
-                scope: 'baz',
-                redirect_uri: 'quux',
-                prompt: 'p',
-                display: 'd',
-                max_age: 'm',
-                ui_locales: 'u',
-                id_token_hint: 'ith',
-                login_hint: 'lh',
-                acr_values: 'av',
-                resource: 'res',
-                request: 'req',
-                request_uri: 'req_uri'
+            const request = await subject.createSigninRequest({
+                data: "foo",
+                response_type: "bar",
+                response_mode: "mode",
+                scope: "baz",
+                redirect_uri: "quux",
+                prompt: "p",
+                display: "d",
+                max_age: "m",
+                ui_locales: "u",
+                id_token_hint: "ith",
+                login_hint: "lh",
+                acr_values: "av",
+                resource: "res",
+                request: "req",
+                request_uri: "req_uri"
             });
 
             // assert
-            expect(request.state.data).toEqual('foo');
+            expect(request.state.data).toEqual("foo");
             const url = request.url;
             expect(url).toContain("http://sts/authorize");
             expect(url).toContain("response_type=bar");
@@ -136,23 +137,23 @@ describe("OidcClient", () => {
             jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
 
             // act
-            var request = await subject.createSigninRequest({
-                state: 'foo',
-                response_type: 'bar',
-                scope: 'baz',
-                redirect_uri: 'quux',
-                prompt: 'p',
-                display: 'd',
-                max_age: 'm',
-                ui_locales: 'u',
-                id_token_hint: 'ith',
-                login_hint: 'lh',
-                acr_values: 'av',
-                resource: 'res'
+            const request = await subject.createSigninRequest({
+                state: "foo",
+                response_type: "bar",
+                scope: "baz",
+                redirect_uri: "quux",
+                prompt: "p",
+                display: "d",
+                max_age: "m",
+                ui_locales: "u",
+                id_token_hint: "ith",
+                login_hint: "lh",
+                acr_values: "av",
+                resource: "res"
             });
 
             // assert
-            expect(request.state.data).toEqual('foo');
+            expect(request.state.data).toEqual("foo");
             const url = request.url;
             expect(url).toContain("http://sts/authorize");
             expect(url).toContain("response_type=bar");
@@ -242,11 +243,12 @@ describe("OidcClient", () => {
 
         it("should return a promise", async () => {
             // act
-            var p = subject.readSigninResponseState("state=state");
+            const p = subject.readSigninResponseState("state=state");
 
             // asssert
             expect(p).toBeInstanceOf(Promise);
-            try { await p; } catch(_err) {}
+            // eslint-disable-next-line no-empty
+            try { await p; } catch {}
         });
 
         it("should fail if no state on response", async () => {
@@ -258,7 +260,7 @@ describe("OidcClient", () => {
                 await subject.readSigninResponseState("");
                 fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('state');
+                expect(err.message).toContain("state");
             }
         });
 
@@ -268,28 +270,28 @@ describe("OidcClient", () => {
 
             // act
             try {
-                await subject.readSigninResponseState("state=state")
-            fail("should not come here");
+                await subject.readSigninResponseState("state=state");
+                fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('fail');
+                expect(err.message).toContain("fail");
             }
         });
 
         it("should deserialize stored state and return state and response", async () => {
             // arrange
-            const item = new SigninState({ id: '1', nonce: '2', authority:'authority', client_id:'client', request_type:'type' }).toStorageString();
+            const item = new SigninState({ id: "1", nonce: "2", authority:"authority", client_id:"client", request_type:"type" }).toStorageString();
             jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item));
 
             // act
-            let { state, response } = await subject.readSigninResponseState("state=1")
+            const { state, response } = await subject.readSigninResponseState("state=1");
 
             // assert
-            expect(state.id).toEqual('1');
-            expect(state.nonce).toEqual('2');
-            expect(state.authority).toEqual('authority');
-            expect(state.client_id).toEqual('client');
-            expect(state.request_type).toEqual('type');
-            expect(response.state).toEqual('1');
+            expect(state.id).toEqual("1");
+            expect(state.nonce).toEqual("2");
+            expect(state.authority).toEqual("authority");
+            expect(state.client_id).toEqual("client");
+            expect(state.request_type).toEqual("type");
+            expect(response.state).toEqual("1");
         });
     });
 
@@ -297,11 +299,12 @@ describe("OidcClient", () => {
 
         it("should return a promise", async () => {
             // act
-            var p = subject.processSigninResponse("state=state");
+            const p = subject.processSigninResponse("state=state");
 
             // assert
             expect(p).toBeInstanceOf(Promise);
-            try { await p; } catch(_err) {}
+            // eslint-disable-next-line no-empty
+            try { await p; } catch {}
         });
 
         it("should fail if no state on response", async () => {
@@ -313,7 +316,7 @@ describe("OidcClient", () => {
                 await subject.processSigninResponse("");
                 fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('state');
+                expect(err.message).toContain("state");
             }
         });
 
@@ -326,20 +329,20 @@ describe("OidcClient", () => {
                 await subject.processSigninResponse("state=state");
                 fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('fail');
+                expect(err.message).toContain("fail");
             }
         });
 
         it("should deserialize stored state and call validator", async () => {
             // arrange
-            const item = new SigninState({ id: '1', nonce: '2', authority:'authority', client_id:'client' });
+            const item = new SigninState({ id: "1", nonce: "2", authority:"authority", client_id:"client" });
             jest.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(() => Promise.resolve(item.toStorageString()));
             const validateSigninResponseMock = jest.spyOn(subject["_validator"], "validateSigninResponse")
                 .mockImplementation((_s, r) => Promise.resolve(r));
 
             // act
-            let response = await subject.processSigninResponse("state=1");
+            const response = await subject.processSigninResponse("state=1");
 
             // assert
             expect(validateSigninResponseMock).toBeCalledWith(item, response);
@@ -353,11 +356,12 @@ describe("OidcClient", () => {
             jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
 
             // act
-            var p = subject.createSignoutRequest();
+            const p = subject.createSignoutRequest();
 
             // assert
             expect(p).toBeInstanceOf(Promise);
-            try { await p; } catch(_err) {}
+            // eslint-disable-next-line no-empty
+            try { await p; } catch {}
         });
 
         it("should return SignoutRequest", async () => {
@@ -365,7 +369,7 @@ describe("OidcClient", () => {
             jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
 
             // act
-            var request = await subject.createSignoutRequest();
+            const request = await subject.createSignoutRequest();
 
             // assert
             expect(request).toBeInstanceOf(SignoutRequest);
@@ -377,14 +381,14 @@ describe("OidcClient", () => {
 
             // act
             const request = await subject.createSignoutRequest({
-                state: 'foo',
+                state: "foo",
                 post_logout_redirect_uri: "bar",
                 id_token_hint: "baz"
             });
 
             // assert
             expect(request.state).toBeDefined();
-            expect(request.state!.data).toEqual('foo');
+            expect(request.state?.data).toEqual("foo");
             const url = request.url;
             expect(url).toContain("http://sts/signout");
             expect(url).toContain("post_logout_redirect_uri=bar");
@@ -397,14 +401,14 @@ describe("OidcClient", () => {
 
             // act
             const request = await subject.createSignoutRequest({
-                data: 'foo',
+                data: "foo",
                 post_logout_redirect_uri: "bar",
                 id_token_hint: "baz"
             });
 
             // assert
             expect(request.state).toBeDefined();
-            expect(request.state!.data).toEqual('foo');
+            expect(request.state?.data).toEqual("foo");
             const url = request.url;
             expect(url).toContain("http://sts/signout");
             expect(url).toContain("post_logout_redirect_uri=bar");
@@ -444,7 +448,7 @@ describe("OidcClient", () => {
 
             // act
             await subject.createSignoutRequest({
-                data:"foo", id_token_hint:'hint'
+                data:"foo", id_token_hint:"hint"
             });
 
             // assert
@@ -471,7 +475,8 @@ describe("OidcClient", () => {
 
             // assert
             expect(p).toBeInstanceOf(Promise);
-            try { await p; } catch(_err) {}
+            // eslint-disable-next-line no-empty
+            try { await p; } catch {}
         });
 
         it("should return result if no state on response", async () => {
@@ -507,7 +512,7 @@ describe("OidcClient", () => {
 
         it("should deserialize stored state and return state and response", async () => {
             // arrange
-            const item = new State({ id: '1', request_type:'type' }).toStorageString();
+            const item = new State({ id: "1", request_type:"type" }).toStorageString();
             jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item));
 
             // act
@@ -515,14 +520,14 @@ describe("OidcClient", () => {
 
             // assert
             expect(state).toBeDefined();
-            expect(state!.id).toEqual('1');
-            expect(state!.request_type).toEqual('type');
-            expect(response.state).toEqual('1');
+            expect(state?.id).toEqual("1");
+            expect(state?.request_type).toEqual("type");
+            expect(response.state).toEqual("1");
         });
 
         it("should call validator with state even if error in response", async () => {
             // arrange
-            const item = new State({ id: '1', data:"bar" });
+            const item = new State({ id: "1", data:"bar" });
             jest.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(() => Promise.resolve(item.toStorageString()));
             const validateSignoutResponse = jest.spyOn(subject["_validator"], "validateSignoutResponse")
@@ -540,11 +545,12 @@ describe("OidcClient", () => {
 
         it("should return a promise", async () => {
             // act
-            var p = subject.processSignoutResponse("state=state");
+            const p = subject.processSignoutResponse("state=state");
 
             // assert
             expect(p).toBeInstanceOf(Promise);
-            try { await p; } catch(_err) {}
+            // eslint-disable-next-line no-empty
+            try { await p; } catch {}
         });
 
         it("should return result if no state on response", async () => {
@@ -580,7 +586,7 @@ describe("OidcClient", () => {
 
         it("should deserialize stored state and call validator", async () => {
             // arrange
-            const item = new State({ id: '1' });
+            const item = new State({ id: "1" });
             jest.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(() => Promise.resolve(item.toStorageString()));
             const validateSignoutResponse = jest.spyOn(subject["_validator"], "validateSignoutResponse")
@@ -595,7 +601,7 @@ describe("OidcClient", () => {
 
         it("should call validator with state even if error in response", async () => {
             // arrange
-            const item = new State({ id: '1', data:"bar" });
+            const item = new State({ id: "1", data:"bar" });
             jest.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(() => Promise.resolve(item.toStorageString()));
             const validateSignoutResponse = jest.spyOn(subject["_validator"], "validateSignoutResponse")
@@ -613,24 +619,23 @@ describe("OidcClient", () => {
 
         it("should return a promise", async () => {
             // act
-            var p = subject.clearStaleState();
+            const p = subject.clearStaleState();
 
             // assert
             expect(p).toBeInstanceOf(Promise);
-            try { await p; } catch(_err) {}
+            // eslint-disable-next-line no-empty
+            try { await p; } catch {}
         });
 
-        it("should call State.clearStaleState", () => {
+        it("should call State.clearStaleState", async () => {
             // arrange
-            var oldState = State.clearStaleState;
-            State.clearStaleState = jest.fn();
+            const clearStaleState = jest.spyOn(State, "clearStaleState");
 
             // act
-            subject.clearStaleState();
+            await subject.clearStaleState();
 
             // assert
-            expect(State.clearStaleState).toBeCalled();
-            State.clearStaleState = oldState;
+            expect(clearStaleState).toBeCalled();
         });
     });
 });

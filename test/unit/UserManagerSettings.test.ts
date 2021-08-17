@@ -1,9 +1,9 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from '../../src/utils';
-import { UserManagerSettingsStore } from '../../src/UserManagerSettings';
-import { WebStorageStateStore } from '../../src/WebStorageStateStore';
+import { Log } from "../../src/utils";
+import { UserManagerSettingsStore } from "../../src/UserManagerSettings";
+import { WebStorageStateStore } from "../../src/WebStorageStateStore";
 
 describe("UserManagerSettings", () => {
 
@@ -16,7 +16,7 @@ describe("UserManagerSettings", () => {
 
         it("should allow no settings", () => {
             // act
-            let subject = new UserManagerSettingsStore();
+            const subject = new UserManagerSettingsStore();
 
             // assert
             expect(subject).not.toBeNull();
@@ -24,12 +24,12 @@ describe("UserManagerSettings", () => {
 
         it("should pass settings to base class", () => {
             // act
-            let subject = new UserManagerSettingsStore({
-                client_id: 'client'
+            const subject = new UserManagerSettingsStore({
+                client_id: "client"
             });
 
             // assert
-            expect(subject.client_id).toEqual('client');
+            expect(subject.client_id).toEqual("client");
         });
 
     });
@@ -38,12 +38,12 @@ describe("UserManagerSettings", () => {
 
         it("should return value from initial settings", () => {
             // act
-            let subject = new UserManagerSettingsStore({
-                popup_redirect_uri: 'test'
+            const subject = new UserManagerSettingsStore({
+                popup_redirect_uri: "test"
             });
 
             // assert
-            expect(subject.popup_redirect_uri).toEqual('test');
+            expect(subject.popup_redirect_uri).toEqual("test");
         });
 
     });
@@ -52,12 +52,12 @@ describe("UserManagerSettings", () => {
 
         it("should return value from initial settings", () => {
             // act
-            let subject = new UserManagerSettingsStore({
-                popupWindowFeatures: 'foo'
+            const subject = new UserManagerSettingsStore({
+                popupWindowFeatures: "foo"
             });
 
             // assert
-            expect(subject.popupWindowFeatures).toEqual('foo');
+            expect(subject.popupWindowFeatures).toEqual("foo");
         });
 
     });
@@ -66,12 +66,12 @@ describe("UserManagerSettings", () => {
 
         it("should return value from initial settings", () => {
             // act
-            let subject = new UserManagerSettingsStore({
-                popupWindowTarget: 'foo'
+            const subject = new UserManagerSettingsStore({
+                popupWindowTarget: "foo"
             });
 
             // assert
-            expect(subject.popupWindowTarget).toEqual('foo');
+            expect(subject.popupWindowTarget).toEqual("foo");
         });
 
     });
@@ -80,12 +80,12 @@ describe("UserManagerSettings", () => {
 
         it("should return value from initial settings", () => {
             // act
-            let subject = new UserManagerSettingsStore({
-                silent_redirect_uri: 'test'
+            const subject = new UserManagerSettingsStore({
+                silent_redirect_uri: "test"
             });
 
             // assert
-            expect(subject.silent_redirect_uri).toEqual('test');
+            expect(subject.silent_redirect_uri).toEqual("test");
         });
 
     });
@@ -94,7 +94,7 @@ describe("UserManagerSettings", () => {
 
         it("should return value from initial settings", () => {
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
                 silentRequestTimeout: 123
             });
 
@@ -108,7 +108,7 @@ describe("UserManagerSettings", () => {
 
         it("should return value from initial settings", () => {
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
                 automaticSilentRenew: true
             });
 
@@ -118,7 +118,7 @@ describe("UserManagerSettings", () => {
 
         it("should use default value", () => {
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
             });
 
             // assert
@@ -131,7 +131,7 @@ describe("UserManagerSettings", () => {
 
         it("should return value from initial settings", () => {
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
                 validateSubOnSilentRenew: true
             });
 
@@ -141,7 +141,7 @@ describe("UserManagerSettings", () => {
 
         it("should use default value", () => {
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
             });
 
             // assert
@@ -153,7 +153,7 @@ describe("UserManagerSettings", () => {
     describe("includeIdTokenInSilentRenew", () => {
         it("should return true value from initial settings", () => {
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
                 includeIdTokenInSilentRenew: true,
             });
 
@@ -163,7 +163,7 @@ describe("UserManagerSettings", () => {
 
         it("should return false value from initial settings", () => {
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
                 includeIdTokenInSilentRenew: false,
             });
 
@@ -173,7 +173,7 @@ describe("UserManagerSettings", () => {
 
         it("should use default value", () => {
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
             });
 
             // assert
@@ -185,7 +185,7 @@ describe("UserManagerSettings", () => {
 
         it("should return value from initial settings", () => {
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
                 accessTokenExpiringNotificationTime: 10
             });
 
@@ -195,7 +195,7 @@ describe("UserManagerSettings", () => {
 
         it("should use default value", () => {
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
             });
 
             // assert
@@ -206,10 +206,10 @@ describe("UserManagerSettings", () => {
 
     describe("redirectNavigator", () => {
         it("should return value from initial settings", () => {
-            let temp = {};
+            const temp = {};
 
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
                 redirectNavigator : temp
             });
 
@@ -220,10 +220,10 @@ describe("UserManagerSettings", () => {
 
     describe("popupNavigator", () => {
         it("should return value from initial settings", () => {
-            let temp = {};
+            const temp = {};
 
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
                 popupNavigator : temp
             });
 
@@ -234,10 +234,10 @@ describe("UserManagerSettings", () => {
 
     describe("iframeNavigator", () => {
         it("should return value from initial settings", () => {
-            let temp = {};
+            const temp = {};
 
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
                 iframeNavigator : temp
             });
 
@@ -248,10 +248,10 @@ describe("UserManagerSettings", () => {
 
     describe("redirectNavigator", () => {
         it("should return value from initial settings", () => {
-            let temp = {} as WebStorageStateStore;
+            const temp = {} as WebStorageStateStore;
 
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
                 userStore : temp
             });
 
@@ -263,7 +263,7 @@ describe("UserManagerSettings", () => {
     describe("revokeAccessTokenOnSignout", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
                 revokeAccessTokenOnSignout : true
             });
 
@@ -275,7 +275,7 @@ describe("UserManagerSettings", () => {
     describe("checkSessionInterval", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
                 checkSessionInterval : 6000
             });
 
@@ -284,7 +284,7 @@ describe("UserManagerSettings", () => {
         });
         it("should use default value", () => {
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
             });
 
             // assert
@@ -294,10 +294,10 @@ describe("UserManagerSettings", () => {
 
     describe("query_status_response_type", () => {
         it("should return value from initial settings", () => {
-            let temp = 'type';
+            const temp = "type";
 
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
                 query_status_response_type : temp
             });
 
@@ -307,7 +307,7 @@ describe("UserManagerSettings", () => {
         it("should infer default value", () => {
             {
                 // act
-                let subject = new UserManagerSettingsStore({
+                const subject = new UserManagerSettingsStore({
                     response_type: "id_token token"
                 });
 
@@ -316,7 +316,7 @@ describe("UserManagerSettings", () => {
             }
             {
                 // act
-                let subject = new UserManagerSettingsStore({
+                const subject = new UserManagerSettingsStore({
                     response_type: "code"
                 });
 
@@ -329,7 +329,7 @@ describe("UserManagerSettings", () => {
     describe("stopCheckSessionOnError", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
                 stopCheckSessionOnError : false
             });
 
@@ -338,7 +338,7 @@ describe("UserManagerSettings", () => {
         });
         it("should use default value", () => {
             // act
-            let subject = new UserManagerSettingsStore({
+            const subject = new UserManagerSettingsStore({
             });
 
             // assert

@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { SignoutRequest } from '../../src/SignoutRequest';
+import { SignoutRequest } from "../../src/SignoutRequest";
 
 describe("SignoutRequest", () => {
 
@@ -30,7 +30,7 @@ describe("SignoutRequest", () => {
                 fail("should not come here");
             }
             catch (e) {
-                expect(e.message).toContain('url');
+                expect(e.message).toContain("url");
             }
         });
     });
@@ -66,7 +66,7 @@ describe("SignoutRequest", () => {
         it("should include state if post_logout_redirect_uri provided", () => {
             // assert
             expect(subject.state).toBeDefined();
-            expect(subject.url).toContain("state=" + subject.state!.id);
+            expect(subject.url).toContain("state=" + subject.state?.id);
         });
 
         it("should not include state if no post_logout_redirect_uri provided", () => {
@@ -80,29 +80,28 @@ describe("SignoutRequest", () => {
             expect(subject.url).not.toContain("state=");
         });
 
-
         it("should include id_token_hint, post_logout_redirect_uri, and state", () => {
             // assert
             const url = subject.url;
-            expect(url.indexOf('http://sts/signout?')).toEqual(0);
+            expect(url.indexOf("http://sts/signout?")).toEqual(0);
             expect(url).toContain("id_token_hint=hint");
             expect(url).toContain("post_logout_redirect_uri=loggedout");
             expect(subject.state).toBeDefined();
-            expect(url).toContain("state=" + subject.state!.id);
+            expect(url).toContain("state=" + subject.state?.id);
         });
 
         it("should include extra query params", () => {
             // arrange
             settings.extraQueryParams = {
-                'TargetResource': 'logouturl.com',
-                'InErrorResource': 'errorurl.com'
+                "TargetResource": "logouturl.com",
+                "InErrorResource": "errorurl.com"
             };
 
             // act
             subject = new SignoutRequest(settings);
 
             // assert
-            expect(subject.url).toContain('TargetResource=logouturl.com&InErrorResource=errorurl.com');
+            expect(subject.url).toContain("TargetResource=logouturl.com&InErrorResource=errorurl.com");
         });
 
     });

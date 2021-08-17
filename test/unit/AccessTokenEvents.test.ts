@@ -1,9 +1,9 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Timer } from '../../src/utils';
-import { AccessTokenEvents } from '../../src/AccessTokenEvents';
-import { User } from '../../src/User';
+import { Timer } from "../../src/utils";
+import { AccessTokenEvents } from "../../src/AccessTokenEvents";
+import { User } from "../../src/User";
 
 describe("AccessTokenEvents", () => {
 
@@ -22,8 +22,7 @@ describe("AccessTokenEvents", () => {
     describe("constructor", () => {
 
         it("should use default expiringNotificationTime", () => {
-            // @ts-ignore
-            expect(subject._accessTokenExpiringNotificationTime).toEqual(60);
+            expect(subject["_accessTokenExpiringNotificationTime"]).toEqual(60);
         });
 
     });
@@ -125,7 +124,7 @@ class StubTimer extends Timer {
     duration: any;
 
     constructor(name: string) {
-        super(name)
+        super(name);
         this.cancelWasCalled = false;
     }
 
@@ -137,6 +136,8 @@ class StubTimer extends Timer {
         this.cancelWasCalled = true;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     addHandler() {}
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     removeHandler() {}
 }

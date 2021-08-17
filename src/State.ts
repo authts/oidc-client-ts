@@ -5,7 +5,7 @@ import { Log, random } from "./utils";
 import { StateStore } from "./StateStore";
 
 export class State {
-    public readonly id: any;
+    public readonly id: string;
     public readonly data: any;
     public readonly created: number;
     public readonly request_type: any;

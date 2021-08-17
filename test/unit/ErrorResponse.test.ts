@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { ErrorResponse } from '../../src/ErrorResponse';
+import { ErrorResponse } from "../../src/ErrorResponse";
 
 describe("ErrorResponse", () => {
 
@@ -22,7 +22,7 @@ describe("ErrorResponse", () => {
 
         it("should read error", () => {
             // act
-            let subject = new ErrorResponse({error:"foo"});
+            const subject = new ErrorResponse({error:"foo"});
 
             // assert
             expect(subject.error).toEqual("foo");
@@ -30,7 +30,7 @@ describe("ErrorResponse", () => {
 
         it("should read error_description", () => {
             // act
-            let subject = new ErrorResponse({error:"error", error_description:"foo"});
+            const subject = new ErrorResponse({error:"error", error_description:"foo"});
 
             // assert
             expect(subject.error_description).toEqual("foo");
@@ -38,7 +38,7 @@ describe("ErrorResponse", () => {
 
         it("should read error_uri", () => {
             // act
-            let subject = new ErrorResponse({error:"error", error_uri:"foo"});
+            const subject = new ErrorResponse({error:"error", error_uri:"foo"});
 
             // assert
             expect(subject.error_uri).toEqual("foo");
@@ -46,7 +46,7 @@ describe("ErrorResponse", () => {
 
         it("should read state", () => {
             // act
-            let subject = new ErrorResponse({error:"error", state:"foo"});
+            const subject = new ErrorResponse({error:"error", state:"foo"});
 
             // assert
             expect(subject.state).toEqual("foo");
@@ -57,7 +57,7 @@ describe("ErrorResponse", () => {
     describe("message", () => {
         it("should be description if set", () => {
             // act
-            let subject = new ErrorResponse({error:"error", error_description:"foo"});
+            const subject = new ErrorResponse({error:"error", error_description:"foo"});
 
             // assert
             expect(subject.message).toEqual("foo");
@@ -65,7 +65,7 @@ describe("ErrorResponse", () => {
 
         it("should be error if description not set", () => {
             // act
-            let subject = new ErrorResponse({error:"error"});
+            const subject = new ErrorResponse({error:"error"});
 
             // assert
             expect(subject.message).toEqual("error");
@@ -75,7 +75,7 @@ describe("ErrorResponse", () => {
     describe("name", () => {
         it("should be class name", () => {
             // act
-            let subject = new ErrorResponse({error:"error"});
+            const subject = new ErrorResponse({error:"error"});
 
             // assert
             expect(subject.name).toEqual("ErrorResponse");
@@ -85,7 +85,7 @@ describe("ErrorResponse", () => {
     describe("stack", () => {
         it("should be set", () => {
             // act
-            let subject = new ErrorResponse({error:"error"});
+            const subject = new ErrorResponse({error:"error"});
 
             // assert
             expect(subject.stack).not.toBeNull();
