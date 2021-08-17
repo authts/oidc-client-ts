@@ -456,7 +456,7 @@ export class ResponseValidator {
             throw new Error("Unsupported alg: " + hashAlg);
         }
 
-        const sha = "sha" + hashBits;
+        const sha = "sha" + hashBits.toString();
         const hash = JoseUtil.hashString(response.access_token, sha);
         if (!hash) {
             Log.error("ResponseValidator._validateAccessToken: access_token hash failed:", sha);

@@ -17,12 +17,13 @@ export class SigninState extends State {
     private _extraTokenParams: any;
     private _skipUserInfo: any;
 
-    constructor({
-        nonce, authority, client_id,
-        redirect_uri, code_verifier, response_mode, client_secret,
-        scope, extraTokenParams, skipUserInfo
-    }: any = {}) {
-        super(arguments[0]);
+    constructor(args: any = {}) {
+        const {
+            nonce, authority, client_id,
+            redirect_uri, code_verifier, response_mode, client_secret,
+            scope, extraTokenParams, skipUserInfo
+        } = args;
+        super(args);
 
         if (nonce === true) {
             this._nonce = random();

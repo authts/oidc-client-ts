@@ -22,7 +22,7 @@ export class TokenClient {
         this._metadataService = metadataService;
     }
 
-    async exchangeCode(args:any = {}): Promise<any> {
+    async exchangeCode(args: any = {}): Promise<any> {
         args = Object.assign({}, args);
 
         args.grant_type = args.grant_type || "authorization_code";
@@ -58,6 +58,8 @@ export class TokenClient {
         // Sending the client credentials using the Basic Auth method
         if (client_authentication == "client_secret_basic")
         {
+            // TODO defined types for this line
+            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
             basicAuth = args.client_id + ":" + args.client_secret;
             delete args.client_id;
             delete args.client_secret;
@@ -95,6 +97,8 @@ export class TokenClient {
         // Sending the client credentials using the Basic Auth method
         if (client_authentication == "client_secret_basic")
         {
+            // TODO defined types for this line
+            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
             basicAuth = args.client_id + ":" + args.client_secret;
             delete args.client_id;
             delete args.client_secret;

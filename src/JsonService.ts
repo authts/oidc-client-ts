@@ -73,10 +73,10 @@ export class JsonService {
                 }
             }
 
-            throw new Error("Invalid response Content-Type: " + contentType + ", from URL: " + url);
+            throw new Error("Invalid response Content-Type: " + (contentType ?? "undefined") + ", from URL: " + url);
         }
 
-        throw new Error(response.statusText + " (" + response.status + ")");
+        throw new Error(response.statusText + " (" + response.status.toString() + ")");
     }
 
     async postForm(url: string, payload: any, basicAuth?: string): Promise<any> {
@@ -116,7 +116,7 @@ export class JsonService {
         if (response.status === 200) {
             const contentType = response.headers.get("Content-Type");
             if (contentType) {
-                var found = allowedContentTypes.find(item => contentType.startsWith(item));
+                const found = allowedContentTypes.find(item => contentType.startsWith(item));
                 if (found) {
                     try {
                         const json = await response.json();
@@ -129,12 +129,12 @@ export class JsonService {
                 }
             }
 
-            throw new Error("Invalid response Content-Type: " + contentType + ", from URL: " + url);
+            throw new Error("Invalid response Content-Type: " +  (contentType ?? "undefined") + ", from URL: " + url);
         }
         else if (response.status === 400) {
             const contentType = response.headers.get("Content-Type");
             if (contentType) {
-                var found = allowedContentTypes.find(item => contentType.startsWith(item));
+                const found = allowedContentTypes.find(item => contentType.startsWith(item));
                 if (found) {
                     try {
                         const json = await response.json();
@@ -152,9 +152,9 @@ export class JsonService {
                 }
             }
 
-            throw new Error("Invalid response Content-Type: " + contentType + ", from URL: " + url);
+            throw new Error("Invalid response Content-Type: " +  (contentType ?? "undefined") + ", from URL: " + url);
         }
 
-        throw new Error(response.statusText + " (" + response.status + ")");
+        throw new Error(response.statusText + " (" + response.status.toString() + ")");
     }
 }

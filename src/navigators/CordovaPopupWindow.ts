@@ -33,7 +33,7 @@ export class CordovaPopupWindow implements IWindow {
 
     _isInAppBrowserInstalled(cordovaMetadata: any) {
         return ["cordova-plugin-inappbrowser", "cordova-plugin-inappbrowser.inappbrowser", "org.apache.cordova.inappbrowser"].some(function (name) {
-            return cordovaMetadata.hasOwnProperty(name);
+            return Object.prototype.hasOwnProperty.call(cordovaMetadata, name);
         });
     }
 
@@ -41,12 +41,14 @@ export class CordovaPopupWindow implements IWindow {
         if (!params || !params.url) {
             this._error("No url provided");
         } else {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             if (!window.cordova) {
                 this._error("cordova is undefined");
                 return this.promise;
             }
 
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             const cordovaMetadata = window.cordova.require("cordova/plugin_list").metadata;
             if (this._isInAppBrowserInstalled(cordovaMetadata) === false) {
@@ -54,6 +56,7 @@ export class CordovaPopupWindow implements IWindow {
                 return this.promise;
             }
 
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             this._popup = cordova.InAppBrowser.open(params.url, this.target, this.features);
             if (this._popup) {

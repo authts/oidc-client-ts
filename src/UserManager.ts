@@ -16,10 +16,11 @@ import { SessionStatus } from "./SessionStatus";
 import { SignoutResponse } from "./SignoutResponse";
 
 export class UserManager extends OidcClient {
-    protected _settings!: UserManagerSettingsStore /* TODO: port-ts */
+    declare protected _settings: UserManagerSettingsStore /* TODO: port-ts */
 
     private readonly _events: UserManagerEvents;
     private readonly _silentRenewService: SilentRenewService;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     private readonly _sessionMonitor: SessionMonitor | null;
     private readonly _tokenRevocationClient: TokenRevocationClient;
@@ -153,7 +154,7 @@ export class UserManager extends OidcClient {
             Log.info("UserManager.signinPopupCallback: successful");
         }
         catch (err) {
-            Log.error("UserManager.signinPopupCallback error: " + err && err.message);
+            Log.error("UserManager.signinPopupCallback error: " + (typeof err?.message === "string" ? err?.message as string : "undefined"));
         }
     }
 
@@ -197,7 +198,7 @@ export class UserManager extends OidcClient {
             Log.debug("UserManager._useRefreshToken: refresh token response success");
             user.id_token = result.id_token || user.id_token;
             user.access_token = result.access_token || user.access_token;
-            user.refresh_token = /* TODO: port-TS result.refresh_token ||*/ user.refresh_token;
+            user.refresh_token = result.refresh_token || user.refresh_token;
             user.expires_in = result.expires_in;
 
             await this.storeUser(user);
@@ -558,7 +559,7 @@ export class UserManager extends OidcClient {
     }
 
     startSilentRenew(): void {
-        this._silentRenewService.start();
+        void this._silentRenewService.start();
     }
 
     stopSilentRenew(): void {

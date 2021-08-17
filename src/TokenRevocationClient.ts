@@ -74,7 +74,7 @@ export class TokenRevocationClient {
 
         Log.debug("TokenRevocationClient.revoke: HTTP response received, status", response.status);
         if (response.status !== 200) {
-            throw new Error(response.statusText + " (" + response.status + ")");
+            throw new Error(response.statusText + " (" + response.status.toString() + ")");
         }
     }
 }

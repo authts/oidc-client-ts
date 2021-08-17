@@ -7,7 +7,7 @@ import { IWindow } from "./IWindow";
 
 export class RedirectNavigator implements INavigator, IWindow {
 
-    prepare(_params: any) {
+    prepare() {
         return Promise.resolve(this);
     }
 
@@ -32,5 +32,6 @@ export class RedirectNavigator implements INavigator, IWindow {
     }
 
     close() {
+        Log.warn("Function not implemented");
     }
 }

@@ -72,29 +72,31 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
     private readonly _userStore: WebStorageStateStore;
 
-    constructor({
-        popup_redirect_uri,
-        popup_post_logout_redirect_uri,
-        popupWindowFeatures,
-        popupWindowTarget,
-        silent_redirect_uri,
-        silentRequestTimeout,
-        automaticSilentRenew = false,
-        validateSubOnSilentRenew = false,
-        includeIdTokenInSilentRenew = true,
-        monitorSession = true,
-        monitorAnonymousSession = false,
-        checkSessionInterval = DefaultCheckSessionInterval,
-        stopCheckSessionOnError = true,
-        query_status_response_type,
-        revokeAccessTokenOnSignout = false,
-        accessTokenExpiringNotificationTime = DefaultAccessTokenExpiringNotificationTime,
-        redirectNavigator = new RedirectNavigator(),
-        popupNavigator = new PopupNavigator(),
-        iframeNavigator = new IFrameNavigator(),
-        userStore = new WebStorageStateStore({ store: sessionStorage })
-    }: UserManagerSettings = {}) {
-        super(arguments[0]);
+    constructor(args: UserManagerSettings = {}) {
+        const {
+            popup_redirect_uri,
+            popup_post_logout_redirect_uri,
+            popupWindowFeatures,
+            popupWindowTarget,
+            silent_redirect_uri,
+            silentRequestTimeout,
+            automaticSilentRenew = false,
+            validateSubOnSilentRenew = false,
+            includeIdTokenInSilentRenew = true,
+            monitorSession = true,
+            monitorAnonymousSession = false,
+            checkSessionInterval = DefaultCheckSessionInterval,
+            stopCheckSessionOnError = true,
+            query_status_response_type,
+            revokeAccessTokenOnSignout = false,
+            accessTokenExpiringNotificationTime = DefaultAccessTokenExpiringNotificationTime,
+            redirectNavigator = new RedirectNavigator(),
+            popupNavigator = new PopupNavigator(),
+            iframeNavigator = new IFrameNavigator(),
+            userStore = new WebStorageStateStore({ store: sessionStorage })
+        } = args;
+
+        super(args);
 
         this._popup_redirect_uri = popup_redirect_uri;
         this._popup_post_logout_redirect_uri = popup_post_logout_redirect_uri;
@@ -115,8 +117,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         if (query_status_response_type) {
             this._query_status_response_type = query_status_response_type;
         }
-        else if (arguments[0] && arguments[0].response_type) {
-            this._query_status_response_type = SigninRequest.isOidc(arguments[0].response_type) ? "id_token" : "code";
+        else if (args && args.response_type) {
+            this._query_status_response_type = SigninRequest.isOidc(args.response_type) ? "id_token" : "code";
         }
         else {
             this._query_status_response_type = "id_token";

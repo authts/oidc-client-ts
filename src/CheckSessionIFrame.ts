@@ -52,7 +52,7 @@ export class CheckSessionIFrame {
         });
     }
 
-    _message(e: any) {
+    _message(e: MessageEvent<string>) {
         if (e.origin === this._frame_origin &&
             e.source === this._frame.contentWindow
         ) {
@@ -83,6 +83,9 @@ export class CheckSessionIFrame {
 
             const send = () => {
                 this._frame.contentWindow &&
+
+                // session_state is unknown... (could likley not be string)
+                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                 this._frame.contentWindow.postMessage(this._client_id + " " + this._session_state, this._frame_origin);
             };
 

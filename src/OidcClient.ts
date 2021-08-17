@@ -161,7 +161,7 @@ export class OidcClient {
             Log.debug("OidcClient.createSignoutRequest: Signout request has state to persist");
 
             stateStore = stateStore || this._stateStore;
-            stateStore.set(signoutState.id, signoutState.toStorageString());
+            void stateStore.set(signoutState.id, signoutState.toStorageString());
         }
 
         return request;

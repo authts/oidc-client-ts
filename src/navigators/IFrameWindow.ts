@@ -14,7 +14,7 @@ export class IFrameWindow implements IWindow {
     private _frame: HTMLIFrameElement | null;
     private _timer: number | null;
 
-    constructor(_params: any) {
+    constructor() {
         this._promise = new Promise((resolve, reject) => {
             this._resolve = resolve;
             this._reject = reject;
@@ -44,6 +44,7 @@ export class IFrameWindow implements IWindow {
             const timeout = params.silentRequestTimeout || DefaultTimeout;
             Log.debug("IFrameWindow.navigate: Using timeout of:", timeout);
             this._timer = window.setTimeout(this._timeout.bind(this), timeout);
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             this._frame!.src = params.url;
         }
 
@@ -74,8 +75,9 @@ export class IFrameWindow implements IWindow {
     _cleanup() {
         if (this._frame) {
             Log.debug("IFrameWindow: cleanup");
-
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             window.removeEventListener("message", this._boundMessageEvent!, false);
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             window.clearTimeout(this._timer!);
             window.document.body.removeChild(this._frame);
 

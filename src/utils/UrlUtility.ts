@@ -39,11 +39,11 @@ export class UrlUtility {
         }
 
         const params: { [name: string]: string } = {};
-        let regex = /([^&=]+)=([^&]*)/g,
-            m;
+        const regex = /([^&=]+)=([^&]*)/g;
+        let m;
 
         let counter = 0;
-        while (m = regex.exec(value)) {
+        while ((m = regex.exec(value)) !== null) {
             params[decodeURIComponent(m[1])] = decodeURIComponent(m[2].replace(/\+/g, " "));
             if (counter++ > 50) {
                 Log.error("UrlUtility.parseUrlFragment: response exceeded expected number of parameters", value);

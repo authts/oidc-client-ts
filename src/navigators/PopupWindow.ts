@@ -52,7 +52,9 @@ export class PopupWindow implements IWindow {
 
             this._id = params.id;
             if (this._id) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
+                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                 window["popupCallback_" + params.id] = this._callback.bind(this);
             }
 
@@ -83,10 +85,13 @@ export class PopupWindow implements IWindow {
     _cleanup(keepOpen?: boolean) {
         Log.debug("PopupWindow.cleanup");
 
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         window.clearInterval(this._checkForPopupClosedTimer!);
         this._checkForPopupClosedTimer = null;
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         delete window["popupCallback_" + this._id];
 
         if (this._popup && !keepOpen) {
@@ -122,6 +127,7 @@ export class PopupWindow implements IWindow {
 
                 if (data.state) {
                     const name = "popupCallback_" + data.state;
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
                     const callback = window.opener[name];
                     if (callback) {

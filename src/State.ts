@@ -85,7 +85,7 @@ export class State {
 
             if (remove) {
                 Log.debug("State.clearStaleState: removed item for key: ", key);
-                storage.remove(key);
+                void storage.remove(key);
             }
         }
     }

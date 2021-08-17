@@ -7,8 +7,8 @@ import { INavigator } from "./INavigator";
 
 export class IFrameNavigator implements INavigator {
 
-    prepare(params: any) {
-        const frame = new IFrameWindow(params);
+    prepare() {
+        const frame = new IFrameWindow();
         return Promise.resolve(frame);
     }
 

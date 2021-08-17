@@ -9,10 +9,10 @@ export interface Logger {
 }
 
 const nopLogger: Logger = {
-    debug() {},
-    info() {},
-    warn() {},
-    error() {}
+    debug: () => undefined,
+    info: () => undefined,
+    warn: () => undefined,
+    error: () => undefined,
 };
 
 const NONE = 0;
@@ -57,22 +57,22 @@ export class Log {
 
     static debug(...args: any[]) {
         if (level >= DEBUG) {
-            logger.debug.apply(logger, Array.from(args));
+            logger.debug(...args);
         }
     }
     static info(...args: any[]) {
         if (level >= INFO) {
-            logger.info.apply(logger, Array.from(args));
+            logger.info(...args);
         }
     }
     static warn(...args: any[]) {
         if (level >= WARN) {
-            logger.warn.apply(logger, Array.from(args));
+            logger.warn(...args);
         }
     }
     static error(...args: any[]) {
         if (level >= ERROR) {
-            logger.error.apply(logger, Array.from(args));
+            logger.error(...args);
         }
     }
 }

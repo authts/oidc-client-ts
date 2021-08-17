@@ -1,9 +1,9 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 import { Log, g_timer, IntervalTimer } from "./utils";
 import { CheckSessionIFrame } from "./CheckSessionIFrame";
 import { UserManager } from "./UserManager";
+import { User } from "./User";
 
 export class SessionMonitor {
     private _userManager: UserManager;
@@ -23,6 +23,8 @@ export class SessionMonitor {
         this._CheckSessionIFrameCtor = CheckSessionIFrameCtor;
         this._timer = timer;
 
+        // _start is never called but complier thinks it returns Promise
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this._userManager.events.addUserLoaded(this._start.bind(this));
         this._userManager.events.addUserUnloaded(this._stop.bind(this));
 
@@ -38,7 +40,7 @@ export class SessionMonitor {
         // doing this manually here since calling getUser
         // doesn't trigger load event.
         if (user) {
-            this._start(user);
+            void this._start(user);
         }
         else if (this._settings.monitorAnonymousSession) {
             const session = await this._userManager.querySessionStatus();
@@ -50,7 +52,7 @@ export class SessionMonitor {
                         sid: session.sid
                     } : null
                 };
-                this._start(tmpUser);
+                void this._start(tmpUser);
             }
         }
     }
@@ -71,7 +73,13 @@ export class SessionMonitor {
         return this._settings.stopCheckSessionOnError;
     }
 
-    async _start(user: any) {
+    async _start(user: User | {
+        session_state: any;
+            profile: {
+                sub: string;
+                sid: string;
+            } | null;
+    }) {
         const session_state = user.session_state;
 
         if (session_state) {
@@ -96,6 +104,8 @@ export class SessionMonitor {
                         const interval = this._checkSessionInterval;
                         const stopOnError = this._stopCheckSessionOnError;
 
+                        // TODO rewrite to use promise correctly
+                        // eslint-disable-next-line @typescript-eslint/no-misused-promises
                         this._checkSessionIFrame = new this._CheckSessionIFrameCtor(this._callback.bind(this), client_id, url, interval, stopOnError);
                         await this._checkSessionIFrame.load();
                         this._checkSessionIFrame &&
@@ -127,6 +137,8 @@ export class SessionMonitor {
 
         if (this._settings.monitorAnonymousSession) {
             // using a timer to delay re-initialization to avoid race conditions during signout
+            // TODO rewrite to use promise correctly
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             const timerHandle = this._timer.setInterval(async () => {
                 this._timer.clearInterval(timerHandle);
 
@@ -139,7 +151,7 @@ export class SessionMonitor {
                             sid: session.sid
                         } : null
                     };
-                    this._start(tmpUser);
+                    void this._start(tmpUser);
                 }
                 catch (err) {
                     // catch to suppress errors since we're in a callback
