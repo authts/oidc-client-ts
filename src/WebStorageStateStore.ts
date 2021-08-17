@@ -1,8 +1,8 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from './utils';
-import { StateStore } from './StateStore';
+import { Log } from "./utils";
+import { StateStore } from "./StateStore";
 
 export class WebStorageStateStore implements StateStore {
     private _store: Storage
@@ -25,7 +25,7 @@ export class WebStorageStateStore implements StateStore {
         Log.debug("WebStorageStateStore.get", key);
 
         key = this._prefix + key;
-        let item = this._store.getItem(key);
+        const item = this._store.getItem(key);
         return Promise.resolve(item);
     }
 
@@ -33,7 +33,7 @@ export class WebStorageStateStore implements StateStore {
         Log.debug("WebStorageStateStore.remove", key);
 
         key = this._prefix + key;
-        let item = this._store.getItem(key);
+        const item = this._store.getItem(key);
         this._store.removeItem(key);
         return Promise.resolve(item);
     }
@@ -41,9 +41,9 @@ export class WebStorageStateStore implements StateStore {
     getAllKeys(): Promise<string[]> {
         Log.debug("WebStorageStateStore.getAllKeys");
 
-        var keys = [];
+        const keys = [];
         for (let index = 0; index < this._store.length; index++) {
-            let key = this._store.key(index);
+            const key = this._store.key(index);
             if (key && key.indexOf(this._prefix) === 0) {
                 keys.push(key.substr(this._prefix.length));
             }

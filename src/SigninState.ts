@@ -1,8 +1,8 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, JoseUtil, random } from './utils';
-import { State } from './State';
+import { Log, JoseUtil, random } from "./utils";
+import { State } from "./State";
 
 export class SigninState extends State {
     private _nonce: any;
@@ -17,12 +17,13 @@ export class SigninState extends State {
     private _extraTokenParams: any;
     private _skipUserInfo: any;
 
-    constructor({
-        nonce, authority, client_id,
-        redirect_uri, code_verifier, response_mode, client_secret,
-        scope, extraTokenParams, skipUserInfo
-    }: any = {}) {
-        super(arguments[0]);
+    constructor(args: any = {}) {
+        const {
+            nonce, authority, client_id,
+            redirect_uri, code_verifier, response_mode, client_secret,
+            scope, extraTokenParams, skipUserInfo
+        } = args;
+        super(args);
 
         if (nonce === true) {
             this._nonce = random();
@@ -40,7 +41,7 @@ export class SigninState extends State {
         }
 
         if (this.code_verifier) {
-            let hash = JoseUtil.hashString(this.code_verifier, "SHA256");
+            const hash = JoseUtil.hashString(this.code_verifier, "SHA256");
             this._code_challenge = JoseUtil.hexToBase64Url(hash);
         }
 
@@ -110,7 +111,7 @@ export class SigninState extends State {
 
     static fromStorageString(storageString: string) {
         Log.debug("SigninState.fromStorageString");
-        var data = JSON.parse(storageString);
+        const data = JSON.parse(storageString);
         return new SigninState(data);
     }
 }

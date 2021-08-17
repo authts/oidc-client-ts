@@ -1,8 +1,8 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from './utils';
-import { UserManager } from './UserManager';
+import { Log } from "./utils";
+import { UserManager } from "./UserManager";
 
 export class SilentRenewService {
     private _userManager: UserManager;
@@ -22,7 +22,7 @@ export class SilentRenewService {
                 await this._userManager.getUser();
                 // deliberate nop
             }
-            catch(err) {
+            catch (err) {
                 // catch to suppress errors since we're in a ctor
                 Log.error("SilentRenewService.start: Error from getUser:", err.message);
             }

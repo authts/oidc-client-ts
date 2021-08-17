@@ -1,10 +1,10 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, JoseUtil } from './utils';
-import { JsonService } from './JsonService';
-import { MetadataService } from './MetadataService';
-import { OidcClientSettingsStore } from './OidcClientSettings';
+import { Log, JoseUtil } from "./utils";
+import { JsonService } from "./JsonService";
+import { MetadataService } from "./MetadataService";
+import { OidcClientSettingsStore } from "./OidcClientSettings";
 
 export class UserInfoService {
     private _settings: OidcClientSettingsStore;
@@ -50,10 +50,10 @@ export class UserInfoService {
 
             let issuer: string;
             switch (this._settings.userInfoJwtIssuer) {
-                case 'OP':
+                case "OP":
                     issuer = await this._metadataService.getIssuer();
                     break;
-                case 'ANY':
+                case "ANY":
                     issuer = payload.iss;
                     break;
                 default:
@@ -95,9 +95,9 @@ export class UserInfoService {
                 throw new Error("No key matching kid or alg found in signing keys");
             }
 
-            let audience = this._settings.client_id;
+            const audience = this._settings.client_id;
 
-            let clockSkewInSeconds = this._settings.clockSkew;
+            const clockSkewInSeconds = this._settings.clockSkew;
             Log.debug("UserInfoService._getClaimsFromJwt: Validaing JWT; using clock skew (in seconds) of: ", clockSkewInSeconds);
 
             await JoseUtil.validateJwt(responseText, key, issuer, audience, clockSkewInSeconds, undefined, true);

@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from './utils';
+import { Log } from "./utils";
 
 export class JsonService {
     private _contentTypes: string[];
@@ -19,16 +19,16 @@ export class JsonService {
         {
             this._contentTypes = [];
         }
-        this._contentTypes.push('application/json');
+        this._contentTypes.push("application/json");
         if (jwtHandler) {
-            this._contentTypes.push('application/jwt');
+            this._contentTypes.push("application/jwt");
         }
 
         this._jwtHandler = jwtHandler;
     }
 
     async getJson(url: string, token?: string): Promise<any> {
-        if (!url){
+        if (!url) {
             Log.error("JsonService.getJson: No url passed");
             throw new Error("url");
         }
@@ -42,20 +42,20 @@ export class JsonService {
         let response: Response;
         try {
             Log.debug("JsonService.getJson, url: ", url);
-            response = await fetch(url, { method: 'GET', headers });
+            response = await fetch(url, { method: "GET", headers });
         } catch (err) {
             Log.error("JsonService.getJson: network error");
             throw new Error("Network Error");
         }
 
         const allowedContentTypes = this._contentTypes;
-        const jwtHandler = this._jwtHandler
+        const jwtHandler = this._jwtHandler;
 
         Log.debug("JsonService.getJson: HTTP response received, status", response.status);
         if (response.status === 200) {
             const contentType = response.headers.get("Content-Type");
             if (contentType) {
-                var found = allowedContentTypes.find(item => contentType.startsWith(item));
+                const found = allowedContentTypes.find(item => contentType.startsWith(item));
                 if (found === "application/jwt") {
                     const text = await response.text();
                     return await jwtHandler(text);
@@ -73,14 +73,14 @@ export class JsonService {
                 }
             }
 
-            throw new Error("Invalid response Content-Type: " + contentType + ", from URL: " + url);
+            throw new Error("Invalid response Content-Type: " + (contentType ?? "undefined") + ", from URL: " + url);
         }
 
-        throw new Error(response.statusText + " (" + response.status + ")");
+        throw new Error(response.statusText + " (" + response.status.toString() + ")");
     }
 
     async postForm(url: string, payload: any, basicAuth?: string): Promise<any> {
-        if (!url){
+        if (!url) {
             Log.error("JsonService.postForm: No url passed");
             throw new Error("url");
         }
@@ -93,8 +93,8 @@ export class JsonService {
         }
 
         const body = new URLSearchParams();
-        for (let key in payload) {
-            let value = payload[key];
+        for (const key in payload) {
+            const value = payload[key];
 
             if (value) {
                 body.set(key, value);
@@ -104,7 +104,7 @@ export class JsonService {
         let response: Response;
         try {
             Log.debug("JsonService.postForm, url: ", url);
-            response = await fetch(url, { method: 'POST', headers, body });
+            response = await fetch(url, { method: "POST", headers, body });
         } catch (err) {
             Log.error("JsonService.postForm: network error");
             throw new Error("Network Error");
@@ -116,7 +116,7 @@ export class JsonService {
         if (response.status === 200) {
             const contentType = response.headers.get("Content-Type");
             if (contentType) {
-                var found = allowedContentTypes.find(item => contentType.startsWith(item));
+                const found = allowedContentTypes.find(item => contentType.startsWith(item));
                 if (found) {
                     try {
                         const json = await response.json();
@@ -129,12 +129,12 @@ export class JsonService {
                 }
             }
 
-            throw new Error("Invalid response Content-Type: " + contentType + ", from URL: " + url);
+            throw new Error("Invalid response Content-Type: " +  (contentType ?? "undefined") + ", from URL: " + url);
         }
         else if (response.status === 400) {
             const contentType = response.headers.get("Content-Type");
             if (contentType) {
-                var found = allowedContentTypes.find(item => contentType.startsWith(item));
+                const found = allowedContentTypes.find(item => contentType.startsWith(item));
                 if (found) {
                     try {
                         const json = await response.json();
@@ -152,9 +152,9 @@ export class JsonService {
                 }
             }
 
-            throw new Error("Invalid response Content-Type: " + contentType + ", from URL: " + url);
+            throw new Error("Invalid response Content-Type: " +  (contentType ?? "undefined") + ", from URL: " + url);
         }
 
-        throw new Error(response.statusText + " (" + response.status + ")");
+        throw new Error(response.statusText + " (" + response.status.toString() + ")");
     }
 }

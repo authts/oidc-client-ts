@@ -25,23 +25,36 @@
     "start": "tsdx watch",
     "build": "tsdx build",
     "test": "tsdx test",
-    "lint": "tsdx lint"
+    "lint": "eslint ./src/**/*.ts",
+    "lint:fix": "eslint ./src/**/*.ts --fix",
+    "sample": "concurrently --kill-others \"npm run parcel\" \"npm run server\"",
+    "parcel": "parcel serve ./samples/Parcel/src/index.html --no-cache",
+    "server": "node ./samples/Parcel/server.js"
   },
   "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.29.0",
+    "@typescript-eslint/parser": "^4.29.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-testing-library": "^4.10.1",
     "jsrsasign": "^10.3.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.5.0",
     "@types/jsrsasign": "^8.0.13",
-    "tsdx": "^0.14.1",
+    "@weiran.zsd/tsdx": "^0.15.2",
     "tslib": "^2.2.0",
-    "typescript": "^4.2.4"
+    "typescript": "^4.2.4",
+    "concurrently": "^6.2.1",
+    "express": "^4.17.1",
+    "open": "^8.2.1",
+    "parcel": "^2.0.0-rc.0"
   },
   "jest": {
     "clearMocks": true,
     "testMatch": [
       "**/test/unit/**/*.test.ts"
-    ]
+    ],
+    "testEnvironment": "jsdom"
   },
   "engines": {
     "node": ">=10"

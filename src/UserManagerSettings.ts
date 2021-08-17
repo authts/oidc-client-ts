@@ -1,18 +1,18 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { OidcClientSettings, OidcClientSettingsStore } from './OidcClientSettings';
-import { RedirectNavigator, PopupNavigator, IFrameNavigator } from './navigators';
-import { WebStorageStateStore } from './WebStorageStateStore';
-import { SigninRequest } from './SigninRequest';
+import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
+import { RedirectNavigator, PopupNavigator, IFrameNavigator } from "./navigators";
+import { WebStorageStateStore } from "./WebStorageStateStore";
+import { SigninRequest } from "./SigninRequest";
 
 const DefaultAccessTokenExpiringNotificationTime = 60;
 const DefaultCheckSessionInterval = 2000;
 
 export interface UserManagerSettings extends OidcClientSettings {
     /** The URL for the page containing the call to signinPopupCallback to handle the callback from the OIDC/OAuth2 */
-    popup_redirect_uri?: string,
-    popup_post_logout_redirect_uri?: string,
+    popup_redirect_uri?: string;
+    popup_post_logout_redirect_uri?: string;
     /** The features parameter to window.open for the popup signin window.
      *  default: 'location=no,toolbar=no,width=500,height=500,left=100,top=100'
      */
@@ -72,29 +72,31 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
     private readonly _userStore: WebStorageStateStore;
 
-    constructor({
-        popup_redirect_uri,
-        popup_post_logout_redirect_uri,
-        popupWindowFeatures,
-        popupWindowTarget,
-        silent_redirect_uri,
-        silentRequestTimeout,
-        automaticSilentRenew = false,
-        validateSubOnSilentRenew = false,
-        includeIdTokenInSilentRenew = true,
-        monitorSession = true,
-        monitorAnonymousSession = false,
-        checkSessionInterval = DefaultCheckSessionInterval,
-        stopCheckSessionOnError = true,
-        query_status_response_type,
-        revokeAccessTokenOnSignout = false,
-        accessTokenExpiringNotificationTime = DefaultAccessTokenExpiringNotificationTime,
-        redirectNavigator = new RedirectNavigator(),
-        popupNavigator = new PopupNavigator(),
-        iframeNavigator = new IFrameNavigator(),
-        userStore = new WebStorageStateStore({ store: sessionStorage })
-    }: UserManagerSettings = {}) {
-        super(arguments[0]);
+    constructor(args: UserManagerSettings = {}) {
+        const {
+            popup_redirect_uri,
+            popup_post_logout_redirect_uri,
+            popupWindowFeatures,
+            popupWindowTarget,
+            silent_redirect_uri,
+            silentRequestTimeout,
+            automaticSilentRenew = false,
+            validateSubOnSilentRenew = false,
+            includeIdTokenInSilentRenew = true,
+            monitorSession = true,
+            monitorAnonymousSession = false,
+            checkSessionInterval = DefaultCheckSessionInterval,
+            stopCheckSessionOnError = true,
+            query_status_response_type,
+            revokeAccessTokenOnSignout = false,
+            accessTokenExpiringNotificationTime = DefaultAccessTokenExpiringNotificationTime,
+            redirectNavigator = new RedirectNavigator(),
+            popupNavigator = new PopupNavigator(),
+            iframeNavigator = new IFrameNavigator(),
+            userStore = new WebStorageStateStore({ store: sessionStorage })
+        } = args;
+
+        super(args);
 
         this._popup_redirect_uri = popup_redirect_uri;
         this._popup_post_logout_redirect_uri = popup_post_logout_redirect_uri;
@@ -115,8 +117,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         if (query_status_response_type) {
             this._query_status_response_type = query_status_response_type;
         }
-        else if (arguments[0] && arguments[0].response_type) {
-            this._query_status_response_type = SigninRequest.isOidc(arguments[0].response_type) ? "id_token" : "code";
+        else if (args && args.response_type) {
+            this._query_status_response_type = SigninRequest.isOidc(args.response_type) ? "id_token" : "code";
         }
         else {
             this._query_status_response_type = "id_token";
@@ -146,7 +148,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     get silent_redirect_uri() {
         return this._silent_redirect_uri;
     }
-     get silentRequestTimeout() {
+    get silentRequestTimeout() {
         return this._silentRequestTimeout;
     }
     get automaticSilentRenew() {
@@ -171,10 +173,10 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     get checkSessionInterval() {
         return this._checkSessionInterval;
     }
-    get stopCheckSessionOnError(){
+    get stopCheckSessionOnError() {
         return this._stopCheckSessionOnError;
     }
-    get query_status_response_type(){
+    get query_status_response_type() {
         return this._query_status_response_type;
     }
     get revokeAccessTokenOnSignout() {

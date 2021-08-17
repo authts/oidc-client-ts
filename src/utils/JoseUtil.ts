@@ -1,9 +1,9 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { KJUR, KEYUTIL as KeyUtil, X509, hextob64u, b64tohex } from 'jsrsasign';
+import { KJUR, KEYUTIL as KeyUtil, X509, hextob64u, b64tohex } from "jsrsasign";
 
-import { Log } from './Log';
+import { Log } from "./Log";
 
 const AllowedSigningAlgs = ["RS256", "RS384", "RS512", "PS256", "PS384", "PS512", "ES256", "ES384", "ES512"];
 
@@ -11,11 +11,11 @@ export class JoseUtil {
     static parseJwt(jwt: any) {
         Log.debug("JoseUtil.parseJwt");
         try {
-            var token = KJUR.jws.JWS.parse(jwt);
+            const token = KJUR.jws.JWS.parse(jwt);
             return {
                 header: token.headerObj,
                 payload: token.payloadObj
-            }
+            };
         } catch (e) {
             Log.error(e);
             return null;
@@ -30,7 +30,7 @@ export class JoseUtil {
                 if (key.e && key.n) {
                     key = KeyUtil.getKey(key);
                 } else if (key.x5c && key.x5c.length) {
-                    var hex = b64tohex(key.x5c[0]);
+                    const hex = b64tohex(key.x5c[0]);
                     key = X509.getPublicKeyFromCertHex(hex);
                 } else {
                     Log.error("JoseUtil.validateJwt: RSA key missing key material", key);
@@ -45,6 +45,7 @@ export class JoseUtil {
                 }
             } else {
                 Log.error("JoseUtil.validateJwt: Unsupported key type", key && key.kty);
+                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                 throw new Error("Unsupported key type: " + key && key.kty);
             }
 
@@ -76,6 +77,7 @@ export class JoseUtil {
         }
         if (payload.iss !== issuer) {
             Log.error("JoseUtil._validateJwt: Invalid issuer in token", payload.iss);
+            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
             throw new Error("Invalid issuer in token: " + payload.iss);
         }
 
@@ -83,19 +85,21 @@ export class JoseUtil {
             Log.error("JoseUtil._validateJwt: aud was not provided");
             throw new Error("aud was not provided");
         }
-        var validAudience = payload.aud === audience || (Array.isArray(payload.aud) && payload.aud.indexOf(audience) >= 0);
+        const validAudience = payload.aud === audience || (Array.isArray(payload.aud) && payload.aud.indexOf(audience) >= 0);
         if (!validAudience) {
             Log.error("JoseUtil._validateJwt: Invalid audience in token", payload.aud);
+            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
             throw new Error("Invalid audience in token: " + payload.aud);
         }
         if (payload.azp && payload.azp !== audience) {
             Log.error("JoseUtil._validateJwt: Invalid azp in token", payload.azp);
+            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
             throw new Error("Invalid azp in token: " + payload.azp);
         }
 
         if (!timeInsensitive) {
-            var lowerNow = now + clockSkew;
-            var upperNow = now - clockSkew;
+            const lowerNow = now + clockSkew;
+            const upperNow = now - clockSkew;
 
             if (!payload.iat) {
                 Log.error("JoseUtil._validateJwt: iat was not provided");
@@ -103,11 +107,13 @@ export class JoseUtil {
             }
             if (lowerNow < payload.iat) {
                 Log.error("JoseUtil._validateJwt: iat is in the future", payload.iat);
+                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                 throw new Error("iat is in the future: " + payload.iat);
             }
 
             if (payload.nbf && lowerNow < payload.nbf) {
                 Log.error("JoseUtil._validateJwt: nbf is in the future", payload.nbf);
+                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                 throw new Error("nbf is in the future: " + payload.nbf);
             }
 
@@ -117,6 +123,7 @@ export class JoseUtil {
             }
             if (payload.exp < upperNow) {
                 Log.error("JoseUtil._validateJwt: exp is in the past", payload.exp);
+                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                 throw new Error("exp is in the past:" + payload.exp);
             }
         }

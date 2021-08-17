@@ -1,10 +1,10 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, Event } from './utils';
-import { AccessTokenEvents } from './AccessTokenEvents';
-import { UserManagerSettingsStore } from './UserManagerSettings';
-import { User } from './User';
+import { Log, Event } from "./utils";
+import { AccessTokenEvents } from "./AccessTokenEvents";
+import { UserManagerSettingsStore } from "./UserManagerSettings";
+import { User } from "./User";
 
 export type UserLoadedCallback = (user: User) => void;
 export type UserUnloadedCallback = () => void;

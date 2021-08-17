@@ -1,16 +1,16 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, JoseUtil } from './utils';
-import { MetadataService } from './MetadataService';
-import { UserInfoService } from './UserInfoService';
-import { TokenClient } from './TokenClient';
-import { ErrorResponse } from './ErrorResponse';
-import { OidcClientSettingsStore } from './OidcClientSettings';
-import { SigninState } from './SigninState';
-import { SigninResponse } from './SigninResponse';
-import { State } from './State';
-import { SignoutResponse } from './SignoutResponse';
+import { Log, JoseUtil } from "./utils";
+import { MetadataService } from "./MetadataService";
+import { UserInfoService } from "./UserInfoService";
+import { TokenClient } from "./TokenClient";
+import { ErrorResponse } from "./ErrorResponse";
+import { OidcClientSettingsStore } from "./OidcClientSettings";
+import { SigninState } from "./SigninState";
+import { SigninResponse } from "./SigninResponse";
+import { State } from "./State";
+import { SignoutResponse } from "./SignoutResponse";
 
 const ProtocolClaims = ["nonce", "at_hash", "iat", "nbf", "exp", "aud", "iss", "c_hash"];
 
@@ -169,16 +169,16 @@ export class ResponseValidator {
     }
 
     _mergeClaims(claims1: any, claims2: any) {
-        var result = Object.assign({}, claims1);
+        const result = Object.assign({}, claims1);
 
-        for (let name in claims2) {
-            var values = claims2[name];
+        for (const name in claims2) {
+            let values = claims2[name];
             if (!Array.isArray(values)) {
                 values = [values];
             }
 
             for (let i = 0; i < values.length; i++) {
-                let value = values[i];
+                const value = values[i];
                 if (!result[name]) {
                     result[name] = value;
                 }
@@ -188,7 +188,7 @@ export class ResponseValidator {
                     }
                 }
                 else if (result[name] !== value) {
-                    if (typeof value === 'object' && this._settings.mergeClaims) {
+                    if (typeof value === "object" && this._settings.mergeClaims) {
                         result[name] = this._mergeClaims(result[name], value);
                     }
                     else {
@@ -204,7 +204,7 @@ export class ResponseValidator {
     _filterProtocolClaims(claims: any) {
         Log.debug("ResponseValidator._filterProtocolClaims, incoming claims:", claims);
 
-        var result = Object.assign({}, claims);
+        const result = Object.assign({}, claims);
 
         if (this._settings.filterProtocolClaims) {
             ProtocolClaims.forEach(type => {
@@ -214,7 +214,7 @@ export class ResponseValidator {
             Log.debug("ResponseValidator._filterProtocolClaims: protocol claims filtered", result);
         }
         else {
-            Log.debug("ResponseValidator._filterProtocolClaims: protocol claims not filtered")
+            Log.debug("ResponseValidator._filterProtocolClaims: protocol claims not filtered");
         }
 
         return result;
@@ -241,7 +241,7 @@ export class ResponseValidator {
     }
 
     async _processCode(state: SigninState, response: SigninResponse): Promise<SigninResponse> {
-        var request = {
+        const request = {
             client_id: state.client_id,
             client_secret: state.client_secret,
             code : response.code,
@@ -249,7 +249,7 @@ export class ResponseValidator {
             code_verifier: state.code_verifier
         };
 
-        if (state.extraTokenParams && typeof(state.extraTokenParams) === 'object') {
+        if (state.extraTokenParams && typeof(state.extraTokenParams) === "object") {
             Object.assign(request, state.extraTokenParams);
         }
 
@@ -280,8 +280,8 @@ export class ResponseValidator {
     async _validateIdTokenAttributes(state: SigninState, response: SigninResponse) {
         const issuer = await this._metadataService.getIssuer();
 
-        let audience = state.client_id;
-        let clockSkewInSeconds = this._settings.clockSkew;
+        const audience = state.client_id;
+        const clockSkewInSeconds = this._settings.clockSkew;
         Log.debug("ResponseValidator._validateIdTokenAttributes: Validaing JWT attributes; using clock skew (in seconds) of: ", clockSkewInSeconds);
 
         const now = await this._settings.getEpochTime();
@@ -372,9 +372,9 @@ export class ResponseValidator {
             throw new Error("No key matching kid or alg found in signing keys");
         }
 
-        let audience = state.client_id;
+        const audience = state.client_id;
 
-        let clockSkewInSeconds = this._settings.clockSkew;
+        const clockSkewInSeconds = this._settings.clockSkew;
         Log.debug("ResponseValidator._validateIdToken: Validaing JWT; using clock skew (in seconds) of: ", clockSkewInSeconds);
 
         await JoseUtil.validateJwt(response.id_token, key, issuer, audience, clockSkewInSeconds);
@@ -389,7 +389,7 @@ export class ResponseValidator {
         return response;
     }
 
-    _filterByAlg(keys: any[], alg: string){
+    _filterByAlg(keys: any[], alg: string) {
         let kty: string | null = null;
         if (alg.startsWith("RS")) {
             kty = "RSA";
@@ -438,7 +438,7 @@ export class ResponseValidator {
             throw new Error("Failed to parse id_token");
         }
 
-        var hashAlg = jwt.header.alg;
+        const hashAlg = jwt.header.alg;
         if (!hashAlg || hashAlg.length !== 5) {
             Log.error("ResponseValidator._validateAccessToken: Unsupported alg:", hashAlg);
             throw new Error("Unsupported alg: " + hashAlg);
@@ -456,15 +456,15 @@ export class ResponseValidator {
             throw new Error("Unsupported alg: " + hashAlg);
         }
 
-        let sha = "sha" + hashBits;
-        var hash = JoseUtil.hashString(response.access_token, sha);
+        const sha = "sha" + hashBits.toString();
+        const hash = JoseUtil.hashString(response.access_token, sha);
         if (!hash) {
             Log.error("ResponseValidator._validateAccessToken: access_token hash failed:", sha);
             throw new Error("Failed to validate at_hash");
         }
 
-        var left = hash.substr(0, hash.length / 2);
-        var left_b64u = JoseUtil.hexToBase64Url(left);
+        const left = hash.substr(0, hash.length / 2);
+        const left_b64u = JoseUtil.hexToBase64Url(left);
         if (left_b64u !== response.profile.at_hash) {
             Log.error("ResponseValidator._validateAccessToken: Failed to validate at_hash", left_b64u, response.profile.at_hash);
             throw new Error("Failed to validate at_hash");

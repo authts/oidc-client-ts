@@ -1,10 +1,10 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from '../utils';
-import { IWindow } from './IWindow';
+import { Log } from "../utils";
+import { IWindow } from "./IWindow";
 
-const DefaultPopupFeatures = 'location=no,toolbar=no,zoom=no';
+const DefaultPopupFeatures = "location=no,toolbar=no,zoom=no";
 const DefaultPopupTarget = "_blank";
 
 export class CordovaPopupWindow implements IWindow {
@@ -33,27 +33,30 @@ export class CordovaPopupWindow implements IWindow {
 
     _isInAppBrowserInstalled(cordovaMetadata: any) {
         return ["cordova-plugin-inappbrowser", "cordova-plugin-inappbrowser.inappbrowser", "org.apache.cordova.inappbrowser"].some(function (name) {
-            return cordovaMetadata.hasOwnProperty(name)
-        })
+            return Object.prototype.hasOwnProperty.call(cordovaMetadata, name);
+        });
     }
 
     navigate(params: any) {
         if (!params || !params.url) {
             this._error("No url provided");
         } else {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             if (!window.cordova) {
                 this._error("cordova is undefined");
                 return this.promise;
             }
 
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            var cordovaMetadata = window.cordova.require("cordova/plugin_list").metadata;
+            const cordovaMetadata = window.cordova.require("cordova/plugin_list").metadata;
             if (this._isInAppBrowserInstalled(cordovaMetadata) === false) {
                 this._error("InAppBrowser plugin not found");
                 return this.promise;
             }
 
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             this._popup = cordova.InAppBrowser.open(params.url, this.target, this.features);
             if (this._popup) {
@@ -102,7 +105,7 @@ export class CordovaPopupWindow implements IWindow {
     }
 
     _cleanup() {
-        if (this._popup){
+        if (this._popup) {
             Log.debug("CordovaPopupWindow: cleaning up popup");
             this._popup.removeEventListener("exit", this._exitCallbackEvent, false);
             this._popup.removeEventListener("loadstart", this._loadStartCallbackEvent, false);

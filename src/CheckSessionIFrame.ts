@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from './utils';
+import { Log } from "./utils";
 
 const DefaultInterval = 2000;
 
@@ -22,7 +22,7 @@ export class CheckSessionIFrame {
         this._interval = interval || DefaultInterval;
         this._stopOnError = stopOnError || true;
 
-        var idx = url.indexOf("/", url.indexOf("//") + 2);
+        const idx = url.indexOf("/", url.indexOf("//") + 2);
         this._frame_origin = url.substr(0, idx);
 
         this._frame = window.document.createElement("iframe");
@@ -44,7 +44,7 @@ export class CheckSessionIFrame {
         return new Promise<void>((resolve) => {
             this._frame.onload = () => {
                 resolve();
-            }
+            };
 
             window.document.body.appendChild(this._frame);
             this._boundMessageEvent = this._message.bind(this);
@@ -52,7 +52,7 @@ export class CheckSessionIFrame {
         });
     }
 
-    _message(e: any) {
+    _message(e: MessageEvent<string>) {
         if (e.origin === this._frame_origin &&
             e.source === this._frame.contentWindow
         ) {
@@ -81,8 +81,11 @@ export class CheckSessionIFrame {
 
             this._session_state = session_state;
 
-            let send = () => {
+            const send = () => {
                 this._frame.contentWindow &&
+
+                // session_state is unknown... (could likley not be string)
+                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                 this._frame.contentWindow.postMessage(this._client_id + " " + this._session_state, this._frame_origin);
             };
 

@@ -1,8 +1,8 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, UrlUtility } from './utils';
-import { State } from './State';
+import { Log, UrlUtility } from "./utils";
+import { State } from "./State";
 
 export class SignoutRequest {
     public readonly url: string
@@ -30,8 +30,8 @@ export class SignoutRequest {
             }
         }
 
-        for(let key in extraQueryParams){
-            url = UrlUtility.addQueryParam(url, key, extraQueryParams[key])
+        for (const key in extraQueryParams) {
+            url = UrlUtility.addQueryParam(url, key, extraQueryParams[key]);
         }
 
         this.url = url;

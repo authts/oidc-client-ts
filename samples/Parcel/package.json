@@ -1,0 +1,20 @@
+{
+  "name": "Parcel",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently --kill-others \"npm run parcel\" \"npm run server\"",
+    "parcel": "parcel serve ./src/index.html --no-cache",
+    "server": "node server.js",
+    "build": "parcel build ./src/index.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+  },
+  "devDependencies": {
+
+  }
+}

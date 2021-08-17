@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from './Log';
+import { Log } from "./Log";
 
 export class Event {
     protected _name: string;
@@ -17,7 +17,7 @@ export class Event {
     }
 
     removeHandler(cb: (...ev: any[]) => void) {
-        var idx = this._callbacks.findIndex(item => item === cb);
+        const idx = this._callbacks.findIndex(item => item === cb);
         if (idx >= 0) {
             this._callbacks.splice(idx, 1);
         }
