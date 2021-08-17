@@ -61,6 +61,32 @@ export class PopupWindow implements IWindow {
         return this._promise;
     }
 
+    _messageReceived(event: MessageEvent) {
+        if (event.origin !== window.location.origin) {
+            Log.warn('PopupWindow:messageRecieved: Message not coming from same origin: ' + event.origin);
+            return;
+        };
+
+        let { data, url, keepOpen } = JSON.parse(event.data);
+
+        if (data.state) {
+            const name = "popupCallback_" + data.state;
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            const callback = window[name];
+            if (callback) {
+                Log.debug("PopupWindow.notifyOpener: passing url message to opener");
+                callback(url, keepOpen);
+            }
+            else {
+                Log.warn("PopupWindow.notifyOpener: no matching callback found on opener");
+            }
+        }
+        else {
+            Log.warn("PopupWindow.notifyOpener: no state found in response url");
+        }
+    }
+
     protected _success(data: any): void {
         Log.debug("PopupWindow.callback: Successful response from popup window");
 
@@ -98,6 +124,10 @@ export class PopupWindow implements IWindow {
     }
 
     protected _checkForPopupClosed(): void {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+        if (window.crossOriginIsolated) return;
         if (!this._popup || this._popup.closed) {
             this._error("Popup window closed");
         }
@@ -116,32 +146,44 @@ export class PopupWindow implements IWindow {
         }
     }
 
-    public static notifyOpener(url: string | undefined, keepOpen: boolean, delimiter: string): void {
-        if (window.opener) {
-            url = url || window.location.href;
-            if (url) {
-                const data = UrlUtility.parseUrlFragment(url, delimiter);
 
-                if (data.state) {
-                    const name = "popupCallback_" + data.state;
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    const callback = window.opener[name];
-                    if (callback) {
-                        Log.debug("PopupWindow.notifyOpener: passing url message to opener");
-                        callback(url, keepOpen);
-                    }
-                    else {
-                        Log.warn("PopupWindow.notifyOpener: no matching callback found on opener");
-                    }
-                }
-                else {
-                    Log.warn("PopupWindow.notifyOpener: no state found in response url");
-                }
-            }
-        }
-        else {
-            Log.warn("PopupWindow.notifyOpener: no window.opener. Can't complete notification.");
+        // if (window.opener) {
+        //     url = url || window.location.href;
+        //     if (url) {
+        //         const data = UrlUtility.parseUrlFragment(url, delimiter);
+
+        //         if (data.state) {
+        //             const name = "popupCallback_" + data.state;
+        //             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //             // @ts-ignore
+        //             const callback = window.opener[name];
+        //             if (callback) {
+        //                 Log.debug("PopupWindow.notifyOpener: passing url message to opener");
+        //                 callback(url, keepOpen);
+        //             }
+        //             else {
+        //                 Log.warn("PopupWindow.notifyOpener: no matching callback found on opener");
+        //             }
+        //         }
+        //         else {
+        //             Log.warn("PopupWindow.notifyOpener: no state found in response url");
+        //         }
+        //     }
+        // }
+        // else {
+        //     Log.warn("PopupWindow.notifyOpener: no window.opener. Can't complete notification.");
+    // static notifyOpener(url: string | undefined, keepOpen: boolean, delimiter: string) {
+    public static notifyOpener(url: string | undefined, keepOpen: boolean, delimiter: string): void {
+        url = url || window.location.href;
+
+        if (url) {
+            const data = UrlUtility.parseUrlFragment(url, delimiter);
+
+            window.opener?.postMessage(JSON.stringify({
+                data,
+                url,
+                keepOpen,
+            }), window.location.origin);
         }
     }
 }
