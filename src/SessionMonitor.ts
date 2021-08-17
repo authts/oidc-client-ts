@@ -42,7 +42,7 @@ export class SessionMonitor {
         if (user) {
             void this._start(user);
         }
-        else if (this._settings.monitorAnonymousSession) {
+        else if (this._userManager.settings.monitorAnonymousSession) {
             const session = await this._userManager.querySessionStatus();
             if (session) {
                 const tmpUser = {
@@ -55,22 +55,6 @@ export class SessionMonitor {
                 void this._start(tmpUser);
             }
         }
-    }
-
-    get _settings() {
-        return this._userManager.settings;
-    }
-    get _metadataService() {
-        return this._userManager.metadataService;
-    }
-    get _client_id() {
-        return this._settings.client_id;
-    }
-    get _checkSessionInterval() {
-        return this._settings.checkSessionInterval;
-    }
-    get _stopCheckSessionOnError() {
-        return this._settings.stopCheckSessionOnError;
     }
 
     async _start(user: User | {
@@ -96,13 +80,13 @@ export class SessionMonitor {
 
             if (!this._checkSessionIFrame) {
                 try {
-                    const url = await this._metadataService.getCheckSessionIframe();
+                    const url = await this._userManager.metadataService.getCheckSessionIframe();
                     if (url) {
                         Log.debug("SessionMonitor._start: Initializing check session iframe");
 
-                        const client_id = this._client_id;
-                        const interval = this._checkSessionInterval;
-                        const stopOnError = this._stopCheckSessionOnError;
+                        const client_id = this._userManager.settings.client_id;
+                        const interval = this._userManager.settings.checkSessionInterval;
+                        const stopOnError = this._userManager.settings.stopCheckSessionOnError;
 
                         // TODO rewrite to use promise correctly
                         // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -135,7 +119,7 @@ export class SessionMonitor {
             this._checkSessionIFrame.stop();
         }
 
-        if (this._settings.monitorAnonymousSession) {
+        if (this._userManager.settings.monitorAnonymousSession) {
             // using a timer to delay re-initialization to avoid race conditions during signout
             // TODO rewrite to use promise correctly
             // eslint-disable-next-line @typescript-eslint/no-misused-promises

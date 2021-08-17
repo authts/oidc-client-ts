@@ -5,37 +5,24 @@ import { Log, random } from "./utils";
 import { StateStore } from "./StateStore";
 
 export class State {
-    private _id: any;
-    private _data: any;
-    private _created: number;
-    private _request_type: any;
+    public readonly id: any;
+    public readonly data: any;
+    public readonly created: number;
+    public readonly request_type: any;
 
     constructor({
         id, data, created, request_type
     }: any = {}) {
-        this._id = id || random();
-        this._data = data;
+        this.id = id || random();
+        this.data = data;
 
         if (typeof created === "number" && created > 0) {
-            this._created = created;
+            this.created = created;
         }
         else {
-            this._created = Math.floor(Date.now() / 1000);
+            this.created = Math.floor(Date.now() / 1000);
         }
-        this._request_type =  request_type;
-    }
-
-    get id() {
-        return this._id;
-    }
-    get data() {
-        return this._data;
-    }
-    get created() {
-        return this._created;
-    }
-    get request_type() {
-        return this._request_type;
+        this.request_type =  request_type;
     }
 
     toStorageString() {
