@@ -7,18 +7,18 @@ import { Log } from "./utils";
 import { OidcClientSettingsStore } from "./OidcClientSettings";
 
 export class TokenClient {
-    private _settings: OidcClientSettingsStore;
-    private _jsonService: JsonService;
-    private _metadataService: MetadataService;
+    private readonly _settings: OidcClientSettingsStore;
+    private readonly _jsonService: JsonService;
+    private readonly _metadataService: MetadataService;
 
-    constructor(settings: OidcClientSettingsStore, metadataService: MetadataService, JsonServiceCtor = JsonService) {
+    constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
         if (!settings) {
             Log.error("TokenClient.ctor: No settings passed");
             throw new Error("settings");
         }
 
         this._settings = settings;
-        this._jsonService = new JsonServiceCtor();
+        this._jsonService = new JsonService();
         this._metadataService = metadataService;
     }
 

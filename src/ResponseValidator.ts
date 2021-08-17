@@ -15,15 +15,12 @@ import { SignoutResponse } from "./SignoutResponse";
 const ProtocolClaims = ["nonce", "at_hash", "iat", "nbf", "exp", "aud", "iss", "c_hash"];
 
 export class ResponseValidator {
-    private _settings: OidcClientSettingsStore;
-    private _metadataService: MetadataService;
-    private _userInfoService: UserInfoService;
-    private _tokenClient: TokenClient;
+    private readonly _settings: OidcClientSettingsStore;
+    private readonly _metadataService: MetadataService;
+    private readonly _userInfoService: UserInfoService;
+    private readonly _tokenClient: TokenClient;
 
-    constructor(settings: OidcClientSettingsStore,
-        metadataService: MetadataService,
-        UserInfoServiceCtor = UserInfoService,
-        TokenClientCtor = TokenClient) {
+    constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
         if (!settings) {
             Log.error("ResponseValidator.ctor: No settings passed to ResponseValidator");
             throw new Error("settings");
@@ -31,8 +28,8 @@ export class ResponseValidator {
 
         this._settings = settings;
         this._metadataService = metadataService;
-        this._userInfoService = new UserInfoServiceCtor(this._settings, metadataService);
-        this._tokenClient = new TokenClientCtor(this._settings, metadataService);
+        this._userInfoService = new UserInfoService(this._settings, metadataService);
+        this._tokenClient = new TokenClient(this._settings, metadataService);
     }
 
     async validateSigninResponse(state: SigninState, response: SigninResponse) {

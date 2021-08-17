@@ -1,26 +1,25 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
 import { Log, g_timer, IntervalTimer } from "./utils";
 import { CheckSessionIFrame } from "./CheckSessionIFrame";
 import { UserManager } from "./UserManager";
 import { User } from "./User";
 
 export class SessionMonitor {
-    private _userManager: UserManager;
-    private _CheckSessionIFrameCtor: typeof CheckSessionIFrame;
-    private _timer: IntervalTimer;
+    private readonly _userManager: UserManager;
+    private readonly _timer: IntervalTimer;
     private _sub: any;
     private _sid: any;
     private _checkSessionIFrame?: CheckSessionIFrame;
 
-    constructor(userManager: UserManager, CheckSessionIFrameCtor = CheckSessionIFrame, timer = g_timer) {
+    constructor(userManager: UserManager, timer = g_timer) {
         if (!userManager) {
             Log.error("SessionMonitor.ctor: No user manager passed to SessionMonitor");
             throw new Error("userManager");
         }
 
         this._userManager = userManager;
-        this._CheckSessionIFrameCtor = CheckSessionIFrameCtor;
         this._timer = timer;
 
         // _start is never called but complier thinks it returns Promise
@@ -90,7 +89,7 @@ export class SessionMonitor {
 
                         // TODO rewrite to use promise correctly
                         // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                        this._checkSessionIFrame = new this._CheckSessionIFrameCtor(this._callback.bind(this), client_id, url, interval, stopOnError);
+                        this._checkSessionIFrame = new CheckSessionIFrame(this._callback.bind(this), client_id, url, interval, stopOnError);
                         await this._checkSessionIFrame.load();
                         this._checkSessionIFrame &&
                         this._checkSessionIFrame.start(session_state);

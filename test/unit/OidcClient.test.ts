@@ -335,7 +335,7 @@ describe("OidcClient", () => {
             const item = new SigninState({ id: '1', nonce: '2', authority:'authority', client_id:'client' });
             jest.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(() => Promise.resolve(item.toStorageString()));
-            const validateSigninResponseMock = jest.spyOn(subject.settings.validator, "validateSigninResponse")
+            const validateSigninResponseMock = jest.spyOn(subject["_validator"], "validateSigninResponse")
                 .mockImplementation((_s, r) => Promise.resolve(r));
 
             // act
@@ -525,7 +525,7 @@ describe("OidcClient", () => {
             const item = new State({ id: '1', data:"bar" });
             jest.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(() => Promise.resolve(item.toStorageString()));
-            const validateSignoutResponse = jest.spyOn(subject.settings.validator, "validateSignoutResponse")
+            const validateSignoutResponse = jest.spyOn(subject["_validator"], "validateSignoutResponse")
                 .mockImplementation((_s, r) => r);
 
             // act
@@ -583,7 +583,7 @@ describe("OidcClient", () => {
             const item = new State({ id: '1' });
             jest.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(() => Promise.resolve(item.toStorageString()));
-            const validateSignoutResponse = jest.spyOn(subject.settings.validator, "validateSignoutResponse")
+            const validateSignoutResponse = jest.spyOn(subject["_validator"], "validateSignoutResponse")
                 .mockImplementation((_s, r) => r);
 
             // act
@@ -598,7 +598,7 @@ describe("OidcClient", () => {
             const item = new State({ id: '1', data:"bar" });
             jest.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(() => Promise.resolve(item.toStorageString()));
-            const validateSignoutResponse = jest.spyOn(subject.settings.validator, "validateSignoutResponse")
+            const validateSignoutResponse = jest.spyOn(subject["_validator"], "validateSignoutResponse")
                 .mockImplementation((_s, r) => r);
 
             // act

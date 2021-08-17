@@ -26,18 +26,12 @@ export class UserManager extends OidcClient {
     private readonly _tokenRevocationClient: TokenRevocationClient;
     private readonly _tokenClient: TokenClient;
 
-    constructor(
-        settings: UserManagerSettings = {},
-        SilentRenewServiceCtor = SilentRenewService,
-        SessionMonitorCtor = SessionMonitor,
-        TokenRevocationClientCtor = TokenRevocationClient,
-        TokenClientCtor = TokenClient
-    ) {
+    constructor(settings: UserManagerSettings = {}) {
         super(settings);
         this.settings = new UserManagerSettingsStore(settings);
 
         this._events = new UserManagerEvents(this.settings);
-        this._silentRenewService = new SilentRenewServiceCtor(this);
+        this._silentRenewService = new SilentRenewService(this);
 
         // order is important for the following properties; these services depend upon the events.
         if (this.settings.automaticSilentRenew) {
@@ -48,11 +42,11 @@ export class UserManager extends OidcClient {
         this._sessionMonitor = null;
         if (this.settings.monitorSession) {
             Log.debug("UserManager.ctor: monitorSession is configured, setting up session monitor");
-            this._sessionMonitor = new SessionMonitorCtor(this);
+            this._sessionMonitor = new SessionMonitor(this);
         }
 
-        this._tokenRevocationClient = new TokenRevocationClientCtor(this.settings, this.settings.metadataService);
-        this._tokenClient = new TokenClientCtor(this.settings, this.settings.metadataService);
+        this._tokenRevocationClient = new TokenRevocationClient(this.settings, this.metadataService);
+        this._tokenClient = new TokenClient(this.settings, this.metadataService);
     }
 
     get events() {
@@ -194,7 +188,7 @@ export class UserManager extends OidcClient {
     }
 
     async _validateIdTokenFromTokenRefreshToken(profile: any, id_token: string) {
-        const issuer = await this.settings.metadataService.getIssuer();
+        const issuer = await this.metadataService.getIssuer();
         const now = await this.settings.getEpochTime();
         const payload = await JoseUtil.validateJwtAttributes(id_token, issuer, this.settings.client_id, this.settings.clockSkew, now);
         if (!payload) {

@@ -2,12 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log } from '../../src/utils';
-import { MetadataService } from '../../src/MetadataService';
 import { OidcClientSettingsStore } from '../../src/OidcClientSettings';
-import { ResponseValidator } from '../../src/ResponseValidator';
 import { StateStore } from '../../src/StateStore';
-
-import { mocked } from 'ts-jest/utils';
 
 describe("OidcClientSettings", () => {
 
@@ -403,45 +399,6 @@ describe("OidcClientSettings", () => {
 
             // assert
             expect(subject.stateStore).toEqual(temp);
-        });
-    });
-
-    describe("validator", () => {
-
-        it("should return value from initial settings", () => {
-            // arrange
-            const dummy = new OidcClientSettingsStore();
-            const metadataService = new MetadataService(dummy);
-            const mock = mocked(new ResponseValidator(dummy, metadataService));
-            const settings: any = {
-                client_id: 'client',
-                ResponseValidatorCtor: () => mock
-            };
-
-            // act
-            let subject = new OidcClientSettingsStore(settings);
-
-            // assert
-            expect(subject.validator).toEqual(mock);
-        });
-    });
-
-    describe("metadataServiceCtor", () => {
-
-        it("should return value from initial settings", () => {
-            // arrange
-            const dummy = new OidcClientSettingsStore();
-            const mock = mocked(new MetadataService(dummy));
-            const settings: any = {
-                client_id: 'client',
-                MetadataServiceCtor: () => mock
-            };
-
-            // act
-            let subject = new OidcClientSettingsStore(settings);
-
-            // assert
-            expect(subject.metadataService).toEqual(mock);
         });
     });
 

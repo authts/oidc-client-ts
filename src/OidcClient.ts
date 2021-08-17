@@ -3,6 +3,8 @@
 
 import { Log } from "./utils";
 import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
+import { ResponseValidator } from "./ResponseValidator";
+import { MetadataService } from "./MetadataService";
 import { ErrorResponse } from "./ErrorResponse";
 import { SigninRequest } from "./SigninRequest";
 import { SigninResponse } from "./SigninResponse";
@@ -13,14 +15,15 @@ import { StateStore } from "./StateStore";
 import { State } from "./State";
 
 export class OidcClient {
-    public readonly settings: OidcClientSettingsStore
+    public readonly settings: OidcClientSettingsStore;
+    public readonly metadataService: MetadataService;
+    private readonly _validator: ResponseValidator;
 
     constructor(settings: OidcClientSettings = {}) {
         this.settings = new OidcClientSettingsStore(settings);
-    }
 
-    get metadataService() {
-        return this.settings.metadataService;
+        this.metadataService = new MetadataService(this.settings);
+        this._validator = new ResponseValidator(this.settings, this.metadataService);
     }
 
     async createSigninRequest({
@@ -113,7 +116,7 @@ export class OidcClient {
 
         const { state, response } = await this.readSigninResponseState(url, stateStore, true);
         Log.debug("OidcClient.processSigninResponse: Received state from storage; validating response");
-        return this.settings.validator.validateSigninResponse(state, response);
+        return this._validator.validateSigninResponse(state, response);
     }
 
     async createSignoutRequest({
@@ -190,7 +193,7 @@ export class OidcClient {
         const {state, response} = await this.readSignoutResponseState(url, stateStore, true);
         if (state) {
             Log.debug("OidcClient.processSignoutResponse: Received state from storage; validating response");
-            return this.settings.validator.validateSignoutResponse(state, response);
+            return this._validator.validateSignoutResponse(state, response);
         }
         else {
             Log.debug("OidcClient.processSignoutResponse: No state from storage; skipping validating response");

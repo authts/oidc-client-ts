@@ -3,8 +3,6 @@
 
 import { ClockService } from "./ClockService";
 import { WebStorageStateStore } from "./WebStorageStateStore";
-import { ResponseValidator } from "./ResponseValidator";
-import { MetadataService } from "./MetadataService";
 import { OidcMetadata } from "./OidcMetadata";
 import { StateStore } from "./StateStore";
 
@@ -59,8 +57,6 @@ export interface OidcClientSettings {
     mergeClaims?: boolean;
 
     stateStore?: StateStore;
-    ResponseValidatorCtor?: typeof ResponseValidator;
-    MetadataServiceCtor?: typeof MetadataService;
 
     /** An object containing additional query string parameters to be including in the authorization request */
     extraQueryParams?: Record<string, any>;
@@ -103,8 +99,6 @@ export class OidcClientSettingsStore {
     public readonly mergeClaims?: boolean;
 
     public readonly stateStore: StateStore;
-    public readonly validator: ResponseValidator;
-    public readonly metadataService: MetadataService;
 
     // extra
     public readonly extraQueryParams?: Record<string, any>;
@@ -128,8 +122,6 @@ export class OidcClientSettingsStore {
         mergeClaims = false,
         // other behavior
         stateStore = new WebStorageStateStore(),
-        ResponseValidatorCtor = ResponseValidator,
-        MetadataServiceCtor = MetadataService,
         // extra query params
         extraQueryParams = {},
         extraTokenParams = {}
@@ -166,8 +158,6 @@ export class OidcClientSettingsStore {
         this.mergeClaims = !!mergeClaims;
 
         this.stateStore = stateStore;
-        this.metadataService = new MetadataServiceCtor(this);
-        this.validator = new ResponseValidatorCtor(this, this.metadataService);
 
         this.extraQueryParams = typeof extraQueryParams === "object" ? extraQueryParams : {};
         this.extraTokenParams = typeof extraTokenParams === "object" ? extraTokenParams : {};
