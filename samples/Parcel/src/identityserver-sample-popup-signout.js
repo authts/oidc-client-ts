@@ -1,5 +1,6 @@
 
 import { UserManager, Log } from "../../../src";
+import { settings } from "./identityserver-sample-settings";
 
 Log.logger = console;
 Log.level = Log.INFO;
@@ -18,4 +19,4 @@ function log() {
     });
 }
 // can pass true param and will keep popup window open
-new UserManager().signoutPopupCallback();
+new UserManager(settings).signoutPopupCallback();

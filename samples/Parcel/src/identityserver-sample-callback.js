@@ -1,4 +1,5 @@
 import { UserManager, Log } from "../../../src";
+import { settings } from "./identityserver-sample-settings";
 
 Log.logger = console;
 Log.level = Log.DEBUG;
@@ -16,7 +17,7 @@ function log() {
         document.getElementById("out").innerHTML += msg + "\r\n";
     });
 }
-new UserManager().signinRedirectCallback().then(function(user) {
+new UserManager(settings).signinRedirectCallback().then(function(user) {
     log("signin response success", user);
 }).catch(function(err) {
     log(err);

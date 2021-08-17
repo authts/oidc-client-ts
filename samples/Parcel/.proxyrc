@@ -1,8 +1,0 @@
-{
-  "/oidc/": {
-    "target": "http://localhost:15000/"
-  },
-  "/.well-known": {
-    "target": "http://localhost:15000/"
-  }
-}

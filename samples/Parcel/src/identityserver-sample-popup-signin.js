@@ -1,5 +1,6 @@
 
 import { UserManager, Log } from "../../../src";
+import { settings } from "./identityserver-sample-settings";
 
 var log = {
     debug:logMessage, warn: logMessage, info: logMessage, error:logMessage
@@ -13,6 +14,6 @@ function logMessage(msg) {
 Log.logger = console; // log;
 Log.level = Log.DEBUG;
 
-new UserManager().signinPopupCallback().catch(function(err) {
+new UserManager(settings).signinPopupCallback().catch(function(err) {
     Log.logger.error("error: " + err && err.message);
 });

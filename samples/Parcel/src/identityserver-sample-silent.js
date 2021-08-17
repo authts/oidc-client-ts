@@ -1,4 +1,5 @@
 import { UserManager, Log } from "../../../src";
+import { settings } from "./identityserver-sample-settings";
 
 Log.logger = console;
 Log.level = Log.INFO;
@@ -16,4 +17,4 @@ function log() {
         document.getElementById("out").innerHTML += msg + "\r\n";
     });
 }
-void new UserManager().signinSilentCallback();
+void new UserManager(settings).signinSilentCallback();

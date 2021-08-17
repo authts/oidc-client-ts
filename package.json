@@ -27,7 +27,9 @@
     "test": "tsdx test",
     "lint": "eslint ./src/**/*.ts",
     "lint:fix": "eslint ./src/**/*.ts --fix",
-    "sample": "node samples/VanillaJS/server.js"
+    "sample": "concurrently --kill-others \"npm run parcel\" \"npm run server\"",
+    "parcel": "parcel serve ./samples/Parcel/src/index.html --no-cache",
+    "server": "node ./samples/Parcel/server.js"
   },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^4.29.0",
@@ -41,7 +43,11 @@
     "@types/jsrsasign": "^8.0.13",
     "@weiran.zsd/tsdx": "^0.15.2",
     "tslib": "^2.2.0",
-    "typescript": "^4.2.4"
+    "typescript": "^4.2.4",
+    "concurrently": "^6.2.1",
+    "express": "^4.17.1",
+    "open": "^8.2.1",
+    "parcel": "^2.0.0-rc.0"
   },
   "jest": {
     "clearMocks": true,

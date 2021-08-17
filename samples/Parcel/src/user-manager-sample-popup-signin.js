@@ -1,2 +1,4 @@
 import { UserManager } from "../../../src";
-void new UserManager().signinPopupCallback();
+import { settings } from "./user-manager-sample-settings";
+
+void new UserManager(settings).signinPopupCallback();
