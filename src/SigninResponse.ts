@@ -27,7 +27,7 @@ export class SigninResponse {
     // will be set from ResponseValidator
     public profile: any |  undefined;
 
-    constructor(url?: string, delimiter = "#") {
+    public constructor(url?: string, delimiter = "#") {
 
         const values = UrlUtility.parseUrlFragment(url, delimiter);
 
@@ -48,14 +48,14 @@ export class SigninResponse {
         this.profile = undefined;
     }
 
-    get expires_in(): number | undefined {
+    public get expires_in(): number | undefined {
         if (this.expires_at) {
             const now = Math.floor(Date.now() / 1000);
             return this.expires_at - now;
         }
         return undefined;
     }
-    set expires_in(value: number | undefined) {
+    public set expires_in(value: number | undefined) {
         if (typeof value === "number" && value > 0) {
             const expires_in = Math.floor(value);
             const now = Math.floor(Date.now() / 1000);
@@ -63,7 +63,7 @@ export class SigninResponse {
         }
     }
 
-    get expired() {
+    public get expired() {
         const expires_in = this.expires_in;
         if (expires_in !== undefined) {
             return expires_in <= 0;
@@ -71,11 +71,11 @@ export class SigninResponse {
         return undefined;
     }
 
-    get scopes() {
+    public get scopes() {
         return (this.scope || "").split(" ");
     }
 
-    get isOpenIdConnect() {
+    public get isOpenIdConnect() {
         return this.scopes.indexOf(OidcScope) >= 0 || !!this.id_token;
     }
 }

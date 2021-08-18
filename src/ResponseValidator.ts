@@ -15,19 +15,19 @@ import { SignoutResponse } from "./SignoutResponse";
 const ProtocolClaims = ["nonce", "at_hash", "iat", "nbf", "exp", "aud", "iss", "c_hash"];
 
 export class ResponseValidator {
-    private readonly _settings: OidcClientSettingsStore;
-    private readonly _metadataService: MetadataService;
-    private readonly _userInfoService: UserInfoService;
-    private readonly _tokenClient: TokenClient;
+    protected readonly _settings: OidcClientSettingsStore;
+    protected readonly _metadataService: MetadataService;
+    protected readonly _userInfoService: UserInfoService;
+    protected readonly _tokenClient: TokenClient;
 
-    constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
+    public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
         this._settings = settings;
         this._metadataService = metadataService;
         this._userInfoService = new UserInfoService(this._settings, metadataService);
         this._tokenClient = new TokenClient(this._settings, metadataService);
     }
 
-    async validateSigninResponse(state: SigninState, response: SigninResponse) {
+    public async validateSigninResponse(state: SigninState, response: SigninResponse) {
         Log.debug("ResponseValidator.validateSigninResponse");
 
         response = this._processSigninParams(state, response);
@@ -42,7 +42,7 @@ export class ResponseValidator {
         return response;
     }
 
-    validateSignoutResponse(state: State, response: SignoutResponse) {
+    public validateSignoutResponse(state: State, response: SignoutResponse) {
         if (state.id !== response.state) {
             Log.error("ResponseValidator.validateSignoutResponse: State does not match");
             throw new Error("State does not match");
@@ -62,7 +62,7 @@ export class ResponseValidator {
         return response;
     }
 
-    _processSigninParams(state: SigninState, response: SigninResponse) {
+    protected _processSigninParams(state: SigninState, response: SigninResponse) {
         if (state.id !== response.state) {
             Log.error("ResponseValidator._processSigninParams: State does not match");
             throw new Error("State does not match");
@@ -127,7 +127,7 @@ export class ResponseValidator {
         return response;
     }
 
-    async _processClaims(state: SigninState, response: SigninResponse): Promise<SigninResponse> {
+    protected async _processClaims(state: SigninState, response: SigninResponse): Promise<SigninResponse> {
         if (response.isOpenIdConnect) {
             Log.debug("ResponseValidator._processClaims: response is OIDC, processing claims");
 
@@ -160,7 +160,7 @@ export class ResponseValidator {
         return response;
     }
 
-    _mergeClaims(claims1: any, claims2: any) {
+    protected _mergeClaims(claims1: any, claims2: any) {
         const result = Object.assign({}, claims1);
 
         for (const name in claims2) {
@@ -193,7 +193,7 @@ export class ResponseValidator {
         return result;
     }
 
-    _filterProtocolClaims(claims: any) {
+    protected _filterProtocolClaims(claims: any) {
         Log.debug("ResponseValidator._filterProtocolClaims, incoming claims:", claims);
 
         const result = Object.assign({}, claims);
@@ -212,7 +212,7 @@ export class ResponseValidator {
         return result;
     }
 
-    _validateTokens(state: SigninState, response: SigninResponse) {
+    protected _validateTokens(state: SigninState, response: SigninResponse) {
         if (response.code) {
             Log.debug("ResponseValidator._validateTokens: Validating code");
             return this._processCode(state, response);
@@ -232,7 +232,7 @@ export class ResponseValidator {
         return response;
     }
 
-    async _processCode(state: SigninState, response: SigninResponse): Promise<SigninResponse> {
+    protected async _processCode(state: SigninState, response: SigninResponse): Promise<SigninResponse> {
         const request = {
             client_id: state.client_id,
             client_secret: state.client_secret,
@@ -269,7 +269,7 @@ export class ResponseValidator {
         return response;
     }
 
-    async _validateIdTokenAttributes(state: SigninState, response: SigninResponse) {
+    protected async _validateIdTokenAttributes(state: SigninState, response: SigninResponse) {
         const issuer = await this._metadataService.getIssuer();
 
         const audience = state.client_id;
@@ -292,12 +292,12 @@ export class ResponseValidator {
         return response;
     }
 
-    async _validateIdTokenAndAccessToken(state: SigninState, response: SigninResponse) {
+    protected async _validateIdTokenAndAccessToken(state: SigninState, response: SigninResponse) {
         response = await this._validateIdToken(state, response);
         return this._validateAccessToken(response);
     }
 
-    async _getSigningKeyForJwt(jwt: any) {
+    protected async _getSigningKeyForJwt(jwt: any) {
         let keys = await this._metadataService.getSigningKeys();
         const kid = jwt.header.kid;
         if (!keys) {
@@ -326,7 +326,7 @@ export class ResponseValidator {
         return key;
     }
 
-    async _getSigningKeyForJwtWithSingleRetry(jwt: any) {
+    protected async _getSigningKeyForJwtWithSingleRetry(jwt: any) {
         const key = await this._getSigningKeyForJwt(jwt);
         // Refreshing signingKeys if no suitable verification key is present for given jwt header.
         if (!key) {
@@ -338,7 +338,7 @@ export class ResponseValidator {
         }
     }
 
-    async _validateIdToken(state: SigninState, response: SigninResponse): Promise<SigninResponse> {
+    protected async _validateIdToken(state: SigninState, response: SigninResponse): Promise<SigninResponse> {
         if (!state.nonce) {
             Log.error("ResponseValidator._validateIdToken: No nonce on state");
             throw new Error("No nonce on state");
@@ -381,7 +381,7 @@ export class ResponseValidator {
         return response;
     }
 
-    _filterByAlg(keys: any[], alg: string) {
+    protected _filterByAlg(keys: any[], alg: string) {
         let kty: string | null = null;
         if (alg.startsWith("RS")) {
             kty = "RSA";
@@ -408,7 +408,7 @@ export class ResponseValidator {
         return keys;
     }
 
-    _validateAccessToken(response: SigninResponse) {
+    protected _validateAccessToken(response: SigninResponse) {
         if (!response.profile) {
             Log.error("ResponseValidator._validateAccessToken: No profile loaded from id_token");
             throw new Error("No profile loaded from id_token");

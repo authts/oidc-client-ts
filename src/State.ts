@@ -10,7 +10,7 @@ export class State {
     public readonly created: number;
     public readonly request_type: any;
 
-    constructor({
+    public constructor({
         id, data, created, request_type
     }: any = {}) {
         this.id = id || random();
@@ -25,7 +25,7 @@ export class State {
         this.request_type =  request_type;
     }
 
-    toStorageString() {
+    public toStorageString() {
         Log.debug("State.toStorageString");
         return JSON.stringify({
             id: this.id,
@@ -35,12 +35,12 @@ export class State {
         });
     }
 
-    static fromStorageString(storageString: string) {
+    public static fromStorageString(storageString: string) {
         Log.debug("State.fromStorageString");
         return new State(JSON.parse(storageString));
     }
 
-    static async clearStaleState(storage: StateStore, age: number) {
+    public static async clearStaleState(storage: StateStore, age: number) {
         const cutoff = Date.now() / 1000 - age;
 
         const keys = await storage.getAllKeys();

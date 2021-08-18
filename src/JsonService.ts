@@ -7,7 +7,7 @@ export class JsonService {
     private _contentTypes: string[];
     private _jwtHandler: any;
 
-    constructor(
+    public constructor(
         additionalContentTypes: string[] | null = null,
         jwtHandler: any = null
     ) {
@@ -27,7 +27,7 @@ export class JsonService {
         this._jwtHandler = jwtHandler;
     }
 
-    async getJson(url: string, token?: string): Promise<any> {
+    public async getJson(url: string, token?: string): Promise<any> {
         if (!url) {
             Log.error("JsonService.getJson: No url passed");
             throw new Error("url");
@@ -79,7 +79,7 @@ export class JsonService {
         throw new Error(response.statusText + " (" + response.status.toString() + ")");
     }
 
-    async postForm(url: string, payload: any, basicAuth?: string): Promise<any> {
+    public async postForm(url: string, payload: any, basicAuth?: string): Promise<any> {
         if (!url) {
             Log.error("JsonService.postForm: No url passed");
             throw new Error("url");

@@ -18,7 +18,7 @@ export class CordovaPopupWindow implements IWindow {
     private _exitCallbackEvent?: (message: any) => void;
     private _loadStartCallbackEvent?: (event: any) => void;
 
-    constructor(params: any) {
+    public constructor(params: any) {
         this._promise = new Promise((resolve, reject) => {
             this._resolve = resolve;
             this._reject = reject;
@@ -31,13 +31,13 @@ export class CordovaPopupWindow implements IWindow {
         Log.debug("CordovaPopupWindow.ctor: redirect_uri: " + this.redirect_uri);
     }
 
-    _isInAppBrowserInstalled(cordovaMetadata: any) {
+    protected _isInAppBrowserInstalled(cordovaMetadata: any) {
         return ["cordova-plugin-inappbrowser", "cordova-plugin-inappbrowser.inappbrowser", "org.apache.cordova.inappbrowser"].some(function (name) {
             return Object.prototype.hasOwnProperty.call(cordovaMetadata, name);
         });
     }
 
-    navigate(params: any) {
+    public navigate(params: any) {
         if (!params || !params.url) {
             this._error("No url provided");
         } else {
@@ -74,33 +74,35 @@ export class CordovaPopupWindow implements IWindow {
         return this._promise;
     }
 
-    _loadStartCallback(event: any) {
+    protected _loadStartCallback(event: any) {
         if (event.url.indexOf(this.redirect_uri) === 0) {
             this._success({ url: event.url });
         }
     }
-    _exitCallback(message: string) {
+
+    protected _exitCallback(message: string) {
         this._error(message);
     }
 
-    _success(data: any) {
+    protected _success(data: any) {
         this._cleanup();
 
         Log.debug("CordovaPopupWindow: Successful response from cordova popup window");
         this._resolve(data);
     }
-    _error(message: string) {
+
+    protected _error(message: string) {
         this._cleanup();
 
         Log.error(message);
         this._reject(new Error(message));
     }
 
-    close() {
+    public close() {
         this._cleanup();
     }
 
-    _cleanup() {
+    protected _cleanup() {
         if (this._popup) {
             Log.debug("CordovaPopupWindow: cleaning up popup");
             this._popup.removeEventListener("exit", this._exitCallbackEvent, false);

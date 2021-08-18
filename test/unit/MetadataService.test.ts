@@ -141,11 +141,10 @@ describe("MetadataService", () => {
         });
     });
 
-    describe("_getMetadataProperty", () => {
-
+    describe("getIssuer", () => {
         it("should return a promise", async () => {
             // act
-            const p = subject._getMetadataProperty("issuer");
+            const p = subject.getIssuer();
 
             // assert
             expect(p).toBeInstanceOf(Promise);
@@ -163,7 +162,7 @@ describe("MetadataService", () => {
             subject = new MetadataService(settings);
 
             // act
-            const result = await subject._getMetadataProperty("issuer");
+            const result = await subject.getIssuer();
 
             // assert
             expect(result).toEqual("test");
@@ -179,7 +178,7 @@ describe("MetadataService", () => {
 
             // act
             try {
-                await subject._getMetadataProperty("issuer");
+                await subject.getIssuer();
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("issuer");
@@ -197,12 +196,29 @@ describe("MetadataService", () => {
 
             // act
             try {
-                await subject._getMetadataProperty("issuer");
+                await subject.getIssuer();
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("test");
             }
         });
+
+        it("should return value from", async () => {
+            // arrange
+            settings = {
+                metadata: {
+                    issuer: "http://sts"
+                }
+            };
+            subject = new MetadataService(settings);
+
+            // act
+            const result = await subject.getIssuer();
+
+            // assert
+            expect(result).toEqual("http://sts");
+        });
+
     });
 
     describe("getAuthorizationEndpoint", () => {
@@ -311,26 +327,6 @@ describe("MetadataService", () => {
 
             // assert
             expect(result).toBeUndefined();
-        });
-
-    });
-
-    describe("getIssuer", () => {
-
-        it("should return value from", async () => {
-            // arrange
-            settings = {
-                metadata: {
-                    issuer: "http://sts"
-                }
-            };
-            subject = new MetadataService(settings);
-
-            // act
-            const result = await subject.getIssuer();
-
-            // assert
-            expect(result).toEqual("http://sts");
         });
 
     });

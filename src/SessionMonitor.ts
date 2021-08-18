@@ -13,7 +13,7 @@ export class SessionMonitor {
     private _sid: any;
     private _checkSessionIFrame?: CheckSessionIFrame;
 
-    constructor(userManager: UserManager, timer = g_timer) {
+    public constructor(userManager: UserManager, timer = g_timer) {
         if (!userManager) {
             Log.error("SessionMonitor.ctor: No user manager passed to SessionMonitor");
             throw new Error("userManager");
@@ -34,7 +34,7 @@ export class SessionMonitor {
             });
     }
 
-    private async _init() {
+    protected async _init() {
         const user = await this._userManager.getUser();
         // doing this manually here since calling getUser
         // doesn't trigger load event.
@@ -56,7 +56,7 @@ export class SessionMonitor {
         }
     }
 
-    async _start(user: User | {
+    protected async _start(user: User | {
         session_state: any;
             profile: {
                 sub: string;
@@ -109,7 +109,7 @@ export class SessionMonitor {
         }
     }
 
-    _stop() {
+    protected _stop() {
         this._sub = undefined;
         this._sid = undefined;
 
@@ -144,7 +144,7 @@ export class SessionMonitor {
         }
     }
 
-    async _callback() {
+    protected async _callback() {
         try {
             const session: any = await this._userManager.querySessionStatus();
             let raiseEvent = true;

@@ -19,14 +19,14 @@ export class OidcClient {
     public readonly metadataService: MetadataService;
     private readonly _validator: ResponseValidator;
 
-    constructor(settings: OidcClientSettings) {
+    public constructor(settings: OidcClientSettings) {
         this.settings = new OidcClientSettingsStore(settings);
 
         this.metadataService = new MetadataService(this.settings);
         this._validator = new ResponseValidator(this.settings, this.metadataService);
     }
 
-    async createSigninRequest({
+    public async createSigninRequest({
         response_type, scope, redirect_uri,
         // data was meant to be the place a caller could indicate the data to
         // have round tripped, but people were getting confused, so i added state (since that matches the spec)
@@ -83,7 +83,7 @@ export class OidcClient {
         return signinRequest;
     }
 
-    async readSigninResponseState(url?: string, stateStore: StateStore | null = null, removeState = false) {
+    public async readSigninResponseState(url?: string, stateStore: StateStore | null = null, removeState = false) {
         Log.debug("OidcClient.readSigninResponseState");
 
         const useQuery = this.settings.response_mode === "query" ||
@@ -111,7 +111,7 @@ export class OidcClient {
         return {state, response};
     }
 
-    async processSigninResponse(url: string, stateStore: StateStore | null = null) {
+    public async processSigninResponse(url: string, stateStore: StateStore | null = null) {
         Log.debug("OidcClient.processSigninResponse");
 
         const { state, response } = await this.readSigninResponseState(url, stateStore, true);
@@ -119,7 +119,7 @@ export class OidcClient {
         return this._validator.validateSigninResponse(state, response);
     }
 
-    async createSignoutRequest({
+    public async createSignoutRequest({
         id_token_hint, data, state, post_logout_redirect_uri, extraQueryParams, request_type
     }: any = {},
     stateStore: StateStore | null = null
@@ -157,7 +157,7 @@ export class OidcClient {
         return request;
     }
 
-    async readSignoutResponseState(url?: string, stateStore: StateStore | null = null, removeState = false): Promise<{ state: undefined | State; response: SignoutResponse }> {
+    public async readSignoutResponseState(url?: string, stateStore: StateStore | null = null, removeState = false): Promise<{ state: undefined | State; response: SignoutResponse }> {
         Log.debug("OidcClient.readSignoutResponseState");
 
         const response = new SignoutResponse(url);
@@ -187,7 +187,7 @@ export class OidcClient {
         return {state, response};
     }
 
-    async processSignoutResponse(url: string, stateStore: StateStore | null = null) {
+    public async processSignoutResponse(url: string, stateStore: StateStore | null = null) {
         Log.debug("OidcClient.processSignoutResponse");
 
         const {state, response} = await this.readSignoutResponseState(url, stateStore, true);
@@ -201,7 +201,7 @@ export class OidcClient {
         }
     }
 
-    clearStaleState(stateStore: StateStore | null = null): Promise<void> {
+    public clearStaleState(stateStore: StateStore | null = null): Promise<void> {
         Log.debug("OidcClient.clearStaleState");
 
         stateStore = stateStore || this.settings.stateStore;

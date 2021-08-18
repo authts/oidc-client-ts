@@ -8,7 +8,7 @@ export class SigninRequest {
     public readonly url: string;
     public readonly state: SigninState;
 
-    constructor({
+    public constructor({
         // mandatory
         url, client_id, redirect_uri, response_type, scope, authority,
         // optional
@@ -81,21 +81,21 @@ export class SigninRequest {
         this.url = url;
     }
 
-    static isOidc(response_type: string) {
+    public static isOidc(response_type: string) {
         const result = response_type.split(/\s+/g).filter(function(item) {
             return item === "id_token";
         });
         return !!(result[0]);
     }
 
-    static isOAuth(response_type: string) {
+    public static isOAuth(response_type: string) {
         const result = response_type.split(/\s+/g).filter(function(item) {
             return item === "token";
         });
         return !!(result[0]);
     }
 
-    static isCode(response_type: string) {
+    public static isCode(response_type: string) {
         const result = response_type.split(/\s+/g).filter(function(item) {
             return item === "code";
         });

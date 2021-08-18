@@ -18,7 +18,7 @@ export class PopupWindow implements IWindow {
     private _checkForPopupClosedTimer: number | null;
     private _id: any;
 
-    constructor(params: any) {
+    public constructor(params: any) {
         this._promise = new Promise((resolve, reject) => {
             this._resolve = resolve;
             this._reject = reject;
@@ -35,7 +35,7 @@ export class PopupWindow implements IWindow {
         }
     }
 
-    navigate(params: any) {
+    public navigate(params: any) {
         if (!this._popup) {
             this._error("PopupWindow.navigate: Error opening popup window");
         }
@@ -61,24 +61,25 @@ export class PopupWindow implements IWindow {
         return this._promise;
     }
 
-    _success(data: any) {
+    protected _success(data: any) {
         Log.debug("PopupWindow.callback: Successful response from popup window");
 
         this._cleanup();
         this._resolve(data);
     }
-    _error(message: string) {
+
+    protected _error(message: string) {
         Log.error("PopupWindow.error: ", message);
 
         this._cleanup();
         this._reject(new Error(message));
     }
 
-    close() {
+    public close() {
         this._cleanup(false);
     }
 
-    _cleanup(keepOpen?: boolean) {
+    protected _cleanup(keepOpen?: boolean) {
         Log.debug("PopupWindow.cleanup");
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -96,13 +97,13 @@ export class PopupWindow implements IWindow {
         this._popup = null;
     }
 
-    _checkForPopupClosed() {
+    protected _checkForPopupClosed() {
         if (!this._popup || this._popup.closed) {
             this._error("Popup window closed");
         }
     }
 
-    _callback(url: string, keepOpen: boolean) {
+    protected _callback(url: string, keepOpen: boolean) {
         this._cleanup(keepOpen);
 
         if (url) {
@@ -115,7 +116,7 @@ export class PopupWindow implements IWindow {
         }
     }
 
-    static notifyOpener(url: string | undefined, keepOpen: boolean, delimiter: string) {
+    public static notifyOpener(url: string | undefined, keepOpen: boolean, delimiter: string) {
         if (window.opener) {
             url = url || window.location.href;
             if (url) {

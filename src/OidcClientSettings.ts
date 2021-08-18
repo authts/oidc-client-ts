@@ -104,7 +104,7 @@ export class OidcClientSettingsStore {
     public readonly extraQueryParams?: Record<string, any>;
     public readonly extraTokenParams?: Record<string, any>;
 
-    constructor({
+    public constructor({
         // metadata related
         authority, metadataUrl, metadata, signingKeys, metadataSeed,
         // client related
@@ -164,7 +164,7 @@ export class OidcClientSettingsStore {
     }
 
     // get the time
-    getEpochTime() {
+    public getEpochTime() {
         return this.clockService.getEpochTime();
     }
 }

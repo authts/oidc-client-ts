@@ -8,12 +8,12 @@ export class WebStorageStateStore implements StateStore {
     private _store: Storage
     private _prefix: string
 
-    constructor({ prefix = "oidc.", store = localStorage } = {}) {
+    public constructor({ prefix = "oidc.", store = localStorage } = {}) {
         this._store = store;
         this._prefix = prefix;
     }
 
-    set(key: string, value: string): Promise<void> {
+    public set(key: string, value: string): Promise<void> {
         Log.debug("WebStorageStateStore.set", key);
 
         key = this._prefix + key;
@@ -21,7 +21,7 @@ export class WebStorageStateStore implements StateStore {
         return Promise.resolve();
     }
 
-    get(key: string): Promise<string | null> {
+    public get(key: string): Promise<string | null> {
         Log.debug("WebStorageStateStore.get", key);
 
         key = this._prefix + key;
@@ -29,7 +29,7 @@ export class WebStorageStateStore implements StateStore {
         return Promise.resolve(item);
     }
 
-    remove(key: string): Promise<string | null> {
+    public remove(key: string): Promise<string | null> {
         Log.debug("WebStorageStateStore.remove", key);
 
         key = this._prefix + key;
@@ -38,7 +38,7 @@ export class WebStorageStateStore implements StateStore {
         return Promise.resolve(item);
     }
 
-    getAllKeys(): Promise<string[]> {
+    public getAllKeys(): Promise<string[]> {
         Log.debug("WebStorageStateStore.getAllKeys");
 
         const keys = [];

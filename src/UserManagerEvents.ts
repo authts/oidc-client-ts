@@ -21,7 +21,7 @@ export class UserManagerEvents extends AccessTokenEvents {
     private _userSignedOut: Event;
     private _userSessionChanged: Event;
 
-    constructor(settings: UserManagerSettingsStore) {
+    public constructor(settings: UserManagerSettingsStore) {
         super(settings);
         this._userLoaded = new Event("User loaded");
         this._userUnloaded = new Event("User unloaded");
@@ -31,73 +31,73 @@ export class UserManagerEvents extends AccessTokenEvents {
         this._userSessionChanged = new Event("User session changed");
     }
 
-    load(user: User, raiseEvent=true) {
+    public load(user: User, raiseEvent=true) {
         Log.debug("UserManagerEvents.load");
         super.load(user);
         if (raiseEvent) {
             this._userLoaded.raise(user);
         }
     }
-    unload() {
+    public unload() {
         Log.debug("UserManagerEvents.unload");
         super.unload();
         this._userUnloaded.raise();
     }
 
-    addUserLoaded(cb: UserLoadedCallback) {
+    public addUserLoaded(cb: UserLoadedCallback) {
         this._userLoaded.addHandler(cb);
     }
-    removeUserLoaded(cb: UserLoadedCallback) {
+    public removeUserLoaded(cb: UserLoadedCallback) {
         this._userLoaded.removeHandler(cb);
     }
 
-    addUserUnloaded(cb: UserUnloadedCallback) {
+    public addUserUnloaded(cb: UserUnloadedCallback) {
         this._userUnloaded.addHandler(cb);
     }
-    removeUserUnloaded(cb: UserUnloadedCallback) {
+    public removeUserUnloaded(cb: UserUnloadedCallback) {
         this._userUnloaded.removeHandler(cb);
     }
 
-    addSilentRenewError(cb: SilentRenewErrorCallback) {
+    public addSilentRenewError(cb: SilentRenewErrorCallback) {
         this._silentRenewError.addHandler(cb);
     }
-    removeSilentRenewError(cb: SilentRenewErrorCallback) {
+    public removeSilentRenewError(cb: SilentRenewErrorCallback) {
         this._silentRenewError.removeHandler(cb);
     }
-    _raiseSilentRenewError(e: Error) {
+    public _raiseSilentRenewError(e: Error) {
         Log.debug("UserManagerEvents._raiseSilentRenewError", e.message);
         this._silentRenewError.raise(e);
     }
 
-    addUserSignedIn(cb: UserSignedInCallback) {
+    public addUserSignedIn(cb: UserSignedInCallback) {
         this._userSignedIn.addHandler(cb);
     }
-    removeUserSignedIn(cb: UserSignedInCallback) {
+    public removeUserSignedIn(cb: UserSignedInCallback) {
         this._userSignedIn.removeHandler(cb);
     }
-    _raiseUserSignedIn() {
+    public _raiseUserSignedIn() {
         Log.debug("UserManagerEvents._raiseUserSignedIn");
         this._userSignedIn.raise();
     }
 
-    addUserSignedOut(cb: UserSignedOutCallback) {
+    public addUserSignedOut(cb: UserSignedOutCallback) {
         this._userSignedOut.addHandler(cb);
     }
-    removeUserSignedOut(cb: UserSignedOutCallback) {
+    public removeUserSignedOut(cb: UserSignedOutCallback) {
         this._userSignedOut.removeHandler(cb);
     }
-    _raiseUserSignedOut() {
+    public _raiseUserSignedOut() {
         Log.debug("UserManagerEvents._raiseUserSignedOut");
         this._userSignedOut.raise();
     }
 
-    addUserSessionChanged(cb: UserSessionChangedCallback) {
+    public addUserSessionChanged(cb: UserSessionChangedCallback) {
         this._userSessionChanged.addHandler(cb);
     }
-    removeUserSessionChanged(cb: UserSessionChangedCallback) {
+    public removeUserSessionChanged(cb: UserSessionChangedCallback) {
         this._userSessionChanged.removeHandler(cb);
     }
-    _raiseUserSessionChanged() {
+    public _raiseUserSessionChanged() {
         Log.debug("UserManagerEvents._raiseUserSessionChanged");
         this._userSessionChanged.raise();
     }

@@ -14,7 +14,7 @@ export class IFrameWindow implements IWindow {
     private _frame: HTMLIFrameElement | null;
     private _timer: number | null;
 
-    constructor() {
+    public constructor() {
         this._promise = new Promise((resolve, reject) => {
             this._resolve = resolve;
             this._reject = reject;
@@ -36,7 +36,7 @@ export class IFrameWindow implements IWindow {
         this._timer = null;
     }
 
-    navigate(params: any) {
+    public navigate(params: any) {
         if (!params || !params.url) {
             this._error("No url provided");
         }
@@ -51,13 +51,13 @@ export class IFrameWindow implements IWindow {
         return this._promise;
     }
 
-    _success(data: any) {
+    protected _success(data: any) {
         this._cleanup();
 
         Log.debug("IFrameWindow: Successful response from frame window");
         this._resolve(data);
     }
-    _error(message: string) {
+    protected _error(message: string) {
         this._cleanup();
 
         Log.error(message);
@@ -68,7 +68,7 @@ export class IFrameWindow implements IWindow {
         this._cleanup();
     }
 
-    _cleanup() {
+    protected _cleanup() {
         if (this._frame) {
             Log.debug("IFrameWindow: cleanup");
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -83,12 +83,12 @@ export class IFrameWindow implements IWindow {
         }
     }
 
-    _timeout() {
+    protected _timeout() {
         Log.debug("IFrameWindow.timeout");
         this._error("Frame window timed out");
     }
 
-    _message(e: any) {
+    protected _message(e: any) {
         Log.debug("IFrameWindow.message");
 
         const origin = location.protocol + "//" + location.host;
@@ -107,7 +107,7 @@ export class IFrameWindow implements IWindow {
         }
     }
 
-    static notifyParent(url: string | undefined) {
+    public static notifyParent(url: string | undefined) {
         Log.debug("IFrameWindow.notifyParent");
         url = url || window.location.href;
         if (url) {

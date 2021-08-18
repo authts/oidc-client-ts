@@ -11,13 +11,13 @@ export class UserInfoService {
     private _jsonService: JsonService;
     private _metadataService: MetadataService;
 
-    constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
+    public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
         this._settings = settings;
         this._jsonService = new JsonService(undefined, this._getClaimsFromJwt.bind(this));
         this._metadataService = metadataService;
     }
 
-    async getClaims(token?: string) {
+    public async getClaims(token?: string) {
         if (!token) {
             Log.error("UserInfoService.getClaims: No token passed");
             throw new Error("A token is required");
@@ -32,7 +32,7 @@ export class UserInfoService {
         return claims;
     }
 
-    async _getClaimsFromJwt(responseText: string) {
+    protected async _getClaimsFromJwt(responseText: string) {
         try {
             const jwt = JoseUtil.parseJwt(responseText);
             if (!jwt || !jwt.header || !jwt.payload) {
@@ -105,7 +105,7 @@ export class UserInfoService {
         }
     }
 
-    _filterByAlg(keys: any[], alg: string) {
+    protected _filterByAlg(keys: any[], alg: string) {
         let kty: string | null = null;
         if (alg.startsWith("RS")) {
             kty = "RSA";

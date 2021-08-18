@@ -14,7 +14,7 @@ export class User {
     public state: any;
     public expires_at: number;
 
-    constructor({
+    public constructor({
         id_token, session_state, access_token, refresh_token, token_type, scope, profile, expires_at, state
     }: any) {
         this.id_token = id_token;
@@ -28,14 +28,14 @@ export class User {
         this.expires_at = expires_at;
     }
 
-    get expires_in() {
+    public get expires_in() {
         if (this.expires_at) {
             const now = Math.floor(Date.now() / 1000);
             return this.expires_at - now;
         }
         return undefined;
     }
-    set expires_in(value: number | undefined) {
+    public set expires_in(value: number | undefined) {
         if (typeof value === "number" && value > 0) {
             const expires_in = Math.floor(value);
             const now = Math.floor(Date.now() / 1000);
@@ -43,7 +43,7 @@ export class User {
         }
     }
 
-    get expired() {
+    public get expired() {
         const expires_in = this.expires_in;
         if (expires_in !== undefined) {
             return expires_in <= 0;
@@ -51,11 +51,11 @@ export class User {
         return undefined;
     }
 
-    get scopes() {
+    public get scopes() {
         return (this.scope || "").split(" ");
     }
 
-    toStorageString() {
+    public toStorageString() {
         Log.debug("User.toStorageString");
         return JSON.stringify({
             id_token: this.id_token,
@@ -69,7 +69,7 @@ export class User {
         });
     }
 
-    static fromStorageString(storageString: string) {
+    public static fromStorageString(storageString: string) {
         Log.debug("User.fromStorageString");
         return new User(JSON.parse(storageString));
     }

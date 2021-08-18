@@ -25,7 +25,7 @@ export class Timer extends Event {
     private _timerHandle: number | null;
     private _expiration: number;
 
-    constructor(name: string, timer = g_timer, nowFunc?: (() => number)) {
+    public constructor(name: string, timer = g_timer, nowFunc?: (() => number)) {
         super(name);
         this._timer = timer;
 
@@ -40,11 +40,11 @@ export class Timer extends Event {
         this._expiration = 0;
     }
 
-    get now() {
+    public get now() {
         return this._nowFunc();
     }
 
-    init(duration: number) {
+    public init(duration: number) {
         if (duration <= 0) {
             duration = 1;
         }
@@ -72,11 +72,11 @@ export class Timer extends Event {
         this._timerHandle = this._timer.setInterval(this._callback.bind(this), timerDuration * 1000);
     }
 
-    get expiration() {
+    public get expiration() {
         return this._expiration;
     }
 
-    cancel() {
+    public cancel() {
         if (this._timerHandle) {
             Log.debug("Timer.cancel: ", this._name);
             this._timer.clearInterval(this._timerHandle);
@@ -84,7 +84,7 @@ export class Timer extends Event {
         }
     }
 
-    _callback() {
+    protected _callback() {
         const diff = this._expiration - this.now;
         Log.debug("Timer.callback; " + this._name + " timer expires in:", diff);
 
