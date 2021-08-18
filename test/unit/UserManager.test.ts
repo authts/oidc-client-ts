@@ -94,56 +94,6 @@ describe("UserManager", () => {
             expect(navArgs.silentRequestTimeout).toEqual(123);
         });
 
-        it("should pass silentRequestTimeout from params", async () =>{
-            // arrange
-            const user = new User({id_token:"id_token"});
-            userStoreMock.item = user.toStorageString();
-
-            settings = {
-                ...settings,
-                silent_redirect_uri: "http://client/silent_callback"
-            };
-            subject = new UserManager(settings);
-
-            let navArgs: any = null;
-            subject["_signin"] = function(args: any, navigator: INavigator, navigatorParams: any = {}) {
-                Log.debug("_signin", args, navigator, navigatorParams);
-                navArgs = navigatorParams;
-                return Promise.resolve(user);
-            };
-
-            // act
-            await subject.signinSilent({ silentRequestTimeout: 234 });
-
-            // assert
-            expect(navArgs.silentRequestTimeout).toEqual(234);
-        });
-
-        it("should pass prompt from params", async () =>{
-            // arrange
-            const user = new User({id_token:"id_token"});
-            userStoreMock.item = user.toStorageString();
-
-            settings = {
-                ...settings,
-                silent_redirect_uri: "http://client/silent_callback"
-            };
-            subject = new UserManager(settings);
-
-            let args: any = null;
-            subject["_signin"] = function(arg_args: any, navigator: INavigator, navigatorParams: any = {}) {
-                Log.debug("_signin", args, navigator, navigatorParams);
-                args = arg_args;
-                return Promise.resolve(user);
-            };
-
-            // act
-            await subject.signinSilent({ prompt:"foo" });
-
-            // assert
-            expect(args?.prompt).toEqual("foo");
-        });
-
         it("should work when having no User present", async () => {
             // arrange
             settings = {
@@ -158,7 +108,7 @@ describe("UserManager", () => {
             };
 
             // act
-            await subject.signinSilent({ prompt:"foo" });
+            await subject.signinSilent();
         });
     });
 });

@@ -74,14 +74,11 @@ export class UserManager extends OidcClient {
         this._events.unload();
     }
 
-    async signinRedirect(args: any = {}): Promise<void> {
-        args = Object.assign({}, args);
-
-        args.request_type = "si:r";
-        const navParams = {
-            useReplaceToNavigate : args.useReplaceToNavigate
+    async signinRedirect(): Promise<void> {
+        const args = {
+            request_type: "si:r"
         };
-        await this._signinStart(args, this.settings.redirectNavigator, navParams);
+        await this._signinStart(args, this.settings.redirectNavigator);
         Log.info("UserManager.signinRedirect: successful");
     }
     async signinRedirectCallback(url?: string): Promise<User> {
@@ -96,23 +93,22 @@ export class UserManager extends OidcClient {
         return user;
     }
 
-    async signinPopup(args: any = {}): Promise<User> {
-        args = Object.assign({}, args);
-
-        args.request_type = "si:p";
-        const url = args.redirect_uri || this.settings.popup_redirect_uri || this.settings.redirect_uri;
+    async signinPopup(): Promise<User> {
+        const url = this.settings.popup_redirect_uri || this.settings.redirect_uri;
         if (!url) {
             Log.error("UserManager.signinPopup: No popup_redirect_uri or redirect_uri configured");
             throw new Error("No popup_redirect_uri or redirect_uri configured");
         }
 
-        args.redirect_uri = url;
-        args.display = "popup";
-
+        const args = {
+            request_type: "si:p",
+            redirect_uri: url,
+            display: "popup"
+        };
         const user = await this._signin(args, this.settings.popupNavigator, {
             startUrl: url,
-            popupWindowFeatures: args.popupWindowFeatures || this.settings.popupWindowFeatures,
-            popupWindowTarget: args.popupWindowTarget || this.settings.popupWindowTarget
+            popupWindowFeatures: this.settings.popupWindowFeatures,
+            popupWindowTarget: this.settings.popupWindowTarget
         });
         if (user) {
             if (user.profile && user.profile.sub) {
@@ -135,56 +131,53 @@ export class UserManager extends OidcClient {
         }
     }
 
-    async signinSilent(args: any = {}): Promise<User | null> {
-        args = Object.assign({}, args);
-
+    async signinSilent(): Promise<User | null> {
         // first determine if we have a refresh token, or need to use iframe
         const user = await this._loadUser();
         if (user && user.refresh_token) {
-            args.refresh_token = user.refresh_token;
-            return this._useRefreshToken(args);
+            return this._useRefreshToken(user);
         }
-        else {
-            args.request_type = "si:s";
-            args.id_token_hint = args.id_token_hint || (this.settings.includeIdTokenInSilentRenew && user && user.id_token);
-            if (user && this.settings.validateSubOnSilentRenew) {
-                Log.debug("UserManager.signinSilent, subject prior to silent renew: ", user.profile.sub);
-                args.current_sub = user.profile.sub;
-            }
-            return this._signinSilentIframe(args);
+
+        const args: any = {
+            request_type: "si:s",
+            id_token_hint: this.settings.includeIdTokenInSilentRenew && user && user.id_token
+        };
+        if (user && this.settings.validateSubOnSilentRenew) {
+            Log.debug("UserManager.signinSilent, subject prior to silent renew: ", user.profile.sub);
+            args.current_sub = user.profile.sub;
         }
+
+        return this._signinSilentIframe(args);
     }
 
-    async _useRefreshToken(args: any = {}) {
+    async _useRefreshToken(user: User) {
+        const args = {
+            refresh_token: user.refresh_token
+        };
         const result = await this._tokenClient.exchangeRefreshToken(args);
         if (!result) {
             Log.error("UserManager._useRefreshToken: No response returned from token endpoint");
             throw new Error("No response returned from token endpoint");
         }
+
         if (!result.access_token) {
             Log.error("UserManager._useRefreshToken: No access token returned from token endpoint");
             throw new Error("No access token returned from token endpoint");
         }
 
-        const user = await this._loadUser();
-        if (user) {
-            if (result.id_token) {
-                await this._validateIdTokenFromTokenRefreshToken(user.profile, result.id_token);
-            }
-
-            Log.debug("UserManager._useRefreshToken: refresh token response success");
-            user.id_token = result.id_token || user.id_token;
-            user.access_token = result.access_token || user.access_token;
-            user.refresh_token = result.refresh_token || user.refresh_token;
-            user.expires_in = result.expires_in;
-
-            await this.storeUser(user);
-            this._events.load(user);
-            return user;
+        if (result.id_token) {
+            await this._validateIdTokenFromTokenRefreshToken(user.profile, result.id_token);
         }
-        else {
-            return null;
-        }
+
+        Log.debug("UserManager._useRefreshToken: refresh token response success");
+        user.id_token = result.id_token || user.id_token;
+        user.access_token = result.access_token || user.access_token;
+        user.refresh_token = result.refresh_token || user.refresh_token;
+        user.expires_in = result.expires_in;
+
+        await this.storeUser(user);
+        this._events.load(user);
+        return user;
     }
 
     async _validateIdTokenFromTokenRefreshToken(profile: any, id_token: string) {
@@ -273,25 +266,24 @@ export class UserManager extends OidcClient {
         }
     }
 
-    async querySessionStatus(args: any = {}): Promise<SessionStatus | null> {
-        args = Object.assign({}, args);
-
-        args.request_type = "si:s"; // this acts like a signin silent
-        const url = args.redirect_uri || this.settings.silent_redirect_uri || this.settings.redirect_uri;
+    async querySessionStatus(): Promise<SessionStatus | null> {
+        const url = this.settings.silent_redirect_uri || this.settings.redirect_uri;
         if (!url) {
             Log.error("UserManager.querySessionStatus: No silent_redirect_uri configured");
             throw new Error("No silent_redirect_uri configured");
         }
 
-        args.redirect_uri = url;
-        args.prompt = "none";
-        args.response_type = args.response_type || this.settings.query_status_response_type;
-        args.scope = args.scope || "openid";
-        args.skipUserInfo = true;
-
+        const args = {
+            request_type: "si:s", // this acts like a signin silent
+            redirect_uri: url,
+            prompt: "none",
+            response_type: this.settings.query_status_response_type,
+            scope: "openid",
+            skipUserInfo: true
+        };
         const navResponse = await this._signinStart(args, this.settings.iframeNavigator, {
             startUrl: url,
-            silentRequestTimeout: args.silentRequestTimeout || this.settings.silentRequestTimeout
+            silentRequestTimeout: this.settings.silentRequestTimeout
         });
         try {
             const signinResponse = await this.processSigninResponse(navResponse.url);
@@ -379,18 +371,16 @@ export class UserManager extends OidcClient {
         return navigator.callback(url, false, delimiter);
     }
 
-    async signoutRedirect(args: any = {}): Promise<void> {
-        args = Object.assign({}, args);
-
-        args.request_type = "so:r";
-        const postLogoutRedirectUri = args.post_logout_redirect_uri || this.settings.post_logout_redirect_uri;
+    async signoutRedirect(): Promise<void> {
+        const args: any = {
+            request_type: "so:r"
+        };
+        const postLogoutRedirectUri = this.settings.post_logout_redirect_uri;
         if (postLogoutRedirectUri) {
             args.post_logout_redirect_uri = postLogoutRedirectUri;
         }
-        const navParams = {
-            useReplaceToNavigate : args.useReplaceToNavigate
-        };
-        await this._signoutStart(args, this.settings.redirectNavigator, navParams);
+
+        await this._signoutStart(args, this.settings.redirectNavigator);
         Log.info("UserManager.signoutRedirect: successful");
     }
     async signoutRedirectCallback(url?: string): Promise<SignoutResponse> {
@@ -399,13 +389,13 @@ export class UserManager extends OidcClient {
         return response;
     }
 
-    async signoutPopup(args: any = {}): Promise<void> {
-        args = Object.assign({}, args);
-
-        args.request_type = "so:p";
-        const url = args.post_logout_redirect_uri || this.settings.popup_post_logout_redirect_uri || this.settings.post_logout_redirect_uri;
-        args.post_logout_redirect_uri = url;
-        args.display = "popup";
+    async signoutPopup(): Promise<void> {
+        const url = this.settings.popup_post_logout_redirect_uri || this.settings.post_logout_redirect_uri;
+        const args: any = {
+            request_type: "so:p",
+            post_logout_redirect_uri: url,
+            display: "popup",
+        };
         if (args.post_logout_redirect_uri) {
             // we're putting a dummy entry in here because we
             // need a unique id from the state for notification
