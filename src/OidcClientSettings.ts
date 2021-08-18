@@ -3,8 +3,6 @@
 
 import { ClockService } from "./ClockService";
 import { WebStorageStateStore } from "./WebStorageStateStore";
-import { ResponseValidator } from "./ResponseValidator";
-import { MetadataService } from "./MetadataService";
 import { OidcMetadata } from "./OidcMetadata";
 import { StateStore } from "./StateStore";
 
@@ -59,8 +57,6 @@ export interface OidcClientSettings {
     mergeClaims?: boolean;
 
     stateStore?: StateStore;
-    ResponseValidatorCtor?: typeof ResponseValidator;
-    MetadataServiceCtor?: typeof MetadataService;
 
     /** An object containing additional query string parameters to be including in the authorization request */
     extraQueryParams?: Record<string, any>;
@@ -68,42 +64,45 @@ export interface OidcClientSettings {
 }
 
 export class OidcClientSettingsStore {
-    private _authority: string;
-    private _metadataUrl?: string;
-    private _metadata?: Partial<OidcMetadata>;
-    private _metadataSeed?: Partial<OidcMetadata>;
-    private _signingKeys?: any[];
+    // metadata
+    public readonly authority: string;
+    public readonly metadataUrl?: string;
+    public readonly metadata?: Partial<OidcMetadata>;
+    public readonly metadataSeed?: Partial<OidcMetadata>;
+    public readonly signingKeys?: any[];
 
-    private _client_id: string;
-    private _client_secret?: string;
-    private _response_type: string;
-    private _scope: string;
-    private _redirect_uri?: string;
-    private _post_logout_redirect_uri?: string;
-    private _client_authentication?: string;
+    // client config
+    public readonly client_id: string;
+    public readonly client_secret?: string;
+    public readonly response_type: string;
+    public readonly scope: string;
+    public readonly redirect_uri?: string;
+    public readonly post_logout_redirect_uri?: string;
+    public readonly client_authentication?: string;
 
-    private _prompt?: string;
-    private _display?: string;
-    private _max_age?: number;
-    private _ui_locales?: string;
-    private _acr_values?: string;
-    private _resource?: string;
-    private _response_mode?: string;
+    // optional protocol params
+    public readonly prompt?: string;
+    public readonly display?: string;
+    public readonly max_age?: number;
+    public readonly ui_locales?: string;
+    public readonly acr_values?: string;
+    public readonly resource?: string;
+    public readonly response_mode?: string;
 
-    private _filterProtocolClaims?: boolean;
-    private _loadUserInfo?: boolean;
-    private _staleStateAge: number;
-    private _clockSkew: number;
-    private _clockService: ClockService;
-    private _userInfoJwtIssuer?: "ANY" | "OP" | string;
-    private _mergeClaims?: boolean;
+    // behavior flags
+    public readonly filterProtocolClaims?: boolean;
+    public readonly loadUserInfo?: boolean;
+    public readonly staleStateAge: number;
+    public readonly clockSkew: number;
+    public readonly clockService: ClockService;
+    public readonly userInfoJwtIssuer?: "ANY" | "OP" | string;
+    public readonly mergeClaims?: boolean;
 
-    private _stateStore: StateStore;
-    private _validator: ResponseValidator;
-    private _metadataService: MetadataService;
+    public readonly stateStore: StateStore;
 
-    private _extraQueryParams?: Record<string, any>;
-    private _extraTokenParams?: Record<string, any>;
+    // extra
+    public readonly extraQueryParams?: Record<string, any>;
+    public readonly extraTokenParams?: Record<string, any>;
 
     constructor({
         // metadata related
@@ -123,154 +122,49 @@ export class OidcClientSettingsStore {
         mergeClaims = false,
         // other behavior
         stateStore = new WebStorageStateStore(),
-        ResponseValidatorCtor = ResponseValidator,
-        MetadataServiceCtor = MetadataService,
         // extra query params
         extraQueryParams = {},
         extraTokenParams = {}
     }: OidcClientSettings = {}) {
 
-        this._authority = authority;
-        this._metadataUrl = metadataUrl;
-        this._metadata = metadata;
-        this._metadataSeed = metadataSeed;
-        this._signingKeys = signingKeys;
+        this.authority = authority;
+        this.metadataUrl = metadataUrl;
+        this.metadata = metadata;
+        this.metadataSeed = metadataSeed;
+        this.signingKeys = signingKeys;
 
-        this._client_id = client_id;
-        this._client_secret = client_secret;
-        this._response_type = response_type;
-        this._scope = scope;
-        this._redirect_uri = redirect_uri;
-        this._post_logout_redirect_uri = post_logout_redirect_uri;
-        this._client_authentication = client_authentication;
+        this.client_id = client_id;
+        this.client_secret = client_secret;
+        this.response_type = response_type;
+        this.scope = scope;
+        this.redirect_uri = redirect_uri;
+        this.post_logout_redirect_uri = post_logout_redirect_uri;
+        this.client_authentication = client_authentication;
 
-        this._prompt = prompt;
-        this._display = display;
-        this._max_age = max_age;
-        this._ui_locales = ui_locales;
-        this._acr_values = acr_values;
-        this._resource = resource;
-        this._response_mode = response_mode;
+        this.prompt = prompt;
+        this.display = display;
+        this.max_age = max_age;
+        this.ui_locales = ui_locales;
+        this.acr_values = acr_values;
+        this.resource = resource;
+        this.response_mode = response_mode;
 
-        this._filterProtocolClaims = !!filterProtocolClaims;
-        this._loadUserInfo = !!loadUserInfo;
-        this._staleStateAge = staleStateAge;
-        this._clockSkew = clockSkew;
-        this._clockService = clockService;
-        this._userInfoJwtIssuer = userInfoJwtIssuer;
-        this._mergeClaims = !!mergeClaims;
+        this.filterProtocolClaims = !!filterProtocolClaims;
+        this.loadUserInfo = !!loadUserInfo;
+        this.staleStateAge = staleStateAge;
+        this.clockSkew = clockSkew;
+        this.clockService = clockService;
+        this.userInfoJwtIssuer = userInfoJwtIssuer;
+        this.mergeClaims = !!mergeClaims;
 
-        this._stateStore = stateStore;
-        this._metadataService = new MetadataServiceCtor(this);
-        this._validator = new ResponseValidatorCtor(this, this._metadataService);
+        this.stateStore = stateStore;
 
-        this._extraQueryParams = typeof extraQueryParams === "object" ? extraQueryParams : {};
-        this._extraTokenParams = typeof extraTokenParams === "object" ? extraTokenParams : {};
-    }
-
-    // client config
-    get client_id() {
-        return this._client_id;
-    }
-    get client_secret() {
-        return this._client_secret;
-    }
-    get response_type() {
-        return this._response_type;
-    }
-    get scope() {
-        return this._scope;
-    }
-    get redirect_uri() {
-        return this._redirect_uri;
-    }
-    get post_logout_redirect_uri() {
-        return this._post_logout_redirect_uri;
-    }
-    get client_authentication() {
-        return this._client_authentication;
-    }
-
-    // optional protocol params
-    get prompt() {
-        return this._prompt;
-    }
-    get display() {
-        return this._display;
-    }
-    get max_age() {
-        return this._max_age;
-    }
-    get ui_locales() {
-        return this._ui_locales;
-    }
-    get acr_values() {
-        return this._acr_values;
-    }
-    get resource() {
-        return this._resource;
-    }
-    get response_mode() {
-        return this._response_mode;
-    }
-
-    // metadata
-    get authority() {
-        return this._authority;
-    }
-    get metadataUrl() {
-        return this._metadataUrl;
-    }
-    get metadata() {
-        return this._metadata;
-    }
-    get metadataSeed() {
-        return this._metadataSeed;
-    }
-    get signingKeys() {
-        return this._signingKeys;
-    }
-
-    // behavior flags
-    get filterProtocolClaims() {
-        return this._filterProtocolClaims;
-    }
-    get loadUserInfo() {
-        return this._loadUserInfo;
-    }
-    get staleStateAge() {
-        return this._staleStateAge;
-    }
-    get clockSkew() {
-        return this._clockSkew;
-    }
-    get userInfoJwtIssuer() {
-        return this._userInfoJwtIssuer;
-    }
-    get mergeClaims() {
-        return this._mergeClaims;
-    }
-
-    get stateStore() {
-        return this._stateStore;
-    }
-    get validator() {
-        return this._validator;
-    }
-    get metadataService() {
-        return this._metadataService;
-    }
-
-    // extra
-    get extraQueryParams() {
-        return this._extraQueryParams;
-    }
-    get extraTokenParams() {
-        return this._extraTokenParams;
+        this.extraQueryParams = typeof extraQueryParams === "object" ? extraQueryParams : {};
+        this.extraTokenParams = typeof extraTokenParams === "object" ? extraTokenParams : {};
     }
 
     // get the time
     getEpochTime() {
-        return this._clockService.getEpochTime();
+        return this.clockService.getEpochTime();
     }
 }

@@ -25,8 +25,7 @@
     "start": "tsdx watch",
     "build": "tsdx build",
     "test": "tsdx test",
-    "lint": "eslint ./src/**/*.ts",
-    "lint:fix": "eslint ./src/**/*.ts --fix",
+    "lint": "eslint ./src/**/*.ts ./test/unit/**/*.ts",
     "sample": "concurrently --kill-others \"npm run parcel\" \"npm run server\"",
     "parcel": "parcel serve ./samples/Parcel/src/index.html --no-cache",
     "server": "node ./samples/Parcel/server.js"

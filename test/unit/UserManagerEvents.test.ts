@@ -1,15 +1,15 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { UserManagerEvents } from '../../src/UserManagerEvents';
-import { UserManagerSettingsStore } from '../../src/UserManagerSettings';
+import { UserManagerEvents } from "../../src/UserManagerEvents";
+import { UserManagerSettingsStore } from "../../src/UserManagerSettings";
 
 describe("UserManagerEvents", () => {
 
     let subject: UserManagerEvents;
 
     beforeEach(() => {
-        let settings = new UserManagerSettingsStore({});
+        const settings = new UserManagerSettingsStore({});
         subject = new UserManagerEvents(settings);
     });
 
@@ -17,7 +17,7 @@ describe("UserManagerEvents", () => {
 
         it("should allow callback", () => {
             // arrange
-            var cb = jest.fn();
+            const cb = jest.fn();
 
             // act
             subject.addSilentRenewError(cb);
@@ -29,7 +29,7 @@ describe("UserManagerEvents", () => {
 
         it("should allow unregistering callback", () => {
             // arrange
-            var cb = jest.fn();
+            const cb = jest.fn();
 
             // act
             subject.addSilentRenewError(cb);
@@ -43,7 +43,7 @@ describe("UserManagerEvents", () => {
         it("should pass error to callback", () => {
             // arrange
             let e: Error | null = null;
-            var cb = function (arg_e: Error) {
+            const cb = function (arg_e: Error) {
                 e = arg_e;
             };
             const expected = new Error("boom");

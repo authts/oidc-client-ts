@@ -6,7 +6,7 @@ import { SigninState } from "./SigninState";
 
 export class SigninRequest {
     public readonly url: string;
-    public readonly state: any;
+    public readonly state: SigninState;
 
     constructor({
         // mandatory

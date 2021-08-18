@@ -1,13 +1,9 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from '../../src/utils';
-import { MetadataService } from '../../src/MetadataService';
-import { OidcClientSettingsStore } from '../../src/OidcClientSettings';
-import { ResponseValidator } from '../../src/ResponseValidator';
-import { StateStore } from '../../src/StateStore';
-
-import { mocked } from 'ts-jest/utils';
+import { Log } from "../../src/utils";
+import { OidcClientSettingsStore } from "../../src/OidcClientSettings";
+import { StateStore } from "../../src/StateStore";
 
 describe("OidcClientSettings", () => {
 
@@ -19,8 +15,8 @@ describe("OidcClientSettings", () => {
     describe("client_id", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client'
+            const subject = new OidcClientSettingsStore({
+                client_id: "client"
             });
 
             // assert
@@ -31,8 +27,8 @@ describe("OidcClientSettings", () => {
     describe("client_secret", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_secret: 'secret'
+            const subject = new OidcClientSettingsStore({
+                client_secret: "secret"
             });
 
             // assert
@@ -43,8 +39,8 @@ describe("OidcClientSettings", () => {
     describe("response_type", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 response_type: "foo"
             });
 
@@ -54,8 +50,8 @@ describe("OidcClientSettings", () => {
 
         it("should use default value", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client'
+            const subject = new OidcClientSettingsStore({
+                client_id: "client"
             });
 
             // assert
@@ -67,8 +63,8 @@ describe("OidcClientSettings", () => {
     describe("scope", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 scope: "foo"
             });
 
@@ -78,8 +74,8 @@ describe("OidcClientSettings", () => {
 
         it("should use default value", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client'
+            const subject = new OidcClientSettingsStore({
+                client_id: "client"
             });
 
             // assert
@@ -91,8 +87,8 @@ describe("OidcClientSettings", () => {
     describe("redirect_uri", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 redirect_uri: "foo"
             });
 
@@ -105,8 +101,8 @@ describe("OidcClientSettings", () => {
     describe("post_logout_redirect_uri", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 post_logout_redirect_uri: "http://app/loggedout"
             });
 
@@ -118,8 +114,8 @@ describe("OidcClientSettings", () => {
     describe("prompt", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 prompt: "foo"
             });
 
@@ -131,8 +127,8 @@ describe("OidcClientSettings", () => {
     describe("display", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 display: "foo"
             });
 
@@ -144,8 +140,8 @@ describe("OidcClientSettings", () => {
     describe("max_age", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 max_age: 22
             });
 
@@ -157,8 +153,8 @@ describe("OidcClientSettings", () => {
     describe("ui_locales", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 ui_locales: "foo"
             });
 
@@ -170,8 +166,8 @@ describe("OidcClientSettings", () => {
     describe("acr_values", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 acr_values: "foo"
             });
 
@@ -183,8 +179,8 @@ describe("OidcClientSettings", () => {
     describe("resource", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 resource: "foo"
             });
 
@@ -196,8 +192,8 @@ describe("OidcClientSettings", () => {
     describe("response_mode", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 response_mode: "foo"
             });
 
@@ -209,8 +205,8 @@ describe("OidcClientSettings", () => {
     describe("authority", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 authority: "http://sts"
             });
 
@@ -222,8 +218,8 @@ describe("OidcClientSettings", () => {
     describe("metadataUrl", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 metadataUrl: "http://sts/metadata"
             });
 
@@ -235,8 +231,8 @@ describe("OidcClientSettings", () => {
     describe("metadata", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 metadata: { issuer: "test" }
             });
 
@@ -248,8 +244,8 @@ describe("OidcClientSettings", () => {
     describe("signingKeys", () => {
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 signingKeys: ["test"]
             });
 
@@ -262,8 +258,8 @@ describe("OidcClientSettings", () => {
 
         it("should use default value", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
             });
 
             // assert
@@ -273,7 +269,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+                client_id: "client",
                 filterProtocolClaims: true
             });
 
@@ -282,7 +278,7 @@ describe("OidcClientSettings", () => {
 
             // act
             subject = new OidcClientSettingsStore({
-                client_id: 'client',
+                client_id: "client",
                 filterProtocolClaims: false
             });
 
@@ -295,8 +291,8 @@ describe("OidcClientSettings", () => {
 
         it("should use default value", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
             });
 
             // assert
@@ -306,7 +302,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+                client_id: "client",
                 loadUserInfo: true
             });
 
@@ -315,7 +311,7 @@ describe("OidcClientSettings", () => {
 
             // act
             subject = new OidcClientSettingsStore({
-                client_id: 'client',
+                client_id: "client",
                 loadUserInfo: false
             });
 
@@ -328,8 +324,8 @@ describe("OidcClientSettings", () => {
 
         it("should use default value", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
             });
 
             // assert
@@ -338,8 +334,8 @@ describe("OidcClientSettings", () => {
 
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 staleStateAge: 100
             });
 
@@ -352,8 +348,8 @@ describe("OidcClientSettings", () => {
 
         it("should use default value", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client'
+            const subject = new OidcClientSettingsStore({
+                client_id: "client"
             });
 
             // assert
@@ -362,8 +358,8 @@ describe("OidcClientSettings", () => {
 
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 clockSkew: 10
             });
 
@@ -376,11 +372,11 @@ describe("OidcClientSettings", () => {
 
         it("should return value from initial settings", () => {
             // arrange
-            let temp = {} as StateStore;
+            const temp = {} as StateStore;
 
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 stateStore: temp
             });
 
@@ -393,11 +389,11 @@ describe("OidcClientSettings", () => {
 
         it("should return value from initial settings", () => {
             // arrange
-            let temp = {} as StateStore;
+            const temp = {} as StateStore;
 
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 stateStore: temp
             });
 
@@ -406,51 +402,12 @@ describe("OidcClientSettings", () => {
         });
     });
 
-    describe("validator", () => {
-
-        it("should return value from initial settings", () => {
-            // arrange
-            const dummy = new OidcClientSettingsStore();
-            const metadataService = new MetadataService(dummy);
-            const mock = mocked(new ResponseValidator(dummy, metadataService));
-            const settings: any = {
-                client_id: 'client',
-                ResponseValidatorCtor: () => mock
-            };
-
-            // act
-            let subject = new OidcClientSettingsStore(settings);
-
-            // assert
-            expect(subject.validator).toEqual(mock);
-        });
-    });
-
-    describe("metadataServiceCtor", () => {
-
-        it("should return value from initial settings", () => {
-            // arrange
-            const dummy = new OidcClientSettingsStore();
-            const mock = mocked(new MetadataService(dummy));
-            const settings: any = {
-                client_id: 'client',
-                MetadataServiceCtor: () => mock
-            };
-
-            // act
-            let subject = new OidcClientSettingsStore(settings);
-
-            // assert
-            expect(subject.metadataService).toEqual(mock);
-        });
-    });
-
     describe("extraQueryParams", () => {
 
         it("should use default value", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client'
+            const subject = new OidcClientSettingsStore({
+                client_id: "client"
             });
 
             // assert
@@ -459,35 +416,35 @@ describe("OidcClientSettings", () => {
 
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 extraQueryParams: {
-                    'hd': 'domain.com'
+                    "hd": "domain.com"
                 }
             });
 
             // assert
-            expect(subject.extraQueryParams).toEqual({ 'hd': 'domain.com' });
+            expect(subject.extraQueryParams).toEqual({ "hd": "domain.com" });
         });
 
         it("should not set value from initial settings if not object, but set default value ({})", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 extraQueryParams: 123456 as unknown as Record<string, any>
             });
 
             // assert
             expect(subject.extraQueryParams).toEqual({});
         });
-    })
+    });
 
     describe("extraTokenParams", () => {
 
         it("should use default value", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client'
+            const subject = new OidcClientSettingsStore({
+                client_id: "client"
             });
 
             // assert
@@ -496,21 +453,21 @@ describe("OidcClientSettings", () => {
 
         it("should return value from initial settings", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 extraTokenParams: {
-                    'resourceServer': 'abc'
+                    "resourceServer": "abc"
                 }
             });
 
             // assert
-            expect(subject.extraTokenParams).toEqual({ 'resourceServer': 'abc' });
+            expect(subject.extraTokenParams).toEqual({ "resourceServer": "abc" });
         });
 
         it("should not set value from initial settings if not object, but set default value ({})", () => {
             // act
-            let subject = new OidcClientSettingsStore({
-                client_id: 'client',
+            const subject = new OidcClientSettingsStore({
+                client_id: "client",
                 extraTokenParams: 123456 as unknown as Record<string, any>
             });
 

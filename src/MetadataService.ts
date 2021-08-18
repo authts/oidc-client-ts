@@ -9,22 +9,22 @@ import { OidcMetadata } from "./OidcMetadata";
 const OidcMetadataUrlPath = ".well-known/openid-configuration";
 
 export class MetadataService {
-    private _settings: OidcClientSettingsStore
-    private _jsonService: JsonService
+    private readonly _settings: OidcClientSettingsStore
+    private readonly _jsonService: JsonService
 
     // cache
     private _metadataUrl: string | null;
     private _signingKeys: any[] | null;
     private _metadata: Partial<OidcMetadata> | null;
 
-    constructor(settings: OidcClientSettingsStore, JsonServiceCtor = JsonService) {
+    constructor(settings: OidcClientSettingsStore) {
         if (!settings) {
             Log.error("MetadataService: No settings passed to MetadataService");
             throw new Error("settings");
         }
 
         this._settings = settings;
-        this._jsonService = new JsonServiceCtor(["application/jwk-set+json"]);
+        this._jsonService = new JsonService(["application/jwk-set+json"]);
 
         this._metadataUrl = null;
         if (this._settings.metadataUrl) {

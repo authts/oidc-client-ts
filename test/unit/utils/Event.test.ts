@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Event } from '../../../src/utils';
+import { Event } from "../../../src/utils";
 
 describe("Event", () => {
 
@@ -15,7 +15,7 @@ describe("Event", () => {
 
         it("should allow callback to be invoked", () => {
             // arrange
-            var cb = jest.fn();
+            const cb = jest.fn();
 
             // act
             subject.addHandler(cb);
@@ -27,7 +27,7 @@ describe("Event", () => {
 
         it("should allow multiple callbacks", () => {
             // arrange
-            var cb = jest.fn();
+            const cb = jest.fn();
 
             // act
             subject.addHandler(cb);
@@ -45,7 +45,7 @@ describe("Event", () => {
 
         it("should remove callback from being invoked", () => {
             // arrange
-            var cb = jest.fn();
+            const cb = jest.fn();
 
             // act
             subject.addHandler(cb);
@@ -58,8 +58,8 @@ describe("Event", () => {
 
         it("should remove individual callback", () => {
             // arrange
-            var cb1 = jest.fn();
-            var cb2 = jest.fn();
+            const cb1 = jest.fn();
+            const cb2 = jest.fn();
 
             // act
             subject.addHandler(cb1);
@@ -83,7 +83,7 @@ describe("Event", () => {
             let a: any = 10;
             let b: any = 11;
             let c: any = 12;
-            var cb = function (arg_a: any, arg_b: any, arg_c: any) {
+            const cb = function (arg_a: any, arg_b: any, arg_c: any) {
                 a = arg_a;
                 b = arg_b;
                 c = arg_c;
@@ -104,7 +104,7 @@ describe("Event", () => {
             let a: any = 10;
             let b: any = 11;
             let c: any = 12;
-            var cb = function (arg_a: any, arg_b: any, arg_c: any) {
+            const cb = function (arg_a: any, arg_b: any, arg_c: any) {
                 a = arg_a;
                 b = arg_b;
                 c = arg_c;

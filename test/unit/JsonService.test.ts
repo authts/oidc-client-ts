@@ -1,12 +1,12 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from '../../src/utils';
-import { JsonService } from '../../src/JsonService';
+import { Log } from "../../src/utils";
+import { JsonService } from "../../src/JsonService";
 
 describe("JsonService", () => {
     let subject: JsonService;
-    let fetchMock: jest.Mock<any, any>
+    let fetchMock: jest.Mock<any, any>;
 
     beforeEach(() =>{
         Log.logger = console;
@@ -22,44 +22,47 @@ describe("JsonService", () => {
 
         it("should return a promise", async () => {
             // act
-            let p = subject.getJson("http://test");
+            const p = subject.getJson("http://test");
 
             // assert
             expect(p).toBeInstanceOf(Promise);
+            // eslint-disable-next-line no-empty
             try { await p; } catch {}
         });
 
         it("should make GET request to url", async () => {
             // act
-            let p = subject.getJson("http://test");
+            const p = subject.getJson("http://test");
 
             // assert
-            expect(fetchMock).toBeCalledWith('http://test', {
+            expect(fetchMock).toBeCalledWith("http://test", {
                 headers: {},
-                method: 'GET'
+                method: "GET"
             });
+            // eslint-disable-next-line no-empty
             try { await p; } catch {}
         });
 
         it("should set token as authorization header", async () => {
             // act
-            let p = subject.getJson("http://test", "token");
+            const p = subject.getJson("http://test", "token");
 
             // assert
-            expect(fetchMock).toBeCalledWith('http://test', {
-                headers: { Authorization: 'Bearer token' },
-                method: 'GET'
+            expect(fetchMock).toBeCalledWith("http://test", {
+                headers: { Authorization: "Bearer token" },
+                method: "GET"
             });
+            // eslint-disable-next-line no-empty
             try { await p; } catch {}
         });
 
         it("should fulfill promise when http response is 200", async () => {
             // arrange
-            const json = { foo: 1, bar: 'test' };
+            const json = { foo: 1, bar: "test" };
             fetchMock.mockResolvedValue({
                 status: 200,
                 headers: new Headers({
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json"
                 }),
                 json: () => Promise.resolve(json)
             });
@@ -84,8 +87,8 @@ describe("JsonService", () => {
                 fail("should not come here");
             } catch (error) {
                 expect(error).toBeInstanceOf(Error);
-                expect(error.message).toContain('500');
-                expect(error.message).toContain('server error');
+                expect(error.message).toContain("500");
+                expect(error.message).toContain("server error");
             }
         });
 
@@ -105,11 +108,11 @@ describe("JsonService", () => {
 
         it("should reject promise when http response content type is not json", async () => {
             // arrange
-            const json = { foo: 1, bar: 'test' };
+            const json = { foo: 1, bar: "test" };
             fetchMock.mockResolvedValue({
                 status: 200,
                 headers: new Headers({
-                    'Content-Type': 'text/html'
+                    "Content-Type": "text/html"
                 }),
                 json: () => Promise.resolve(json)
             });
@@ -126,18 +129,18 @@ describe("JsonService", () => {
 
         it("should accept custom content type in response", async () => {
             // arrange
-            subject = new JsonService(['foo/bar']);
-            const json = { foo: 1, bar: 'test' };
+            subject = new JsonService(["foo/bar"]);
+            const json = { foo: 1, bar: "test" };
             fetchMock.mockResolvedValue({
                 status: 200,
                 headers: new Headers({
-                    'Content-Type': 'foo/bar'
+                    "Content-Type": "foo/bar"
                 }),
                 json: () => Promise.resolve(json)
             });
 
             // act
-            let result = await subject.getJson("http://test");
+            const result = await subject.getJson("http://test");
 
             // assert
             expect(result).toEqual(json);

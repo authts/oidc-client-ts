@@ -16,7 +16,7 @@ import { SessionStatus } from "./SessionStatus";
 import { SignoutResponse } from "./SignoutResponse";
 
 export class UserManager extends OidcClient {
-    declare protected _settings: UserManagerSettingsStore /* TODO: port-ts */
+    declare public readonly settings: UserManagerSettingsStore /* TODO: port-ts */
 
     private readonly _events: UserManagerEvents;
     private readonly _silentRenewService: SilentRenewService;
@@ -26,18 +26,12 @@ export class UserManager extends OidcClient {
     private readonly _tokenRevocationClient: TokenRevocationClient;
     private readonly _tokenClient: TokenClient;
 
-    constructor(
-        settings: UserManagerSettings = {},
-        SilentRenewServiceCtor = SilentRenewService,
-        SessionMonitorCtor = SessionMonitor,
-        TokenRevocationClientCtor = TokenRevocationClient,
-        TokenClientCtor = TokenClient
-    ) {
+    constructor(settings: UserManagerSettings = {}) {
         super(settings);
-        this._settings = new UserManagerSettingsStore(settings);
+        this.settings = new UserManagerSettingsStore(settings);
 
-        this._events = new UserManagerEvents(this._settings);
-        this._silentRenewService = new SilentRenewServiceCtor(this);
+        this._events = new UserManagerEvents(this.settings);
+        this._silentRenewService = new SilentRenewService(this);
 
         // order is important for the following properties; these services depend upon the events.
         if (this.settings.automaticSilentRenew) {
@@ -48,28 +42,11 @@ export class UserManager extends OidcClient {
         this._sessionMonitor = null;
         if (this.settings.monitorSession) {
             Log.debug("UserManager.ctor: monitorSession is configured, setting up session monitor");
-            this._sessionMonitor = new SessionMonitorCtor(this);
+            this._sessionMonitor = new SessionMonitor(this);
         }
 
-        this._tokenRevocationClient = new TokenRevocationClientCtor(this._settings, this._settings.metadataService);
-        this._tokenClient = new TokenClientCtor(this._settings, this._settings.metadataService);
-    }
-
-    get settings(): UserManagerSettingsStore {
-        return this._settings;
-    }
-
-    get _redirectNavigator() {
-        return this.settings.redirectNavigator;
-    }
-    get _popupNavigator() {
-        return this.settings.popupNavigator;
-    }
-    get _iframeNavigator() {
-        return this.settings.iframeNavigator;
-    }
-    get _userStore() {
-        return this.settings.userStore;
+        this._tokenRevocationClient = new TokenRevocationClient(this.settings, this.metadataService);
+        this._tokenClient = new TokenClient(this.settings, this.metadataService);
     }
 
     get events() {
@@ -104,11 +81,11 @@ export class UserManager extends OidcClient {
         const navParams = {
             useReplaceToNavigate : args.useReplaceToNavigate
         };
-        await this._signinStart(args, this._redirectNavigator, navParams);
+        await this._signinStart(args, this.settings.redirectNavigator, navParams);
         Log.info("UserManager.signinRedirect: successful");
     }
     async signinRedirectCallback(url?: string): Promise<User> {
-        const user = await this._signinEnd(url || this._redirectNavigator.url);
+        const user = await this._signinEnd(url || this.settings.redirectNavigator.url);
         if (user.profile && user.profile.sub) {
             Log.info("UserManager.signinRedirectCallback: successful, signed in sub: ", user.profile.sub);
         }
@@ -132,7 +109,7 @@ export class UserManager extends OidcClient {
         args.redirect_uri = url;
         args.display = "popup";
 
-        const user = await this._signin(args, this._popupNavigator, {
+        const user = await this._signin(args, this.settings.popupNavigator, {
             startUrl: url,
             popupWindowFeatures: args.popupWindowFeatures || this.settings.popupWindowFeatures,
             popupWindowTarget: args.popupWindowTarget || this.settings.popupWindowTarget
@@ -150,7 +127,7 @@ export class UserManager extends OidcClient {
     }
     async signinPopupCallback(url?: string): Promise<void> {
         try {
-            await this._signinCallback(url, this._popupNavigator);
+            await this._signinCallback(url, this.settings.popupNavigator);
             Log.info("UserManager.signinPopupCallback: successful");
         }
         catch (err) {
@@ -170,7 +147,7 @@ export class UserManager extends OidcClient {
         else {
             args.request_type = "si:s";
             args.id_token_hint = args.id_token_hint || (this.settings.includeIdTokenInSilentRenew && user && user.id_token);
-            if (user && this._settings.validateSubOnSilentRenew) {
+            if (user && this.settings.validateSubOnSilentRenew) {
                 Log.debug("UserManager.signinSilent, subject prior to silent renew: ", user.profile.sub);
                 args.current_sub = user.profile.sub;
             }
@@ -211,9 +188,9 @@ export class UserManager extends OidcClient {
     }
 
     async _validateIdTokenFromTokenRefreshToken(profile: any, id_token: string) {
-        const issuer = await this._metadataService.getIssuer();
+        const issuer = await this.metadataService.getIssuer();
         const now = await this.settings.getEpochTime();
-        const payload = await JoseUtil.validateJwtAttributes(id_token, issuer, this._settings.client_id, this._settings.clockSkew, now);
+        const payload = await JoseUtil.validateJwtAttributes(id_token, issuer, this.settings.client_id, this.settings.clockSkew, now);
         if (!payload) {
             Log.error("UserManager._validateIdTokenFromTokenRefreshToken: Failed to validate id_token");
             throw new Error("Failed to validate id_token");
@@ -246,7 +223,7 @@ export class UserManager extends OidcClient {
         args.redirect_uri = url;
         args.prompt = args.prompt || "none";
 
-        const user = await this._signin(args, this._iframeNavigator, {
+        const user = await this._signin(args, this.settings.iframeNavigator, {
             startUrl: url,
             silentRequestTimeout: args.silentRequestTimeout || this.settings.silentRequestTimeout
         });
@@ -263,7 +240,7 @@ export class UserManager extends OidcClient {
     }
 
     async signinSilentCallback(url?: string): Promise<void> {
-        await this._signinCallback(url, this._iframeNavigator);
+        await this._signinCallback(url, this.settings.iframeNavigator);
         Log.info("UserManager.signinSilentCallback: successful");
     }
 
@@ -312,7 +289,7 @@ export class UserManager extends OidcClient {
         args.scope = args.scope || "openid";
         args.skipUserInfo = true;
 
-        const navResponse = await this._signinStart(args, this._iframeNavigator, {
+        const navResponse = await this._signinStart(args, this.settings.iframeNavigator, {
             startUrl: url,
             silentRequestTimeout: args.silentRequestTimeout || this.settings.silentRequestTimeout
         });
@@ -397,7 +374,7 @@ export class UserManager extends OidcClient {
     }
     _signinCallback(url: string | undefined, navigator: IFrameNavigator | PopupNavigator): Promise<void> {
         Log.debug("UserManager._signinCallback");
-        const useQuery = this._settings.response_mode === "query" || (!this._settings.response_mode && SigninRequest.isCode(this._settings.response_type));
+        const useQuery = this.settings.response_mode === "query" || (!this.settings.response_mode && SigninRequest.isCode(this.settings.response_type));
         const delimiter = useQuery ? "?" : "#";
         return navigator.callback(url, false, delimiter);
     }
@@ -413,11 +390,11 @@ export class UserManager extends OidcClient {
         const navParams = {
             useReplaceToNavigate : args.useReplaceToNavigate
         };
-        await this._signoutStart(args, this._redirectNavigator, navParams);
+        await this._signoutStart(args, this.settings.redirectNavigator, navParams);
         Log.info("UserManager.signoutRedirect: successful");
     }
     async signoutRedirectCallback(url?: string): Promise<SignoutResponse> {
-        const response = await this._signoutEnd(url || this._redirectNavigator.url);
+        const response = await this._signoutEnd(url || this.settings.redirectNavigator.url);
         Log.info("UserManager.signoutRedirectCallback: successful");
         return response;
     }
@@ -438,7 +415,7 @@ export class UserManager extends OidcClient {
             args.state = args.state || {};
         }
 
-        await this._signout(args, this._popupNavigator, {
+        await this._signout(args, this.settings.popupNavigator, {
             startUrl: url,
             popupWindowFeatures: args.popupWindowFeatures || this.settings.popupWindowFeatures,
             popupWindowTarget: args.popupWindowTarget || this.settings.popupWindowTarget
@@ -452,7 +429,7 @@ export class UserManager extends OidcClient {
         }
 
         const delimiter = "?";
-        await this._popupNavigator.callback(url, keepOpen, delimiter);
+        await this.settings.popupNavigator.callback(url, keepOpen, delimiter);
         Log.info("UserManager.signoutPopupCallback: successful");
     }
 
@@ -468,7 +445,7 @@ export class UserManager extends OidcClient {
             const user = await this._loadUser();
             Log.debug("UserManager._signoutStart: loaded current user from storage");
 
-            if (this._settings.revokeAccessTokenOnSignout) {
+            if (this.settings.revokeAccessTokenOnSignout) {
                 await this._revokeInternal(user);
             }
 
@@ -541,7 +518,7 @@ export class UserManager extends OidcClient {
 
     async _revokeAccessTokenInternal(access_token: string, required: boolean): Promise<boolean> {
         // check for JWT vs. reference token
-        if (!access_token || access_token.indexOf(".") >= 0) {
+        if (!access_token || access_token.includes(".")) {
             return false;
         }
 
@@ -571,7 +548,7 @@ export class UserManager extends OidcClient {
     }
 
     async _loadUser() {
-        const storageString = await this._userStore.get(this._userStoreKey);
+        const storageString = await this.settings.userStore.get(this._userStoreKey);
         if (storageString) {
             Log.debug("UserManager._loadUser: user storageString loaded");
             return User.fromStorageString(storageString);
@@ -586,11 +563,11 @@ export class UserManager extends OidcClient {
             Log.debug("UserManager.storeUser: storing user");
 
             const storageString = user.toStorageString();
-            await this._userStore.set(this._userStoreKey, storageString);
+            await this.settings.userStore.set(this._userStoreKey, storageString);
         }
         else {
             Log.debug("storeUser.storeUser: removing user");
-            await this._userStore.remove(this._userStoreKey);
+            await this.settings.userStore.remove(this._userStoreKey);
         }
     }
 }

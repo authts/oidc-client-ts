@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, JoseUtil } from '../../../src/utils';
+import { Log, JoseUtil } from "../../../src/utils";
 
 describe("JoseUtil", () => {
 
@@ -56,19 +56,19 @@ describe("JoseUtil", () => {
 
         it("should parse a jwt", () => {
             // act
-            var result = JoseUtil.parseJwt(jwt);
+            const result = JoseUtil.parseJwt(jwt);
 
             // assert
             expect(result).toBeDefined();
-            expect(result!.header).toBeDefined();
-            expect(result!.payload).toBeDefined();
-            expect(result!.header).toEqual({
+            expect(result?.header).toBeDefined();
+            expect(result?.payload).toBeDefined();
+            expect(result?.header).toEqual({
                 "typ": "JWT",
                 "alg": "RS256",
                 "x5t": "a3rMUgMFv9tPclLa6yF3zAkfquE",
                 "kid": "a3rMUgMFv9tPclLa6yF3zAkfquE"
             });
-            expect(result!.payload).toEqual({
+            expect(result?.payload).toEqual({
                 "iss": "https://localhost:44333/core",
                 "aud": "js.tokenmanager",
                 "exp": 1459130201,
@@ -88,7 +88,7 @@ describe("JoseUtil", () => {
 
         it("should return undefined for an invalid jwt", () => {
             // act
-            var result = JoseUtil.parseJwt("junk");
+            const result = JoseUtil.parseJwt("junk");
 
             // assert
             expect(result).toBeNull();
@@ -149,8 +149,8 @@ describe("JoseUtil", () => {
 
         it("should allow nbf within clock skew", async () => {
             // act
-            var p1 = JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, notBefore - 1);
-            var p2 = JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, notBefore - 10);
+            const p1 = JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, notBefore - 1);
+            const p2 = JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, notBefore - 10);
             await Promise.all([p1, p2]);
         });
 
@@ -176,8 +176,8 @@ describe("JoseUtil", () => {
 
         it("should allow iat within clock skew", async () => {
             // act
-            var p1 = JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, issuedAt - 1);
-            var p2 = JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, issuedAt - 10);
+            const p1 = JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, issuedAt - 1);
+            const p2 = JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, issuedAt - 10);
             await Promise.all([p1, p2]);
         });
 
@@ -203,8 +203,8 @@ describe("JoseUtil", () => {
 
         it("should allow exp within clock skew", async () => {
             // act
-            var p1 = JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, expires + 1);
-            var p2 = JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, expires + 10);
+            const p1 = JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, expires + 1);
+            const p2 = JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, expires + 10);
             await Promise.all([p1, p2]);
         });
 

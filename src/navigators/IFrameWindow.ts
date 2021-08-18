@@ -48,10 +48,6 @@ export class IFrameWindow implements IWindow {
             this._frame!.src = params.url;
         }
 
-        return this.promise;
-    }
-
-    get promise() {
         return this._promise;
     }
 
@@ -95,8 +91,9 @@ export class IFrameWindow implements IWindow {
     _message(e: any) {
         Log.debug("IFrameWindow.message");
 
+        const origin = location.protocol + "//" + location.host;
         if (this._timer && this._frame &&
-            e.origin === this._origin &&
+            e.origin === origin &&
             e.source === this._frame.contentWindow &&
             (typeof e.data === "string" && (e.data.startsWith("http://") || e.data.startsWith("https://")))
         ) {
@@ -108,10 +105,6 @@ export class IFrameWindow implements IWindow {
                 this._error("Invalid response from frame");
             }
         }
-    }
-
-    get _origin() {
-        return location.protocol + "//" + location.host;
     }
 
     static notifyParent(url: string | undefined) {

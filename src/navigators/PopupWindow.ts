@@ -35,10 +35,6 @@ export class PopupWindow implements IWindow {
         }
     }
 
-    get promise() {
-        return this._promise;
-    }
-
     navigate(params: any) {
         if (!this._popup) {
             this._error("PopupWindow.navigate: Error opening popup window");
@@ -62,7 +58,7 @@ export class PopupWindow implements IWindow {
             this._popup.window.location = params.url;
         }
 
-        return this.promise;
+        return this._promise;
     }
 
     _success(data: any) {

@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { IntervalTimer, Timer } from '../../../src/utils';
+import { IntervalTimer, Timer } from "../../../src/utils";
 
 class IntervalTimerMock implements IntervalTimer {
     callback: ((...args: any[]) => void);
@@ -119,7 +119,7 @@ describe("Timer", () => {
 
         it("should fire when timer expires", () => {
             // arrange
-            var cb = jest.fn();
+            const cb = jest.fn();
             subject.addHandler(cb);
 
             now = 100;
@@ -145,7 +145,7 @@ describe("Timer", () => {
 
         it("should fire if timer late", () => {
             // arrange
-            var cb = jest.fn();
+            const cb = jest.fn();
             subject.addHandler(cb);
 
             now = 100;
@@ -211,7 +211,7 @@ describe("Timer", () => {
 
         it("should allow callback to be invoked", () => {
             // arrange
-            var cb = jest.fn();
+            const cb = jest.fn();
 
             // act
             subject.addHandler(cb);
@@ -226,7 +226,7 @@ describe("Timer", () => {
 
         it("should allow multiple callbacks", () => {
             // arrange
-            var cb = jest.fn();
+            const cb = jest.fn();
 
             // act
             subject.addHandler(cb);
@@ -247,7 +247,7 @@ describe("Timer", () => {
 
         it("should remove callback from being invoked", () => {
             // arrange
-            var cb = jest.fn();
+            const cb = jest.fn();
             now = 100;
             subject.addHandler(cb);
             subject.init(10);
@@ -263,8 +263,8 @@ describe("Timer", () => {
 
         it("should remove individual callback", () => {
             // arrange
-            var cb1 = jest.fn();
-            var cb2 = jest.fn();
+            const cb1 = jest.fn();
+            const cb2 = jest.fn();
             subject.addHandler(cb1);
             subject.addHandler(cb2);
             subject.addHandler(cb1);

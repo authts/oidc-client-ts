@@ -1,16 +1,16 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, JoseUtil } from '../../src/utils';
-import { ResponseValidator } from '../../src/ResponseValidator';
-import { MetadataService } from '../../src/MetadataService';
-import { UserInfoService } from '../../src/UserInfoService';
-import { SigninState } from '../../src/SigninState';
+import { Log, JoseUtil } from "../../src/utils";
+import { ResponseValidator } from "../../src/ResponseValidator";
+import { MetadataService } from "../../src/MetadataService";
+import { UserInfoService } from "../../src/UserInfoService";
+import { SigninState } from "../../src/SigninState";
 
 describe("ResponseValidator", () => {
-    let id_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSIsImtpZCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSJ9.eyJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo0NDMzMy9jb3JlIiwiYXVkIjoianMudG9rZW5tYW5hZ2VyIiwiZXhwIjoxNDU5MTMwMjAxLCJuYmYiOjE0NTkxMjk5MDEsIm5vbmNlIjoiNzIyMTAwNTIwOTk3MjM4MiIsImlhdCI6MTQ1OTEyOTkwMSwiYXRfaGFzaCI6IkpnRFVDeW9hdEp5RW1HaWlXYndPaEEiLCJzaWQiOiIwYzVmMDYxZTYzOThiMWVjNmEwYmNlMmM5NDFlZTRjNSIsInN1YiI6Ijg4NDIxMTEzIiwiYXV0aF90aW1lIjoxNDU5MTI5ODk4LCJpZHAiOiJpZHNydiIsImFtciI6WyJwYXNzd29yZCJdfQ.f6S1Fdd0UQScZAFBzXwRiVsUIPQnWZLSe07kdtjANRZDZXf5A7yDtxOftgCx5W0ONQcDFVpLGPgTdhp7agZkPpCFutzmwr0Rr9G7E7mUN4xcIgAABhmRDfzDayFBEu6VM8wEWTChezSWtx2xG_2zmVJxxmNV0jvkaz0bu7iin-C_UZg6T-aI9FZDoKRGXZP9gF65FQ5pQ4bCYQxhKcvjjUfs0xSHGboL7waN6RfDpO4vvVR1Kz-PQhIRyFAJYRuoH4PdMczHYtFCb-k94r-7TxEU0vp61ww4WntbPvVWwUbCUgsEtmDzAZT-NEJVhWztNk1ip9wDPXzZ2hEhDAPJ7A";
-    let access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSIsImtpZCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSJ9.eyJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo0NDMzMy9jb3JlIiwiYXVkIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzMzMvY29yZS9yZXNvdXJjZXMiLCJleHAiOjE0NTkxMzM1MDEsIm5iZiI6MTQ1OTEyOTkwMSwiY2xpZW50X2lkIjoianMudG9rZW5tYW5hZ2VyIiwic2NvcGUiOlsib3BlbmlkIiwicHJvZmlsZSIsImVtYWlsIiwicmVhZCIsIndyaXRlIl0sInN1YiI6Ijg4NDIxMTEzIiwiYXV0aF90aW1lIjoxNDU5MTI5ODk4LCJpZHAiOiJpZHNydiIsImFtciI6WyJwYXNzd29yZCJdfQ.ldCBx4xF_WIj6S9unppYAzXFKMs5ce7sKuse-nleFbzwRbZ-VNubLOlnpsFzquJIyTlGLekqLWnsfpAmaORQBtv5ZoaUHxC_s5APLWGC9Io19tF8NxWVmX2OK3cwHWQ5HtFkILQdYR9l3Bf5RIQK4ixbrKJN7OyzoLAen0FgEXDn-dXMAhFJDl123G7pBaayQb8ic44y808cfKlu3wwP2QkDEzgW-L0avvjN95zji5528c32L2LBMveRklcOXO6Gb0alcFw6PysfJotsNo9WahJWu404mSl3Afc-4jCWjoTL7PBL-xciPmq9iCNAgqVS7GN1s1WsnBW2R4kGLy-kcQ";
-    let at_hash = "JgDUCyoatJyEmGiiWbwOhA";
+    const id_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSIsImtpZCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSJ9.eyJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo0NDMzMy9jb3JlIiwiYXVkIjoianMudG9rZW5tYW5hZ2VyIiwiZXhwIjoxNDU5MTMwMjAxLCJuYmYiOjE0NTkxMjk5MDEsIm5vbmNlIjoiNzIyMTAwNTIwOTk3MjM4MiIsImlhdCI6MTQ1OTEyOTkwMSwiYXRfaGFzaCI6IkpnRFVDeW9hdEp5RW1HaWlXYndPaEEiLCJzaWQiOiIwYzVmMDYxZTYzOThiMWVjNmEwYmNlMmM5NDFlZTRjNSIsInN1YiI6Ijg4NDIxMTEzIiwiYXV0aF90aW1lIjoxNDU5MTI5ODk4LCJpZHAiOiJpZHNydiIsImFtciI6WyJwYXNzd29yZCJdfQ.f6S1Fdd0UQScZAFBzXwRiVsUIPQnWZLSe07kdtjANRZDZXf5A7yDtxOftgCx5W0ONQcDFVpLGPgTdhp7agZkPpCFutzmwr0Rr9G7E7mUN4xcIgAABhmRDfzDayFBEu6VM8wEWTChezSWtx2xG_2zmVJxxmNV0jvkaz0bu7iin-C_UZg6T-aI9FZDoKRGXZP9gF65FQ5pQ4bCYQxhKcvjjUfs0xSHGboL7waN6RfDpO4vvVR1Kz-PQhIRyFAJYRuoH4PdMczHYtFCb-k94r-7TxEU0vp61ww4WntbPvVWwUbCUgsEtmDzAZT-NEJVhWztNk1ip9wDPXzZ2hEhDAPJ7A";
+    const access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSIsImtpZCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSJ9.eyJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo0NDMzMy9jb3JlIiwiYXVkIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzMzMvY29yZS9yZXNvdXJjZXMiLCJleHAiOjE0NTkxMzM1MDEsIm5iZiI6MTQ1OTEyOTkwMSwiY2xpZW50X2lkIjoianMudG9rZW5tYW5hZ2VyIiwic2NvcGUiOlsib3BlbmlkIiwicHJvZmlsZSIsImVtYWlsIiwicmVhZCIsIndyaXRlIl0sInN1YiI6Ijg4NDIxMTEzIiwiYXV0aF90aW1lIjoxNDU5MTI5ODk4LCJpZHAiOiJpZHNydiIsImFtciI6WyJwYXNzd29yZCJdfQ.ldCBx4xF_WIj6S9unppYAzXFKMs5ce7sKuse-nleFbzwRbZ-VNubLOlnpsFzquJIyTlGLekqLWnsfpAmaORQBtv5ZoaUHxC_s5APLWGC9Io19tF8NxWVmX2OK3cwHWQ5HtFkILQdYR9l3Bf5RIQK4ixbrKJN7OyzoLAen0FgEXDn-dXMAhFJDl123G7pBaayQb8ic44y808cfKlu3wwP2QkDEzgW-L0avvjN95zji5528c32L2LBMveRklcOXO6Gb0alcFw6PysfJotsNo9WahJWu404mSl3Afc-4jCWjoTL7PBL-xciPmq9iCNAgqVS7GN1s1WsnBW2R4kGLy-kcQ";
+    const at_hash = "JgDUCyoatJyEmGiiWbwOhA";
 
     let stubState: any;
     let stubResponse: any;
@@ -27,17 +27,17 @@ describe("ResponseValidator", () => {
         stubState = {
             id: "the_id",
             nonce: "7221005209972382",
-            data: { some: 'data' },
+            data: { some: "data" },
             client_id: "client",
             authority: "op"
         };
         stubResponse = {
-            state: 'the_id',
+            state: "the_id",
             isOpenIdConnect: false
         };
         settings = {
             authority: "op",
-            client_id: 'client'
+            client_id: "client"
         };
         metadataService = new MetadataService(settings);
 
@@ -52,51 +52,51 @@ describe("ResponseValidator", () => {
 
     describe("validateSignoutResponse", () => {
 
-        it("should validate that the client state matches response state", async () => {
+        it("should validate that the client state matches response state", () => {
             // arrange
             stubResponse.state = "not_the_id";
 
             // act
             try {
-                await subject.validateSignoutResponse(stubState, stubResponse);
+                subject.validateSignoutResponse(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('match');
+                expect(err.message).toContain("match");
             }
         });
 
-        it("should fail on error response", async () => {
+        it("should fail on error response", () => {
             // arrange
             stubResponse.error = "some_error";
 
             // act
             try {
-                await subject.validateSignoutResponse(stubState, stubResponse);
+                subject.validateSignoutResponse(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
-                expect(err.error).toEqual('some_error');
+                expect(err.error).toEqual("some_error");
             }
         });
 
-        it("should return data for error responses", async () => {
+        it("should return data for error responses", () => {
             // arrange
             stubResponse.error = "some_error";
 
             // act
             try {
-                await subject.validateSignoutResponse(stubState, stubResponse);
+                subject.validateSignoutResponse(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
-                expect(err.state).toEqual({ some: 'data' });
+                expect(err.state).toEqual({ some: "data" });
             }
         });
 
-        it("should return data for successful responses", async () => {
+        it("should return data for successful responses", () => {
             // act
-            const response = await subject.validateSignoutResponse(stubState, stubResponse);
+            const response = subject.validateSignoutResponse(stubState, stubResponse);
 
             // assert
-            expect(response.state).toEqual({ some: 'data' });
+            expect(response.state).toEqual({ some: "data" });
         });
     });
 
@@ -133,7 +133,7 @@ describe("ResponseValidator", () => {
         it("should not validate tokens if state fails", async () => {
             // arrange
             jest.spyOn(subject, "_processSigninParams")
-                .mockImplementation(() => { throw new Error("error") });
+                .mockImplementation(() => { throw new Error("error"); });
             const _validateTokensMock = jest.spyOn(subject, "_validateTokens")
                 .mockImplementation(() => Promise.resolve(stubResponse));
 
@@ -183,126 +183,126 @@ describe("ResponseValidator", () => {
 
     describe("_processSigninParams", () => {
 
-        it("should fail if no authority on state", async () => {
+        it("should fail if no authority on state", () => {
             // arrange
             delete stubState.authority;
 
             // act
             try {
-                await subject._processSigninParams(stubState, stubResponse);
+                subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('authority');
+                expect(err.message).toContain("authority");
             }
         });
 
-        it("should fail if no client_id on state", async () => {
+        it("should fail if no client_id on state", () => {
             // arrange
             delete stubState.client_id;
 
             // act
             try {
-                await subject._processSigninParams(stubState, stubResponse);
+                subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('client_id');
+                expect(err.message).toContain("client_id");
             }
         });
 
-        it("should fail if the authority on the state is not the same as the settings", async () => {
+        it("should fail if the authority on the state is not the same as the settings", () => {
             // arrange
             stubState.authority = "something different";
 
             // act
             try {
-                await subject._processSigninParams(stubState, stubResponse);
+                subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('authority mismatch');
+                expect(err.message).toContain("authority mismatch");
             }
         });
 
-        it("should fail if the client_id on the state is not the same as the settings", async () => {
+        it("should fail if the client_id on the state is not the same as the settings", () => {
             // arrange
             stubState.client_id = "something different";
 
             // act
             try {
-                await subject._processSigninParams(stubState, stubResponse);
+                subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('client_id mismatch');
+                expect(err.message).toContain("client_id mismatch");
             }
         });
 
-        it("should validate that the client state matches response state", async () => {
+        it("should validate that the client state matches response state", () => {
             // arrange
             stubResponse.state = "not_the_id";
 
             // act
             try {
-                await subject._processSigninParams(stubState, stubResponse);
+                subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('match');
+                expect(err.message).toContain("match");
             }
         });
 
-        it("should fail on error response", async () => {
+        it("should fail on error response", () => {
             // arrange
             stubResponse.error = "some_error";
 
             // act
             try {
-                await subject._processSigninParams(stubState, stubResponse);
+                subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
                 expect(err.error).toEqual("some_error");
             }
         });
 
-        it("should return data for error responses", async () => {
+        it("should return data for error responses", () => {
             // arrange
             stubResponse.error = "some_error";
 
             // act
             try {
-                await subject._processSigninParams(stubState, stubResponse);
+                subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
-                expect(err.state).toEqual({ some: 'data' });
+                expect(err.state).toEqual({ some: "data" });
             }
         });
 
-        it("should fail if request was OIDC but no id_token in response", async () => {
+        it("should fail if request was OIDC but no id_token in response", () => {
             // arrange
             delete stubResponse.id_token;
             stubResponse.isOpenIdConnect = true;
 
             // act
             try {
-                await subject._processSigninParams(stubState, stubResponse);
+                subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("id_token");
             }
         });
 
-        it("should fail if request was not OIDC but id_token in response", async () => {
+        it("should fail if request was not OIDC but id_token in response", () => {
             // arrange
             delete stubState.nonce;
             stubResponse.id_token = id_token;
 
             // act
             try {
-                await subject._processSigninParams(stubState, stubResponse);
+                subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("id_token");
             }
         });
 
-        it("should fail if request was code flow but no code in response", async () => {
+        it("should fail if request was code flow but no code in response", () => {
             // arrange
             stubResponse.id_token = id_token;
             stubState.code_verifier = "secret";
@@ -310,36 +310,36 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                await subject._processSigninParams(stubState, stubResponse);
+                subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("code");
             }
         });
 
-        it("should fail if request was not code flow no code in response", async () => {
+        it("should fail if request was not code flow no code in response", () => {
             // arrange
             stubResponse.id_token = id_token;
             stubResponse.code = "code";
 
             // act
             try {
-                await subject._processSigninParams(stubState, stubResponse);
+                subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("code");
             }
         });
 
-        it("should return data for successful responses", async () => {
+        it("should return data for successful responses", () => {
             // arrange
             stubResponse.id_token = id_token;
 
             // act
-            const response = await subject._processSigninParams(stubState, stubResponse);
+            const response = subject._processSigninParams(stubState, stubResponse);
 
             // assert
-            expect(response.state).toEqual({ some: 'data' });
+            expect(response.state).toEqual({ some: "data" });
         });
     });
 
@@ -349,7 +349,7 @@ describe("ResponseValidator", () => {
             // arrange
             const state = new SigninState();
             stubResponse.isOpenIdConnect = true;
-            stubResponse.profile = { a: 'apple', b: 'banana' };
+            stubResponse.profile = { a: "apple", b: "banana" };
             const _filterProtocolClaimsMock = jest.spyOn(subject, "_filterProtocolClaims")
                 .mockImplementation((profile) => profile);
 
@@ -379,9 +379,9 @@ describe("ResponseValidator", () => {
             const state = new SigninState();
             settings.loadUserInfo = true;
             stubResponse.isOpenIdConnect = true;
-            stubResponse.profile = { a: 'apple', b: 'banana' };
+            stubResponse.profile = { a: "apple", b: "banana" };
             stubResponse.access_token = "access_token";
-            const getClaimMock = jest.spyOn(userInfoService, "getClaims").mockImplementation(() => Promise.resolve({ c: 'carrot' }));
+            const getClaimMock = jest.spyOn(userInfoService, "getClaims").mockImplementation(() => Promise.resolve({ c: "carrot" }));
             const _mergeClaimsMock = jest.spyOn(subject, "_mergeClaims")
                 .mockImplementation((profile) => profile);
 
@@ -398,9 +398,9 @@ describe("ResponseValidator", () => {
             const state = new SigninState();
             settings.loadUserInfo = true;
             stubResponse.isOpenIdConnect = false;
-            stubResponse.profile = { a: 'apple', b: 'banana' };
+            stubResponse.profile = { a: "apple", b: "banana" };
             stubResponse.access_token = "access_token";
-            const getClaimMock = jest.spyOn(userInfoService, "getClaims").mockImplementation(() => Promise.resolve({ c: 'carrot' }));
+            const getClaimMock = jest.spyOn(userInfoService, "getClaims").mockImplementation(() => Promise.resolve({ c: "carrot" }));
 
             // act
             await subject._processClaims(state, stubResponse);
@@ -414,9 +414,9 @@ describe("ResponseValidator", () => {
             const state = new SigninState();
             settings.loadUserInfo = false;
             stubResponse.isOpenIdConnect = true;
-            stubResponse.profile = { a: 'apple', b: 'banana' };
+            stubResponse.profile = { a: "apple", b: "banana" };
             stubResponse.access_token = "access_token";
-            const getClaimMock = jest.spyOn(userInfoService, "getClaims").mockImplementation(() => Promise.resolve({ c: 'carrot' }));
+            const getClaimMock = jest.spyOn(userInfoService, "getClaims").mockImplementation(() => Promise.resolve({ c: "carrot" }));
 
             // act
             await subject._processClaims(state, stubResponse);
@@ -430,8 +430,8 @@ describe("ResponseValidator", () => {
             const state = new SigninState();
             settings.loadUserInfo = true;
             stubResponse.isOpenIdConnect = true;
-            stubResponse.profile = { a: 'apple', b: 'banana' };
-            const getClaimMock = jest.spyOn(userInfoService, "getClaims").mockImplementation(() => Promise.resolve({ c: 'carrot' }));
+            stubResponse.profile = { a: "apple", b: "banana" };
+            const getClaimMock = jest.spyOn(userInfoService, "getClaims").mockImplementation(() => Promise.resolve({ c: "carrot" }));
 
             // act
             await subject._processClaims(state, stubResponse);
@@ -445,108 +445,108 @@ describe("ResponseValidator", () => {
 
         it("should merge claims", () => {
             // arrange
-            var c1 = { a: 'apple', b: 'banana' };
-            var c2 = { c: 'carrot' };
+            const c1 = { a: "apple", b: "banana" };
+            const c2 = { c: "carrot" };
 
             // act
-            var result = subject._mergeClaims(c1, c2);
+            const result = subject._mergeClaims(c1, c2);
 
             // assert
-            expect(result).toEqual({ a: 'apple', c: 'carrot', b: 'banana' });
+            expect(result).toEqual({ a: "apple", c: "carrot", b: "banana" });
         });
 
         it("should not merge claims when claim types are objects", () => {
             // arrange
-            var c1 = { custom: {'apple': 'foo', 'pear': 'bar'} };
-            var c2 = { custom: {'apple': 'foo', 'orange': 'peel'}, b: 'banana' };
+            const c1 = { custom: {"apple": "foo", "pear": "bar"} };
+            const c2 = { custom: {"apple": "foo", "orange": "peel"}, b: "banana" };
 
             // act
-            var result = subject._mergeClaims(c1, c2);
+            const result = subject._mergeClaims(c1, c2);
 
             // assert
-            expect(result).toEqual({ custom: [{'apple': 'foo', 'pear': 'bar'}, {'apple': 'foo', 'orange': 'peel'}], b: 'banana' });
+            expect(result).toEqual({ custom: [{"apple": "foo", "pear": "bar"}, {"apple": "foo", "orange": "peel"}], b: "banana" });
         });
 
         it("should merge claims when claim types are objects when mergeClaims settings is true", () => {
             // arrange
             settings.mergeClaims = true;
 
-            var c1 = { custom: {'apple': 'foo', 'pear': 'bar'} };
-            var c2 = { custom: {'apple': 'foo', 'orange': 'peel'}, b: 'banana' };
+            const c1 = { custom: {"apple": "foo", "pear": "bar"} };
+            const c2 = { custom: {"apple": "foo", "orange": "peel"}, b: "banana" };
 
             // act
-            var result = subject._mergeClaims(c1, c2);
+            const result = subject._mergeClaims(c1, c2);
 
             // assert
-            expect(result).toEqual({ custom: {'apple': 'foo', 'pear': 'bar', 'orange': 'peel'}, b: 'banana' });
+            expect(result).toEqual({ custom: {"apple": "foo", "pear": "bar", "orange": "peel"}, b: "banana" });
         });
 
         it("should merge same claim types into array", () => {
             // arrange
-            var c1 = { a: 'apple', b: 'banana' };
-            var c2 = { a: 'carrot' };
+            const c1 = { a: "apple", b: "banana" };
+            const c2 = { a: "carrot" };
 
             // act
-            var result = subject._mergeClaims(c1, c2);
+            const result = subject._mergeClaims(c1, c2);
 
             // assert
-            expect(result).toEqual({ a: ['apple', 'carrot'], b: 'banana' });
+            expect(result).toEqual({ a: ["apple", "carrot"], b: "banana" });
         });
 
         it("should merge arrays of same claim types into array", () => {
             // arrange
-            const c1 = { a: 'apple', b: 'banana' };
-            const c2 = { a: ['carrot', 'durian'] };
+            const c1 = { a: "apple", b: "banana" };
+            const c2 = { a: ["carrot", "durian"] };
 
             // act
-            var result = subject._mergeClaims(c1, c2);
+            let result = subject._mergeClaims(c1, c2);
 
             // assert
-            expect(result).toEqual({ a: ['apple', 'carrot', 'durian'], b: 'banana' });
+            expect(result).toEqual({ a: ["apple", "carrot", "durian"], b: "banana" });
 
             // arrange
-            const d1 = { a: ['apple', 'carrot'], b: 'banana' };
-            const d2 = { a: ['durian'] };
+            const d1 = { a: ["apple", "carrot"], b: "banana" };
+            const d2 = { a: ["durian"] };
 
             // act
-            var result = subject._mergeClaims(d1, d2);
+            result = subject._mergeClaims(d1, d2);
 
             // assert
-            expect(result).toEqual({ a: ['apple', 'carrot', 'durian'], b: 'banana' });
+            expect(result).toEqual({ a: ["apple", "carrot", "durian"], b: "banana" });
 
             // arrange
-            const e1 = { a: ['apple', 'carrot'], b: 'banana' };
-            const e2 = { a: 'durian' };
+            const e1 = { a: ["apple", "carrot"], b: "banana" };
+            const e2 = { a: "durian" };
 
             // act
-            var result = subject._mergeClaims(e1, e2);
+            result = subject._mergeClaims(e1, e2);
 
             // assert
-            expect(result).toEqual({ a: ['apple', 'carrot', 'durian'], b: 'banana' });
+            expect(result).toEqual({ a: ["apple", "carrot", "durian"], b: "banana" });
         });
 
         it("should remove duplicates when producing arrays", () => {
             // arrange
-            var c1 = { a: 'apple', b: 'banana' };
-            var c2 = { a: ['apple', 'durian'] };
+            const c1 = { a: "apple", b: "banana" };
+            const c2 = { a: ["apple", "durian"] };
 
             // act
-            var result = subject._mergeClaims(c1, c2);
+            const result = subject._mergeClaims(c1, c2);
 
             // assert
-            expect(result).toEqual({ a: ['apple', 'durian'], b: 'banana' });
+            expect(result).toEqual({ a: ["apple", "durian"], b: "banana" });
         });
 
         it("should not add if already present in array", () => {
             // arrange
-            var c1 = { a: ['apple', 'durian'], b: 'banana' };
-            var c2 = { a: 'apple' };
+            const c1 = { a: ["apple", "durian"], b: "banana" };
+            const c2 = { a: "apple" };
 
             // act
-            var result = subject._mergeClaims(c1, c2);
+            const result = subject._mergeClaims(c1, c2);
 
             // assert
-            expect(result).toEqual({ a: ['apple', 'durian'], b: 'banana' });
+            expect(result).toEqual({ a: ["apple", "durian"], b: "banana" });
         });
     });
 
@@ -555,48 +555,48 @@ describe("ResponseValidator", () => {
         it("should filter protocol claims if enabled on settings", () => {
             // arrange
             settings.filterProtocolClaims = true;
-            let claims = {
-                foo: 1, bar: 'test',
-                aud: 'some_aud', iss: 'issuer',
-                sub: '123', email: 'foo@gmail.com',
-                role: ['admin', 'dev'],
-                nonce: 'nonce', at_hash: "athash",
+            const claims = {
+                foo: 1, bar: "test",
+                aud: "some_aud", iss: "issuer",
+                sub: "123", email: "foo@gmail.com",
+                role: ["admin", "dev"],
+                nonce: "nonce", at_hash: "athash",
                 iat: 5, nbf: 10, exp: 20
             };
 
             // act
-            var result = subject._filterProtocolClaims(claims);
+            const result = subject._filterProtocolClaims(claims);
 
             // assert
             expect(result).toEqual({
-                foo: 1, bar: 'test',
-                sub: '123', email: 'foo@gmail.com',
-                role: ['admin', 'dev']
+                foo: 1, bar: "test",
+                sub: "123", email: "foo@gmail.com",
+                role: ["admin", "dev"]
             });
         });
 
         it("should not filter protocol claims if not enabled on settings", () => {
             // arrange
             settings.filterProtocolClaims = false;
-            let claims = {
-                foo: 1, bar: 'test',
-                aud: 'some_aud', iss: 'issuer',
-                sub: '123', email: 'foo@gmail.com',
-                role: ['admin', 'dev'],
-                nonce: 'nonce', at_hash: "athash",
+            const claims = {
+                foo: 1, bar: "test",
+                aud: "some_aud", iss: "issuer",
+                sub: "123", email: "foo@gmail.com",
+                role: ["admin", "dev"],
+                nonce: "nonce", at_hash: "athash",
                 iat: 5, nbf: 10, exp: 20
             };
 
             // act
-            var result = subject._filterProtocolClaims(claims);
+            const result = subject._filterProtocolClaims(claims);
 
             // assert
             expect(result).toEqual({
-                foo: 1, bar: 'test',
-                aud: 'some_aud', iss: 'issuer',
-                sub: '123', email: 'foo@gmail.com',
-                role: ['admin', 'dev'],
-                nonce: 'nonce', at_hash: "athash",
+                foo: 1, bar: "test",
+                aud: "some_aud", iss: "issuer",
+                sub: "123", email: "foo@gmail.com",
+                role: ["admin", "dev"],
+                nonce: "nonce", at_hash: "athash",
                 iat: 5, nbf: 10, exp: 20
             });
         });
@@ -614,7 +614,7 @@ describe("ResponseValidator", () => {
                 .mockImplementation(() => Promise.resolve(stubResponse));
 
             // act
-            subject._validateTokens(stubState, stubResponse);
+            await subject._validateTokens(stubState, stubResponse);
 
             // assert
             expect(_validateIdTokenAndAccessTokenMock).toBeCalled();
@@ -630,7 +630,7 @@ describe("ResponseValidator", () => {
                 .mockImplementation(() => Promise.resolve(stubResponse));
 
             // act
-            subject._validateTokens(stubState, stubResponse);
+            await subject._validateTokens(stubState, stubResponse);
 
             // assert
             expect(_validateIdTokenAndAccessTokenMock).not.toBeCalled();
@@ -646,7 +646,7 @@ describe("ResponseValidator", () => {
                 .mockImplementation(() => Promise.resolve(stubResponse));
 
             // act
-            subject._validateTokens(stubState, stubResponse);
+            await subject._validateTokens(stubState, stubResponse);
 
             // assert
             expect(_validateIdTokenAndAccessTokenMock).not.toBeCalled();
@@ -700,38 +700,38 @@ describe("ResponseValidator", () => {
 
         it("should fail if loading keys fails.", async () => {
             // arrange
-            const jwt = { header: { kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }};
+            const jwt = { header: { kid: "a3rMUgMFv9tPclLa6yF3zAkfquE" }};
             jest.spyOn(metadataService, "getSigningKeys").mockRejectedValue(new Error("keys"));
 
             // act
             try {
                 await subject._getSigningKeyForJwt(jwt);
-                fail("should not come here")
+                fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('keys');
+                expect(err.message).toContain("keys");
             }
-        })
+        });
 
         it("should fetch suitable signing key for the jwt.", async () => {
             // arrange
-            const jwt = { header: { kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }};
-            const keys = [{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }, { kid: 'other_key' } ];
+            const jwt = { header: { kid: "a3rMUgMFv9tPclLa6yF3zAkfquE" }};
+            const keys = [{ kid: "a3rMUgMFv9tPclLa6yF3zAkfquE" }, { kid: "other_key" } ];
             jest.spyOn(metadataService, "getSigningKeys").mockImplementation(() => Promise.resolve(keys));
 
             // act
             const result = await subject._getSigningKeyForJwt(jwt);
 
             // assert
-            expect(result).toEqual({ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' });
-        })
-    })
+            expect(result).toEqual({ kid: "a3rMUgMFv9tPclLa6yF3zAkfquE" });
+        });
+    });
 
     describe("_getSigningKeyForJwtWithSingleRetry", () => {
 
         it("should retry once if suitable signing key is not found.", async () => {
             // arrange
-            const jwt = { header: { kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }};
-            const keys = [{ kid: 'other_key' }];
+            const jwt = { header: { kid: "a3rMUgMFv9tPclLa6yF3zAkfquE" }};
+            const keys = [{ kid: "other_key" }];
             jest.spyOn(metadataService, "getSigningKeys")
                 .mockImplementation(() => Promise.resolve(keys));
             const _getSigningKeyForJwtMock = jest.spyOn(subject, "_getSigningKeyForJwt")
@@ -742,12 +742,12 @@ describe("ResponseValidator", () => {
 
             // assert
             expect(_getSigningKeyForJwtMock).toBeCalledTimes(2);
-        })
+        });
 
         it("should not retry if suitable signing key is found.", async () => {
             // arrange
-            const jwt = { header: { kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }};
-            const keys = [{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }];
+            const jwt = { header: { kid: "a3rMUgMFv9tPclLa6yF3zAkfquE" }};
+            const keys = [{ kid: "a3rMUgMFv9tPclLa6yF3zAkfquE" }];
             jest.spyOn(metadataService, "getSigningKeys")
                 .mockImplementation(() => Promise.resolve(keys));
             const _getSigningKeyForJwtMock = jest.spyOn(subject, "_getSigningKeyForJwt")
@@ -758,8 +758,8 @@ describe("ResponseValidator", () => {
 
             // assert
             expect(_getSigningKeyForJwtMock).toBeCalledTimes(1);
-        })
-    })
+        });
+    });
 
     describe("_validateIdToken", () => {
 
@@ -773,7 +773,7 @@ describe("ResponseValidator", () => {
                 await subject._validateIdToken(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('nonce');
+                expect(err.message).toContain("nonce");
             }
         });
 
@@ -783,7 +783,7 @@ describe("ResponseValidator", () => {
                 await subject._validateIdToken(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('id_token');
+                expect(err.message).toContain("id_token");
             }
         });
 
@@ -792,15 +792,15 @@ describe("ResponseValidator", () => {
             stubState.client_id = "invalid client_id";
             stubResponse.id_token = id_token;
             jest.spyOn(metadataService, "getIssuer").mockRejectedValue(new Error("test"));
-            const keys = [{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE' }];
+            const keys = [{ kid: "a3rMUgMFv9tPclLa6yF3zAkfquE" }];
             jest.spyOn(metadataService, "getSigningKeys").mockImplementation(() => Promise.resolve(keys));
 
             // act
             try {
                 await subject._validateIdToken(stubState, stubResponse);
                 fail("should not come here");
-            } catch (err) {
-            }
+            // eslint-disable-next-line no-empty
+            } catch (err) {}
         });
 
         it("should fail if nonce doesn't match id_token", async () => {
@@ -816,7 +816,7 @@ describe("ResponseValidator", () => {
                 await subject._validateIdToken(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('nonce');
+                expect(err.message).toContain("nonce");
             }
         });
 
@@ -834,7 +834,7 @@ describe("ResponseValidator", () => {
                 await subject._validateIdToken(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('issuer');
+                expect(err.message).toContain("issuer");
             }
         });
 
@@ -853,7 +853,7 @@ describe("ResponseValidator", () => {
                 await subject._validateIdToken(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('keys');
+                expect(err.message).toContain("keys");
             }
         });
 
@@ -872,7 +872,7 @@ describe("ResponseValidator", () => {
                 await subject._validateIdToken(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
-                expect(err.message).toContain('kid');
+                expect(err.message).toContain("kid");
             }
         });
 
@@ -881,7 +881,7 @@ describe("ResponseValidator", () => {
             stubState.nonce = "nonce";
             stubResponse.id_token = id_token;
             jest.spyOn(metadataService, "getIssuer").mockImplementation(() => Promise.resolve("test"));
-            const keys = [{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE', kty: "EC" }];
+            const keys = [{ kid: "a3rMUgMFv9tPclLa6yF3zAkfquE", kty: "EC" }];
             jest.spyOn(metadataService, "getSigningKeys").mockImplementation(() => Promise.resolve(keys));
             const validateJwtMock = jest.spyOn(JoseUtil, "validateJwt").mockImplementation(() => {
                 return Promise.resolve();
@@ -902,7 +902,7 @@ describe("ResponseValidator", () => {
             stubState.nonce = "nonce";
             stubResponse.id_token = id_token;
             jest.spyOn(metadataService, "getIssuer").mockImplementation(() => Promise.resolve("test"));
-            const keys = [{ kid: 'a3rMUgMFv9tPclLa6yF3zAkfquE', kty: "EC" }];
+            const keys = [{ kid: "a3rMUgMFv9tPclLa6yF3zAkfquE", kty: "EC" }];
             jest.spyOn(metadataService, "getSigningKeys").mockImplementation(() => Promise.resolve(keys));
             jest.spyOn(JoseUtil, "validateJwt").mockImplementation(() => {
                 return Promise.resolve();
@@ -921,7 +921,7 @@ describe("ResponseValidator", () => {
 
     describe("_validateAccessToken", () => {
 
-        it("should require id_token", async () => {
+        it("should require id_token", () => {
             // arrange
             stubResponse.id_token = null;
             stubResponse.profile = {
@@ -930,28 +930,28 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                await subject._validateAccessToken(stubResponse);
+                subject._validateAccessToken(stubResponse);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("id_token");
             }
         });
 
-        it("should require profile", async () => {
+        it("should require profile", () => {
             // arrange
             stubResponse.id_token = id_token;
             stubResponse.profile = null;
 
             // act
             try {
-                await subject._validateAccessToken(stubResponse);
+                subject._validateAccessToken(stubResponse);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("profile");
             }
         });
 
-        it("should require at_hash on profile", async () => {
+        it("should require at_hash on profile", () => {
             // arrange
             stubResponse.id_token = id_token;
             stubResponse.profile = {
@@ -959,14 +959,14 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                await subject._validateAccessToken(stubResponse);
+                subject._validateAccessToken(stubResponse);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("at_hash");
             }
         });
 
-        it("should fail for invalid id_token", async () => {
+        it("should fail for invalid id_token", () => {
             // arrange
             stubResponse.id_token = "bad";
             stubResponse.profile = {
@@ -975,14 +975,14 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                await subject._validateAccessToken(stubResponse);
+                subject._validateAccessToken(stubResponse);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("id_token");
             }
         });
 
-        it("should require proper alg on id_token", async () => {
+        it("should require proper alg on id_token", () => {
             // arrange
             stubResponse.id_token = "bad";
             stubResponse.profile = {
@@ -994,14 +994,14 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                await subject._validateAccessToken(stubResponse);
+                subject._validateAccessToken(stubResponse);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("alg");
             }
         });
 
-        it("should fail for invalid algs of incorrect bit lengths", async () => {
+        it("should fail for invalid algs of incorrect bit lengths", () => {
             // arrange
             stubResponse.id_token = id_token;
             stubResponse.access_token = access_token;
@@ -1014,14 +1014,14 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                await subject._validateAccessToken(stubResponse);
+                subject._validateAccessToken(stubResponse);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("alg");
             }
         });
 
-        it("should fail for algs of not correct string length", async () => {
+        it("should fail for algs of not correct string length", () => {
             // arrange
             stubResponse.id_token = id_token;
             stubResponse.access_token = access_token;
@@ -1034,14 +1034,14 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                await subject._validateAccessToken(stubResponse);
+                subject._validateAccessToken(stubResponse);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("alg");
             }
         });
 
-        it("should fail if at_hash does not match", async () => {
+        it("should fail if at_hash does not match", () => {
             // arrange
             stubResponse.id_token = id_token;
             stubResponse.access_token = access_token;
@@ -1053,21 +1053,21 @@ describe("ResponseValidator", () => {
             });
             jest.spyOn(JoseUtil, "hashString").mockImplementation(() => {
                 return "hash";
-            })
+            });
             jest.spyOn(JoseUtil, "hexToBase64Url").mockImplementation(() => {
                 return "wrong";
             });
 
             // act
             try {
-                await subject._validateAccessToken(stubResponse);
+                subject._validateAccessToken(stubResponse);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("at_hash");
             }
         });
 
-        it("should validate at_hash", async () => {
+        it("should validate at_hash", () => {
             // arrange
             stubResponse.id_token = id_token;
             stubResponse.access_token = access_token;
@@ -1076,7 +1076,7 @@ describe("ResponseValidator", () => {
             };
 
             // act
-            const response = await subject._validateAccessToken(stubResponse);
+            const response = subject._validateAccessToken(stubResponse);
 
             // assert
             expect(response).toEqual(stubResponse);

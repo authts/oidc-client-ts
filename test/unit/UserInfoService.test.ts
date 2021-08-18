@@ -1,9 +1,9 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { UserInfoService } from '../../src/UserInfoService';
-import { MetadataService } from '../../src/MetadataService';
-import { JsonService } from '../../src/JsonService';
+import { UserInfoService } from "../../src/UserInfoService";
+import { MetadataService } from "../../src/MetadataService";
+import { JsonService } from "../../src/JsonService";
 
 describe("UserInfoService", () => {
     let subject: UserInfoService;
@@ -25,11 +25,12 @@ describe("UserInfoService", () => {
 
         it("should return a promise", async () => {
             // act
-            var p = subject.getClaims();
+            const p = subject.getClaims();
 
             // assert
             expect(p).toBeInstanceOf(Promise);
-            p.catch(_e => {});
+            // eslint-disable-next-line no-empty
+            try { await p; } catch {}
         });
 
         it("should require a token", async () => {
@@ -46,7 +47,7 @@ describe("UserInfoService", () => {
             // arrange
             jest.spyOn(metadataService, "getUserInfoEndpoint").mockImplementation(() => Promise.resolve("http://sts/userinfo"));
             const getJsonMock = jest.spyOn(jsonService, "getJson")
-                .mockImplementation(() => Promise.resolve('test'));
+                .mockImplementation(() => Promise.resolve("test"));
 
             // act
             await subject.getClaims("token");
@@ -72,13 +73,13 @@ describe("UserInfoService", () => {
             // arrange
             jest.spyOn(metadataService, "getUserInfoEndpoint").mockImplementation(() => Promise.resolve("http://sts/userinfo"));
             const expectedClaims = {
-                foo: 1, bar: 'test',
-                aud:'some_aud', iss:'issuer',
-                sub:'123', email:'foo@gmail.com',
-                role:['admin', 'dev'],
-                nonce:'nonce', at_hash:"athash",
+                foo: 1, bar: "test",
+                aud:"some_aud", iss:"issuer",
+                sub:"123", email:"foo@gmail.com",
+                role:["admin", "dev"],
+                nonce:"nonce", at_hash:"athash",
                 iat:5, nbf:10, exp:20
-            }
+            };
             jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(expectedClaims));
 
             // act

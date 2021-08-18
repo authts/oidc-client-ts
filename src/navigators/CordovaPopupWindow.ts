@@ -45,7 +45,7 @@ export class CordovaPopupWindow implements IWindow {
             // @ts-ignore
             if (!window.cordova) {
                 this._error("cordova is undefined");
-                return this.promise;
+                return this._promise;
             }
 
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -53,7 +53,7 @@ export class CordovaPopupWindow implements IWindow {
             const cordovaMetadata = window.cordova.require("cordova/plugin_list").metadata;
             if (this._isInAppBrowserInstalled(cordovaMetadata) === false) {
                 this._error("InAppBrowser plugin not found");
-                return this.promise;
+                return this._promise;
             }
 
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -71,10 +71,6 @@ export class CordovaPopupWindow implements IWindow {
                 this._error("Error opening popup window");
             }
         }
-        return this.promise;
-    }
-
-    get promise() {
         return this._promise;
     }
 

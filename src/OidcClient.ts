@@ -3,6 +3,8 @@
 
 import { Log } from "./utils";
 import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
+import { ResponseValidator } from "./ResponseValidator";
+import { MetadataService } from "./MetadataService";
 import { ErrorResponse } from "./ErrorResponse";
 import { SigninRequest } from "./SigninRequest";
 import { SigninResponse } from "./SigninResponse";
@@ -13,27 +15,15 @@ import { StateStore } from "./StateStore";
 import { State } from "./State";
 
 export class OidcClient {
-    protected _settings: OidcClientSettingsStore
+    public readonly settings: OidcClientSettingsStore;
+    public readonly metadataService: MetadataService;
+    private readonly _validator: ResponseValidator;
 
     constructor(settings: OidcClientSettings = {}) {
-        this._settings = new OidcClientSettingsStore(settings);
-    }
+        this.settings = new OidcClientSettingsStore(settings);
 
-    get _stateStore() {
-        return this.settings.stateStore;
-    }
-    get _validator() {
-        return this.settings.validator;
-    }
-    get _metadataService() {
-        return this.settings.metadataService;
-    }
-
-    get settings() {
-        return this._settings;
-    }
-    get metadataService() {
-        return this._metadataService;
+        this.metadataService = new MetadataService(this.settings);
+        this._validator = new ResponseValidator(this.settings, this.metadataService);
     }
 
     async createSigninRequest({
@@ -48,29 +38,29 @@ export class OidcClient {
     ): Promise<SigninRequest> {
         Log.debug("OidcClient.createSigninRequest");
 
-        const client_id = this._settings.client_id;
-        response_type = response_type || this._settings.response_type;
-        scope = scope || this._settings.scope;
-        redirect_uri = redirect_uri || this._settings.redirect_uri;
+        const client_id = this.settings.client_id;
+        response_type = response_type || this.settings.response_type;
+        scope = scope || this.settings.scope;
+        redirect_uri = redirect_uri || this.settings.redirect_uri;
 
         // id_token_hint, login_hint aren't allowed on _settings
-        prompt = prompt || this._settings.prompt;
-        display = display || this._settings.display;
-        max_age = max_age || this._settings.max_age;
-        ui_locales = ui_locales || this._settings.ui_locales;
-        acr_values = acr_values || this._settings.acr_values;
-        resource = resource || this._settings.resource;
-        response_mode = response_mode || this._settings.response_mode;
-        extraQueryParams = extraQueryParams || this._settings.extraQueryParams;
-        extraTokenParams = extraTokenParams || this._settings.extraTokenParams;
+        prompt = prompt || this.settings.prompt;
+        display = display || this.settings.display;
+        max_age = max_age || this.settings.max_age;
+        ui_locales = ui_locales || this.settings.ui_locales;
+        acr_values = acr_values || this.settings.acr_values;
+        resource = resource || this.settings.resource;
+        response_mode = response_mode || this.settings.response_mode;
+        extraQueryParams = extraQueryParams || this.settings.extraQueryParams;
+        extraTokenParams = extraTokenParams || this.settings.extraTokenParams;
 
-        const authority = this._settings.authority;
+        const authority = this.settings.authority;
 
         if (SigninRequest.isCode(response_type) && response_type !== "code") {
             throw new Error("OpenID Connect hybrid flow is not supported");
         }
 
-        const url = await this._metadataService.getAuthorizationEndpoint();
+        const url = await this.metadataService.getAuthorizationEndpoint();
         Log.debug("OidcClient.createSigninRequest: Received authorization endpoint", url);
 
         const signinRequest = new SigninRequest({
@@ -83,12 +73,12 @@ export class OidcClient {
             authority,
             prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
             resource, request, request_uri, extraQueryParams, extraTokenParams, request_type, response_mode,
-            client_secret: this._settings.client_secret,
+            client_secret: this.settings.client_secret,
             skipUserInfo
         });
 
         const signinState = signinRequest.state;
-        stateStore = stateStore || this._stateStore;
+        stateStore = stateStore || this.settings.stateStore;
         await stateStore.set(signinState.id, signinState.toStorageString());
         return signinRequest;
     }
@@ -96,9 +86,9 @@ export class OidcClient {
     async readSigninResponseState(url?: string, stateStore: StateStore | null = null, removeState = false) {
         Log.debug("OidcClient.readSigninResponseState");
 
-        const useQuery = this._settings.response_mode === "query" ||
-            (!this._settings.response_mode &&
-                this._settings.response_type && SigninRequest.isCode(this._settings.response_type));
+        const useQuery = this.settings.response_mode === "query" ||
+            (!this.settings.response_mode &&
+                this.settings.response_type && SigninRequest.isCode(this.settings.response_type));
         const delimiter = useQuery ? "?" : "#";
 
         const response = new SigninResponse(url, delimiter);
@@ -107,7 +97,7 @@ export class OidcClient {
             throw new Error("No state in response");
         }
 
-        stateStore = stateStore || this._stateStore;
+        stateStore = stateStore || this.settings.stateStore;
 
         const stateApi = removeState ? stateStore.remove.bind(stateStore) : stateStore.get.bind(stateStore);
 
@@ -136,10 +126,10 @@ export class OidcClient {
     ) {
         Log.debug("OidcClient.createSignoutRequest");
 
-        post_logout_redirect_uri = post_logout_redirect_uri || this._settings.post_logout_redirect_uri;
-        extraQueryParams = extraQueryParams || this._settings.extraQueryParams;
+        post_logout_redirect_uri = post_logout_redirect_uri || this.settings.post_logout_redirect_uri;
+        extraQueryParams = extraQueryParams || this.settings.extraQueryParams;
 
-        const url = await this._metadataService.getEndSessionEndpoint();
+        const url = await this.metadataService.getEndSessionEndpoint();
         if (!url) {
             Log.error("OidcClient.createSignoutRequest: No end session endpoint url returned");
             throw new Error("no end session endpoint");
@@ -160,15 +150,14 @@ export class OidcClient {
         if (signoutState) {
             Log.debug("OidcClient.createSignoutRequest: Signout request has state to persist");
 
-            stateStore = stateStore || this._stateStore;
+            stateStore = stateStore || this.settings.stateStore;
             void stateStore.set(signoutState.id, signoutState.toStorageString());
         }
 
         return request;
     }
 
-    async readSignoutResponseState(url?: string, stateStore: StateStore | null = null, removeState = false)
-        : Promise<{ state: undefined | State; response: SignoutResponse }> {
+    async readSignoutResponseState(url?: string, stateStore: StateStore | null = null, removeState = false): Promise<{ state: undefined | State; response: SignoutResponse }> {
         Log.debug("OidcClient.readSignoutResponseState");
 
         const response = new SignoutResponse(url);
@@ -185,7 +174,7 @@ export class OidcClient {
 
         const stateKey = response.state;
 
-        stateStore = stateStore || this._stateStore;
+        stateStore = stateStore || this.settings.stateStore;
 
         const stateApi = removeState ? stateStore.remove.bind(stateStore) : stateStore.get.bind(stateStore);
         const storedStateString = await stateApi(stateKey);
@@ -215,7 +204,7 @@ export class OidcClient {
     clearStaleState(stateStore: StateStore | null = null): Promise<void> {
         Log.debug("OidcClient.clearStaleState");
 
-        stateStore = stateStore || this._stateStore;
+        stateStore = stateStore || this.settings.stateStore;
 
         return State.clearStaleState(stateStore, this.settings.staleStateAge);
     }
