@@ -13,11 +13,6 @@ export class TokenRevocationClient {
     private _metadataService: MetadataService;
 
     constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
-        if (!settings) {
-            Log.error("TokenRevocationClient.ctor: No settings provided");
-            throw new Error("No settings provided.");
-        }
-
         this._settings = settings;
         this._metadataService = metadataService;
     }

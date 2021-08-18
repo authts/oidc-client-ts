@@ -26,7 +26,7 @@ export class UserManager extends OidcClient {
     private readonly _tokenRevocationClient: TokenRevocationClient;
     private readonly _tokenClient: TokenClient;
 
-    constructor(settings: UserManagerSettings = {}) {
+    constructor(settings: UserManagerSettings) {
         super(settings);
         this.settings = new UserManagerSettingsStore(settings);
 

@@ -14,7 +14,7 @@ const DefaultClockSkewInSeconds = 60 * 5;
 
 export interface OidcClientSettings {
     /** The URL of the OIDC/OAuth2 provider */
-    authority?: string;
+    authority: string;
     metadataUrl?: string;
     /** Provide metadata when authority server does not allow CORS on the metadata endpoint */
     metadata?: Partial<OidcMetadata>;
@@ -24,7 +24,7 @@ export interface OidcClientSettings {
     signingKeys?: any[];
 
     /** Your client application's identifier as registered with the OIDC/OAuth2 */
-    client_id?: string;
+    client_id: string;
     client_secret?: string;
     /** The type of response desired from the OIDC/OAuth2 provider (default: 'id_token') */
     response_type?: string;
@@ -106,9 +106,9 @@ export class OidcClientSettingsStore {
 
     constructor({
         // metadata related
-        authority = "", metadataUrl, metadata, signingKeys, metadataSeed,
+        authority, metadataUrl, metadata, signingKeys, metadataSeed,
         // client related
-        client_id = "", client_secret, response_type = DefaultResponseType, scope = DefaultScope,
+        client_id, client_secret, response_type = DefaultResponseType, scope = DefaultScope,
         redirect_uri, post_logout_redirect_uri,
         client_authentication = DefaultClientAuthentication,
         // optional protocol
@@ -125,7 +125,7 @@ export class OidcClientSettingsStore {
         // extra query params
         extraQueryParams = {},
         extraTokenParams = {}
-    }: OidcClientSettings = {}) {
+    }: OidcClientSettings) {
 
         this.authority = authority;
         this.metadataUrl = metadataUrl;

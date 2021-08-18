@@ -72,7 +72,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
     public readonly userStore: WebStorageStateStore;
 
-    constructor(args: UserManagerSettings = {}) {
+    constructor(args: UserManagerSettings) {
         const {
             popup_redirect_uri,
             popup_post_logout_redirect_uri,

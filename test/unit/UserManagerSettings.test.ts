@@ -14,17 +14,10 @@ describe("UserManagerSettings", () => {
 
     describe("constructor", () => {
 
-        it("should allow no settings", () => {
-            // act
-            const subject = new UserManagerSettingsStore();
-
-            // assert
-            expect(subject).not.toBeNull();
-        });
-
         it("should pass settings to base class", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
                 client_id: "client"
             });
 
@@ -39,6 +32,8 @@ describe("UserManagerSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
                 popup_redirect_uri: "test"
             });
 
@@ -53,6 +48,8 @@ describe("UserManagerSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
                 popupWindowFeatures: "foo"
             });
 
@@ -67,6 +64,8 @@ describe("UserManagerSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
                 popupWindowTarget: "foo"
             });
 
@@ -81,6 +80,8 @@ describe("UserManagerSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
                 silent_redirect_uri: "test"
             });
 
@@ -95,6 +96,8 @@ describe("UserManagerSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
                 silentRequestTimeout: 123
             });
 
@@ -109,6 +112,8 @@ describe("UserManagerSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
                 automaticSilentRenew: true
             });
 
@@ -119,6 +124,8 @@ describe("UserManagerSettings", () => {
         it("should use default value", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client"
             });
 
             // assert
@@ -132,6 +139,8 @@ describe("UserManagerSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
                 validateSubOnSilentRenew: true
             });
 
@@ -142,6 +151,8 @@ describe("UserManagerSettings", () => {
         it("should use default value", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client"
             });
 
             // assert
@@ -154,6 +165,8 @@ describe("UserManagerSettings", () => {
         it("should return true value from initial settings", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
                 includeIdTokenInSilentRenew: true,
             });
 
@@ -164,6 +177,8 @@ describe("UserManagerSettings", () => {
         it("should return false value from initial settings", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
                 includeIdTokenInSilentRenew: false,
             });
 
@@ -174,6 +189,8 @@ describe("UserManagerSettings", () => {
         it("should use default value", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client"
             });
 
             // assert
@@ -186,6 +203,8 @@ describe("UserManagerSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
                 accessTokenExpiringNotificationTime: 10
             });
 
@@ -196,6 +215,8 @@ describe("UserManagerSettings", () => {
         it("should use default value", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client"
             });
 
             // assert
@@ -210,6 +231,8 @@ describe("UserManagerSettings", () => {
 
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
                 redirectNavigator : temp
             });
 
@@ -224,6 +247,8 @@ describe("UserManagerSettings", () => {
 
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
                 popupNavigator : temp
             });
 
@@ -238,6 +263,8 @@ describe("UserManagerSettings", () => {
 
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
                 iframeNavigator : temp
             });
 
@@ -252,6 +279,8 @@ describe("UserManagerSettings", () => {
 
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
                 userStore : temp
             });
 
@@ -264,6 +293,8 @@ describe("UserManagerSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
                 revokeAccessTokenOnSignout : true
             });
 
@@ -276,6 +307,8 @@ describe("UserManagerSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
                 checkSessionInterval : 6000
             });
 
@@ -285,6 +318,8 @@ describe("UserManagerSettings", () => {
         it("should use default value", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client"
             });
 
             // assert
@@ -298,6 +333,8 @@ describe("UserManagerSettings", () => {
 
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
                 query_status_response_type : temp
             });
 
@@ -308,6 +345,8 @@ describe("UserManagerSettings", () => {
             {
                 // act
                 const subject = new UserManagerSettingsStore({
+                    authority: "authority",
+                    client_id: "client",
                     response_type: "id_token token"
                 });
 
@@ -317,6 +356,8 @@ describe("UserManagerSettings", () => {
             {
                 // act
                 const subject = new UserManagerSettingsStore({
+                    authority: "authority",
+                    client_id: "client",
                     response_type: "code"
                 });
 
@@ -330,6 +371,8 @@ describe("UserManagerSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
                 stopCheckSessionOnError : false
             });
 
@@ -339,6 +382,8 @@ describe("UserManagerSettings", () => {
         it("should use default value", () => {
             // act
             const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client"
             });
 
             // assert
