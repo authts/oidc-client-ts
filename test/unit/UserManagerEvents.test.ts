@@ -9,7 +9,10 @@ describe("UserManagerEvents", () => {
     let subject: UserManagerEvents;
 
     beforeEach(() => {
-        const settings = new UserManagerSettingsStore({});
+        const settings = new UserManagerSettingsStore({
+            authority: "authority",
+            client_id: "client"
+        });
         subject = new UserManagerEvents(settings);
     });
 

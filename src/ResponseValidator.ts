@@ -21,11 +21,6 @@ export class ResponseValidator {
     private readonly _tokenClient: TokenClient;
 
     constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
-        if (!settings) {
-            Log.error("ResponseValidator.ctor: No settings passed to ResponseValidator");
-            throw new Error("settings");
-        }
-
         this._settings = settings;
         this._metadataService = metadataService;
         this._userInfoService = new UserInfoService(this._settings, metadataService);

@@ -31,12 +31,6 @@ describe("OidcClient", () => {
     });
 
     describe("constructor", () => {
-
-        it("should allow no settings", () => {
-            // act
-            new OidcClient();
-        });
-
         it("should expose settings", () => {
             // assert
             expect(subject.settings).not.toBeNull();
@@ -46,7 +40,8 @@ describe("OidcClient", () => {
         it("should accept OidcClientSettings", () => {
             // arrange
             const settings = {
-                client_id: "client"
+                authority: "authority",
+                client_id: "client",
             };
 
             // act

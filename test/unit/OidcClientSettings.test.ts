@@ -16,6 +16,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client"
             });
 
@@ -28,6 +29,8 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
+                client_id: "client",
                 client_secret: "secret"
             });
 
@@ -40,6 +43,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 response_type: "foo"
             });
@@ -51,6 +55,7 @@ describe("OidcClientSettings", () => {
         it("should use default value", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client"
             });
 
@@ -64,6 +69,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 scope: "foo"
             });
@@ -75,6 +81,7 @@ describe("OidcClientSettings", () => {
         it("should use default value", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client"
             });
 
@@ -88,6 +95,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 redirect_uri: "foo"
             });
@@ -102,6 +110,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 post_logout_redirect_uri: "http://app/loggedout"
             });
@@ -115,6 +124,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 prompt: "foo"
             });
@@ -128,6 +138,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 display: "foo"
             });
@@ -141,6 +152,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 max_age: 22
             });
@@ -154,6 +166,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 ui_locales: "foo"
             });
@@ -167,6 +180,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 acr_values: "foo"
             });
@@ -180,6 +194,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 resource: "foo"
             });
@@ -193,6 +208,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 response_mode: "foo"
             });
@@ -219,6 +235,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 metadataUrl: "http://sts/metadata"
             });
@@ -232,6 +249,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 metadata: { issuer: "test" }
             });
@@ -245,6 +263,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 signingKeys: ["test"]
             });
@@ -259,7 +278,8 @@ describe("OidcClientSettings", () => {
         it("should use default value", () => {
             // act
             const subject = new OidcClientSettingsStore({
-                client_id: "client",
+                authority: "authority",
+                client_id: "client"
             });
 
             // assert
@@ -269,6 +289,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             let subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 filterProtocolClaims: true
             });
@@ -278,6 +299,7 @@ describe("OidcClientSettings", () => {
 
             // act
             subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 filterProtocolClaims: false
             });
@@ -292,7 +314,8 @@ describe("OidcClientSettings", () => {
         it("should use default value", () => {
             // act
             const subject = new OidcClientSettingsStore({
-                client_id: "client",
+                authority: "authority",
+                client_id: "client"
             });
 
             // assert
@@ -302,6 +325,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             let subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 loadUserInfo: true
             });
@@ -311,6 +335,7 @@ describe("OidcClientSettings", () => {
 
             // act
             subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 loadUserInfo: false
             });
@@ -325,7 +350,8 @@ describe("OidcClientSettings", () => {
         it("should use default value", () => {
             // act
             const subject = new OidcClientSettingsStore({
-                client_id: "client",
+                authority: "authority",
+                client_id: "client"
             });
 
             // assert
@@ -335,6 +361,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 staleStateAge: 100
             });
@@ -349,6 +376,7 @@ describe("OidcClientSettings", () => {
         it("should use default value", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client"
             });
 
@@ -359,6 +387,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 clockSkew: 10
             });
@@ -376,6 +405,7 @@ describe("OidcClientSettings", () => {
 
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 stateStore: temp
             });
@@ -393,6 +423,7 @@ describe("OidcClientSettings", () => {
 
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 stateStore: temp
             });
@@ -407,6 +438,7 @@ describe("OidcClientSettings", () => {
         it("should use default value", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client"
             });
 
@@ -417,6 +449,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 extraQueryParams: {
                     "hd": "domain.com"
@@ -430,6 +463,7 @@ describe("OidcClientSettings", () => {
         it("should not set value from initial settings if not object, but set default value ({})", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 extraQueryParams: 123456 as unknown as Record<string, any>
             });
@@ -444,6 +478,7 @@ describe("OidcClientSettings", () => {
         it("should use default value", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client"
             });
 
@@ -454,6 +489,7 @@ describe("OidcClientSettings", () => {
         it("should return value from initial settings", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 extraTokenParams: {
                     "resourceServer": "abc"
@@ -467,6 +503,7 @@ describe("OidcClientSettings", () => {
         it("should not set value from initial settings if not object, but set default value ({})", () => {
             // act
             const subject = new OidcClientSettingsStore({
+                authority: "authority",
                 client_id: "client",
                 extraTokenParams: 123456 as unknown as Record<string, any>
             });

@@ -18,11 +18,6 @@ export class MetadataService {
     private _metadata: Partial<OidcMetadata> | null;
 
     constructor(settings: OidcClientSettingsStore) {
-        if (!settings) {
-            Log.error("MetadataService: No settings passed to MetadataService");
-            throw new Error("settings");
-        }
-
         this._settings = settings;
         this._jsonService = new JsonService(["application/jwk-set+json"]);
 

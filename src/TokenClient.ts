@@ -12,11 +12,6 @@ export class TokenClient {
     private readonly _metadataService: MetadataService;
 
     constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
-        if (!settings) {
-            Log.error("TokenClient.ctor: No settings passed");
-            throw new Error("settings");
-        }
-
         this._settings = settings;
         this._jsonService = new JsonService();
         this._metadataService = metadataService;

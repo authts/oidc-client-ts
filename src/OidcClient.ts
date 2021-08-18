@@ -19,7 +19,7 @@ export class OidcClient {
     public readonly metadataService: MetadataService;
     private readonly _validator: ResponseValidator;
 
-    constructor(settings: OidcClientSettings = {}) {
+    constructor(settings: OidcClientSettings) {
         this.settings = new OidcClientSettingsStore(settings);
 
         this.metadataService = new MetadataService(this.settings);
