@@ -9,19 +9,19 @@ export class SigninResponse {
     public readonly code: string;
 
     // will be set from ResponseValidator
-    public state: string |  undefined;
+    public state: string | undefined;
 
     // will be set from ResponseValidator
-    public error: string |  undefined;
-    public error_description: string |  undefined;
-    public error_uri: string |  undefined;
+    public error: string | undefined;
+    public error_description: string | undefined;
+    public error_uri: string | undefined;
 
     // will be set from ResponseValidator
-    public id_token: string |  undefined;
-    public session_state: string |  undefined;
-    public access_token: string |  undefined;
-    public token_type: string |  undefined;
-    public scope: string |  undefined;
+    public id_token: string | undefined;
+    public session_state: string | undefined;
+    public access_token: string | undefined;
+    public token_type: string | undefined;
+    public scope: string | undefined;
     public expires_at: number | undefined
 
     // will be set from ResponseValidator
