@@ -154,7 +154,7 @@ export class OidcClientSettingsStore {
 
         this.stateStore = stateStore;
 
-        this.extraQueryParams = typeof extraQueryParams === "object" ? extraQueryParams : {};
-        this.extraTokenParams = typeof extraTokenParams === "object" ? extraTokenParams : {};
+        this.extraQueryParams = extraQueryParams;
+        this.extraTokenParams = extraTokenParams;
     }
 }

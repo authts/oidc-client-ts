@@ -21,7 +21,7 @@ export class UrlUtility {
     }
 
     public static parseUrlFragment(value?: string, delimiter = "#") {
-        if (typeof value !== "string") {
+        if (!value) {
             value = location.href;
         }
 

@@ -36,7 +36,7 @@ export class User {
         return undefined;
     }
     public set expires_in(value: number | undefined) {
-        if (typeof value === "number" && value > 0) {
+        if (value && value > 0) {
             const expires_in = Math.floor(value);
             const now = Timer.getEpochTime();
             this.expires_at = now + expires_in;
