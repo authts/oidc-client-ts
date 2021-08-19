@@ -14,7 +14,7 @@ export class MetadataService {
 
     // cache
     private _metadataUrl: string | null;
-    private _signingKeys: any[] | null;
+    private _signingKeys: Record<string, string>[] | null;
     private _metadata: Partial<OidcMetadata> | null;
 
     public constructor(settings: OidcClientSettingsStore) {

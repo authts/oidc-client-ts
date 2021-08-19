@@ -5,7 +5,7 @@ import { Log, JoseUtil } from "../../../src/utils";
 
 describe("JoseUtil", () => {
 
-    let jwt: any;
+    let jwt: string;
     let jwtFromRsa: string;
     let rsaKey: any;
     let ecKey: any;

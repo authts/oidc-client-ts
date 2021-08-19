@@ -3,7 +3,7 @@
 
 import { Log } from "../../src/utils";
 import { OidcClient } from "../../src/OidcClient";
-import { OidcClientSettingsStore } from "../../src/OidcClientSettings";
+import { OidcClientSettings, OidcClientSettingsStore } from "../../src/OidcClientSettings";
 import { SigninState } from "../../src/SigninState";
 import { State } from "../../src/State";
 import { SigninRequest } from "../../src/SigninRequest";
@@ -11,7 +11,6 @@ import { SignoutRequest } from "../../src/SignoutRequest";
 import { SignoutResponse } from "../../src/SignoutResponse";
 
 describe("OidcClient", () => {
-    let settings: any;
     let subject: OidcClient;
 
     beforeEach(() => {
@@ -21,7 +20,7 @@ describe("OidcClient", () => {
         // restore spyOn
         jest.restoreAllMocks();
 
-        settings = {
+        const settings: OidcClientSettings = {
             authority: "authority",
             client_id: "client",
             redirect_uri: "http://app",
@@ -36,17 +35,6 @@ describe("OidcClient", () => {
             expect(subject.settings).not.toBeNull();
             expect(subject.settings.client_id).toEqual("client");
         });
-
-        it("should accept OidcClientSettings", () => {
-            // arrange
-            const settings = {
-                authority: "authority",
-                client_id: "client",
-            };
-
-            // act
-            new OidcClient(settings);
-        });
     });
 
     describe("settings", () => {
@@ -55,7 +43,6 @@ describe("OidcClient", () => {
             // assert
             expect(subject.settings).toBeInstanceOf(OidcClientSettingsStore);
         });
-
     });
 
     describe("createSigninRequest", () => {

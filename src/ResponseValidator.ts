@@ -212,7 +212,7 @@ export class ResponseValidator {
         return result;
     }
 
-    protected _validateTokens(state: SigninState, response: SigninResponse) {
+    protected async _validateTokens(state: SigninState, response: SigninResponse) {
         if (response.code) {
             Log.debug("ResponseValidator._validateTokens: Validating code");
             return this._processCode(state, response);
@@ -221,11 +221,13 @@ export class ResponseValidator {
         if (response.id_token) {
             if (response.access_token) {
                 Log.debug("ResponseValidator._validateTokens: Validating id_token and access_token");
-                return this._validateIdTokenAndAccessToken(state, response);
+                const access_token = response.access_token;
+                response = await this._validateIdToken(state, response, response.id_token);
+                return this._validateAccessToken(response, access_token);
             }
 
             Log.debug("ResponseValidator._validateTokens: Validating id_token");
-            return this._validateIdToken(state, response);
+            return this._validateIdToken(state, response, response.id_token);
         }
 
         Log.debug("ResponseValidator._validateTokens: No code to process or id_token to validate");
@@ -260,7 +262,7 @@ export class ResponseValidator {
 
         if (response.id_token) {
             Log.debug("ResponseValidator._processCode: token response successful, processing id_token");
-            return this._validateIdTokenAttributes(state, response);
+            return this._validateIdTokenAttributes(state, response, response.id_token);
         }
         else {
             Log.debug("ResponseValidator._processCode: token response successful, returning response");
@@ -269,7 +271,7 @@ export class ResponseValidator {
         return response;
     }
 
-    protected async _validateIdTokenAttributes(state: SigninState, response: SigninResponse) {
+    protected async _validateIdTokenAttributes(state: SigninState, response: SigninResponse, id_token: string) {
         const issuer = await this._metadataService.getIssuer();
 
         const audience = state.client_id;
@@ -277,7 +279,7 @@ export class ResponseValidator {
         Log.debug("ResponseValidator._validateIdTokenAttributes: Validaing JWT attributes; using clock skew (in seconds) of: ", clockSkewInSeconds);
 
         const now = Timer.getEpochTime();
-        const payload = await JoseUtil.validateJwtAttributes(response.id_token, issuer, audience, clockSkewInSeconds, now);
+        const payload = await JoseUtil.validateJwtAttributes(id_token, issuer, audience, clockSkewInSeconds, now);
         if (state.nonce && state.nonce !== payload.nonce) {
             Log.error("ResponseValidator._validateIdTokenAttributes: Invalid nonce in id_token");
             throw new Error("Invalid nonce in id_token");
@@ -292,59 +294,50 @@ export class ResponseValidator {
         return response;
     }
 
-    protected async _validateIdTokenAndAccessToken(state: SigninState, response: SigninResponse) {
-        response = await this._validateIdToken(state, response);
-        return this._validateAccessToken(response);
-    }
-
     protected async _getSigningKeyForJwt(jwt: any) {
         let keys = await this._metadataService.getSigningKeys();
-        const kid = jwt.header.kid;
         if (!keys) {
-            Log.error("ResponseValidator._validateIdToken: No signing keys from metadata");
+            Log.error("ResponseValidator._getSigningKeyForJwt: No signing keys from metadata");
             throw new Error("No signing keys from metadata");
         }
 
-        Log.debug("ResponseValidator._validateIdToken: Received signing keys");
-        let key;
-        if (!kid) {
-            keys = this._filterByAlg(keys, jwt.header.alg);
-
-            if (keys.length > 1) {
-                Log.error("ResponseValidator._validateIdToken: No kid found in id_token and more than one key found in metadata");
-                throw new Error("No kid found in id_token and more than one key found in metadata");
-            } else {
-                // kid is mandatory only when there are multiple keys in the referenced JWK Set document
-                // see http://openid.net/specs/openid-connect-core-1_0.html#Signing
-                key = keys[0];
-            }
-        } else {
-            key = keys.filter(key => {
-                return key.kid === kid;
-            })[0];
+        Log.debug("ResponseValidator._getSigningKeyForJwt: Received signing keys");
+        const kid = jwt.header.kid;
+        if (kid) {
+            const key = keys.filter(key => key.kid === kid)[0] ?? null;
+            return key;
         }
-        return key;
+
+        keys = this._filterByAlg(keys, jwt.header.alg);
+        if (keys.length !== 1) {
+            Log.error("ResponseValidator._getSigningKeyForJwt: No kid found in id_token and more than one key found in metadata");
+            return null;
+        }
+
+        // kid is mandatory only when there are multiple keys in the referenced JWK Set document
+        // see http://openid.net/specs/openid-connect-core-1_0.html#Signing
+        return keys[0];
     }
 
     protected async _getSigningKeyForJwtWithSingleRetry(jwt: any) {
         const key = await this._getSigningKeyForJwt(jwt);
-        // Refreshing signingKeys if no suitable verification key is present for given jwt header.
-        if (!key) {
-            // set to undefined, to trigger network call to jwks_uri.
-            this._metadataService.resetSigningKeys();
-            return this._getSigningKeyForJwt(jwt);
-        } else {
+        if (key) {
             return key;
         }
+
+        // Refreshing signingKeys if no suitable verification key is present for given jwt header.
+        // set to undefined, to trigger network call to jwks_uri.
+        this._metadataService.resetSigningKeys();
+        return this._getSigningKeyForJwt(jwt);
     }
 
-    protected async _validateIdToken(state: SigninState, response: SigninResponse): Promise<SigninResponse> {
+    protected async _validateIdToken(state: SigninState, response: SigninResponse, id_token: string): Promise<SigninResponse> {
         if (!state.nonce) {
             Log.error("ResponseValidator._validateIdToken: No nonce on state");
             throw new Error("No nonce on state");
         }
 
-        const jwt = JoseUtil.parseJwt(response.id_token);
+        const jwt = JoseUtil.parseJwt(id_token);
         if (!jwt || !jwt.header || !jwt.payload) {
             Log.error("ResponseValidator._validateIdToken: Failed to parse id_token", jwt);
             throw new Error("Failed to parse id_token");
@@ -369,7 +362,7 @@ export class ResponseValidator {
         const clockSkewInSeconds = this._settings.clockSkew;
         Log.debug("ResponseValidator._validateIdToken: Validaing JWT; using clock skew (in seconds) of: ", clockSkewInSeconds);
 
-        await JoseUtil.validateJwt(response.id_token, key, issuer, audience, clockSkewInSeconds);
+        await JoseUtil.validateJwt(id_token, key, issuer, audience, clockSkewInSeconds);
         Log.debug("ResponseValidator._validateIdToken: JWT validation successful");
 
         if (!payload.sub) {
@@ -381,7 +374,7 @@ export class ResponseValidator {
         return response;
     }
 
-    protected _filterByAlg(keys: any[], alg: string) {
+    protected _filterByAlg(keys: Record<string, string>[], alg: string) {
         let kty: string | null = null;
         if (alg.startsWith("RS")) {
             kty = "RSA";
@@ -408,7 +401,7 @@ export class ResponseValidator {
         return keys;
     }
 
-    protected _validateAccessToken(response: SigninResponse) {
+    protected _validateAccessToken(response: SigninResponse, access_token: string) {
         if (!response.profile) {
             Log.error("ResponseValidator._validateAccessToken: No profile loaded from id_token");
             throw new Error("No profile loaded from id_token");
@@ -449,7 +442,7 @@ export class ResponseValidator {
         }
 
         const sha = "sha" + hashBits.toString();
-        const hash = JoseUtil.hashString(response.access_token, sha);
+        const hash = JoseUtil.hashString(access_token, sha);
         if (!hash) {
             Log.error("ResponseValidator._validateAccessToken: access_token hash failed:", sha);
             throw new Error("Failed to validate at_hash");

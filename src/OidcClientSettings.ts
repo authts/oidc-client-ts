@@ -20,7 +20,7 @@ export interface OidcClientSettings {
     /** Can be used to seed or add additional values to the results of the discovery request */
     metadataSeed?: Partial<OidcMetadata>;
     /** Provide signingKeys when authority server does not allow CORS on the jwks uri */
-    signingKeys?: any[];
+    signingKeys?: Record<string, string>[];
 
     /** Your client application's identifier as registered with the OIDC/OAuth2 */
     client_id: string;
@@ -67,7 +67,7 @@ export class OidcClientSettingsStore {
     public readonly metadataUrl?: string;
     public readonly metadata?: Partial<OidcMetadata>;
     public readonly metadataSeed?: Partial<OidcMetadata>;
-    public readonly signingKeys?: any[];
+    public readonly signingKeys?: Record<string, string>[];
 
     // client config
     public readonly client_id: string;

@@ -265,11 +265,11 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
-                signingKeys: ["test"]
+                signingKeys: [{ kid: "test" }]
             });
 
             // assert
-            expect(subject.signingKeys).toEqual(["test"]);
+            expect(subject.signingKeys).toEqual([{ kid: "test" }]);
         });
     });
 
