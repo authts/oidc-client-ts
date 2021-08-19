@@ -1,7 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { ClockService } from "./ClockService";
 import { WebStorageStateStore } from "./WebStorageStateStore";
 import { OidcMetadata } from "./OidcMetadata";
 import { StateStore } from "./StateStore";
@@ -52,7 +51,6 @@ export interface OidcClientSettings {
     staleStateAge?: number;
     /** The window of time (in seconds) to allow the current time to deviate when validating id_token's iat, nbf, and exp values (default: 300) */
     clockSkew?: number;
-    clockService?: ClockService;
     userInfoJwtIssuer?: "ANY" | "OP" | string;
     mergeClaims?: boolean;
 
@@ -94,7 +92,6 @@ export class OidcClientSettingsStore {
     public readonly loadUserInfo?: boolean;
     public readonly staleStateAge: number;
     public readonly clockSkew: number;
-    public readonly clockService: ClockService;
     public readonly userInfoJwtIssuer?: "ANY" | "OP" | string;
     public readonly mergeClaims?: boolean;
 
@@ -117,7 +114,6 @@ export class OidcClientSettingsStore {
         filterProtocolClaims = true, loadUserInfo = true,
         staleStateAge = DefaultStaleStateAge,
         clockSkew = DefaultClockSkewInSeconds,
-        clockService = new ClockService(),
         userInfoJwtIssuer = "OP",
         mergeClaims = false,
         // other behavior
@@ -153,7 +149,6 @@ export class OidcClientSettingsStore {
         this.loadUserInfo = !!loadUserInfo;
         this.staleStateAge = staleStateAge;
         this.clockSkew = clockSkew;
-        this.clockService = clockService;
         this.userInfoJwtIssuer = userInfoJwtIssuer;
         this.mergeClaims = !!mergeClaims;
 
@@ -161,10 +156,5 @@ export class OidcClientSettingsStore {
 
         this.extraQueryParams = typeof extraQueryParams === "object" ? extraQueryParams : {};
         this.extraTokenParams = typeof extraTokenParams === "object" ? extraTokenParams : {};
-    }
-
-    // get the time
-    public getEpochTime() {
-        return this.clockService.getEpochTime();
     }
 }

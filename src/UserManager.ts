@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, JoseUtil } from "./utils";
+import { Log, JoseUtil, Timer } from "./utils";
 import { INavigator, IFrameNavigator, PopupNavigator } from "./navigators";
 import { OidcClient } from "./OidcClient";
 import { UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
@@ -182,7 +182,7 @@ export class UserManager extends OidcClient {
 
     protected async _validateIdTokenFromTokenRefreshToken(profile: any, id_token: string) {
         const issuer = await this.metadataService.getIssuer();
-        const now = await this.settings.getEpochTime();
+        const now = Timer.getEpochTime();
         const payload = await JoseUtil.validateJwtAttributes(id_token, issuer, this.settings.client_id, this.settings.clockSkew, now);
         if (!payload) {
             Log.error("UserManager._validateIdTokenFromTokenRefreshToken: Failed to validate id_token");

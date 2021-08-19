@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { UrlUtility } from "./utils";
+import { Timer, UrlUtility } from "./utils";
 
 const OidcScope = "openid";
 
@@ -50,7 +50,7 @@ export class SigninResponse {
 
     public get expires_in(): number | undefined {
         if (this.expires_at) {
-            const now = Math.floor(Date.now() / 1000);
+            const now = Timer.getEpochTime();
             return this.expires_at - now;
         }
         return undefined;
@@ -58,7 +58,7 @@ export class SigninResponse {
     public set expires_in(value: number | undefined) {
         if (typeof value === "number" && value > 0) {
             const expires_in = Math.floor(value);
-            const now = Math.floor(Date.now() / 1000);
+            const now = Timer.getEpochTime();
             this.expires_at = now + expires_in;
         }
     }

@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, g_timer, IntervalTimer } from "./utils";
+import { Log, IntervalTimer, g_timer } from "./utils";
 import { CheckSessionIFrame } from "./CheckSessionIFrame";
 import { UserManager } from "./UserManager";
 import { User } from "./User";
@@ -13,14 +13,14 @@ export class SessionMonitor {
     private _sid: any;
     private _checkSessionIFrame?: CheckSessionIFrame;
 
-    public constructor(userManager: UserManager, timer = g_timer) {
+    public constructor(userManager: UserManager) {
         if (!userManager) {
             Log.error("SessionMonitor.ctor: No user manager passed to SessionMonitor");
             throw new Error("userManager");
         }
 
         this._userManager = userManager;
-        this._timer = timer;
+        this._timer = g_timer;
 
         // _start is never called but complier thinks it returns Promise
         // eslint-disable-next-line @typescript-eslint/no-misused-promises

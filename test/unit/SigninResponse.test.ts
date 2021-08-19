@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { SigninResponse } from "../../src/SigninResponse";
+import { Timer } from "../../src/utils";
 
 describe("SigninResponse", () => {
 
@@ -100,7 +101,7 @@ describe("SigninResponse", () => {
             const subject = new SigninResponse("expires_in=10");
 
             // assert
-            expect(subject.expires_at).toEqual(Math.floor((Date.now() / 1000) + 10));
+            expect(subject.expires_at).toEqual(Timer.getEpochTime() + 10);
         });
 
         it("should not read invalid expires_in", () => {

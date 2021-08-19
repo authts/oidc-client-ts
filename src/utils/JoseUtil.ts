@@ -4,6 +4,7 @@
 import { KJUR, KEYUTIL as KeyUtil, X509, hextob64u, b64tohex } from "jsrsasign";
 
 import { Log } from "./Log";
+import { Timer } from "./Timer";
 
 const AllowedSigningAlgs = ["RS256", "RS384", "RS512", "PS256", "PS384", "PS512", "ES256", "ES384", "ES512"];
 
@@ -57,12 +58,8 @@ export class JoseUtil {
     }
 
     public static validateJwtAttributes(jwt: any, issuer: string, audience: string, clockSkew: number, now?: number, timeInsensitive=false) {
-        if (!clockSkew) {
-            clockSkew = 0;
-        }
-
         if (!now) {
-            now = Math.floor(Date.now() / 1000);
+            now = Timer.getEpochTime();
         }
 
         const parsedJwt = JoseUtil.parseJwt(jwt);

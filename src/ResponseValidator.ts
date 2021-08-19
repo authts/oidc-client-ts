@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, JoseUtil } from "./utils";
+import { Log, JoseUtil, Timer } from "./utils";
 import { MetadataService } from "./MetadataService";
 import { UserInfoService } from "./UserInfoService";
 import { TokenClient } from "./TokenClient";
@@ -276,7 +276,7 @@ export class ResponseValidator {
         const clockSkewInSeconds = this._settings.clockSkew;
         Log.debug("ResponseValidator._validateIdTokenAttributes: Validaing JWT attributes; using clock skew (in seconds) of: ", clockSkewInSeconds);
 
-        const now = await this._settings.getEpochTime();
+        const now = Timer.getEpochTime();
         const payload = await JoseUtil.validateJwtAttributes(response.id_token, issuer, audience, clockSkewInSeconds, now);
         if (state.nonce && state.nonce !== payload.nonce) {
             Log.error("ResponseValidator._validateIdTokenAttributes: Invalid nonce in id_token");

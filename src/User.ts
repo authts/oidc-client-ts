@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./utils";
+import { Log, Timer } from "./utils";
 
 export class User {
     public id_token: string;
@@ -30,7 +30,7 @@ export class User {
 
     public get expires_in() {
         if (this.expires_at) {
-            const now = Math.floor(Date.now() / 1000);
+            const now = Timer.getEpochTime();
             return this.expires_at - now;
         }
         return undefined;
@@ -38,7 +38,7 @@ export class User {
     public set expires_in(value: number | undefined) {
         if (typeof value === "number" && value > 0) {
             const expires_in = Math.floor(value);
-            const now = Math.floor(Date.now() / 1000);
+            const now = Timer.getEpochTime();
             this.expires_at = now + expires_in;
         }
     }

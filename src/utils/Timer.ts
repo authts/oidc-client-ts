@@ -21,27 +21,19 @@ export const g_timer: IntervalTimer = {
 
 export class Timer extends Event {
     private _timer: IntervalTimer;
-    private _nowFunc: () => number;
     private _timerHandle: number | null;
     private _expiration: number;
 
-    public constructor(name: string, timer = g_timer, nowFunc?: (() => number)) {
+    public constructor(name: string) {
         super(name);
-        this._timer = timer;
-
-        if (nowFunc) {
-            this._nowFunc = nowFunc;
-        }
-        else {
-            this._nowFunc = () => Math.floor(Date.now() / 1000);
-        }
-
+        this._timer = g_timer;
         this._timerHandle = null;
         this._expiration = 0;
     }
 
-    public get now() {
-        return this._nowFunc();
+    // get the time
+    public static getEpochTime() {
+        return Math.floor(Date.now() / 1000);
     }
 
     public init(duration: number) {
@@ -50,7 +42,7 @@ export class Timer extends Event {
         }
 
         duration = Math.floor(duration);
-        const expiration = this.now + duration;
+        const expiration = Timer.getEpochTime() + duration;
         if (this.expiration === expiration && this._timerHandle) {
             // no need to reinitialize to same expiration, so bail out
             Log.debug("Timer.init timer " + this._name + " skipping initialization since already initialized for expiration:", this.expiration);
@@ -85,10 +77,10 @@ export class Timer extends Event {
     }
 
     protected _callback() {
-        const diff = this._expiration - this.now;
+        const diff = this._expiration - Timer.getEpochTime();
         Log.debug("Timer.callback; " + this._name + " timer expires in:", diff);
 
-        if (this._expiration <= this.now) {
+        if (this._expiration <= Timer.getEpochTime()) {
             this.cancel();
             super.raise();
         }

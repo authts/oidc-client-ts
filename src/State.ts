@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, random } from "./utils";
+import { Log, random, Timer } from "./utils";
 import { StateStore } from "./StateStore";
 
 export class State {
@@ -20,7 +20,7 @@ export class State {
             this.created = created;
         }
         else {
-            this.created = Math.floor(Date.now() / 1000);
+            this.created = Timer.getEpochTime();
         }
         this.request_type =  request_type;
     }
@@ -41,7 +41,7 @@ export class State {
     }
 
     public static async clearStaleState(storage: StateStore, age: number) {
-        const cutoff = Date.now() / 1000 - age;
+        const cutoff = Timer.getEpochTime() - age;
 
         const keys = await storage.getAllKeys();
         Log.debug("State.clearStaleState: got keys", keys);
