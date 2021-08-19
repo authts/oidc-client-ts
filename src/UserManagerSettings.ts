@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
-import { RedirectNavigator, PopupNavigator, IFrameNavigator } from "./navigators";
 import { WebStorageStateStore } from "./WebStorageStateStore";
 import { SigninRequest } from "./SigninRequest";
 
@@ -43,10 +42,6 @@ export interface UserManagerSettings extends OidcClientSettings {
     /** The number of seconds before an access token is to expire to raise the accessTokenExpiring event (default: 60) */
     accessTokenExpiringNotificationTime?: number;
 
-    redirectNavigator?: any;
-    popupNavigator?: any;
-    iframeNavigator?: any;
-
     /** Storage object used to persist User for currently authenticated user (default: session storage) */
     userStore?: WebStorageStateStore;
 }
@@ -72,10 +67,6 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly revokeAccessTokenOnSignout: boolean;
     public readonly accessTokenExpiringNotificationTime: number;
 
-    public readonly redirectNavigator: RedirectNavigator;
-    public readonly popupNavigator: PopupNavigator;
-    public readonly iframeNavigator: IFrameNavigator;
-
     public readonly userStore: WebStorageStateStore;
 
     public constructor(args: UserManagerSettings) {
@@ -96,9 +87,6 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             query_status_response_type,
             revokeAccessTokenOnSignout = false,
             accessTokenExpiringNotificationTime = DefaultAccessTokenExpiringNotificationTime,
-            redirectNavigator = new RedirectNavigator(),
-            popupNavigator = new PopupNavigator(),
-            iframeNavigator = new IFrameNavigator(),
             userStore = new WebStorageStateStore({ store: sessionStorage })
         } = args;
 
@@ -131,10 +119,6 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
         this.revokeAccessTokenOnSignout = revokeAccessTokenOnSignout;
         this.accessTokenExpiringNotificationTime = accessTokenExpiringNotificationTime;
-
-        this.redirectNavigator = redirectNavigator;
-        this.popupNavigator = popupNavigator;
-        this.iframeNavigator = iframeNavigator;
 
         this.userStore = userStore;
     }

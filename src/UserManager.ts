@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log, JoseUtil, Timer } from "./utils";
-import { INavigator, IFrameNavigator, PopupNavigator } from "./navigators";
+import { INavigator, IFrameNavigator, PopupNavigator, RedirectNavigator } from "./navigators";
 import { OidcClient } from "./OidcClient";
 import { UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
 import { User } from "./User";
@@ -16,8 +16,11 @@ import { SessionStatus } from "./SessionStatus";
 import { SignoutResponse } from "./SignoutResponse";
 
 export class UserManager extends OidcClient {
-    declare public readonly settings: UserManagerSettingsStore /* TODO: port-ts */
+    declare public readonly settings: UserManagerSettingsStore; /* TODO: port-ts */
 
+    private readonly _redirectNavigator: RedirectNavigator;
+    private readonly _popupNavigator: PopupNavigator;
+    private readonly _iframeNavigator: IFrameNavigator;
     private readonly _events: UserManagerEvents;
     private readonly _silentRenewService: SilentRenewService;
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -29,6 +32,10 @@ export class UserManager extends OidcClient {
     public constructor(settings: UserManagerSettings) {
         super(settings);
         this.settings = new UserManagerSettingsStore(settings);
+
+        this._redirectNavigator = new RedirectNavigator();
+        this._popupNavigator = new PopupNavigator();
+        this._iframeNavigator = new IFrameNavigator();
 
         this._events = new UserManagerEvents(this.settings);
         this._silentRenewService = new SilentRenewService(this);
@@ -78,11 +85,11 @@ export class UserManager extends OidcClient {
         const args = {
             request_type: "si:r"
         };
-        await this._signinStart(args, this.settings.redirectNavigator);
+        await this._signinStart(args, this._redirectNavigator);
         Log.info("UserManager.signinRedirect: successful");
     }
     public async signinRedirectCallback(url?: string): Promise<User> {
-        const user = await this._signinEnd(url || this.settings.redirectNavigator.url);
+        const user = await this._signinEnd(url || this._redirectNavigator.url);
         if (user.profile && user.profile.sub) {
             Log.info("UserManager.signinRedirectCallback: successful, signed in sub: ", user.profile.sub);
         }
@@ -105,7 +112,7 @@ export class UserManager extends OidcClient {
             redirect_uri: url,
             display: "popup"
         };
-        const user = await this._signin(args, this.settings.popupNavigator, {
+        const user = await this._signin(args, this._popupNavigator, {
             startUrl: url,
             popupWindowFeatures: this.settings.popupWindowFeatures,
             popupWindowTarget: this.settings.popupWindowTarget
@@ -123,7 +130,7 @@ export class UserManager extends OidcClient {
     }
     public async signinPopupCallback(url?: string): Promise<void> {
         try {
-            await this._signinCallback(url, this.settings.popupNavigator);
+            await this._signinCallback(url, this._popupNavigator);
             Log.info("UserManager.signinPopupCallback: successful");
         }
         catch (err) {
@@ -216,7 +223,7 @@ export class UserManager extends OidcClient {
         args.redirect_uri = url;
         args.prompt = args.prompt || "none";
 
-        const user = await this._signin(args, this.settings.iframeNavigator, {
+        const user = await this._signin(args, this._iframeNavigator, {
             startUrl: url,
             silentRequestTimeout: args.silentRequestTimeout || this.settings.silentRequestTimeout
         });
@@ -233,7 +240,7 @@ export class UserManager extends OidcClient {
     }
 
     public async signinSilentCallback(url?: string): Promise<void> {
-        await this._signinCallback(url, this.settings.iframeNavigator);
+        await this._signinCallback(url, this._iframeNavigator);
         Log.info("UserManager.signinSilentCallback: successful");
     }
 
@@ -281,7 +288,7 @@ export class UserManager extends OidcClient {
             scope: "openid",
             skipUserInfo: true
         };
-        const navResponse = await this._signinStart(args, this.settings.iframeNavigator, {
+        const navResponse = await this._signinStart(args, this._iframeNavigator, {
             startUrl: url,
             silentRequestTimeout: this.settings.silentRequestTimeout
         });
@@ -380,11 +387,11 @@ export class UserManager extends OidcClient {
             args.post_logout_redirect_uri = postLogoutRedirectUri;
         }
 
-        await this._signoutStart(args, this.settings.redirectNavigator);
+        await this._signoutStart(args, this._redirectNavigator);
         Log.info("UserManager.signoutRedirect: successful");
     }
     public async signoutRedirectCallback(url?: string): Promise<SignoutResponse> {
-        const response = await this._signoutEnd(url || this.settings.redirectNavigator.url);
+        const response = await this._signoutEnd(url || this._redirectNavigator.url);
         Log.info("UserManager.signoutRedirectCallback: successful");
         return response;
     }
@@ -405,7 +412,7 @@ export class UserManager extends OidcClient {
             args.state = args.state || {};
         }
 
-        await this._signout(args, this.settings.popupNavigator, {
+        await this._signout(args, this._popupNavigator, {
             startUrl: url,
             popupWindowFeatures: args.popupWindowFeatures || this.settings.popupWindowFeatures,
             popupWindowTarget: args.popupWindowTarget || this.settings.popupWindowTarget
@@ -419,7 +426,7 @@ export class UserManager extends OidcClient {
         }
 
         const delimiter = "?";
-        await this.settings.popupNavigator.callback(url, keepOpen, delimiter);
+        await this._popupNavigator.callback(url, keepOpen, delimiter);
         Log.info("UserManager.signoutPopupCallback: successful");
     }
 

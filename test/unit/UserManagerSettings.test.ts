@@ -225,55 +225,7 @@ describe("UserManagerSettings", () => {
 
     });
 
-    describe("redirectNavigator", () => {
-        it("should return value from initial settings", () => {
-            const temp = {};
-
-            // act
-            const subject = new UserManagerSettingsStore({
-                authority: "authority",
-                client_id: "client",
-                redirectNavigator : temp
-            });
-
-            // assert
-            expect(subject.redirectNavigator).toEqual(temp);
-        });
-    });
-
-    describe("popupNavigator", () => {
-        it("should return value from initial settings", () => {
-            const temp = {};
-
-            // act
-            const subject = new UserManagerSettingsStore({
-                authority: "authority",
-                client_id: "client",
-                popupNavigator : temp
-            });
-
-            // assert
-            expect(subject.popupNavigator).toEqual(temp);
-        });
-    });
-
-    describe("iframeNavigator", () => {
-        it("should return value from initial settings", () => {
-            const temp = {};
-
-            // act
-            const subject = new UserManagerSettingsStore({
-                authority: "authority",
-                client_id: "client",
-                iframeNavigator : temp
-            });
-
-            // assert
-            expect(subject.iframeNavigator).toEqual(temp);
-        });
-    });
-
-    describe("redirectNavigator", () => {
+    describe("userStore", () => {
         it("should return value from initial settings", () => {
             const temp = {} as WebStorageStateStore;
 
