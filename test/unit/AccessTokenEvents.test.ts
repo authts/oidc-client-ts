@@ -14,9 +14,12 @@ describe("AccessTokenEvents", () => {
     beforeEach(() => {
         accessTokenExpiringTimer = new StubTimer("stub expiring timer");
         accessTokenExpiredTimer = new StubTimer("stub expired timer");
-        subject = new AccessTokenEvents({
-            accessTokenExpiringTimer, accessTokenExpiredTimer
-        });
+
+        subject = new AccessTokenEvents({});
+
+        // access private members
+        subject["_accessTokenExpiring"] = accessTokenExpiringTimer;
+        subject["_accessTokenExpired"] = accessTokenExpiredTimer;
     });
 
     describe("constructor", () => {

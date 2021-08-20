@@ -14,13 +14,11 @@ export class AccessTokenEvents {
     private _accessTokenExpired: Timer
 
     public constructor({
-        accessTokenExpiringNotificationTime = DefaultAccessTokenExpiringNotificationTime,
-        accessTokenExpiringTimer = new Timer("Access token expiring"),
-        accessTokenExpiredTimer = new Timer("Access token expired")
-    } = {}) {
+        accessTokenExpiringNotificationTime = DefaultAccessTokenExpiringNotificationTime
+    }: { accessTokenExpiringNotificationTime?: number }) {
         this._accessTokenExpiringNotificationTime = accessTokenExpiringNotificationTime;
-        this._accessTokenExpiring = accessTokenExpiringTimer;
-        this._accessTokenExpired = accessTokenExpiredTimer;
+        this._accessTokenExpiring = new Timer("Access token expiring");
+        this._accessTokenExpired = new Timer("Access token expired");
     }
 
     public load(container: User) {
