@@ -6,6 +6,47 @@ import { ResponseValidator } from "../../src/ResponseValidator";
 import { MetadataService } from "../../src/MetadataService";
 import { UserInfoService } from "../../src/UserInfoService";
 import { SigninState } from "../../src/SigninState";
+import { SigninResponse } from "../../src/SigninResponse";
+
+// access private methods
+class ResponseValidatorWrapper extends ResponseValidator {
+    public _processSigninParams(state: SigninState, response: SigninResponse) {
+        return super._processSigninParams(state, response);
+    }
+    public async _processClaims(state: SigninState, response: SigninResponse) {
+        return super._processClaims(state, response);
+    }
+    public _mergeClaims(claims1: any, claims2: any) {
+        return super._mergeClaims(claims1, claims2);
+    }
+    public _filterProtocolClaims(claims: any) {
+        return super._filterProtocolClaims(claims);
+    }
+    public _validateTokens(state: SigninState, response: SigninResponse) {
+        return super._validateTokens(state, response);
+    }
+    public async _processCode(state: SigninState, response: SigninResponse) {
+        return super._processCode(state, response);
+    }
+    public async _validateIdTokenAttributes(state: SigninState, response: SigninResponse, id_token: string) {
+        return super._validateIdTokenAttributes(state, response, id_token);
+    }
+    public async _getSigningKeyForJwt(jwt: any) {
+        return super._getSigningKeyForJwt(jwt);
+    }
+    public async _getSigningKeyForJwtWithSingleRetry(jwt: any) {
+        return super._getSigningKeyForJwtWithSingleRetry(jwt);
+    }
+    public async _validateIdToken(state: SigninState, response: SigninResponse, id_token: string) {
+        return super._validateIdToken(state, response, id_token);
+    }
+    public _filterByAlg(keys: Record<string, string>[], alg: string) {
+        return super._filterByAlg(keys, alg);
+    }
+    public _validateAccessToken(response: SigninResponse, access_token: string) {
+        return super._validateAccessToken(response, access_token);
+    }
+}
 
 describe("ResponseValidator", () => {
     const id_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSIsImtpZCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSJ9.eyJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo0NDMzMy9jb3JlIiwiYXVkIjoianMudG9rZW5tYW5hZ2VyIiwiZXhwIjoxNDU5MTMwMjAxLCJuYmYiOjE0NTkxMjk5MDEsIm5vbmNlIjoiNzIyMTAwNTIwOTk3MjM4MiIsImlhdCI6MTQ1OTEyOTkwMSwiYXRfaGFzaCI6IkpnRFVDeW9hdEp5RW1HaWlXYndPaEEiLCJzaWQiOiIwYzVmMDYxZTYzOThiMWVjNmEwYmNlMmM5NDFlZTRjNSIsInN1YiI6Ijg4NDIxMTEzIiwiYXV0aF90aW1lIjoxNDU5MTI5ODk4LCJpZHAiOiJpZHNydiIsImFtciI6WyJwYXNzd29yZCJdfQ.f6S1Fdd0UQScZAFBzXwRiVsUIPQnWZLSe07kdtjANRZDZXf5A7yDtxOftgCx5W0ONQcDFVpLGPgTdhp7agZkPpCFutzmwr0Rr9G7E7mUN4xcIgAABhmRDfzDayFBEu6VM8wEWTChezSWtx2xG_2zmVJxxmNV0jvkaz0bu7iin-C_UZg6T-aI9FZDoKRGXZP9gF65FQ5pQ4bCYQxhKcvjjUfs0xSHGboL7waN6RfDpO4vvVR1Kz-PQhIRyFAJYRuoH4PdMczHYtFCb-k94r-7TxEU0vp61ww4WntbPvVWwUbCUgsEtmDzAZT-NEJVhWztNk1ip9wDPXzZ2hEhDAPJ7A";
@@ -15,7 +56,7 @@ describe("ResponseValidator", () => {
     let stubState: any;
     let stubResponse: any;
     let settings: any;
-    let subject: ResponseValidator;
+    let subject: ResponseValidatorWrapper;
 
     let metadataService: MetadataService;
     let userInfoService: UserInfoService;
@@ -44,7 +85,7 @@ describe("ResponseValidator", () => {
         // restore spyOn
         jest.restoreAllMocks();
 
-        subject = new ResponseValidator(settings, metadataService);
+        subject = new ResponseValidatorWrapper(settings, metadataService);
 
         // access private members
         userInfoService = subject["_userInfoService"];
@@ -608,68 +649,13 @@ describe("ResponseValidator", () => {
             // arrange
             stubResponse.id_token = "id_token";
             stubResponse.access_token = "access_token";
-            const _validateIdTokenAndAccessTokenMock = jest.spyOn(subject, "_validateIdTokenAndAccessToken")
-                .mockImplementation(() => Promise.resolve(stubResponse));
-            const _validateIdTokenMock = jest.spyOn(subject, "_validateIdToken")
-                .mockImplementation(() => Promise.resolve(stubResponse));
-
-            // act
-            await subject._validateTokens(stubState, stubResponse);
-
-            // assert
-            expect(_validateIdTokenAndAccessTokenMock).toBeCalled();
-            expect(_validateIdTokenMock).not.toBeCalled();
-        });
-
-        it("should validate just id_token", async () => {
-            // arrange
-            stubResponse.id_token = "id_token";
-            const _validateIdTokenAndAccessTokenMock = jest.spyOn(subject, "_validateIdTokenAndAccessToken")
-                .mockImplementation(() => Promise.resolve(stubResponse));
-            const _validateIdTokenMock = jest.spyOn(subject, "_validateIdToken")
-                .mockImplementation(() => Promise.resolve(stubResponse));
-
-            // act
-            await subject._validateTokens(stubState, stubResponse);
-
-            // assert
-            expect(_validateIdTokenAndAccessTokenMock).not.toBeCalled();
-            expect(_validateIdTokenMock).toBeCalled();
-        });
-
-        it("should not validate if only access_token", async () => {
-            // arrange
-            stubResponse.access_token = "access_token";
-            const _validateIdTokenAndAccessTokenMock = jest.spyOn(subject, "_validateIdTokenAndAccessToken")
-                .mockImplementation(() => Promise.resolve(stubResponse));
-            const _validateIdTokenMock = jest.spyOn(subject, "_validateIdToken")
-                .mockImplementation(() => Promise.resolve(stubResponse));
-
-            // act
-            await subject._validateTokens(stubState, stubResponse);
-
-            // assert
-            expect(_validateIdTokenAndAccessTokenMock).not.toBeCalled();
-            expect(_validateIdTokenMock).not.toBeCalled();
-        });
-    });
-
-    describe("_validateIdTokenAndAccessToken", () => {
-
-        it("should validate id_token and access_token", async () => {
-            // arrange
-            stubResponse.id_token = id_token;
-            stubResponse.access_token = access_token;
-            stubResponse.profile = {
-                at_hash: at_hash
-            };
             const _validateIdTokenMock = jest.spyOn(subject, "_validateIdToken")
                 .mockImplementation(() => Promise.resolve(stubResponse));
             const _validateAccessTokenMock = jest.spyOn(subject, "_validateAccessToken")
                 .mockImplementation(() => stubResponse);
 
             // act
-            await subject._validateIdTokenAndAccessToken(stubState, stubResponse);
+            await subject._validateTokens(stubState, stubResponse);
 
             // assert
             expect(_validateIdTokenMock).toBeCalled();
@@ -687,12 +673,44 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                await subject._validateIdTokenAndAccessToken(stubState, stubResponse);
+                await subject._validateTokens(stubState, stubResponse);
                 fail("should not come here");
             } catch (err) {
                 expect(_validateIdTokenMock).toBeCalled();
                 expect(_validateAccessTokenMock).not.toBeCalled();
             }
+        });
+
+        it("should validate just id_token", async () => {
+            // arrange
+            stubResponse.id_token = "id_token";
+            const _validateIdTokenMock = jest.spyOn(subject, "_validateIdToken")
+                .mockImplementation(() => Promise.resolve(stubResponse));
+            const _validateAccessTokenMock = jest.spyOn(subject, "_validateAccessToken")
+                .mockImplementation(() => stubResponse);
+
+            // act
+            await subject._validateTokens(stubState, stubResponse);
+
+            // assert
+            expect(_validateIdTokenMock).toBeCalled();
+            expect(_validateAccessTokenMock).not.toBeCalled();
+        });
+
+        it("should not validate if only access_token", async () => {
+            // arrange
+            stubResponse.access_token = "access_token";
+            const _validateIdTokenMock = jest.spyOn(subject, "_validateIdToken")
+                .mockImplementation(() => Promise.resolve(stubResponse));
+            const _validateAccessTokenMock = jest.spyOn(subject, "_validateAccessToken")
+                .mockImplementation(() => stubResponse);
+
+            // act
+            await subject._validateTokens(stubState, stubResponse);
+
+            // assert
+            expect(_validateIdTokenMock).not.toBeCalled();
+            expect(_validateAccessTokenMock).not.toBeCalled();
         });
     });
 
@@ -731,11 +749,8 @@ describe("ResponseValidator", () => {
         it("should retry once if suitable signing key is not found.", async () => {
             // arrange
             const jwt = { header: { kid: "a3rMUgMFv9tPclLa6yF3zAkfquE" }};
-            const keys = [{ kid: "other_key" }];
-            jest.spyOn(metadataService, "getSigningKeys")
-                .mockImplementation(() => Promise.resolve(keys));
             const _getSigningKeyForJwtMock = jest.spyOn(subject, "_getSigningKeyForJwt")
-                .mockImplementation(() => Promise.resolve(undefined));
+                .mockImplementation(() => Promise.resolve(null));
 
             // act
             await subject._getSigningKeyForJwtWithSingleRetry(jwt);
@@ -770,7 +785,7 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                await subject._validateIdToken(stubState, stubResponse);
+                await subject._validateIdToken(stubState, stubResponse, id_token);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("nonce");
@@ -780,7 +795,7 @@ describe("ResponseValidator", () => {
         it("should fail if invalid id_token", async () => {
             // act
             try {
-                await subject._validateIdToken(stubState, stubResponse);
+                await subject._validateIdToken(stubState, stubResponse, "dummy");
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("id_token");
@@ -797,7 +812,7 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                await subject._validateIdToken(stubState, stubResponse);
+                await subject._validateIdToken(stubState, stubResponse, id_token);
                 fail("should not come here");
             // eslint-disable-next-line no-empty
             } catch (err) {}
@@ -813,7 +828,7 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                await subject._validateIdToken(stubState, stubResponse);
+                await subject._validateIdToken(stubState, stubResponse, id_token);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("nonce");
@@ -831,7 +846,7 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                await subject._validateIdToken(stubState, stubResponse);
+                await subject._validateIdToken(stubState, stubResponse, id_token);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("issuer");
@@ -850,7 +865,7 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                await subject._validateIdToken(stubState, stubResponse);
+                await subject._validateIdToken(stubState, stubResponse, id_token);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("keys");
@@ -869,7 +884,7 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                await subject._validateIdToken(stubState, stubResponse);
+                await subject._validateIdToken(stubState, stubResponse, id_token);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("kid");
@@ -891,7 +906,7 @@ describe("ResponseValidator", () => {
             });
 
             // act
-            await subject._validateIdToken(stubState, stubResponse);
+            await subject._validateIdToken(stubState, stubResponse, id_token);
 
             // assert
             expect(validateJwtMock).toHaveBeenCalled();
@@ -912,7 +927,7 @@ describe("ResponseValidator", () => {
             });
 
             // act
-            const response =  await subject._validateIdToken(stubState, stubResponse);
+            const response =  await subject._validateIdToken(stubState, stubResponse, id_token);
 
             // assert
             expect(response.profile).toBeDefined();
@@ -930,7 +945,7 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                subject._validateAccessToken(stubResponse);
+                subject._validateAccessToken(stubResponse, access_token);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("id_token");
@@ -944,7 +959,7 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                subject._validateAccessToken(stubResponse);
+                subject._validateAccessToken(stubResponse, access_token);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("profile");
@@ -959,7 +974,7 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                subject._validateAccessToken(stubResponse);
+                subject._validateAccessToken(stubResponse, access_token);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("at_hash");
@@ -975,7 +990,7 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                subject._validateAccessToken(stubResponse);
+                subject._validateAccessToken(stubResponse, access_token);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("id_token");
@@ -994,7 +1009,7 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                subject._validateAccessToken(stubResponse);
+                subject._validateAccessToken(stubResponse, access_token);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("alg");
@@ -1014,7 +1029,7 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                subject._validateAccessToken(stubResponse);
+                subject._validateAccessToken(stubResponse, access_token);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("alg");
@@ -1034,7 +1049,7 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                subject._validateAccessToken(stubResponse);
+                subject._validateAccessToken(stubResponse, access_token);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("alg");
@@ -1060,7 +1075,7 @@ describe("ResponseValidator", () => {
 
             // act
             try {
-                subject._validateAccessToken(stubResponse);
+                subject._validateAccessToken(stubResponse, access_token);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("at_hash");
@@ -1076,7 +1091,7 @@ describe("ResponseValidator", () => {
             };
 
             // act
-            const response = subject._validateAccessToken(stubResponse);
+            const response = subject._validateAccessToken(stubResponse, access_token);
 
             // assert
             expect(response).toEqual(stubResponse);

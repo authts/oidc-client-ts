@@ -14,10 +14,10 @@ export class MetadataService {
 
     // cache
     private _metadataUrl: string | null;
-    private _signingKeys: any[] | null;
+    private _signingKeys: Record<string, string>[] | null;
     private _metadata: Partial<OidcMetadata> | null;
 
-    constructor(settings: OidcClientSettingsStore) {
+    public constructor(settings: OidcClientSettingsStore) {
         this._settings = settings;
         this._jsonService = new JsonService(["application/jwk-set+json"]);
 
@@ -45,11 +45,11 @@ export class MetadataService {
         }
     }
 
-    resetSigningKeys() {
+    public resetSigningKeys() {
         this._signingKeys = null;
     }
 
-    async getMetadata(): Promise<Partial<OidcMetadata>> {
+    public async getMetadata(): Promise<Partial<OidcMetadata>> {
         if (this._metadata) {
             Log.debug("MetadataService.getMetadata: Returning metadata from cache");
             return this._metadata;
@@ -69,39 +69,39 @@ export class MetadataService {
         return this._metadata;
     }
 
-    getIssuer() {
+    public getIssuer() {
         return this._getMetadataProperty("issuer") as Promise<string>;
     }
 
-    getAuthorizationEndpoint() {
+    public getAuthorizationEndpoint() {
         return this._getMetadataProperty("authorization_endpoint") as Promise<string>;
     }
 
-    getUserInfoEndpoint() {
+    public getUserInfoEndpoint() {
         return this._getMetadataProperty("userinfo_endpoint") as Promise<string>;
     }
 
-    getTokenEndpoint(optional=true) {
+    public getTokenEndpoint(optional=true) {
         return this._getMetadataProperty("token_endpoint", optional) as Promise<string | undefined>;
     }
 
-    getCheckSessionIframe() {
+    public getCheckSessionIframe() {
         return this._getMetadataProperty("check_session_iframe", true) as Promise<string | undefined>;
     }
 
-    getEndSessionEndpoint() {
+    public getEndSessionEndpoint() {
         return this._getMetadataProperty("end_session_endpoint", true) as Promise<string | undefined>;
     }
 
-    getRevocationEndpoint() {
+    public getRevocationEndpoint() {
         return this._getMetadataProperty("revocation_endpoint", true) as Promise<string | undefined>;
     }
 
-    getKeysEndpoint(optional=true) {
+    public getKeysEndpoint(optional=true) {
         return this._getMetadataProperty("jwks_uri", optional) as Promise<string | undefined>;
     }
 
-    async _getMetadataProperty(name: keyof OidcMetadata, optional=false) {
+    protected async _getMetadataProperty(name: keyof OidcMetadata, optional=false) {
         Log.debug("MetadataService.getMetadataProperty for: " + name);
 
         const metadata = await this.getMetadata();
@@ -121,7 +121,7 @@ export class MetadataService {
         return metadata[name];
     }
 
-    async getSigningKeys() {
+    public async getSigningKeys() {
         if (this._signingKeys) {
             Log.debug("MetadataService.getSigningKeys: Returning signingKeys from cache");
             return this._signingKeys;

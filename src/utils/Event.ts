@@ -7,23 +7,23 @@ export class Event {
     protected _name: string;
     private _callbacks: ((...ev: any[]) => void)[];
 
-    constructor(name: string) {
+    public constructor(name: string) {
         this._name = name;
         this._callbacks = [];
     }
 
-    addHandler(cb: (...ev: any[]) => void) {
+    public addHandler(cb: (...ev: any[]) => void) {
         this._callbacks.push(cb);
     }
 
-    removeHandler(cb: (...ev: any[]) => void) {
+    public removeHandler(cb: (...ev: any[]) => void) {
         const idx = this._callbacks.findIndex(item => item === cb);
         if (idx >= 0) {
             this._callbacks.splice(idx, 1);
         }
     }
 
-    raise(...params: any[]) {
+    public raise(...params: any[]) {
         Log.debug("Event: Raising event: " + this._name);
         for (let i = 0; i < this._callbacks.length; i++) {
             this._callbacks[i](...params);

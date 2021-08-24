@@ -17,7 +17,7 @@ export class SigninState extends State {
     public readonly extraTokenParams: any;
     public readonly skipUserInfo: any;
 
-    constructor(args: any = {}) {
+    public constructor(args: any = {}) {
         const {
             nonce, authority, client_id,
             redirect_uri, code_verifier, response_mode, client_secret,
@@ -55,7 +55,7 @@ export class SigninState extends State {
         this.skipUserInfo = skipUserInfo;
     }
 
-    toStorageString() {
+    public toStorageString() {
         Log.debug("SigninState.toStorageString");
         return JSON.stringify({
             id: this.id,
@@ -75,7 +75,7 @@ export class SigninState extends State {
         });
     }
 
-    static fromStorageString(storageString: string) {
+    public static fromStorageString(storageString: string) {
         Log.debug("SigninState.fromStorageString");
         const data = JSON.parse(storageString);
         return new SigninState(data);

@@ -265,11 +265,11 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
-                signingKeys: ["test"]
+                signingKeys: [{ kid: "test" }]
             });
 
             // assert
-            expect(subject.signingKeys).toEqual(["test"]);
+            expect(subject.signingKeys).toEqual([{ kid: "test" }]);
         });
     });
 
@@ -459,18 +459,6 @@ describe("OidcClientSettings", () => {
             // assert
             expect(subject.extraQueryParams).toEqual({ "hd": "domain.com" });
         });
-
-        it("should not set value from initial settings if not object, but set default value ({})", () => {
-            // act
-            const subject = new OidcClientSettingsStore({
-                authority: "authority",
-                client_id: "client",
-                extraQueryParams: 123456 as unknown as Record<string, any>
-            });
-
-            // assert
-            expect(subject.extraQueryParams).toEqual({});
-        });
     });
 
     describe("extraTokenParams", () => {
@@ -498,18 +486,6 @@ describe("OidcClientSettings", () => {
 
             // assert
             expect(subject.extraTokenParams).toEqual({ "resourceServer": "abc" });
-        });
-
-        it("should not set value from initial settings if not object, but set default value ({})", () => {
-            // act
-            const subject = new OidcClientSettingsStore({
-                authority: "authority",
-                client_id: "client",
-                extraTokenParams: 123456 as unknown as Record<string, any>
-            });
-
-            // assert
-            expect(subject.extraTokenParams).toEqual({});
         });
     });
 });

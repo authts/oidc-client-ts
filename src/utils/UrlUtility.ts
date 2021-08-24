@@ -4,7 +4,7 @@
 import { Log } from "./Log";
 
 export class UrlUtility {
-    static addQueryParam(url: string, name: string, value: string) {
+    public static addQueryParam(url: string, name: string, value: string) {
         if (url.indexOf("?") < 0) {
             url += "?";
         }
@@ -20,8 +20,8 @@ export class UrlUtility {
         return url;
     }
 
-    static parseUrlFragment(value?: string, delimiter = "#") {
-        if (typeof value !== "string") {
+    public static parseUrlFragment(value?: string, delimiter = "#") {
+        if (!value) {
             value = location.href;
         }
 

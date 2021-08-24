@@ -11,13 +11,13 @@ export class UserInfoService {
     private _jsonService: JsonService;
     private _metadataService: MetadataService;
 
-    constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
+    public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
         this._settings = settings;
         this._jsonService = new JsonService(undefined, this._getClaimsFromJwt.bind(this));
         this._metadataService = metadataService;
     }
 
-    async getClaims(token?: string) {
+    public async getClaims(token?: string) {
         if (!token) {
             Log.error("UserInfoService.getClaims: No token passed");
             throw new Error("A token is required");
@@ -32,7 +32,7 @@ export class UserInfoService {
         return claims;
     }
 
-    async _getClaimsFromJwt(responseText: string) {
+    protected async _getClaimsFromJwt(responseText: string) {
         try {
             const jwt = JoseUtil.parseJwt(responseText);
             if (!jwt || !jwt.header || !jwt.payload) {
@@ -65,24 +65,19 @@ export class UserInfoService {
             }
 
             Log.debug("UserInfoService._getClaimsFromJwt: Received signing keys");
-            let key;
-            if (!header.kid) {
+            let key: Record<string, string> | null;
+            if (header.kid) {
+                key = keys.filter(key => key.kid === header.kid)[0] ?? null;
+            } else {
                 keys = this._filterByAlg(keys, jwt.header.alg);
-
-                if (keys.length > 1) {
+                if (keys.length !== 1) {
                     Log.error("UserInfoService._getClaimsFromJwt: No kid found in id_token and more than one key found in metadata");
                     throw new Error("No kid found in id_token and more than one key found in metadata");
                 }
-                else {
-                    // kid is mandatory only when there are multiple keys in the referenced JWK Set document
-                    // see http://openid.net/specs/openid-connect-core-1_0.html#Signing
-                    key = keys[0];
-                }
-            }
-            else {
-                key = keys.filter(key => {
-                    return key.kid === header.kid;
-                })[0];
+
+                // kid is mandatory only when there are multiple keys in the referenced JWK Set document
+                // see http://openid.net/specs/openid-connect-core-1_0.html#Signing
+                key = keys[0];
             }
 
             if (!key) {
@@ -105,7 +100,7 @@ export class UserInfoService {
         }
     }
 
-    _filterByAlg(keys: any[], alg: string) {
+    protected _filterByAlg(keys: Record<string, string>[], alg: string) {
         let kty: string | null = null;
         if (alg.startsWith("RS")) {
             kty = "RSA";

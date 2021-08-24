@@ -13,7 +13,7 @@ export class ErrorResponse extends Error {
     public readonly state: any;
     public readonly session_state?: string;
 
-    constructor({
+    public constructor({
         error, error_description, error_uri, state, session_state
     }: any) {
         if (!error) {

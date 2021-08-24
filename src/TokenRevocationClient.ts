@@ -12,12 +12,12 @@ export class TokenRevocationClient {
     private _settings: OidcClientSettingsStore
     private _metadataService: MetadataService;
 
-    constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
+    public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
         this._settings = settings;
         this._metadataService = metadataService;
     }
 
-    async revoke(token: string, required: boolean, type = "access_token") {
+    public async revoke(token: string, required: boolean, type = "access_token") {
         if (!token) {
             Log.error("TokenRevocationClient.revoke: No token provided");
             throw new Error("No token provided.");
@@ -45,7 +45,7 @@ export class TokenRevocationClient {
         return this._revoke(url, client_id, client_secret, token, type);
     }
 
-    async _revoke(url: string, client_id: string, client_secret: string | undefined, token: string, type: string) {
+    protected async _revoke(url: string, client_id: string, client_secret: string | undefined, token: string, type: string) {
         const headers: HeadersInit = {
             "Content-Type": "application/x-www-form-urlencoded",
         };

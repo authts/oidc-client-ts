@@ -34,11 +34,13 @@ describe("Timer", () => {
 
     let subject: Timer;
     let intervalTimerMock: IntervalTimerMock;
-    let now = Math.floor(Date.now() / 1000);
+    let now = 1;
 
     beforeEach(() => {
         intervalTimerMock = new IntervalTimerMock();
-        subject = new Timer("test name", intervalTimerMock, () => now);
+        subject = new Timer("test name");
+        jest.spyOn(Timer, "getEpochTime").mockImplementation(() => now);
+        subject["_timer"] = intervalTimerMock;
     });
 
     describe("init", () => {
@@ -168,6 +170,7 @@ describe("Timer", () => {
         });
 
         it("should cancel window timer", () => {
+            // arrange
             now = 100;
             subject.init(10);
 

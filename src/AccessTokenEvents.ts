@@ -13,17 +13,15 @@ export class AccessTokenEvents {
     private _accessTokenExpiring: Timer
     private _accessTokenExpired: Timer
 
-    constructor({
-        accessTokenExpiringNotificationTime = DefaultAccessTokenExpiringNotificationTime,
-        accessTokenExpiringTimer = new Timer("Access token expiring"),
-        accessTokenExpiredTimer = new Timer("Access token expired")
-    } = {}) {
+    public constructor({
+        accessTokenExpiringNotificationTime = DefaultAccessTokenExpiringNotificationTime
+    }: { accessTokenExpiringNotificationTime?: number }) {
         this._accessTokenExpiringNotificationTime = accessTokenExpiringNotificationTime;
-        this._accessTokenExpiring = accessTokenExpiringTimer;
-        this._accessTokenExpired = accessTokenExpiredTimer;
+        this._accessTokenExpiring = new Timer("Access token expiring");
+        this._accessTokenExpired = new Timer("Access token expired");
     }
 
-    load(container: User) {
+    public load(container: User) {
         // only register events if there's an access token and it has an expiration
         if (container.access_token && container.expires_in !== undefined) {
             const duration = container.expires_in;
@@ -55,23 +53,23 @@ export class AccessTokenEvents {
         }
     }
 
-    unload() {
+    public unload() {
         Log.debug("AccessTokenEvents.unload: canceling existing access token timers");
         this._accessTokenExpiring.cancel();
         this._accessTokenExpired.cancel();
     }
 
-    addAccessTokenExpiring(cb: AccessTokenCallback) {
+    public addAccessTokenExpiring(cb: AccessTokenCallback) {
         this._accessTokenExpiring.addHandler(cb);
     }
-    removeAccessTokenExpiring(cb: AccessTokenCallback) {
+    public removeAccessTokenExpiring(cb: AccessTokenCallback) {
         this._accessTokenExpiring.removeHandler(cb);
     }
 
-    addAccessTokenExpired(cb: AccessTokenCallback) {
+    public addAccessTokenExpired(cb: AccessTokenCallback) {
         this._accessTokenExpired.addHandler(cb);
     }
-    removeAccessTokenExpired(cb: AccessTokenCallback) {
+    public removeAccessTokenExpired(cb: AccessTokenCallback) {
         this._accessTokenExpired.removeHandler(cb);
     }
 }

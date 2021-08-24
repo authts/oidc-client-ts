@@ -4,11 +4,12 @@
 import { KJUR, KEYUTIL as KeyUtil, X509, hextob64u, b64tohex } from "jsrsasign";
 
 import { Log } from "./Log";
+import { Timer } from "./Timer";
 
 const AllowedSigningAlgs = ["RS256", "RS384", "RS512", "PS256", "PS384", "PS512", "ES256", "ES384", "ES512"];
 
 export class JoseUtil {
-    static parseJwt(jwt: any) {
+    public static parseJwt(jwt: string) {
         Log.debug("JoseUtil.parseJwt");
         try {
             const token = KJUR.jws.JWS.parse(jwt);
@@ -22,7 +23,7 @@ export class JoseUtil {
         }
     }
 
-    static validateJwt(jwt: any, key: any, issuer: string, audience: string, clockSkew: number, now?: number, timeInsensitive = false) {
+    public static validateJwt(jwt: string, key: any, issuer: string, audience: string, clockSkew: number, now?: number, timeInsensitive = false) {
         Log.debug("JoseUtil.validateJwt");
 
         try {
@@ -56,13 +57,9 @@ export class JoseUtil {
         }
     }
 
-    static validateJwtAttributes(jwt: any, issuer: string, audience: string, clockSkew: number, now?: number, timeInsensitive=false) {
-        if (!clockSkew) {
-            clockSkew = 0;
-        }
-
+    public static validateJwtAttributes(jwt: string, issuer: string, audience: string, clockSkew: number, now?: number, timeInsensitive=false) {
         if (!now) {
-            now = Math.floor(Date.now() / 1000);
+            now = Timer.getEpochTime();
         }
 
         const parsedJwt = JoseUtil.parseJwt(jwt);
@@ -131,7 +128,7 @@ export class JoseUtil {
         return payload;
     }
 
-    static _validateJwt(jwt: any, key: string, issuer: string, audience: string, clockSkew: number, now?: number, timeInsensitive = false) {
+    private static _validateJwt(jwt: string, key: string, issuer: string, audience: string, clockSkew: number, now?: number, timeInsensitive = false) {
         const payload = JoseUtil.validateJwtAttributes(jwt, issuer, audience, clockSkew, now, timeInsensitive);
 
         let isValid: boolean;
@@ -150,7 +147,7 @@ export class JoseUtil {
         return payload;
     }
 
-    static hashString(value: any, alg: string) {
+    public static hashString(value: string, alg: string) {
         try {
             return KJUR.crypto.Util.hashString(value, alg);
         } catch (e) {
@@ -159,7 +156,7 @@ export class JoseUtil {
         }
     }
 
-    static hexToBase64Url(value: string) {
+    public static hexToBase64Url(value: string) {
         try {
             return hextob64u(value);
         } catch (e) {

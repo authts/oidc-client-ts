@@ -6,13 +6,12 @@ import { PopupWindow } from "./PopupWindow";
 import { INavigator } from "./INavigator";
 
 export class PopupNavigator implements INavigator {
-
-    prepare(params: any) {
+    public prepare(params: any) {
         const popup = new PopupWindow(params);
         return Promise.resolve(popup);
     }
 
-    callback(url: string | undefined, keepOpen: boolean, delimiter: string) {
+    public callback(url: string | undefined, keepOpen: boolean, delimiter: string) {
         Log.debug("PopupNavigator.callback");
 
         try {

@@ -80,10 +80,10 @@ describe("Event", () => {
 
         it("should pass params", () => {
             // arrange
-            let a: any = 10;
-            let b: any = 11;
-            let c: any = 12;
-            const cb = function (arg_a: any, arg_b: any, arg_c: any) {
+            let a = 10;
+            let b = 11;
+            let c = 12;
+            const cb = function (arg_a: number, arg_b: number, arg_c: number) {
                 a = arg_a;
                 b = arg_b;
                 c = arg_c;
@@ -101,10 +101,10 @@ describe("Event", () => {
 
         it("should allow passing no params", () => {
             // arrange
-            let a: any = 10;
-            let b: any = 11;
-            let c: any = 12;
-            const cb = function (arg_a: any, arg_b: any, arg_c: any) {
+            let a = 10;
+            let b = 11;
+            let c = 12;
+            const cb = function (arg_a: number, arg_b: number, arg_c: number) {
                 a = arg_a;
                 b = arg_b;
                 c = arg_c;

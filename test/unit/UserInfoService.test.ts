@@ -4,6 +4,7 @@
 import { UserInfoService } from "../../src/UserInfoService";
 import { MetadataService } from "../../src/MetadataService";
 import { JsonService } from "../../src/JsonService";
+import { OidcClientSettingsStore } from "../../src/OidcClientSettings";
 
 describe("UserInfoService", () => {
     let subject: UserInfoService;
@@ -11,8 +12,10 @@ describe("UserInfoService", () => {
     let jsonService: JsonService;
 
     beforeEach(() => {
-        const settings: any = {
-        };
+        const settings = new OidcClientSettingsStore({
+            authority: "authority",
+            client_id: "client"
+        });
         metadataService = new MetadataService(settings);
 
         subject = new UserInfoService(settings, metadataService);

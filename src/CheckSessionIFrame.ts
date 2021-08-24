@@ -16,7 +16,7 @@ export class CheckSessionIFrame {
     private _timer: number | null;
     private _session_state: any | null;
 
-    constructor(callback: () => void, client_id: string, url: string, interval?: number, stopOnError?: boolean) {
+    public constructor(callback: () => void, client_id: string, url: string, interval?: number, stopOnError?: boolean) {
         this._callback = callback;
         this._client_id = client_id;
         this._interval = interval || DefaultInterval;
@@ -40,7 +40,7 @@ export class CheckSessionIFrame {
 
     }
 
-    load() {
+    public load() {
         return new Promise<void>((resolve) => {
             this._frame.onload = () => {
                 resolve();
@@ -52,7 +52,7 @@ export class CheckSessionIFrame {
         });
     }
 
-    _message(e: MessageEvent<string>) {
+    private _message(e: MessageEvent<string>) {
         if (e.origin === this._frame_origin &&
             e.source === this._frame.contentWindow
         ) {
@@ -73,7 +73,7 @@ export class CheckSessionIFrame {
         }
     }
 
-    start(session_state: any) {
+    public start(session_state: any) {
         if (this._session_state !== session_state) {
             Log.debug("CheckSessionIFrame.start");
 
@@ -97,7 +97,7 @@ export class CheckSessionIFrame {
         }
     }
 
-    stop() {
+    public stop() {
         this._session_state = null;
 
         if (this._timer) {

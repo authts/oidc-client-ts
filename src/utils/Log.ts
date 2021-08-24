@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 export interface Logger {
-    error(...args: any[]): void;
-    info(...args: any[]): void;
     debug(...args: any[]): void;
+    info(...args: any[]): void;
     warn(...args: any[]): void;
+    error(...args: any[]): void;
 }
 
 const nopLogger: Logger = {
@@ -25,21 +25,21 @@ let logger: Logger;
 let level: number;
 
 export class Log {
-    static get NONE() {return NONE;}
-    static get ERROR() {return ERROR;}
-    static get WARN() {return WARN;}
-    static get INFO() {return INFO;}
-    static get DEBUG() {return DEBUG;}
+    public static get NONE() {return NONE;}
+    public static get ERROR() {return ERROR;}
+    public static get WARN() {return WARN;}
+    public static get INFO() {return INFO;}
+    public static get DEBUG() {return DEBUG;}
 
-    static reset() {
+    public static reset() {
         level = INFO;
         logger = nopLogger;
     }
 
-    static get level() {
+    public static get level() {
         return level;
     }
-    static set level(value: number) {
+    public static set level(value: number) {
         if (NONE <= value && value <= DEBUG) {
             level = value;
         }
@@ -48,29 +48,29 @@ export class Log {
         }
     }
 
-    static get logger() {
+    public static get logger() {
         return logger;
     }
-    static set logger(value) {
+    public static set logger(value) {
         logger = value;
     }
 
-    static debug(...args: any[]) {
+    public static debug(...args: any[]) {
         if (level >= DEBUG) {
             logger.debug(...args);
         }
     }
-    static info(...args: any[]) {
+    public static info(...args: any[]) {
         if (level >= INFO) {
             logger.info(...args);
         }
     }
-    static warn(...args: any[]) {
+    public static warn(...args: any[]) {
         if (level >= WARN) {
             logger.warn(...args);
         }
     }
-    static error(...args: any[]) {
+    public static error(...args: any[]) {
         if (level >= ERROR) {
             logger.error(...args);
         }

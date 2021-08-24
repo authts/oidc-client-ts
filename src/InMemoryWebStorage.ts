@@ -6,35 +6,35 @@ import { Log } from "./utils";
 export class InMemoryWebStorage implements Storage {
     private _data: Record<string, any>;
 
-    constructor() {
+    public constructor() {
         this._data = {};
     }
 
-    clear(): void {
+    public clear(): void {
         Log.debug("InMemoryWebStorage.clear");
         this._data = {};
     }
 
-    getItem(key: string) {
+    public getItem(key: string) {
         Log.debug("InMemoryWebStorage.getItem", key);
         return this._data[key];
     }
 
-    setItem(key: string, value: any) {
+    public setItem(key: string, value: any) {
         Log.debug("InMemoryWebStorage.setItem", key);
         this._data[key] = value;
     }
 
-    removeItem(key: string) {
+    public removeItem(key: string) {
         Log.debug("InMemoryWebStorage.removeItem", key);
         delete this._data[key];
     }
 
-    get length() {
+    public get length() {
         return Object.getOwnPropertyNames(this._data).length;
     }
 
-    key(index: number) {
+    public key(index: number) {
         return Object.getOwnPropertyNames(this._data)[index];
     }
 }

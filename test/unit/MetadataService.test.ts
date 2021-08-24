@@ -3,17 +3,21 @@
 
 import { Log } from "../../src/utils";
 import { MetadataService } from "../../src/MetadataService";
+import { OidcClientSettings, OidcClientSettingsStore } from "../../src/OidcClientSettings";
 
 describe("MetadataService", () => {
-    let settings: any;
+    let settings: OidcClientSettings;
     let subject: MetadataService;
 
     beforeEach(() => {
         Log.logger = console;
         Log.level = Log.NONE;
 
-        settings = {};
-        subject = new MetadataService(settings);
+        settings = {
+            authority: "authority",
+            client_id: "client"
+        };
+        subject = new MetadataService(new OidcClientSettingsStore(settings));
     });
 
     describe("getMetadata", () => {
@@ -30,33 +34,40 @@ describe("MetadataService", () => {
         it("should use metadata on settings", async () => {
             // arrange
             settings = {
-                metadata: "test",
+                authority: "authority",
+                client_id: "client",
+                metadata: { issuer: "test" },
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
 
             // act
             const result = await subject.getMetadata();
 
             // assert
-            expect(result).toEqual("test");
+            expect(result).toEqual({ issuer: "test" });
         });
 
-        it("should require metadataUrl", async () => {
+        it("should calculate metadataUrl from authority", async () => {
+            // arrange
+            const jsonService = subject["_jsonService"]; // access private member
+            const getJsonMock = jest.spyOn(jsonService, "getJson")
+                .mockImplementation(() => Promise.resolve("test"));
+
             // act
-            try {
-                await subject.getMetadata();
-                fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("metadataUrl");
-            }
+            await subject.getMetadata();
+
+            // assert
+            expect(getJsonMock).toBeCalledWith("authority/.well-known/openid-configuration");
         });
 
         it("should use metadataUrl to make json call", async () => {
             // arrange
             settings = {
+                authority: "authority",
+                client_id: "client",
                 metadataUrl: "http://sts/metadata"
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
             const getJsonMock = jest.spyOn(jsonService, "getJson")
                 .mockImplementation(() => Promise.resolve("test"));
@@ -71,9 +82,11 @@ describe("MetadataService", () => {
         it("should return metadata from json call", async () => {
             // arrange
             settings = {
+                authority: "authority",
+                client_id: "client",
                 metadataUrl: "http://sts/metadata"
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
             const json = { "test": "data" };
             jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
@@ -88,9 +101,11 @@ describe("MetadataService", () => {
         it("should cache metadata from json call", async () => {
             // arrange
             settings = {
+                authority: "authority",
+                client_id: "client",
                 metadataUrl: "http://sts/metadata"
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
             const json = { test: "value" };
             jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
@@ -106,28 +121,32 @@ describe("MetadataService", () => {
         it("should merge metadata from seed", async () => {
             // arrange
             settings = {
+                authority: "authority",
+                client_id: "client",
                 metadataUrl: "http://sts/metadata",
-                metadataSeed: {test1:"one"}
+                metadataSeed: { issuer: "one" }
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
-            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({test2:"two"}));
+            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({ jwks_uri: "two" }));
 
             // act
             const result = await subject.getMetadata();
 
             // assert
-            expect(result).toEqual({test1:"one", test2:"two"});
+            expect(result).toEqual({ issuer: "one", jwks_uri: "two" });
             const _metadata = subject["_metadata"]; // access private member
-            expect(_metadata).toEqual({test1:"one", test2:"two"});
+            expect(_metadata).toEqual({issuer: "one", jwks_uri: "two" });
         });
 
         it("should fail if json call fails", async () => {
             // arrange
             settings = {
+                authority: "authority",
+                client_id: "client",
                 metadataUrl: "http://sts/metadata"
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
             jest.spyOn(jsonService, "getJson").mockRejectedValue(new Error("test"));
 
@@ -141,11 +160,10 @@ describe("MetadataService", () => {
         });
     });
 
-    describe("_getMetadataProperty", () => {
-
+    describe("getIssuer", () => {
         it("should return a promise", async () => {
             // act
-            const p = subject._getMetadataProperty("issuer");
+            const p = subject.getIssuer();
 
             // assert
             expect(p).toBeInstanceOf(Promise);
@@ -156,14 +174,16 @@ describe("MetadataService", () => {
         it("should use metadata on settings", async () => {
             // arrange
             settings = {
+                authority: "authority",
+                client_id: "client",
                 metadata: {
                     issuer: "test"
                 },
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
 
             // act
-            const result = await subject._getMetadataProperty("issuer");
+            const result = await subject.getIssuer();
 
             // assert
             expect(result).toEqual("test");
@@ -172,14 +192,16 @@ describe("MetadataService", () => {
         it("should fail if no data on metadata", async () => {
             // arrange
             settings = {
+                authority: "authority",
+                client_id: "client",
                 metadata: {
                 }
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
 
             // act
             try {
-                await subject._getMetadataProperty("issuer");
+                await subject.getIssuer();
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("issuer");
@@ -189,20 +211,41 @@ describe("MetadataService", () => {
         it("should fail if json call to load metadata fails", async () => {
             // arrange
             settings = {
+                authority: "authority",
+                client_id: "client",
                 metadataUrl: "http://sts/metadata"
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
             jest.spyOn(jsonService, "getJson").mockRejectedValue(new Error("test"));
 
             // act
             try {
-                await subject._getMetadataProperty("issuer");
+                await subject.getIssuer();
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("test");
             }
         });
+
+        it("should return value from", async () => {
+            // arrange
+            settings = {
+                authority: "authority",
+                client_id: "client",
+                metadata: {
+                    issuer: "http://sts"
+                }
+            };
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
+
+            // act
+            const result = await subject.getIssuer();
+
+            // assert
+            expect(result).toEqual("http://sts");
+        });
+
     });
 
     describe("getAuthorizationEndpoint", () => {
@@ -210,11 +253,13 @@ describe("MetadataService", () => {
         it("should return value from metadata", async () => {
             // arrange
             settings = {
+                authority: "authority",
+                client_id: "client",
                 metadata: {
                     authorization_endpoint: "http://sts/authorize"
                 }
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
 
             // act
             const result = await subject.getAuthorizationEndpoint();
@@ -230,11 +275,13 @@ describe("MetadataService", () => {
         it("should return value from", async () => {
             // arrange
             settings = {
+                authority: "authority",
+                client_id: "client",
                 metadata: {
                     userinfo_endpoint: "http://sts/userinfo"
                 }
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
 
             // act
             const result = await subject.getUserInfoEndpoint();
@@ -250,11 +297,13 @@ describe("MetadataService", () => {
         it("should return value from", async () => {
             // arrange
             settings = {
+                authority: "authority",
+                client_id: "client",
                 metadata: {
                     end_session_endpoint: "http://sts/signout"
                 }
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
 
             // act
             const result = await subject.getEndSessionEndpoint();
@@ -266,10 +315,12 @@ describe("MetadataService", () => {
         it("should support optional value", async () => {
             // arrange
             settings = {
+                authority: "authority",
+                client_id: "client",
                 metadata: {
                 }
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
 
             // act
             const result = await subject.getEndSessionEndpoint();
@@ -285,11 +336,13 @@ describe("MetadataService", () => {
         it("should return value from", async () => {
             // arrange
             settings = {
+                authority: "authority",
+                client_id: "client",
                 metadata: {
                     check_session_iframe: "http://sts/check_session"
                 }
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
 
             // act
             const result = await subject.getCheckSessionIframe();
@@ -301,36 +354,18 @@ describe("MetadataService", () => {
         it("should support optional value", async () => {
             // arrange
             settings = {
+                authority: "authority",
+                client_id: "client",
                 metadata: {
                 }
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
 
             // act
             const result = await subject.getCheckSessionIframe();
 
             // assert
             expect(result).toBeUndefined();
-        });
-
-    });
-
-    describe("getIssuer", () => {
-
-        it("should return value from", async () => {
-            // arrange
-            settings = {
-                metadata: {
-                    issuer: "http://sts"
-                }
-            };
-            subject = new MetadataService(settings);
-
-            // act
-            const result = await subject.getIssuer();
-
-            // assert
-            expect(result).toEqual("http://sts");
         });
 
     });
@@ -350,23 +385,27 @@ describe("MetadataService", () => {
         it("should use signingKeys on settings", async () => {
             // arrange
             settings = {
-                signingKeys: "test"
+                authority: "authority",
+                client_id: "client",
+                signingKeys: [{ kid: "test" }]
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
 
             // act
             const result = await subject.getSigningKeys();
 
             // assert
-            expect(result).toEqual("test");
+            expect(result).toEqual([{ kid: "test" }]);
         });
 
         it("should fail if metadata does not have jwks_uri", async () => {
             // arrange
             settings = {
-                metadata: "test"
+                authority: "authority",
+                client_id: "client",
+                metadata: { issuer: "test" }
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
 
             // act
             try {
@@ -380,11 +419,13 @@ describe("MetadataService", () => {
         it("should fail if keys missing on keyset from jwks_uri", async () => {
             // arrange
             settings = {
+                authority: "authority",
+                client_id: "client",
                 metadata: {
                     jwks_uri: "http://sts/metadata/keys"
                 }
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
             jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({}));
 
@@ -400,11 +441,13 @@ describe("MetadataService", () => {
         it("should make json call to jwks_uri", async () => {
             // arrange
             settings = {
+                authority: "authority",
+                client_id: "client",
                 metadata: {
                     jwks_uri: "http://sts/metadata/keys"
                 }
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
             const json = {
                 keys: [{
@@ -425,11 +468,13 @@ describe("MetadataService", () => {
         it("should return keys from jwks_uri", async () => {
             // arrange
             settings = {
+                authority: "authority",
+                client_id: "client",
                 metadata: {
                     jwks_uri: "http://sts/metadata/keys"
                 }
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
             const expectedKeys = [{
                 use:"sig",
@@ -450,11 +495,13 @@ describe("MetadataService", () => {
         it("should cache keys from json call", async () => {
             // arrange
             settings = {
+                authority: "authority",
+                client_id: "client",
                 metadata: {
                     jwks_uri: "http://sts/metadata/keys"
                 }
             };
-            subject = new MetadataService(settings);
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
             const expectedKeys = [{
                 use:"sig",

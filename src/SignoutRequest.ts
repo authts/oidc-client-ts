@@ -8,7 +8,7 @@ export class SignoutRequest {
     public readonly url: string
     public readonly state?: State
 
-    constructor({
+    public constructor({
         url, id_token_hint, post_logout_redirect_uri, data, extraQueryParams, request_type
     }: any) {
         if (!url) {

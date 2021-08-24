@@ -11,13 +11,13 @@ export class TokenClient {
     private readonly _jsonService: JsonService;
     private readonly _metadataService: MetadataService;
 
-    constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
+    public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
         this._settings = settings;
         this._jsonService = new JsonService();
         this._metadataService = metadataService;
     }
 
-    async exchangeCode(args: any = {}): Promise<any> {
+    public async exchangeCode(args: any = {}): Promise<any> {
         args = Object.assign({}, args);
 
         args.grant_type = args.grant_type || "authorization_code";
@@ -69,7 +69,7 @@ export class TokenClient {
         return response;
     }
 
-    async exchangeRefreshToken(args: any = {}) {
+    public async exchangeRefreshToken(args: any = {}) {
         args = Object.assign({}, args);
 
         args.grant_type = args.grant_type || "refresh_token";

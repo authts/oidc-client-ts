@@ -6,15 +6,13 @@ import { IFrameWindow } from "./IFrameWindow";
 import { INavigator } from "./INavigator";
 
 export class IFrameNavigator implements INavigator {
-
-    prepare() {
+    public prepare() {
         const frame = new IFrameWindow();
         return Promise.resolve(frame);
     }
 
-    callback(url: string | undefined) {
+    public callback(url: string | undefined) {
         Log.debug("IFrameNavigator.callback");
-
         try {
             IFrameWindow.notifyParent(url);
             return Promise.resolve();
