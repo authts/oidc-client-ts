@@ -11,7 +11,8 @@ describe("UserManagerEvents", () => {
     beforeEach(() => {
         const settings = new UserManagerSettingsStore({
             authority: "authority",
-            client_id: "client"
+            client_id: "client",
+            redirect_uri: "redirect"
         });
         subject = new UserManagerEvents(settings);
     });

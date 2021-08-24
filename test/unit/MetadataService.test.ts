@@ -15,7 +15,8 @@ describe("MetadataService", () => {
 
         settings = {
             authority: "authority",
-            client_id: "client"
+            client_id: "client",
+            redirect_uri: "redirect"
         };
         subject = new MetadataService(new OidcClientSettingsStore(settings));
     });
@@ -36,6 +37,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadata: { issuer: "test" },
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
@@ -65,6 +67,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadataUrl: "http://sts/metadata"
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
@@ -84,6 +87,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadataUrl: "http://sts/metadata"
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
@@ -103,6 +107,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadataUrl: "http://sts/metadata"
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
@@ -123,6 +128,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadataUrl: "http://sts/metadata",
                 metadataSeed: { issuer: "one" }
             };
@@ -144,6 +150,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadataUrl: "http://sts/metadata"
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
@@ -176,6 +183,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadata: {
                     issuer: "test"
                 },
@@ -194,6 +202,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadata: {
                 }
             };
@@ -213,6 +222,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadataUrl: "http://sts/metadata"
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
@@ -233,6 +243,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadata: {
                     issuer: "http://sts"
                 }
@@ -255,6 +266,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadata: {
                     authorization_endpoint: "http://sts/authorize"
                 }
@@ -277,6 +289,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadata: {
                     userinfo_endpoint: "http://sts/userinfo"
                 }
@@ -299,6 +312,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadata: {
                     end_session_endpoint: "http://sts/signout"
                 }
@@ -317,6 +331,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadata: {
                 }
             };
@@ -338,6 +353,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadata: {
                     check_session_iframe: "http://sts/check_session"
                 }
@@ -356,6 +372,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadata: {
                 }
             };
@@ -387,6 +404,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 signingKeys: [{ kid: "test" }]
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
@@ -403,6 +421,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadata: { issuer: "test" }
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
@@ -421,6 +440,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadata: {
                     jwks_uri: "http://sts/metadata/keys"
                 }
@@ -443,6 +463,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadata: {
                     jwks_uri: "http://sts/metadata/keys"
                 }
@@ -470,6 +491,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadata: {
                     jwks_uri: "http://sts/metadata/keys"
                 }
@@ -497,6 +519,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadata: {
                     jwks_uri: "http://sts/metadata/keys"
                 }

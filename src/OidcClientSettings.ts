@@ -30,7 +30,7 @@ export interface OidcClientSettings {
     /** The scope being requested from the OIDC/OAuth2 provider (default: 'openid') */
     scope?: string;
     /** The redirect URI of your client application to receive a response from the OIDC/OAuth2 provider */
-    redirect_uri?: string;
+    redirect_uri: string;
     /** The OIDC/OAuth2 post-logout redirect URI */
     post_logout_redirect_uri?: string;
     client_authentication?: string;
@@ -74,7 +74,7 @@ export class OidcClientSettingsStore {
     public readonly client_secret: string | undefined;
     public readonly response_type: string;
     public readonly scope: string;
-    public readonly redirect_uri: string | undefined;
+    public readonly redirect_uri: string;
     public readonly post_logout_redirect_uri: string | undefined;
     public readonly client_authentication: string | undefined;
 

@@ -17,7 +17,8 @@ describe("OidcClientSettings", () => {
             // act
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
-                client_id: "client"
+                client_id: "client",
+                redirect_uri: "redirect"
             });
 
             // assert
@@ -31,6 +32,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 client_secret: "secret"
             });
 
@@ -45,6 +47,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 response_type: "foo"
             });
 
@@ -56,7 +59,8 @@ describe("OidcClientSettings", () => {
             // act
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
-                client_id: "client"
+                client_id: "client",
+                redirect_uri: "redirect"
             });
 
             // assert
@@ -71,6 +75,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 scope: "foo"
             });
 
@@ -82,7 +87,8 @@ describe("OidcClientSettings", () => {
             // act
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
-                client_id: "client"
+                client_id: "client",
+                redirect_uri: "redirect"
             });
 
             // assert
@@ -97,11 +103,11 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
-                redirect_uri: "foo"
+                redirect_uri: "http://app"
             });
 
             // assert
-            expect(subject.redirect_uri).toEqual("foo");
+            expect(subject.redirect_uri).toEqual("http://app");
         });
 
     });
@@ -112,6 +118,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 post_logout_redirect_uri: "http://app/loggedout"
             });
 
@@ -126,6 +133,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 prompt: "foo"
             });
 
@@ -140,6 +148,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 display: "foo"
             });
 
@@ -154,6 +163,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 max_age: 22
             });
 
@@ -168,6 +178,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 ui_locales: "foo"
             });
 
@@ -182,6 +193,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 acr_values: "foo"
             });
 
@@ -196,6 +208,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 resource: "foo"
             });
 
@@ -210,6 +223,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 response_mode: "foo"
             });
 
@@ -223,6 +237,7 @@ describe("OidcClientSettings", () => {
             // act
             const subject = new OidcClientSettingsStore({
                 client_id: "client",
+                redirect_uri: "redirect",
                 authority: "http://sts"
             });
 
@@ -237,6 +252,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadataUrl: "http://sts/metadata"
             });
 
@@ -251,6 +267,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 metadata: { issuer: "test" }
             });
 
@@ -265,6 +282,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 signingKeys: [{ kid: "test" }]
             });
 
@@ -279,7 +297,8 @@ describe("OidcClientSettings", () => {
             // act
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
-                client_id: "client"
+                client_id: "client",
+                redirect_uri: "redirect",
             });
 
             // assert
@@ -291,6 +310,7 @@ describe("OidcClientSettings", () => {
             let subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 filterProtocolClaims: true
             });
 
@@ -301,6 +321,7 @@ describe("OidcClientSettings", () => {
             subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 filterProtocolClaims: false
             });
 
@@ -315,7 +336,8 @@ describe("OidcClientSettings", () => {
             // act
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
-                client_id: "client"
+                client_id: "client",
+                redirect_uri: "redirect"
             });
 
             // assert
@@ -327,6 +349,7 @@ describe("OidcClientSettings", () => {
             let subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 loadUserInfo: true
             });
 
@@ -337,6 +360,7 @@ describe("OidcClientSettings", () => {
             subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 loadUserInfo: false
             });
 
@@ -351,7 +375,8 @@ describe("OidcClientSettings", () => {
             // act
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
-                client_id: "client"
+                client_id: "client",
+                redirect_uri: "redirect"
             });
 
             // assert
@@ -363,6 +388,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 staleStateAge: 100
             });
 
@@ -377,7 +403,8 @@ describe("OidcClientSettings", () => {
             // act
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
-                client_id: "client"
+                client_id: "client",
+                redirect_uri: "redirect"
             });
 
             // assert
@@ -389,6 +416,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 clockSkew: 10
             });
 
@@ -407,6 +435,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 stateStore: temp
             });
 
@@ -425,6 +454,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 stateStore: temp
             });
 
@@ -439,7 +469,8 @@ describe("OidcClientSettings", () => {
             // act
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
-                client_id: "client"
+                client_id: "client",
+                redirect_uri: "redirect"
             });
 
             // assert
@@ -451,6 +482,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 extraQueryParams: {
                     "hd": "domain.com"
                 }
@@ -467,7 +499,8 @@ describe("OidcClientSettings", () => {
             // act
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
-                client_id: "client"
+                client_id: "client",
+                redirect_uri: "redirect"
             });
 
             // assert
@@ -479,6 +512,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 extraTokenParams: {
                     "resourceServer": "abc"
                 }

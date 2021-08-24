@@ -14,7 +14,8 @@ describe("UserInfoService", () => {
     beforeEach(() => {
         const settings = new OidcClientSettingsStore({
             authority: "authority",
-            client_id: "client"
+            client_id: "client",
+            redirect_uri: "redirect"
         });
         metadataService = new MetadataService(settings);
 
