@@ -22,8 +22,6 @@ export class SessionMonitor {
         this._userManager = userManager;
         this._timer = g_timer;
 
-        // _start is never called but complier thinks it returns Promise
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         this._userManager.events.addUserLoaded(this._start.bind(this));
         this._userManager.events.addUserUnloaded(this._stop.bind(this));
 
@@ -57,7 +55,7 @@ export class SessionMonitor {
     }
 
     protected async _start(user: User | {
-        session_state: any;
+        session_state: string;
             profile: {
                 sub: string;
                 sid: string;
@@ -87,8 +85,6 @@ export class SessionMonitor {
                         const interval = this._userManager.settings.checkSessionInterval;
                         const stopOnError = this._userManager.settings.stopCheckSessionOnError;
 
-                        // TODO rewrite to use promise correctly
-                        // eslint-disable-next-line @typescript-eslint/no-misused-promises
                         this._checkSessionIFrame = new CheckSessionIFrame(this._callback.bind(this), client_id, url, interval, stopOnError);
                         await this._checkSessionIFrame.load();
                         this._checkSessionIFrame &&

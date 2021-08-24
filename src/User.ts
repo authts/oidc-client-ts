@@ -5,13 +5,13 @@ import { Log, Timer } from "./utils";
 
 export class User {
     public id_token: string;
-    public session_state: any;
+    public session_state: string | undefined;
     public access_token: string;
-    public refresh_token: string;
+    public refresh_token: string | undefined;
     public token_type: string;
     public scope: string;
     public profile: any;
-    public state: any;
+    public state: any | undefined;
     public expires_at: number;
 
     public constructor({

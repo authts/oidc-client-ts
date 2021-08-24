@@ -523,7 +523,7 @@ export class UserManager extends OidcClient {
         return true;
     }
 
-    protected async _revokeRefreshTokenInternal(refresh_token: string, required: boolean): Promise<boolean> {
+    protected async _revokeRefreshTokenInternal(refresh_token: string | undefined, required: boolean): Promise<boolean> {
         if (!refresh_token) {
             return false;
         }
