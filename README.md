@@ -49,10 +49,10 @@ npm run build
 ### Running the Sample
 
 ```bash
-npm start
+npm run parcel:run
 ```
 
-and then browse to [http://localhost:15000](http://localhost:15000).
+and then browse to [http://localhost:1234](http://localhost:1234).
 
 ### Running the Tests
 

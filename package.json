@@ -26,9 +26,10 @@
     "build": "tsdx build",
     "test": "tsdx test",
     "lint": "eslint ./src/**/*.ts ./test/unit/**/*.ts",
-    "sample": "concurrently --kill-others \"npm run parcel\" \"npm run server\"",
-    "parcel": "parcel serve ./samples/Parcel/src/index.html --no-cache",
-    "server": "node ./samples/Parcel/server.js"
+    "parcel:run": "concurrently --kill-others \"npm run parcel:serve\" \"npm run parcel:server\"",
+    "parcel:serve": "parcel serve ./samples/Parcel/src/index.html",
+    "parcel:build": "parcel build ./samples/Parcel/src/index.html",
+    "parcel:server": "node ./samples/Parcel/server.js"
   },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^4.29.0",
@@ -46,8 +47,9 @@
     "concurrently": "^6.2.1",
     "express": "^4.17.1",
     "open": "^8.2.1",
-    "parcel": "^2.0.0-rc.0"
-  },
+    "parcel": "^2.0.0-rc.0",
+    "http-proxy-middleware": "^2.0.1"
+},
   "jest": {
     "clearMocks": true,
     "testMatch": [
