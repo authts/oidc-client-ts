@@ -55,7 +55,7 @@ export class SessionMonitor {
     }
 
     protected async _start(user: User | {
-        session_state: any;
+        session_state: string;
             profile: {
                 sub: string;
                 sid: string;

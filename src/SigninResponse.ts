@@ -8,15 +8,15 @@ const OidcScope = "openid";
 export class SigninResponse {
     public readonly code: string;
 
-    // will be set from ResponseValidator
+    // updated by ResponseValidator
     public state: string | undefined;
 
-    // will be set from ResponseValidator
+    // updated by ResponseValidator
     public error: string | undefined;
     public error_description: string | undefined;
     public error_uri: string | undefined;
 
-    // will be set from ResponseValidator
+    // updated by ResponseValidator
     public id_token: string | undefined;
     public session_state: string | undefined;
     public access_token: string | undefined;
@@ -24,7 +24,7 @@ export class SigninResponse {
     public scope: string | undefined;
     public expires_at: number | undefined
 
-    // will be set from ResponseValidator
+    // set by ResponseValidator
     public profile: any |  undefined;
 
     public constructor(url?: string, delimiter = "#") {

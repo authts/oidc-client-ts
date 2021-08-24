@@ -14,7 +14,7 @@ export class CheckSessionIFrame {
     private _frame: HTMLIFrameElement;
     private _boundMessageEvent: ((e: MessageEvent<string>) => void) | null;
     private _timer: number | null;
-    private _session_state: any | null;
+    private _session_state: string | null;
 
     public constructor(callback: () => Promise<void> | void, client_id: string, url: string, interval?: number, stopOnError?: boolean) {
         this._callback = callback;
@@ -37,7 +37,7 @@ export class CheckSessionIFrame {
 
         this._boundMessageEvent = null;
         this._timer = null;
-
+        this._session_state = null;
     }
 
     public load() {
@@ -73,28 +73,30 @@ export class CheckSessionIFrame {
         }
     }
 
-    public start(session_state: any) {
-        if (this._session_state !== session_state) {
-            Log.debug("CheckSessionIFrame.start");
-
-            this.stop();
-
-            this._session_state = session_state;
-
-            const send = () => {
-                this._frame.contentWindow &&
-
-                // session_state is unknown... (could likley not be string)
-                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-                this._frame.contentWindow.postMessage(this._client_id + " " + this._session_state, this._frame_origin);
-            };
-
-            // trigger now
-            send();
-
-            // and setup timer
-            this._timer = window.setInterval(send, this._interval);
+    public start(session_state: string) {
+        if (this._session_state === session_state) {
+            return;
         }
+
+        Log.debug("CheckSessionIFrame.start");
+
+        this.stop();
+
+        this._session_state = session_state;
+
+        const send = () => {
+            if (!this._frame.contentWindow || !this._session_state) {
+                return;
+            }
+
+            this._frame.contentWindow.postMessage(this._client_id + " " + this._session_state, this._frame_origin);
+        };
+
+        // trigger now
+        send();
+
+        // and setup timer
+        this._timer = window.setInterval(send, this._interval);
     }
 
     public stop() {
