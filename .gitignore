@@ -5,3 +5,4 @@ node_modules
 dist
 .vscode
 .parcel-cache
+/docs/api
