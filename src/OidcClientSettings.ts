@@ -64,42 +64,42 @@ export interface OidcClientSettings {
 export class OidcClientSettingsStore {
     // metadata
     public readonly authority: string;
-    public readonly metadataUrl?: string;
-    public readonly metadata?: Partial<OidcMetadata>;
-    public readonly metadataSeed?: Partial<OidcMetadata>;
-    public readonly signingKeys?: Record<string, string>[];
+    public readonly metadataUrl: string | undefined;
+    public readonly metadata: Partial<OidcMetadata> | undefined;
+    public readonly metadataSeed: Partial<OidcMetadata> | undefined;
+    public readonly signingKeys: Record<string, string>[] | undefined;
 
     // client config
     public readonly client_id: string;
-    public readonly client_secret?: string;
+    public readonly client_secret: string | undefined;
     public readonly response_type: string;
     public readonly scope: string;
-    public readonly redirect_uri?: string;
-    public readonly post_logout_redirect_uri?: string;
-    public readonly client_authentication?: string;
+    public readonly redirect_uri: string | undefined;
+    public readonly post_logout_redirect_uri: string | undefined;
+    public readonly client_authentication: string | undefined;
 
     // optional protocol params
-    public readonly prompt?: string;
-    public readonly display?: string;
-    public readonly max_age?: number;
-    public readonly ui_locales?: string;
-    public readonly acr_values?: string;
-    public readonly resource?: string;
-    public readonly response_mode?: string;
+    public readonly prompt: string | undefined;
+    public readonly display: string | undefined;
+    public readonly max_age: number | undefined;
+    public readonly ui_locales: string | undefined;
+    public readonly acr_values: string | undefined;
+    public readonly resource: string | undefined;
+    public readonly response_mode: string | undefined;
 
     // behavior flags
-    public readonly filterProtocolClaims?: boolean;
-    public readonly loadUserInfo?: boolean;
+    public readonly filterProtocolClaims: boolean | undefined;
+    public readonly loadUserInfo: boolean | undefined;
     public readonly staleStateAge: number;
     public readonly clockSkew: number;
-    public readonly userInfoJwtIssuer?: "ANY" | "OP" | string;
-    public readonly mergeClaims?: boolean;
+    public readonly userInfoJwtIssuer: "ANY" | "OP" | string | undefined;
+    public readonly mergeClaims: boolean | undefined;
 
     public readonly stateStore: StateStore;
 
     // extra
-    public readonly extraQueryParams?: Record<string, any>;
-    public readonly extraTokenParams?: Record<string, any>;
+    public readonly extraQueryParams: Record<string, any> | undefined;
+    public readonly extraTokenParams: Record<string, any> | undefined;
 
     public constructor({
         // metadata related

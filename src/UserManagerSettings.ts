@@ -47,13 +47,13 @@ export interface UserManagerSettings extends OidcClientSettings {
 }
 
 export class UserManagerSettingsStore extends OidcClientSettingsStore {
-    public readonly popup_redirect_uri?: string;
-    public readonly popup_post_logout_redirect_uri?: string;
-    public readonly popupWindowFeatures?: string;
-    public readonly popupWindowTarget?: string;
+    public readonly popup_redirect_uri: string | undefined;
+    public readonly popup_post_logout_redirect_uri: string | undefined;
+    public readonly popupWindowFeatures: string | undefined;
+    public readonly popupWindowTarget: string | undefined;
 
-    public readonly silent_redirect_uri?: string;
-    public readonly silentRequestTimeout?: number;
+    public readonly silent_redirect_uri: string | undefined;
+    public readonly silentRequestTimeout: number | undefined;
     public readonly automaticSilentRenew: boolean;
     public readonly validateSubOnSilentRenew: boolean;
     public readonly includeIdTokenInSilentRenew: boolean;
@@ -61,8 +61,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly monitorSession: boolean;
     public readonly monitorAnonymousSession: boolean;
     public readonly checkSessionInterval: number;
-    public readonly query_status_response_type?: string;
-    public readonly stopCheckSessionOnError?: boolean;
+    public readonly query_status_response_type: string | undefined;
+    public readonly stopCheckSessionOnError: boolean | undefined;
 
     public readonly revokeAccessTokenOnSignout: boolean;
     public readonly accessTokenExpiringNotificationTime: number;
