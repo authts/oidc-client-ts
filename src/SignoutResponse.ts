@@ -4,10 +4,11 @@
 import { UrlUtility } from "./utils";
 
 export class SignoutResponse {
-    public error?: string;
-    public error_description?: string;
-    public error_uri?: string;
-    public state?: any;
+    public error: string | undefined;
+    public error_description: string | undefined;
+    public error_uri: string | undefined;
+
+    public state: any | undefined;
 
     public constructor(url?: string) {
         const values = UrlUtility.parseUrlFragment(url, "?");

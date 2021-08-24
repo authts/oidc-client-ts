@@ -24,6 +24,7 @@ describe("UserManager", () => {
         settings = {
             authority: "http://sts/oidc",
             client_id: "client",
+            redirect_uri: "redirect",
             monitorSession : false,
             userStore: userStoreMock,
         };

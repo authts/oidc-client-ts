@@ -18,7 +18,8 @@ describe("UserManagerSettings", () => {
             // act
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
-                client_id: "client"
+                client_id: "client",
+                redirect_uri: "redirect"
             });
 
             // assert
@@ -34,6 +35,7 @@ describe("UserManagerSettings", () => {
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 popup_redirect_uri: "test"
             });
 
@@ -50,6 +52,7 @@ describe("UserManagerSettings", () => {
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 popupWindowFeatures: "foo"
             });
 
@@ -66,6 +69,7 @@ describe("UserManagerSettings", () => {
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 popupWindowTarget: "foo"
             });
 
@@ -82,6 +86,7 @@ describe("UserManagerSettings", () => {
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 silent_redirect_uri: "test"
             });
 
@@ -98,6 +103,7 @@ describe("UserManagerSettings", () => {
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 silentRequestTimeout: 123
             });
 
@@ -114,6 +120,7 @@ describe("UserManagerSettings", () => {
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 automaticSilentRenew: true
             });
 
@@ -125,7 +132,8 @@ describe("UserManagerSettings", () => {
             // act
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
-                client_id: "client"
+                client_id: "client",
+                redirect_uri: "redirect"
             });
 
             // assert
@@ -141,6 +149,7 @@ describe("UserManagerSettings", () => {
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 validateSubOnSilentRenew: true
             });
 
@@ -152,7 +161,8 @@ describe("UserManagerSettings", () => {
             // act
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
-                client_id: "client"
+                client_id: "client",
+                redirect_uri: "redirect"
             });
 
             // assert
@@ -167,6 +177,7 @@ describe("UserManagerSettings", () => {
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 includeIdTokenInSilentRenew: true,
             });
 
@@ -179,6 +190,7 @@ describe("UserManagerSettings", () => {
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 includeIdTokenInSilentRenew: false,
             });
 
@@ -190,7 +202,8 @@ describe("UserManagerSettings", () => {
             // act
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
-                client_id: "client"
+                client_id: "client",
+                redirect_uri: "redirect"
             });
 
             // assert
@@ -205,6 +218,7 @@ describe("UserManagerSettings", () => {
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 accessTokenExpiringNotificationTime: 10
             });
 
@@ -216,7 +230,8 @@ describe("UserManagerSettings", () => {
             // act
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
-                client_id: "client"
+                client_id: "client",
+                redirect_uri: "redirect"
             });
 
             // assert
@@ -233,6 +248,7 @@ describe("UserManagerSettings", () => {
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 userStore : temp
             });
 
@@ -247,6 +263,7 @@ describe("UserManagerSettings", () => {
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 revokeAccessTokenOnSignout : true
             });
 
@@ -261,6 +278,7 @@ describe("UserManagerSettings", () => {
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 checkSessionInterval : 6000
             });
 
@@ -271,7 +289,8 @@ describe("UserManagerSettings", () => {
             // act
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
-                client_id: "client"
+                client_id: "client",
+                redirect_uri: "redirect"
             });
 
             // assert
@@ -287,6 +306,7 @@ describe("UserManagerSettings", () => {
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 query_status_response_type : temp
             });
 
@@ -299,6 +319,7 @@ describe("UserManagerSettings", () => {
                 const subject = new UserManagerSettingsStore({
                     authority: "authority",
                     client_id: "client",
+                    redirect_uri: "redirect",
                     response_type: "id_token token"
                 });
 
@@ -310,6 +331,7 @@ describe("UserManagerSettings", () => {
                 const subject = new UserManagerSettingsStore({
                     authority: "authority",
                     client_id: "client",
+                    redirect_uri: "redirect",
                     response_type: "code"
                 });
 
@@ -325,6 +347,7 @@ describe("UserManagerSettings", () => {
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
                 client_id: "client",
+                redirect_uri: "redirect",
                 stopCheckSessionOnError : false
             });
 
@@ -335,7 +358,8 @@ describe("UserManagerSettings", () => {
             // act
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
-                client_id: "client"
+                client_id: "client",
+                redirect_uri: "redirect"
             });
 
             // assert

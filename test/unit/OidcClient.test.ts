@@ -23,7 +23,7 @@ describe("OidcClient", () => {
         const settings: OidcClientSettings = {
             authority: "authority",
             client_id: "client",
-            redirect_uri: "http://app",
+            redirect_uri: "redirect",
             post_logout_redirect_uri: "http://app"
         };
         subject = new OidcClient(settings);
