@@ -6,17 +6,17 @@ import { Log } from "./utils";
 const DefaultInterval = 2000;
 
 export class CheckSessionIFrame {
-    private _callback: () => void;
+    private _callback: () => Promise<void> | void;
     private _client_id: string;
     private _interval: number;
     private _stopOnError: boolean;
     private _frame_origin: string;
     private _frame: HTMLIFrameElement;
-    private _boundMessageEvent: ((e: any) => void) | null;
+    private _boundMessageEvent: ((e: MessageEvent<string>) => void) | null;
     private _timer: number | null;
     private _session_state: any | null;
 
-    public constructor(callback: () => void, client_id: string, url: string, interval?: number, stopOnError?: boolean) {
+    public constructor(callback: () => Promise<void> | void, client_id: string, url: string, interval?: number, stopOnError?: boolean) {
         this._callback = callback;
         this._client_id = client_id;
         this._interval = interval || DefaultInterval;
@@ -52,7 +52,7 @@ export class CheckSessionIFrame {
         });
     }
 
-    private _message(e: MessageEvent<string>) {
+    private async _message(e: MessageEvent<string>) {
         if (e.origin === this._frame_origin &&
             e.source === this._frame.contentWindow
         ) {
@@ -65,7 +65,7 @@ export class CheckSessionIFrame {
             else if (e.data === "changed") {
                 Log.debug("CheckSessionIFrame: changed message from check session op iframe");
                 this.stop();
-                this._callback();
+                await this._callback();
             }
             else {
                 Log.debug("CheckSessionIFrame: " + e.data + " message from check session op iframe");

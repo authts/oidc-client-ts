@@ -6,12 +6,12 @@ import { AccessTokenEvents } from "./AccessTokenEvents";
 import { UserManagerSettingsStore } from "./UserManagerSettings";
 import { User } from "./User";
 
-export type UserLoadedCallback = (user: User) => void;
-export type UserUnloadedCallback = () => void;
-export type SilentRenewErrorCallback = (error: Error) => void;
-export type UserSignedInCallback = () => void;
-export type UserSignedOutCallback = () => void;
-export type UserSessionChangedCallback = () => void;
+export type UserLoadedCallback = (user: User) => Promise<void> | void;
+export type UserUnloadedCallback = () => Promise<void> | void;
+export type SilentRenewErrorCallback = (error: Error) => Promise<void> | void;
+export type UserSignedInCallback = () => Promise<void> | void;
+export type UserSignedOutCallback = () => Promise<void> | void;
+export type UserSessionChangedCallback = () => Promise<void> | void;
 
 export class UserManagerEvents extends AccessTokenEvents {
     private _userLoaded: Event;
