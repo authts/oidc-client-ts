@@ -18,7 +18,14 @@ jobs:
       env:
         CI: true
 
+    # library
     - run: npm install
     - run: npm run build
     - run: npm run lint
     - run: npm test
+
+    # samples: Parcel
+    - run: |
+        cd samples/Parcel
+        npm install
+        npm run build
