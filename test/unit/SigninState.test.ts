@@ -15,25 +15,50 @@ describe("SigninState", () => {
 
         it("should call base ctor", () => {
             // act
-            const subject = new SigninState({ id: 5, created:6, data:7 });
+            const subject = new SigninState({
+                id: "5",
+                created: 6,
+                data: 7,
+
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                request_type: "type",
+                scope: "scope"
+            });
 
             // assert
-            expect(subject.id).toEqual(5);
+            expect(subject.id).toEqual("5");
             expect(subject.created).toEqual(6);
             expect(subject.data).toEqual(7);
         });
 
         it("should accept nonce", () => {
             // act
-            const subject = new SigninState({ nonce: 5 });
+            const subject = new SigninState({
+                code_verifier: true,
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type",
+                nonce: "5"
+            });
 
             // assert
-            expect(subject.nonce).toEqual(5);
+            expect(subject.nonce).toEqual("5");
         });
 
         it("should generate nonce", () => {
             // act
-            const subject = new SigninState({ nonce: true });
+            const subject = new SigninState({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type",
+                nonce: true
+            });
 
             // assert
             expect(subject.nonce).toBeDefined();
@@ -41,7 +66,13 @@ describe("SigninState", () => {
 
         it("should accept redirect_uri", () => {
             // act
-            const subject = new SigninState({ redirect_uri: "http://cb" });
+            const subject = new SigninState({
+                authority: "authority",
+                client_id: "client",
+                scope: "scope",
+                request_type: "type",
+                redirect_uri: "http://cb"
+            });
 
             // assert
             expect(subject.redirect_uri).toEqual("http://cb");
@@ -49,15 +80,29 @@ describe("SigninState", () => {
 
         it("should accept code_verifier", () => {
             // act
-            const subject = new SigninState({ code_verifier: 5 });
+            const subject = new SigninState({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type",
+                code_verifier: "5"
+            });
 
             // assert
-            expect(subject.code_verifier).toEqual(5);
+            expect(subject.code_verifier).toEqual("5");
         });
 
         it("should generate code_verifier", () => {
             // act
-            const subject = new SigninState({ code_verifier: true });
+            const subject = new SigninState({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type",
+                code_verifier: true
+            });
 
             // assert
             expect(subject.code_verifier).toBeDefined();
@@ -67,7 +112,14 @@ describe("SigninState", () => {
             // arrange
 
             // act
-            const subject = new SigninState({ code_verifier: true });
+            const subject = new SigninState({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type",
+                code_verifier: true
+            });
 
             // assert
             expect(subject.code_challenge).toBeDefined();
@@ -75,7 +127,13 @@ describe("SigninState", () => {
 
         it("should accept client_id", () => {
             // act
-            const subject = new SigninState({ client_id: "client" });
+            const subject = new SigninState({
+                authority: "authority",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type",
+                client_id: "client"
+            });
 
             // assert
             expect(subject.client_id).toEqual("client");
@@ -83,7 +141,13 @@ describe("SigninState", () => {
 
         it("should accept authority", () => {
             // act
-            const subject = new SigninState({ authority: "test" });
+            const subject = new SigninState({
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type",
+                authority: "test"
+            });
 
             // assert
             expect(subject.authority).toEqual("test");
@@ -91,7 +155,13 @@ describe("SigninState", () => {
 
         it("should accept request_type", () => {
             // act
-            const subject = new SigninState({ request_type: "xoxo" });
+            const subject = new SigninState({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "xoxo"
+            });
 
             // assert
             expect(subject.request_type).toEqual("xoxo");
@@ -100,7 +170,14 @@ describe("SigninState", () => {
         it("should accept extraTokenParams", () => {
             // act
             const subject = new SigninState({
-                extraTokenParams: { "resourceServer" : "abc" }
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type",
+                extraTokenParams: {
+                    "resourceServer" : "abc"
+                }
             });
 
             // assert
@@ -111,13 +188,14 @@ describe("SigninState", () => {
     it("can serialize and then deserialize", () => {
         // arrange
         const subject1 = new SigninState({
-            nonce: true,
             data: { foo: "test" },
             created: 1000,
-            client_id: "client",
-            authority: "authority",
-            redirect_uri: "http://cb",
+            nonce: true,
             code_verifier: true,
+            authority: "authority",
+            client_id: "client",
+            redirect_uri: "http://cb",
+            scope: "scope",
             request_type: "type"
         });
 

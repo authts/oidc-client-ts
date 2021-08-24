@@ -18,7 +18,9 @@ describe("State", () => {
 
         it("should generate id", () => {
             // act
-            const subject = new State();
+            const subject = new State({
+                request_type: "type"
+            });
 
             // assert
             expect(subject.id).toBeDefined();
@@ -26,15 +28,21 @@ describe("State", () => {
 
         it("should accept id", () => {
             // act
-            const subject = new State({ id: 5 });
+            const subject = new State({
+                request_type: "type",
+                id: "5"
+            });
 
             // assert
-            expect(subject.id).toEqual(5);
+            expect(subject.id).toEqual("5");
         });
 
         it("should accept data", () => {
             // act
-            const subject = new State({ data: "test" });
+            const subject = new State({
+                request_type: "type",
+                data: "test"
+            });
 
             // assert
             expect(subject.data).toEqual("test");
@@ -42,7 +50,10 @@ describe("State", () => {
 
         it("should accept data as objects", () => {
             // act
-            const subject = new State({ data: { foo: "test" } });
+            const subject = new State({
+                request_type: "type",
+                data: { foo: "test" }
+            });
 
             // assert
             expect(subject.data).toEqual({ foo: "test" });
@@ -50,7 +61,10 @@ describe("State", () => {
 
         it("should accept created", () => {
             // act
-            const subject = new State({ created: 1000 });
+            const subject = new State({
+                request_type: "type",
+                created: 1000
+            });
 
             // assert
             expect(subject.created).toEqual(1000);
@@ -64,7 +78,9 @@ describe("State", () => {
             };
 
             // act
-            const subject = new State();
+            const subject = new State({
+                request_type: "type"
+            });
 
             // assert
             expect(subject.created).toEqual(123);
@@ -73,7 +89,9 @@ describe("State", () => {
 
         it("should accept request_type", () => {
             // act
-            const subject = new State({ request_type: "xoxo" });
+            const subject = new State({
+                request_type: "xoxo"
+            });
 
             // assert
             expect(subject.request_type).toEqual("xoxo");
@@ -82,7 +100,9 @@ describe("State", () => {
 
     it("can serialize and then deserialize", () => {
         // arrange
-        const subject1 = new State({ data: { foo: "test" }, created: 1000, request_type:"type" });
+        const subject1 = new State({
+            data: { foo: "test" }, created: 1000, request_type:"type"
+        });
 
         // act
         const storage = subject1.toStorageString();
@@ -105,11 +125,11 @@ describe("State", () => {
             const inMemStore = new InMemoryWebStorage();
             const store = new WebStorageStateStore({ prefix: prefix, store: inMemStore });
 
-            const s1 = new State({ id: "s1", created: 50 });
-            const s2 = new State({ id: "s2", created: 99 });
-            const s3 = new State({ id: "s3", created: 100 });
-            const s4 = new State({ id: "s4", created: 101 });
-            const s5 = new State({ id: "s5", created: 150 });
+            const s1 = new State({ id: "s1", created: 5, request_type:"type" });
+            const s2 = new State({ id: "s2", created: 99, request_type:"type" });
+            const s3 = new State({ id: "s3", created: 100, request_type:"type" });
+            const s4 = new State({ id: "s4", created: 101, request_type:"type" });
+            const s5 = new State({ id: "s5", created: 150, request_type:"type" });
 
             inMemStore.setItem("junk0", "junk");
             inMemStore.setItem(prefix + s1.id, s1.toStorageString());

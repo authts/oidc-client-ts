@@ -10,7 +10,7 @@ export class SigninRequest {
 
     public constructor({
         // mandatory
-        url, client_id, redirect_uri, response_type, scope, authority,
+        url, authority, client_id, redirect_uri, response_type, scope,
         // optional
         data, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, response_mode,
         request, request_uri, extraQueryParams, request_type, client_secret, extraTokenParams, skipUserInfo
@@ -40,18 +40,23 @@ export class SigninRequest {
             throw new Error("authority");
         }
 
-        const oidc = SigninRequest.isOidc(response_type);
-        const code = SigninRequest.isCode(response_type);
+        const isOidc = SigninRequest.isOidc(response_type);
+        const isCode = SigninRequest.isCode(response_type);
 
         if (!response_mode) {
-            response_mode = SigninRequest.isCode(response_type) ? "query" : null;
+            response_mode = isCode ? "query" : undefined;
         }
 
-        this.state = new SigninState({ nonce: oidc,
-            data, client_id, authority, redirect_uri,
-            code_verifier: code,
-            request_type, response_mode,
-            client_secret, scope, extraTokenParams, skipUserInfo });
+        this.state = new SigninState({
+            data,
+            request_type,
+            nonce: isOidc,
+            code_verifier: isCode,
+            client_id, authority, redirect_uri,
+            response_mode,
+            client_secret, scope, extraTokenParams,
+            skipUserInfo
+        });
 
         url = UrlUtility.addQueryParam(url, "client_id", client_id);
         url = UrlUtility.addQueryParam(url, "redirect_uri", redirect_uri);
@@ -59,10 +64,10 @@ export class SigninRequest {
         url = UrlUtility.addQueryParam(url, "scope", scope);
 
         url = UrlUtility.addQueryParam(url, "state", this.state.id);
-        if (oidc) {
+        if (this.state.nonce) {
             url = UrlUtility.addQueryParam(url, "nonce", this.state.nonce);
         }
-        if (code) {
+        if (this.state.code_challenge) {
             url = UrlUtility.addQueryParam(url, "code_challenge", this.state.code_challenge);
             url = UrlUtility.addQueryParam(url, "code_challenge_method", "S256");
         }

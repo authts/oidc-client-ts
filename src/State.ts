@@ -8,21 +8,24 @@ export class State {
     public readonly id: string;
     public readonly data: any;
     public readonly created: number;
-    public readonly request_type: any;
+    public readonly request_type: string;
 
-    public constructor({
-        id, data, created, request_type
-    }: any = {}) {
-        this.id = id || random();
-        this.data = data;
+    public constructor(args: {
+        id?: string;
+        data?: any;
+        created?: number;
+        request_type: string;
+    }) {
+        this.id = args.id || random();
+        this.data = args.data;
 
-        if (typeof created === "number" && created > 0) {
-            this.created = created;
+        if (args.created && args.created > 0) {
+            this.created = args.created;
         }
         else {
             this.created = Timer.getEpochTime();
         }
-        this.request_type =  request_type;
+        this.request_type =  args.request_type;
     }
 
     public toStorageString() {

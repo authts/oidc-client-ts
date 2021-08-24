@@ -5,39 +5,56 @@ import { Log, JoseUtil, random } from "./utils";
 import { State } from "./State";
 
 export class SigninState extends State {
-    public readonly nonce: any;
-    public readonly code_verifier: any;
-    public readonly code_challenge: any;
-    public readonly redirect_uri: any;
-    public readonly authority: any;
-    public readonly client_id: any;
-    public readonly response_mode: any;
-    public readonly client_secret: any;
-    public readonly scope: any;
-    public readonly extraTokenParams: any;
-    public readonly skipUserInfo: any;
+    // isOidc
+    public readonly nonce: string | undefined;
 
-    public constructor(args: any = {}) {
-        const {
-            nonce, authority, client_id,
-            redirect_uri, code_verifier, response_mode, client_secret,
-            scope, extraTokenParams, skipUserInfo
-        } = args;
+    // isCode
+    public readonly code_verifier: string | undefined;
+    public readonly code_challenge: string | undefined;
+
+    // to ensure state still matches settings
+    public readonly authority: string;
+    public readonly client_id: string;
+    public readonly redirect_uri: string;
+    public readonly scope: string;
+    public readonly client_secret: string | undefined;
+    public readonly extraTokenParams: Record<string, any> | undefined;
+
+    public readonly response_mode: string | undefined;
+    public readonly skipUserInfo: boolean | undefined;
+
+    public constructor(args: {
+        id?: string;
+        data?: any;
+        created?: number;
+        request_type: string;
+
+        nonce?: string | boolean;
+        code_verifier?: string | boolean;
+        authority: string;
+        client_id: string;
+        redirect_uri: string;
+        scope: string;
+        client_secret?: string;
+        extraTokenParams?: Record<string, any>;
+        response_mode?: string;
+        skipUserInfo?: boolean;
+    }) {
         super(args);
 
-        if (nonce === true) {
+        if (args.nonce === true) {
             this.nonce = random();
         }
-        else if (nonce) {
-            this.nonce = nonce;
+        else if (args.nonce) {
+            this.nonce = args.nonce;
         }
 
-        if (code_verifier === true) {
+        if (args.code_verifier === true) {
             // random() produces 32 length
             this.code_verifier = random() + random() + random();
         }
-        else if (code_verifier) {
-            this.code_verifier = code_verifier;
+        else if (args.code_verifier) {
+            this.code_verifier = args.code_verifier;
         }
 
         if (this.code_verifier) {
@@ -45,14 +62,15 @@ export class SigninState extends State {
             this.code_challenge = JoseUtil.hexToBase64Url(hash);
         }
 
-        this.redirect_uri = redirect_uri;
-        this.authority = authority;
-        this.client_id = client_id;
-        this.response_mode = response_mode;
-        this.client_secret = client_secret;
-        this.scope = scope;
-        this.extraTokenParams = extraTokenParams;
-        this.skipUserInfo = skipUserInfo;
+        this.authority = args.authority;
+        this.client_id = args.client_id;
+        this.redirect_uri = args.redirect_uri;
+        this.scope = args.scope;
+        this.client_secret = args.client_secret;
+        this.extraTokenParams = args.extraTokenParams;
+
+        this.response_mode = args.response_mode;
+        this.skipUserInfo = args.skipUserInfo;
     }
 
     public toStorageString() {
@@ -62,15 +80,16 @@ export class SigninState extends State {
             data: this.data,
             created: this.created,
             request_type: this.request_type,
+
             nonce: this.nonce,
             code_verifier: this.code_verifier,
-            redirect_uri: this.redirect_uri,
             authority: this.authority,
             client_id: this.client_id,
-            response_mode: this.response_mode,
-            client_secret: this.client_secret,
+            redirect_uri: this.redirect_uri,
             scope: this.scope,
+            client_secret: this.client_secret,
             extraTokenParams : this.extraTokenParams,
+            response_mode: this.response_mode,
             skipUserInfo: this.skipUserInfo
         });
     }

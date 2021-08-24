@@ -9,7 +9,7 @@ export class SigninResponse {
     public readonly code: string;
 
     // updated by ResponseValidator
-    public state: string | undefined;
+    public state: any | undefined;
 
     // updated by ResponseValidator
     public error: string | undefined;
