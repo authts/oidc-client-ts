@@ -388,7 +388,13 @@ describe("ResponseValidator", () => {
 
         it("should filter protocol claims if OIDC", async () => {
             // arrange
-            const state = new SigninState();
+            const state = new SigninState({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type"
+            });
             stubResponse.isOpenIdConnect = true;
             stubResponse.profile = { a: "apple", b: "banana" };
             const _filterProtocolClaimsMock = jest.spyOn(subject, "_filterProtocolClaims")
@@ -403,7 +409,13 @@ describe("ResponseValidator", () => {
 
         it("should not filter protocol claims if not OIDC", async () => {
             // arrange
-            const state = new SigninState();
+            const state = new SigninState({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type"
+            });
             stubResponse.isOpenIdConnect = false;
             const _filterProtocolClaimsMock = jest.spyOn(subject, "_filterProtocolClaims")
                 .mockImplementation((profile) => profile);
@@ -417,7 +429,13 @@ describe("ResponseValidator", () => {
 
         it("should load and merge user info claims when loadUserInfo configured", async () => {
             // arrange
-            const state = new SigninState();
+            const state = new SigninState({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type"
+            });
             settings.loadUserInfo = true;
             stubResponse.isOpenIdConnect = true;
             stubResponse.profile = { a: "apple", b: "banana" };
@@ -436,7 +454,13 @@ describe("ResponseValidator", () => {
 
         it("should not run if reqest was not openid", async () => {
             // arrange
-            const state = new SigninState();
+            const state = new SigninState({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type"
+            });
             settings.loadUserInfo = true;
             stubResponse.isOpenIdConnect = false;
             stubResponse.profile = { a: "apple", b: "banana" };
@@ -452,7 +476,13 @@ describe("ResponseValidator", () => {
 
         it("should not load and merge user info claims when loadUserInfo not configured", async () => {
             // arrange
-            const state = new SigninState();
+            const state = new SigninState({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type"
+            });
             settings.loadUserInfo = false;
             stubResponse.isOpenIdConnect = true;
             stubResponse.profile = { a: "apple", b: "banana" };
@@ -468,7 +498,13 @@ describe("ResponseValidator", () => {
 
         it("should not load user info claims if no access token", async () => {
             // arrange
-            const state = new SigninState();
+            const state = new SigninState({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type"
+            });
             settings.loadUserInfo = true;
             stubResponse.isOpenIdConnect = true;
             stubResponse.profile = { a: "apple", b: "banana" };
