@@ -224,11 +224,11 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                response_mode: "foo"
+                response_mode: "query"
             });
 
             // assert
-            expect(subject.response_mode).toEqual("foo");
+            expect(subject.response_mode).toEqual("query");
         });
     });
 
