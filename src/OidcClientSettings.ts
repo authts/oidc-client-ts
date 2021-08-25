@@ -41,7 +41,7 @@ export interface OidcClientSettings {
     ui_locales?: string;
     acr_values?: string;
     resource?: string;
-    response_mode?: string;
+    response_mode?: "query" | "fragment";
 
     /** Should OIDC protocol claims be removed from profile (default: true) */
     filterProtocolClaims?: boolean;
@@ -85,7 +85,7 @@ export class OidcClientSettingsStore {
     public readonly ui_locales: string | undefined;
     public readonly acr_values: string | undefined;
     public readonly resource: string | undefined;
-    public readonly response_mode: string | undefined;
+    public readonly response_mode: "query" | "fragment" | undefined;
 
     // behavior flags
     public readonly filterProtocolClaims: boolean | undefined;
