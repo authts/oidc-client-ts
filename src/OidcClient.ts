@@ -11,13 +11,12 @@ import { SigninResponse } from "./SigninResponse";
 import { SignoutRequest } from "./SignoutRequest";
 import { SignoutResponse } from "./SignoutResponse";
 import { SigninState } from "./SigninState";
-import { StateStore } from "./StateStore";
 import { State } from "./State";
 
 export class OidcClient {
     public readonly settings: OidcClientSettingsStore;
     public readonly metadataService: MetadataService;
-    private readonly _validator: ResponseValidator;
+    protected readonly _validator: ResponseValidator;
 
     public constructor(settings: OidcClientSettings) {
         this.settings = new OidcClientSettingsStore(settings);
@@ -33,12 +32,9 @@ export class OidcClient {
         // and so now if data is not passed, but state is then state will be used
         data, state, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
         resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo
-    }: any = {},
-    stateStore?: StateStore
-    ): Promise<SigninRequest> {
+    }: any = {}): Promise<SigninRequest> {
         Log.debug("OidcClient.createSigninRequest");
 
-        const client_id = this.settings.client_id;
         response_type = response_type || this.settings.response_type;
         scope = scope || this.settings.scope;
         redirect_uri = redirect_uri || this.settings.redirect_uri;
@@ -54,8 +50,6 @@ export class OidcClient {
         extraQueryParams = extraQueryParams || this.settings.extraQueryParams;
         extraTokenParams = extraTokenParams || this.settings.extraTokenParams;
 
-        const authority = this.settings.authority;
-
         if (SigninRequest.isCode(response_type) && response_type !== "code") {
             throw new Error("OpenID Connect hybrid flow is not supported");
         }
@@ -65,12 +59,12 @@ export class OidcClient {
 
         const signinRequest = new SigninRequest({
             url,
-            client_id,
+            client_id: this.settings.client_id,
             redirect_uri,
             response_type,
             scope,
             data: data || state,
-            authority,
+            authority: this.settings.authority,
             prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
             resource, request, request_uri, extraQueryParams, extraTokenParams, request_type, response_mode,
             client_secret: this.settings.client_secret,
@@ -78,12 +72,11 @@ export class OidcClient {
         });
 
         const signinState = signinRequest.state;
-        stateStore = stateStore || this.settings.stateStore;
-        await stateStore.set(signinState.id, signinState.toStorageString());
+        await this.settings.stateStore.set(signinState.id, signinState.toStorageString());
         return signinRequest;
     }
 
-    public async readSigninResponseState(url?: string, stateStore: StateStore | null = null, removeState = false) {
+    public async readSigninResponseState(url?: string, removeState = false) {
         Log.debug("OidcClient.readSigninResponseState");
 
         const useQuery = this.settings.response_mode === "query" ||
@@ -97,8 +90,7 @@ export class OidcClient {
             throw new Error("No state in response");
         }
 
-        stateStore = stateStore || this.settings.stateStore;
-
+        const stateStore = this.settings.stateStore;
         const stateApi = removeState ? stateStore.remove.bind(stateStore) : stateStore.get.bind(stateStore);
 
         const storedStateString = await stateApi(response.state);
@@ -111,19 +103,17 @@ export class OidcClient {
         return {state, response};
     }
 
-    public async processSigninResponse(url: string, stateStore: StateStore | null = null) {
+    public async processSigninResponse(url: string) {
         Log.debug("OidcClient.processSigninResponse");
 
-        const { state, response } = await this.readSigninResponseState(url, stateStore, true);
+        const { state, response } = await this.readSigninResponseState(url, true);
         Log.debug("OidcClient.processSigninResponse: Received state from storage; validating response");
         return this._validator.validateSigninResponse(state, response);
     }
 
     public async createSignoutRequest({
         id_token_hint, data, state, post_logout_redirect_uri, extraQueryParams, request_type
-    }: any = {},
-    stateStore: StateStore | null = null
-    ) {
+    }: any = {}) {
         Log.debug("OidcClient.createSignoutRequest");
 
         post_logout_redirect_uri = post_logout_redirect_uri || this.settings.post_logout_redirect_uri;
@@ -149,15 +139,13 @@ export class OidcClient {
         const signoutState = request.state;
         if (signoutState) {
             Log.debug("OidcClient.createSignoutRequest: Signout request has state to persist");
-
-            stateStore = stateStore || this.settings.stateStore;
-            void stateStore.set(signoutState.id, signoutState.toStorageString());
+            await this.settings.stateStore.set(signoutState.id, signoutState.toStorageString());
         }
 
         return request;
     }
 
-    public async readSignoutResponseState(url?: string, stateStore: StateStore | null = null, removeState = false): Promise<{ state: undefined | State; response: SignoutResponse }> {
+    public async readSignoutResponseState(url?: string, removeState = false): Promise<{ state: undefined | State; response: SignoutResponse }> {
         Log.debug("OidcClient.readSignoutResponseState");
 
         const response = new SignoutResponse(url);
@@ -173,8 +161,7 @@ export class OidcClient {
         }
 
         const stateKey = response.state;
-
-        stateStore = stateStore || this.settings.stateStore;
+        const stateStore = this.settings.stateStore;
 
         const stateApi = removeState ? stateStore.remove.bind(stateStore) : stateStore.get.bind(stateStore);
         const storedStateString = await stateApi(stateKey);
@@ -187,10 +174,10 @@ export class OidcClient {
         return {state, response};
     }
 
-    public async processSignoutResponse(url: string, stateStore: StateStore | null = null) {
+    public async processSignoutResponse(url: string) {
         Log.debug("OidcClient.processSignoutResponse");
 
-        const {state, response} = await this.readSignoutResponseState(url, stateStore, true);
+        const {state, response} = await this.readSignoutResponseState(url, true);
         if (state) {
             Log.debug("OidcClient.processSignoutResponse: Received state from storage; validating response");
             return this._validator.validateSignoutResponse(state, response);
@@ -201,11 +188,9 @@ export class OidcClient {
         }
     }
 
-    public clearStaleState(stateStore: StateStore | null = null): Promise<void> {
+    public clearStaleState(): Promise<void> {
         Log.debug("OidcClient.clearStaleState");
 
-        stateStore = stateStore || this.settings.stateStore;
-
-        return State.clearStaleState(stateStore, this.settings.staleStateAge);
+        return State.clearStaleState(this.settings.stateStore, this.settings.staleStateAge);
     }
 }
