@@ -3,13 +3,15 @@
 
 import { Log } from "./utils";
 import { UserManager } from "./UserManager";
+import { AccessTokenCallback } from "./AccessTokenEvents";
 
 export class SilentRenewService {
     private _userManager: UserManager;
-    private _callback: any;
+    private _callback: AccessTokenCallback | null;
 
     public constructor(userManager: UserManager) {
         this._userManager = userManager;
+        this._callback = null;
     }
 
     public async start() {
@@ -32,7 +34,7 @@ export class SilentRenewService {
     public stop() {
         if (this._callback) {
             this._userManager.events.removeAccessTokenExpiring(this._callback);
-            delete this._callback;
+            this._callback = null;
         }
     }
 
