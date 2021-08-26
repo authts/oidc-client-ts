@@ -162,7 +162,7 @@ export class UserManager extends OidcClient {
 
     protected async _useRefreshToken(user: User) {
         const args = {
-            refresh_token: user.refresh_token
+            refresh_token: user.refresh_token || ""
         };
         const result = await this._tokenClient.exchangeRefreshToken(args);
         if (!result) {

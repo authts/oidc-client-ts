@@ -6,6 +6,24 @@ import { MetadataService } from "./MetadataService";
 import { Log } from "./utils";
 import { OidcClientSettingsStore } from "./OidcClientSettings";
 
+interface ExchangeCodeArgs {
+    client_id?: string;
+    client_secret?: string;
+    redirect_uri?: string;
+
+    grant_type?: string;
+    code: string;
+    code_verifier: string;
+}
+
+interface ExchangeRefreshTokenArgs {
+    client_id?: string;
+    client_secret?: string;
+
+    grant_type?: string;
+    refresh_token: string;
+}
+
 export class TokenClient {
     private readonly _settings: OidcClientSettingsStore;
     private readonly _jsonService: JsonService;
@@ -17,7 +35,7 @@ export class TokenClient {
         this._metadataService = metadataService;
     }
 
-    public async exchangeCode(args: any = {}): Promise<any> {
+    public async exchangeCode(args: ExchangeCodeArgs): Promise<any> {
         args = Object.assign({}, args);
 
         args.grant_type = args.grant_type || "authorization_code";
@@ -25,25 +43,23 @@ export class TokenClient {
         args.client_secret = args.client_secret || this._settings.client_secret;
         args.redirect_uri = args.redirect_uri || this._settings.redirect_uri;
 
-        let basicAuth: string | undefined = undefined;
-        const client_authentication = args._client_authentication || this._settings.client_authentication;
-        delete args._client_authentication;
+        const client_authentication = this._settings.client_authentication;
 
-        if (!args.code) {
-            Log.error("TokenClient.exchangeCode: No code passed");
-            throw new Error("A code is required");
+        if (!args.client_id) {
+            Log.error("TokenClient.exchangeCode: No client_id passed");
+            throw new Error("A client_id is required");
         }
         if (!args.redirect_uri) {
             Log.error("TokenClient.exchangeCode: No redirect_uri passed");
             throw new Error("A redirect_uri is required");
         }
+        if (!args.code) {
+            Log.error("TokenClient.exchangeCode: No code passed");
+            throw new Error("A code is required");
+        }
         if (!args.code_verifier) {
             Log.error("TokenClient.exchangeCode: No code_verifier passed");
             throw new Error("A code_verifier is required");
-        }
-        if (!args.client_id) {
-            Log.error("TokenClient.exchangeCode: No client_id passed");
-            throw new Error("A client_id is required");
         }
         if (!args.client_secret && client_authentication == "client_secret_basic") {
             Log.error("TokenClient.exchangeCode: No client_secret passed");
@@ -51,9 +67,9 @@ export class TokenClient {
         }
 
         // Sending the client credentials using the Basic Auth method
+        let basicAuth: string | undefined = undefined;
         if (client_authentication == "client_secret_basic")
         {
-            // TODO defined types for this line
             // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
             basicAuth = args.client_id + ":" + args.client_secret;
             delete args.client_id;
@@ -69,16 +85,14 @@ export class TokenClient {
         return response;
     }
 
-    public async exchangeRefreshToken(args: any = {}) {
+    public async exchangeRefreshToken(args: ExchangeRefreshTokenArgs) {
         args = Object.assign({}, args);
 
         args.grant_type = args.grant_type || "refresh_token";
         args.client_id = args.client_id || this._settings.client_id;
         args.client_secret = args.client_secret || this._settings.client_secret;
 
-        let basicAuth: string | undefined = undefined;
-        const client_authentication = args._client_authentication || this._settings.client_authentication;
-        delete args._client_authentication;
+        const client_authentication = this._settings.client_authentication;
 
         if (!args.refresh_token) {
             Log.error("TokenClient.exchangeRefreshToken: No refresh_token passed");
@@ -90,6 +104,7 @@ export class TokenClient {
         }
 
         // Sending the client credentials using the Basic Auth method
+        let basicAuth: string | undefined = undefined;
         if (client_authentication == "client_secret_basic")
         {
             // TODO defined types for this line
