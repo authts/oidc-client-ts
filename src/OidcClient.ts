@@ -8,10 +8,38 @@ import { MetadataService } from "./MetadataService";
 import { ErrorResponse } from "./ErrorResponse";
 import { SigninRequest } from "./SigninRequest";
 import { SigninResponse } from "./SigninResponse";
-import { SignoutRequest } from "./SignoutRequest";
+import { SignoutRequest, SignoutRequestArgs } from "./SignoutRequest";
 import { SignoutResponse } from "./SignoutResponse";
 import { SigninState } from "./SigninState";
 import { State } from "./State";
+
+export interface CreateSigninRequestArgs {
+    redirect_uri?: string;
+    response_type?: string;
+    scope?: string;
+
+    data?: any;
+    state?: any;
+
+    prompt?: string;
+    display?: string;
+    max_age?: number;
+    ui_locales?: string;
+    id_token_hint?: string;
+    login_hint?: string;
+    acr_values?: string;
+    resource?: string;
+    response_mode?: string;
+    request?: string;
+    request_uri?: string;
+    extraQueryParams?: Record<string, any>;
+    request_type?: string;
+    client_secret?: string;
+    extraTokenParams?: Record<string, any>;
+    skipUserInfo?: boolean;
+}
+
+export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url"> & { state?: any };
 
 export class OidcClient {
     public readonly settings: OidcClientSettingsStore;
@@ -30,9 +58,10 @@ export class OidcClient {
         // data was meant to be the place a caller could indicate the data to
         // have round tripped, but people were getting confused, so i added state (since that matches the spec)
         // and so now if data is not passed, but state is then state will be used
+        // TODO: eliminate data in favor of state
         data, state, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
         resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo
-    }: any = {}): Promise<SigninRequest> {
+    }: CreateSigninRequestArgs): Promise<SigninRequest> {
         Log.debug("OidcClient.createSigninRequest");
 
         response_type = response_type || this.settings.response_type;
@@ -59,12 +88,12 @@ export class OidcClient {
 
         const signinRequest = new SigninRequest({
             url,
+            authority: this.settings.authority,
             client_id: this.settings.client_id,
             redirect_uri,
             response_type,
             scope,
             data: data || state,
-            authority: this.settings.authority,
             prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
             resource, request, request_uri, extraQueryParams, extraTokenParams, request_type, response_mode,
             client_secret: this.settings.client_secret,
@@ -112,8 +141,9 @@ export class OidcClient {
     }
 
     public async createSignoutRequest({
+        // TODO: eliminate data in favor of state
         id_token_hint, data, state, post_logout_redirect_uri, extraQueryParams, request_type
-    }: any = {}) {
+    }: CreateSignoutRequestArgs = {}) {
         Log.debug("OidcClient.createSignoutRequest");
 
         post_logout_redirect_uri = post_logout_redirect_uri || this.settings.post_logout_redirect_uri;

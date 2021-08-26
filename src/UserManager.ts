@@ -3,7 +3,7 @@
 
 import { Log, JoseUtil, Timer } from "./utils";
 import { INavigator, IFrameNavigator, PopupNavigator, RedirectNavigator } from "./navigators";
-import { OidcClient } from "./OidcClient";
+import { OidcClient, CreateSigninRequestArgs, CreateSignoutRequestArgs } from "./OidcClient";
 import { UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
 import { User } from "./User";
 import { UserManagerEvents } from "./UserManagerEvents";
@@ -15,19 +15,22 @@ import { TokenClient } from "./TokenClient";
 import { SessionStatus } from "./SessionStatus";
 import { SignoutResponse } from "./SignoutResponse";
 
+type SigninArgs = CreateSigninRequestArgs & { current_sub?: string };
+type SignoutArgs = CreateSignoutRequestArgs;
+
 export class UserManager extends OidcClient {
     declare public readonly settings: UserManagerSettingsStore; /* TODO: port-ts */
 
-    private readonly _redirectNavigator: RedirectNavigator;
-    private readonly _popupNavigator: PopupNavigator;
-    private readonly _iframeNavigator: IFrameNavigator;
-    private readonly _events: UserManagerEvents;
-    private readonly _silentRenewService: SilentRenewService;
+    protected readonly _redirectNavigator: RedirectNavigator;
+    protected readonly _popupNavigator: PopupNavigator;
+    protected readonly _iframeNavigator: IFrameNavigator;
+    protected readonly _events: UserManagerEvents;
+    protected readonly _silentRenewService: SilentRenewService;
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    private readonly _sessionMonitor: SessionMonitor | null;
-    private readonly _tokenRevocationClient: TokenRevocationClient;
-    private readonly _tokenClient: TokenClient;
+    protected readonly _sessionMonitor: SessionMonitor | null;
+    protected readonly _tokenRevocationClient: TokenRevocationClient;
+    protected readonly _tokenClient: TokenClient;
 
     public constructor(settings: UserManagerSettings) {
         super(settings);
@@ -145,9 +148,9 @@ export class UserManager extends OidcClient {
             return this._useRefreshToken(user);
         }
 
-        const args: any = {
+        const args: SigninArgs = {
             request_type: "si:s",
-            id_token_hint: this.settings.includeIdTokenInSilentRenew && user && user.id_token
+            id_token_hint: this.settings.includeIdTokenInSilentRenew && user ? user.id_token : undefined
         };
         if (user && this.settings.validateSubOnSilentRenew) {
             Log.debug("UserManager.signinSilent, subject prior to silent renew: ", user.profile.sub);
@@ -213,7 +216,7 @@ export class UserManager extends OidcClient {
         }
     }
 
-    protected async _signinSilentIframe(args: any = {}) {
+    protected async _signinSilentIframe(args: SigninArgs) {
         const url = args.redirect_uri || this.settings.silent_redirect_uri || this.settings.redirect_uri;
         if (!url) {
             Log.error("UserManager.signinSilent: No silent_redirect_uri configured");
@@ -225,7 +228,7 @@ export class UserManager extends OidcClient {
 
         const user = await this._signin(args, this._iframeNavigator, {
             startUrl: url,
-            silentRequestTimeout: args.silentRequestTimeout || this.settings.silentRequestTimeout
+            silentRequestTimeout: this.settings.silentRequestTimeout
         });
         if (user) {
             if (user.profile && user.profile.sub) {
@@ -327,11 +330,11 @@ export class UserManager extends OidcClient {
         }
     }
 
-    protected async _signin(args: any, navigator: INavigator, navigatorParams: any = {}): Promise<User> {
+    protected async _signin(args: SigninArgs, navigator: INavigator, navigatorParams: any = {}): Promise<User> {
         const navResponse = await this._signinStart(args, navigator, navigatorParams);
         return this._signinEnd(navResponse.url, args);
     }
-    protected async _signinStart(args: any, navigator: INavigator, navigatorParams: any = {}) {
+    protected async _signinStart(args: SigninArgs, navigator: INavigator, navigatorParams: any = {}) {
         const handle = await navigator.prepare(navigatorParams);
         Log.debug("UserManager._signinStart: got navigator window handle");
 
@@ -350,7 +353,7 @@ export class UserManager extends OidcClient {
             throw err;
         }
     }
-    protected async _signinEnd(url: string, args: any = {}): Promise<User> {
+    protected async _signinEnd(url: string, args: SigninArgs = {}): Promise<User> {
         const signinResponse = await this.processSigninResponse(url);
         Log.debug("UserManager._signinEnd: got signin response");
 
@@ -379,7 +382,7 @@ export class UserManager extends OidcClient {
     }
 
     public async signoutRedirect(): Promise<void> {
-        const args: any = {
+        const args: SignoutArgs = {
             request_type: "so:r"
         };
         const postLogoutRedirectUri = this.settings.post_logout_redirect_uri;
@@ -398,10 +401,9 @@ export class UserManager extends OidcClient {
 
     public async signoutPopup(): Promise<void> {
         const url = this.settings.popup_post_logout_redirect_uri || this.settings.post_logout_redirect_uri;
-        const args: any = {
+        const args: SignoutArgs = {
             request_type: "so:p",
-            post_logout_redirect_uri: url,
-            display: "popup",
+            post_logout_redirect_uri: url
         };
         if (args.post_logout_redirect_uri) {
             // we're putting a dummy entry in here because we
@@ -414,8 +416,8 @@ export class UserManager extends OidcClient {
 
         await this._signout(args, this._popupNavigator, {
             startUrl: url,
-            popupWindowFeatures: args.popupWindowFeatures || this.settings.popupWindowFeatures,
-            popupWindowTarget: args.popupWindowTarget || this.settings.popupWindowTarget
+            popupWindowFeatures: this.settings.popupWindowFeatures,
+            popupWindowTarget: this.settings.popupWindowTarget
         });
         Log.info("UserManager.signoutPopup: successful");
     }
@@ -430,11 +432,11 @@ export class UserManager extends OidcClient {
         Log.info("UserManager.signoutPopupCallback: successful");
     }
 
-    protected async _signout(args: any, navigator: INavigator, navigatorParams: any = {}) {
+    protected async _signout(args: SignoutArgs, navigator: INavigator, navigatorParams: any = {}) {
         const navResponse = await this._signoutStart(args, navigator, navigatorParams);
         return this._signoutEnd(navResponse.url);
     }
-    protected async _signoutStart(args: any = {}, navigator: INavigator, navigatorParams: any = {}) {
+    protected async _signoutStart(args: SignoutArgs = {}, navigator: INavigator, navigatorParams: any = {}) {
         const handle = await navigator.prepare(navigatorParams);
         Log.debug("UserManager._signoutStart: got navigator window handle");
 

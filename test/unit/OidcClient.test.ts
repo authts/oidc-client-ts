@@ -49,10 +49,15 @@ describe("OidcClient", () => {
 
         it("should return a promise", async () => {
             // arrange
+            const args = {
+                redirect_uri: "redirect",
+                response_type: "response",
+                scope: "scope"
+            };
             jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
 
             // act
-            const p = subject.createSigninRequest();
+            const p = subject.createSigninRequest(args);
 
             // assert
             expect(p).toBeInstanceOf(Promise);
@@ -62,10 +67,15 @@ describe("OidcClient", () => {
 
         it("should return SigninRequest", async () => {
             // arrange
+            const args = {
+                redirect_uri: "redirect",
+                response_type: "response",
+                scope: "scope"
+            };
             jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
 
             // act
-            const request = await subject.createSigninRequest();
+            const request = await subject.createSigninRequest(args);
 
             // assert
             expect(request).toBeInstanceOf(SigninRequest);
@@ -84,7 +94,7 @@ describe("OidcClient", () => {
                 redirect_uri: "quux",
                 prompt: "p",
                 display: "d",
-                max_age: "m",
+                max_age: 42,
                 ui_locales: "u",
                 id_token_hint: "ith",
                 login_hint: "lh",
@@ -103,7 +113,7 @@ describe("OidcClient", () => {
             expect(url).toContain("redirect_uri=quux");
             expect(url).toContain("prompt=p");
             expect(url).toContain("display=d");
-            expect(url).toContain("max_age=m");
+            expect(url).toContain("max_age=42");
             expect(url).toContain("ui_locales=u");
             expect(url).toContain("id_token_hint=ith");
             expect(url).toContain("login_hint=lh");
@@ -126,7 +136,7 @@ describe("OidcClient", () => {
                 redirect_uri: "quux",
                 prompt: "p",
                 display: "d",
-                max_age: "m",
+                max_age: 42,
                 ui_locales: "u",
                 id_token_hint: "ith",
                 login_hint: "lh",
@@ -143,7 +153,7 @@ describe("OidcClient", () => {
             expect(url).toContain("redirect_uri=quux");
             expect(url).toContain("prompt=p");
             expect(url).toContain("display=d");
-            expect(url).toContain("max_age=m");
+            expect(url).toContain("max_age=42");
             expect(url).toContain("ui_locales=u");
             expect(url).toContain("id_token_hint=ith");
             expect(url).toContain("login_hint=lh");
@@ -152,9 +162,16 @@ describe("OidcClient", () => {
         });
 
         it("should fail if hybrid code id_token requested", async () => {
+            // arrange
+            const args = {
+                redirect_uri: "redirect",
+                scope: "scope",
+                response_type: "code id_token"
+            };
+
             // act
             try {
-                await subject.createSigninRequest({response_type:"code id_token"});
+                await subject.createSigninRequest(args);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("hybrid");
@@ -162,9 +179,16 @@ describe("OidcClient", () => {
         });
 
         it("should fail if hybrid code token requested", async () => {
+            // arrange
+            const args = {
+                redirect_uri: "redirect",
+                scope: "scope",
+                response_type: "code token"
+            };
+
             // act
             try {
-                await subject.createSigninRequest({response_type:"code token"});
+                await subject.createSigninRequest(args);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("hybrid");
@@ -172,9 +196,16 @@ describe("OidcClient", () => {
         });
 
         it("should fail if hybrid code id_token token requested", async () => {
+            // arrange
+            const args = {
+                redirect_uri: "redirect",
+                scope: "scope",
+                response_type: "code id_token token"
+            };
+
             // act
             try {
-                await subject.createSigninRequest({response_type:"code id_token token"});
+                await subject.createSigninRequest(args);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("hybrid");
@@ -183,11 +214,16 @@ describe("OidcClient", () => {
 
         it("should fail if metadata fails", async () => {
             // arrange
+            const args = {
+                redirect_uri: "redirect",
+                response_type: "response",
+                scope: "scope"
+            };
             jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockRejectedValue(new Error("test"));
 
             // act
             try {
-                await subject.createSigninRequest();
+                await subject.createSigninRequest(args);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("test");
@@ -196,12 +232,17 @@ describe("OidcClient", () => {
 
         it("should fail if seting state into store fails", async () => {
             // arrange
+            const args = {
+                redirect_uri: "redirect",
+                response_type: "response",
+                scope: "scope"
+            };
             jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
             jest.spyOn(subject.settings.stateStore, "set").mockRejectedValue(new Error("foo"));
 
             // act
             try {
-                await subject.createSigninRequest();
+                await subject.createSigninRequest(args);
                 fail("should not come here");
             } catch (err) {
                 expect(err.message).toContain("foo");
@@ -210,11 +251,16 @@ describe("OidcClient", () => {
 
         it("should store state", async () => {
             // arrange
+            const args = {
+                redirect_uri: "redirect",
+                response_type: "response",
+                scope: "scope"
+            };
             jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
             const setMock = jest.spyOn(subject.settings.stateStore, "set").mockImplementation(() => Promise.resolve());
 
             // act
-            await subject.createSigninRequest();
+            await subject.createSigninRequest(args);
 
             // assert
             expect(setMock).toBeCalled();
