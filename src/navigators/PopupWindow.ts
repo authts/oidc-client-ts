@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log, UrlUtility } from "../utils";
-import { IWindow } from "./IWindow";
+import { IWindow, NavigatorParams } from "./IWindow";
 
 const CheckForPopupClosedInterval = 500;
 const DefaultPopupFeatures = "location=no,toolbar=no,width=500,height=500,left=100,top=100;";
@@ -18,7 +18,7 @@ export class PopupWindow implements IWindow {
     private _checkForPopupClosedTimer: number | null;
     private _id: any;
 
-    public constructor(params: any) {
+    public constructor(params: NavigatorParams) {
         this._promise = new Promise((resolve, reject) => {
             this._resolve = resolve;
             this._reject = reject;
@@ -35,7 +35,7 @@ export class PopupWindow implements IWindow {
         }
     }
 
-    public navigate(params: any) {
+    public navigate(params: NavigatorParams) {
         if (!this._popup) {
             this._error("PopupWindow.navigate: Error opening popup window");
         }
@@ -55,7 +55,7 @@ export class PopupWindow implements IWindow {
             }
 
             this._popup.focus();
-            this._popup.window.location = params.url;
+            this._popup.window.location[params.redirectMethod || "assign"](params.url);
         }
 
         return this._promise;

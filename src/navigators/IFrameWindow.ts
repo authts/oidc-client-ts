@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log } from "../utils";
-import { IWindow } from "./IWindow";
+import { IWindow, NavigatorParams } from "./IWindow";
 
 const DefaultTimeout = 10000;
 
@@ -36,7 +36,7 @@ export class IFrameWindow implements IWindow {
         this._timer = null;
     }
 
-    public navigate(params: any) {
+    public navigate(params: NavigatorParams) {
         if (!params || !params.url) {
             this._error("No url provided");
         }

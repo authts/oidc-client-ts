@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log, JoseUtil, Timer } from "./utils";
-import { INavigator, IFrameNavigator, PopupNavigator, RedirectNavigator } from "./navigators";
+import { INavigator, NavigatorParams, IFrameNavigator, PopupNavigator, RedirectNavigator } from "./navigators";
 import { OidcClient, CreateSigninRequestArgs, CreateSignoutRequestArgs } from "./OidcClient";
 import { UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
 import { User } from "./User";
@@ -330,11 +330,11 @@ export class UserManager extends OidcClient {
         }
     }
 
-    protected async _signin(args: SigninArgs, navigator: INavigator, navigatorParams: any = {}): Promise<User> {
+    protected async _signin(args: SigninArgs, navigator: INavigator, navigatorParams: NavigatorParams): Promise<User> {
         const navResponse = await this._signinStart(args, navigator, navigatorParams);
         return this._signinEnd(navResponse.url, args);
     }
-    protected async _signinStart(args: SigninArgs, navigator: INavigator, navigatorParams: any = {}) {
+    protected async _signinStart(args: SigninArgs, navigator: INavigator, navigatorParams: NavigatorParams = {}) {
         const handle = await navigator.prepare(navigatorParams);
         Log.debug("UserManager._signinStart: got navigator window handle");
 
@@ -432,11 +432,11 @@ export class UserManager extends OidcClient {
         Log.info("UserManager.signoutPopupCallback: successful");
     }
 
-    protected async _signout(args: SignoutArgs, navigator: INavigator, navigatorParams: any = {}) {
+    protected async _signout(args: SignoutArgs, navigator: INavigator, navigatorParams: NavigatorParams) {
         const navResponse = await this._signoutStart(args, navigator, navigatorParams);
         return this._signoutEnd(navResponse.url);
     }
-    protected async _signoutStart(args: SignoutArgs = {}, navigator: INavigator, navigatorParams: any = {}) {
+    protected async _signoutStart(args: SignoutArgs = {}, navigator: INavigator, navigatorParams: NavigatorParams = {}) {
         const handle = await navigator.prepare(navigatorParams);
         Log.debug("UserManager._signoutStart: got navigator window handle");
 
