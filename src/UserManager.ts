@@ -134,7 +134,7 @@ export class UserManager extends OidcClient {
             Log.info("UserManager.signinPopupCallback: successful");
         }
         catch (err) {
-            Log.error("UserManager.signinPopupCallback error: " + (typeof err?.message === "string" ? err?.message as string : "undefined"));
+            Log.error("UserManager.signinPopupCallback error", err.message);
         }
     }
 
