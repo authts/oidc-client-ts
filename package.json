@@ -41,7 +41,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^5.5.0",
     "@types/jsrsasign": "^8.0.13",
-    "@weiran.zsd/tsdx": "^0.15.2",
+    "@weiran.zsd/tsdx": "^0.16.1",
     "tslib": "^2.2.0",
     "typescript": "^4.2.4",
     "concurrently": "^6.2.1",
