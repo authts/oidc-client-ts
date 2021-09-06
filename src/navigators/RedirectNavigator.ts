@@ -3,26 +3,20 @@
 
 import { Log } from "../utils";
 import { INavigator } from "./INavigator";
-import { IWindow } from "./IWindow";
+import { IWindow, NavigatorParams } from "./IWindow";
 
 export class RedirectNavigator implements INavigator, IWindow {
     public prepare() {
         return Promise.resolve(this);
     }
 
-    public navigate(params: any) {
+    public navigate(params: NavigatorParams) {
         if (!params || !params.url) {
             Log.error("RedirectNavigator.navigate: No url provided");
             throw new Error("No url provided");
         }
 
-        if (params.useReplaceToNavigate) {
-            window.location.replace(params.url);
-        }
-        else {
-            window.location = params.url;
-        }
-
+        window.location[params.redirectMethod || "assign"](params.url);
         return Promise.resolve();
     }
 

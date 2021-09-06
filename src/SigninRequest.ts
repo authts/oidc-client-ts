@@ -4,6 +4,35 @@
 import { Log, UrlUtility } from "./utils";
 import { SigninState } from "./SigninState";
 
+export interface SigninRequestArgs {
+    // mandatory
+    url: string;
+    authority: string;
+    client_id: string;
+    redirect_uri: string;
+    response_type: string;
+    scope: string;
+
+    // optional
+    data?: any;
+    prompt?: string;
+    display?: string;
+    max_age?: number;
+    ui_locales?: string;
+    id_token_hint?: string;
+    login_hint?: string;
+    acr_values?: string;
+    resource?: string;
+    response_mode?: string;
+    request?: string;
+    request_uri?: string;
+    extraQueryParams?: Record<string, any>;
+    request_type?: string;
+    client_secret?: string;
+    extraTokenParams?: Record<string, any>;
+    skipUserInfo?: boolean;
+}
+
 export class SigninRequest {
     public readonly url: string;
     public readonly state: SigninState;
@@ -14,7 +43,7 @@ export class SigninRequest {
         // optional
         data, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, response_mode,
         request, request_uri, extraQueryParams, request_type, client_secret, extraTokenParams, skipUserInfo
-    }: any) {
+    }: SigninRequestArgs) {
         if (!url) {
             Log.error("SigninRequest.ctor: No url passed");
             throw new Error("url");
@@ -72,7 +101,7 @@ export class SigninRequest {
             url = UrlUtility.addQueryParam(url, "code_challenge_method", "S256");
         }
 
-        const optional: any = { prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, request, request_uri, response_mode };
+        const optional: Record<string, any> = { prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, request, request_uri, response_mode };
         for (const key in optional) {
             if (optional[key]) {
                 url = UrlUtility.addQueryParam(url, key, optional[key]);

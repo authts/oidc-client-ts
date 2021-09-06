@@ -27,7 +27,7 @@ export class SigninState extends State {
         id?: string;
         data?: any;
         created?: number;
-        request_type: string;
+        request_type?: string;
 
         nonce?: string | boolean;
         code_verifier?: string | boolean;

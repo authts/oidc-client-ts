@@ -3,9 +3,10 @@
 
 import { CordovaPopupWindow } from "./CordovaPopupWindow";
 import { INavigator } from "./INavigator";
+import { NavigatorParams } from "./IWindow";
 
 export class CordovaPopupNavigator implements INavigator {
-    public prepare(params: any) {
+    public prepare(params: NavigatorParams) {
         const popup = new CordovaPopupWindow(params);
         return Promise.resolve(popup);
     }

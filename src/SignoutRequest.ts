@@ -4,13 +4,26 @@
 import { Log, UrlUtility } from "./utils";
 import { State } from "./State";
 
+export interface SignoutRequestArgs {
+    // mandatory
+    url: string;
+
+    // optional
+    id_token_hint?: string;
+    post_logout_redirect_uri?: string;
+    data?: string;
+    extraQueryParams?: Record<string, any>;
+    request_type?: string;
+}
+
 export class SignoutRequest {
     public readonly url: string
     public readonly state?: State
 
     public constructor({
-        url, id_token_hint, post_logout_redirect_uri, data, extraQueryParams, request_type
-    }: any) {
+        url,
+        id_token_hint, post_logout_redirect_uri, data, extraQueryParams, request_type
+    }: SignoutRequestArgs) {
         if (!url) {
             Log.error("SignoutRequest.ctor: No url passed");
             throw new Error("url");

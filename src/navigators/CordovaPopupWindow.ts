@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log } from "../utils";
-import { IWindow } from "./IWindow";
+import { IWindow, NavigatorParams } from "./IWindow";
 
 const DefaultPopupFeatures = "location=no,toolbar=no,zoom=no";
 const DefaultPopupTarget = "_blank";
@@ -18,7 +18,7 @@ export class CordovaPopupWindow implements IWindow {
     private _exitCallbackEvent?: (message: any) => void;
     private _loadStartCallbackEvent?: (event: any) => void;
 
-    public constructor(params: any) {
+    public constructor(params: NavigatorParams) {
         this._promise = new Promise((resolve, reject) => {
             this._resolve = resolve;
             this._reject = reject;
@@ -27,7 +27,7 @@ export class CordovaPopupWindow implements IWindow {
         this.features = params.popupWindowFeatures || DefaultPopupFeatures;
         this.target = params.popupWindowTarget || DefaultPopupTarget;
 
-        this.redirect_uri = params.startUrl;
+        this.redirect_uri = params.startUrl || "";
         Log.debug("CordovaPopupWindow.ctor: redirect_uri: " + this.redirect_uri);
     }
 
@@ -37,7 +37,7 @@ export class CordovaPopupWindow implements IWindow {
         });
     }
 
-    public navigate(params: any) {
+    public navigate(params: NavigatorParams) {
         if (!params || !params.url) {
             this._error("No url provided");
         } else {

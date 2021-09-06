@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log } from "../utils";
-import { IWindow } from "./IWindow";
+import { IWindow, NavigatorParams } from "./IWindow";
 
 const DefaultTimeout = 10000;
 
@@ -36,16 +36,18 @@ export class IFrameWindow implements IWindow {
         this._timer = null;
     }
 
-    public navigate(params: any) {
+    public navigate(params: NavigatorParams) {
         if (!params || !params.url) {
             this._error("No url provided");
+        }
+        else if (!this._frame) {
+            this._error("No _frame, already closed");
         }
         else {
             const timeout = params.silentRequestTimeout || DefaultTimeout;
             Log.debug("IFrameWindow.navigate: Using timeout of:", timeout);
             this._timer = window.setTimeout(this._timeout.bind(this), timeout);
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            this._frame!.src = params.url;
+            this._frame.src = params.url;
         }
 
         return this._promise;
@@ -69,18 +71,20 @@ export class IFrameWindow implements IWindow {
     }
 
     protected _cleanup() {
-        if (this._frame) {
-            Log.debug("IFrameWindow: cleanup");
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            window.removeEventListener("message", this._boundMessageEvent!, false);
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            window.clearTimeout(this._timer!);
-            window.document.body.removeChild(this._frame);
-
-            this._timer = null;
-            this._frame = null;
-            this._boundMessageEvent = null;
+        Log.debug("IFrameWindow: cleanup");
+        if (this._timer) {
+            window.clearTimeout(this._timer);
         }
+        if (this._boundMessageEvent) {
+            window.removeEventListener("message", this._boundMessageEvent, false);
+        }
+        if (this._frame) {
+            window.document.body.removeChild(this._frame);
+        }
+
+        this._timer = null;
+        this._boundMessageEvent = null;
+        this._frame = null;
     }
 
     protected _timeout() {

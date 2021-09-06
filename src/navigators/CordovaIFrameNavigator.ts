@@ -3,9 +3,10 @@
 
 import { CordovaPopupWindow } from "./CordovaPopupWindow";
 import { INavigator } from "./INavigator";
+import { NavigatorParams } from "./IWindow";
 
 export class CordovaIFrameNavigator implements INavigator {
-    public prepare(params: any) {
+    public prepare(params: NavigatorParams) {
         params.popupWindowFeatures = "hidden=yes";
         const popup = new CordovaPopupWindow(params);
         return Promise.resolve(popup);

@@ -8,13 +8,13 @@ export class State {
     public readonly id: string;
     public readonly data: any;
     public readonly created: number;
-    public readonly request_type: string;
+    public readonly request_type: string | undefined;
 
     public constructor(args: {
         id?: string;
         data?: any;
         created?: number;
-        request_type: string;
+        request_type?: string;
     }) {
         this.id = args.id || random();
         this.data = args.data;

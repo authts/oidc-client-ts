@@ -4,9 +4,10 @@
 import { Log } from "../utils";
 import { PopupWindow } from "./PopupWindow";
 import { INavigator } from "./INavigator";
+import { NavigatorParams } from "./IWindow";
 
 export class PopupNavigator implements INavigator {
-    public prepare(params: any) {
+    public prepare(params: NavigatorParams) {
         const popup = new PopupWindow(params);
         return Promise.resolve(popup);
     }

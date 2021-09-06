@@ -164,13 +164,13 @@ describe("SigninRequest", () => {
 
         it("should include max_age", () => {
             // arrange
-            settings.max_age = "foo";
+            settings.max_age = 42;
 
             // act
             subject = new SigninRequest(settings);
 
             // assert
-            expect(subject.url).toContain("max_age=foo");
+            expect(subject.url).toContain("max_age=42");
         });
 
         it("should include ui_locales", () => {
