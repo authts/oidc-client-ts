@@ -7,29 +7,29 @@ export class ErrorResponse extends Error {
     public readonly name: string;
 
     public readonly error: string;
-    public readonly error_description: string;
-    public readonly error_uri: string;
+    public readonly error_description: string | undefined;
+    public readonly error_uri: string | undefined;
 
     public readonly state: any;
-    public readonly session_state?: string;
+    public readonly session_state: string | undefined;
 
-    public constructor({
-        error, error_description, error_uri, state, session_state
-    }: any) {
-        if (!error) {
+    public constructor(args: {
+        error?: string; error_description?: string; error_uri?: string; state?: string; session_state?: string;
+    }) {
+        if (!args.error) {
             Log.error("No error passed to ErrorResponse");
             throw new Error("error");
         }
 
-        super(error_description || error);
+        super(args.error_description || args.error);
 
         this.name = "ErrorResponse";
 
-        this.error = error;
-        this.error_description = error_description;
-        this.error_uri = error_uri;
+        this.error = args.error;
+        this.error_description = args.error_description;
+        this.error_uri = args.error_uri;
 
-        this.state = state;
-        this.session_state = session_state;
+        this.state = args.state;
+        this.session_state = args.session_state;
     }
 }
