@@ -279,11 +279,11 @@ describe("UserManagerSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                checkSessionInterval : 6000
+                checkSessionIntervalInSeconds: 6
             });
 
             // assert
-            expect(subject.checkSessionInterval).toEqual(6000);
+            expect(subject.checkSessionIntervalInSeconds).toEqual(6);
         });
         it("should use default value", () => {
             // act
@@ -294,7 +294,7 @@ describe("UserManagerSettings", () => {
             });
 
             // assert
-            expect(subject.checkSessionInterval).toEqual(2000);
+            expect(subject.checkSessionIntervalInSeconds).toEqual(2);
         });
     });
 

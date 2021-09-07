@@ -3,12 +3,10 @@
 
 import { Log } from "./utils";
 
-const DefaultInterval = 2000;
-
 export class CheckSessionIFrame {
     private _callback: () => Promise<void> | void;
     private _client_id: string;
-    private _interval: number;
+    private _intervalInSeconds: number;
     private _stopOnError: boolean;
     private _frame_origin: string;
     private _frame: HTMLIFrameElement;
@@ -16,11 +14,11 @@ export class CheckSessionIFrame {
     private _timer: number | null;
     private _session_state: string | null;
 
-    public constructor(callback: () => Promise<void> | void, client_id: string, url: string, interval?: number, stopOnError?: boolean) {
+    public constructor(callback: () => Promise<void> | void, client_id: string, url: string, intervalInSeconds: number, stopOnError: boolean) {
         this._callback = callback;
         this._client_id = client_id;
-        this._interval = interval || DefaultInterval;
-        this._stopOnError = stopOnError || true;
+        this._intervalInSeconds = intervalInSeconds;
+        this._stopOnError = stopOnError;
 
         const idx = url.indexOf("/", url.indexOf("//") + 2);
         this._frame_origin = url.substr(0, idx);
@@ -96,7 +94,7 @@ export class CheckSessionIFrame {
         send();
 
         // and setup timer
-        this._timer = window.setInterval(send, this._interval);
+        this._timer = window.setInterval(send, this._intervalInSeconds * 1000);
     }
 
     public stop() {

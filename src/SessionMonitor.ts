@@ -82,10 +82,10 @@ export class SessionMonitor {
                         Log.debug("SessionMonitor._start: Initializing check session iframe");
 
                         const client_id = this._userManager.settings.client_id;
-                        const interval = this._userManager.settings.checkSessionInterval;
+                        const intervalInSeconds = this._userManager.settings.checkSessionIntervalInSeconds;
                         const stopOnError = this._userManager.settings.stopCheckSessionOnError;
 
-                        this._checkSessionIFrame = new CheckSessionIFrame(this._callback.bind(this), client_id, url, interval, stopOnError);
+                        this._checkSessionIFrame = new CheckSessionIFrame(this._callback.bind(this), client_id, url, intervalInSeconds, stopOnError);
                         await this._checkSessionIFrame.load();
                         this._checkSessionIFrame &&
                         this._checkSessionIFrame.start(session_state);

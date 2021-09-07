@@ -6,7 +6,7 @@ import { WebStorageStateStore } from "./WebStorageStateStore";
 import { SigninRequest } from "./SigninRequest";
 
 const DefaultAccessTokenExpiringNotificationTimeInSeconds = 60;
-const DefaultCheckSessionInterval = 2000;
+const DefaultCheckSessionIntervalInSeconds = 2;
 
 export interface UserManagerSettings extends OidcClientSettings {
     /** The URL for the page containing the call to signinPopupCallback to handle the callback from the OIDC/OAuth2 */
@@ -32,8 +32,8 @@ export interface UserManagerSettings extends OidcClientSettings {
     /** Will raise events for when user has performed a signout at the OP (default: true) */
     monitorSession?: boolean;
     monitorAnonymousSession?: boolean;
-    /** Interval, in ms, to check the user's session (default: 2000) */
-    checkSessionInterval?: number;
+    /** Interval in seconds to check the user's session (default: 2) */
+    checkSessionIntervalInSeconds?: number;
     query_status_response_type?: string;
     stopCheckSessionOnError?: boolean;
 
@@ -60,9 +60,9 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
     public readonly monitorSession: boolean;
     public readonly monitorAnonymousSession: boolean;
-    public readonly checkSessionInterval: number;
+    public readonly checkSessionIntervalInSeconds: number;
     public readonly query_status_response_type: string | undefined;
-    public readonly stopCheckSessionOnError: boolean | undefined;
+    public readonly stopCheckSessionOnError: boolean;
 
     public readonly revokeAccessTokenOnSignout: boolean;
     public readonly accessTokenExpiringNotificationTimeInSeconds: number;
@@ -82,7 +82,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             includeIdTokenInSilentRenew = true,
             monitorSession = true,
             monitorAnonymousSession = false,
-            checkSessionInterval = DefaultCheckSessionInterval,
+            checkSessionIntervalInSeconds = DefaultCheckSessionIntervalInSeconds,
             stopCheckSessionOnError = true,
             query_status_response_type,
             revokeAccessTokenOnSignout = false,
@@ -105,7 +105,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
         this.monitorSession = monitorSession;
         this.monitorAnonymousSession = monitorAnonymousSession;
-        this.checkSessionInterval = checkSessionInterval;
+        this.checkSessionIntervalInSeconds = checkSessionIntervalInSeconds;
         this.stopCheckSessionOnError = stopCheckSessionOnError;
         if (query_status_response_type) {
             this.query_status_response_type = query_status_response_type;
