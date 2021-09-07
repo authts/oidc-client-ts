@@ -4,19 +4,17 @@
 import { Log, Timer } from "./utils";
 import { User } from "./User";
 
-const DefaultAccessTokenExpiringNotificationTime = 60; // seconds
-
 export type AccessTokenCallback = (...ev: any[]) => void;
 
 export class AccessTokenEvents {
-    private _accessTokenExpiringNotificationTime: number
+    private _accessTokenExpiringNotificationTimeInSeconds: number
     private _accessTokenExpiring: Timer
     private _accessTokenExpired: Timer
 
     public constructor({
-        accessTokenExpiringNotificationTime = DefaultAccessTokenExpiringNotificationTime
-    }: { accessTokenExpiringNotificationTime?: number }) {
-        this._accessTokenExpiringNotificationTime = accessTokenExpiringNotificationTime;
+        accessTokenExpiringNotificationTimeInSeconds
+    }: { accessTokenExpiringNotificationTimeInSeconds: number }) {
+        this._accessTokenExpiringNotificationTimeInSeconds = accessTokenExpiringNotificationTimeInSeconds;
         this._accessTokenExpiring = new Timer("Access token expiring");
         this._accessTokenExpired = new Timer("Access token expired");
     }
@@ -29,7 +27,7 @@ export class AccessTokenEvents {
 
             if (duration > 0) {
                 // only register expiring if we still have time
-                let expiring = duration - this._accessTokenExpiringNotificationTime;
+                let expiring = duration - this._accessTokenExpiringNotificationTimeInSeconds;
                 if (expiring <= 0) {
                     expiring = 1;
                 }

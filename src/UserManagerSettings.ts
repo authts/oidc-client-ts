@@ -5,7 +5,7 @@ import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSetting
 import { WebStorageStateStore } from "./WebStorageStateStore";
 import { SigninRequest } from "./SigninRequest";
 
-const DefaultAccessTokenExpiringNotificationTime = 60;
+const DefaultAccessTokenExpiringNotificationTimeInSeconds = 60;
 const DefaultCheckSessionInterval = 2000;
 
 export interface UserManagerSettings extends OidcClientSettings {
@@ -40,7 +40,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     /** Will invoke the revocation endpoint on signout if there is an access token for the user (default: false) */
     revokeAccessTokenOnSignout?: boolean;
     /** The number of seconds before an access token is to expire to raise the accessTokenExpiring event (default: 60) */
-    accessTokenExpiringNotificationTime?: number;
+    accessTokenExpiringNotificationTimeInSeconds?: number;
 
     /** Storage object used to persist User for currently authenticated user (default: session storage) */
     userStore?: WebStorageStateStore;
@@ -65,7 +65,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly stopCheckSessionOnError: boolean | undefined;
 
     public readonly revokeAccessTokenOnSignout: boolean;
-    public readonly accessTokenExpiringNotificationTime: number;
+    public readonly accessTokenExpiringNotificationTimeInSeconds: number;
 
     public readonly userStore: WebStorageStateStore;
 
@@ -86,7 +86,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             stopCheckSessionOnError = true,
             query_status_response_type,
             revokeAccessTokenOnSignout = false,
-            accessTokenExpiringNotificationTime = DefaultAccessTokenExpiringNotificationTime,
+            accessTokenExpiringNotificationTimeInSeconds = DefaultAccessTokenExpiringNotificationTimeInSeconds,
             userStore = new WebStorageStateStore({ store: sessionStorage })
         } = args;
 
@@ -118,7 +118,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         }
 
         this.revokeAccessTokenOnSignout = revokeAccessTokenOnSignout;
-        this.accessTokenExpiringNotificationTime = accessTokenExpiringNotificationTime;
+        this.accessTokenExpiringNotificationTimeInSeconds = accessTokenExpiringNotificationTimeInSeconds;
 
         this.userStore = userStore;
     }

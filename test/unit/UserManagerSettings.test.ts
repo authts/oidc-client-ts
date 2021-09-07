@@ -219,11 +219,11 @@ describe("UserManagerSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                accessTokenExpiringNotificationTime: 10
+                accessTokenExpiringNotificationTimeInSeconds: 10
             });
 
             // assert
-            expect(subject.accessTokenExpiringNotificationTime).toEqual(10);
+            expect(subject.accessTokenExpiringNotificationTimeInSeconds).toEqual(10);
         });
 
         it("should use default value", () => {
@@ -235,7 +235,7 @@ describe("UserManagerSettings", () => {
             });
 
             // assert
-            expect(subject.accessTokenExpiringNotificationTime).toEqual(60);
+            expect(subject.accessTokenExpiringNotificationTimeInSeconds).toEqual(60);
         });
 
     });

@@ -15,7 +15,7 @@ describe("AccessTokenEvents", () => {
         accessTokenExpiringTimer = new StubTimer("stub expiring timer");
         accessTokenExpiredTimer = new StubTimer("stub expired timer");
 
-        subject = new AccessTokenEvents({});
+        subject = new AccessTokenEvents({ accessTokenExpiringNotificationTimeInSeconds: 60 });
 
         // access private members
         subject["_accessTokenExpiring"] = accessTokenExpiringTimer;
@@ -25,7 +25,7 @@ describe("AccessTokenEvents", () => {
     describe("constructor", () => {
 
         it("should use default expiringNotificationTime", () => {
-            expect(subject["_accessTokenExpiringNotificationTime"]).toEqual(60);
+            expect(subject["_accessTokenExpiringNotificationTimeInSeconds"]).toEqual(60);
         });
 
     });
