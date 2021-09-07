@@ -8,7 +8,7 @@ import { StateStore } from "./StateStore";
 const DefaultResponseType = "id_token";
 const DefaultScope = "openid";
 const DefaultClientAuthentication = "client_secret_post"; // The default value must be client_secret_basic, as explained in https://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication
-const DefaultStaleStateAge = 60 * 15; // seconds
+const DefaultStaleStateAgeInSeconds = 60 * 15; // seconds
 const DefaultClockSkewInSeconds = 60 * 5;
 
 export interface OidcClientSettings {
@@ -48,7 +48,7 @@ export interface OidcClientSettings {
     /** Flag to control if additional identity data is loaded from the user info endpoint in order to populate the user's profile (default: true) */
     loadUserInfo?: boolean;
     /** Number (in seconds) indicating the age of state entries in storage for authorize requests that are considered abandoned and thus can be cleaned up (default: 300) */
-    staleStateAge?: number;
+    staleStateAgeInSeconds?: number;
     /** The window of time (in seconds) to allow the current time to deviate when validating id_token's iat, nbf, and exp values (default: 300) */
     clockSkewInSeconds?: number;
     userInfoJwtIssuer?: "ANY" | "OP" | string;
@@ -90,7 +90,7 @@ export class OidcClientSettingsStore {
     // behavior flags
     public readonly filterProtocolClaims: boolean | undefined;
     public readonly loadUserInfo: boolean | undefined;
-    public readonly staleStateAge: number;
+    public readonly staleStateAgeInSeconds: number;
     public readonly clockSkewInSeconds: number;
     public readonly userInfoJwtIssuer: "ANY" | "OP" | string | undefined;
     public readonly mergeClaims: boolean | undefined;
@@ -112,7 +112,7 @@ export class OidcClientSettingsStore {
         prompt, display, max_age, ui_locales, acr_values, resource, response_mode,
         // behavior flags
         filterProtocolClaims = true, loadUserInfo = true,
-        staleStateAge = DefaultStaleStateAge,
+        staleStateAgeInSeconds = DefaultStaleStateAgeInSeconds,
         clockSkewInSeconds = DefaultClockSkewInSeconds,
         userInfoJwtIssuer = "OP",
         mergeClaims = false,
@@ -147,7 +147,7 @@ export class OidcClientSettingsStore {
 
         this.filterProtocolClaims = !!filterProtocolClaims;
         this.loadUserInfo = !!loadUserInfo;
-        this.staleStateAge = staleStateAge;
+        this.staleStateAgeInSeconds = staleStateAgeInSeconds;
         this.clockSkewInSeconds = clockSkewInSeconds;
         this.userInfoJwtIssuer = userInfoJwtIssuer;
         this.mergeClaims = !!mergeClaims;

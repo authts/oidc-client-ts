@@ -380,7 +380,7 @@ describe("OidcClientSettings", () => {
             });
 
             // assert
-            expect(subject.staleStateAge).toEqual(900);
+            expect(subject.staleStateAgeInSeconds).toEqual(900);
         });
 
         it("should return value from initial settings", () => {
@@ -389,11 +389,11 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                staleStateAge: 100
+                staleStateAgeInSeconds: 100
             });
 
             // assert
-            expect(subject.staleStateAge).toEqual(100);
+            expect(subject.staleStateAgeInSeconds).toEqual(100);
         });
     });
 
