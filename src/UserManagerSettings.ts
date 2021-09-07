@@ -21,8 +21,8 @@ export interface UserManagerSettings extends OidcClientSettings {
 
     /** The URL for the page containing the code handling the silent renew */
     silent_redirect_uri?: string;
-    /** Number of milliseconds to wait for the silent renew to return before assuming it has failed or timed out (default: 10000) */
-    silentRequestTimeout?: number;
+    /** Number of seconds to wait for the silent renew to return before assuming it has failed or timed out (default: 10) */
+    silentRequestTimeoutInSeconds?: number;
     /** Flag to indicate if there should be an automatic attempt to renew the access token prior to its expiration (default: false) */
     automaticSilentRenew?: boolean;
     validateSubOnSilentRenew?: boolean;
@@ -53,7 +53,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly popupWindowTarget: string | undefined;
 
     public readonly silent_redirect_uri: string | undefined;
-    public readonly silentRequestTimeout: number | undefined;
+    public readonly silentRequestTimeoutInSeconds: number | undefined;
     public readonly automaticSilentRenew: boolean;
     public readonly validateSubOnSilentRenew: boolean;
     public readonly includeIdTokenInSilentRenew: boolean;
@@ -76,7 +76,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             popupWindowFeatures,
             popupWindowTarget,
             silent_redirect_uri,
-            silentRequestTimeout,
+            silentRequestTimeoutInSeconds,
             automaticSilentRenew = false,
             validateSubOnSilentRenew = false,
             includeIdTokenInSilentRenew = true,
@@ -98,7 +98,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         this.popupWindowTarget = popupWindowTarget;
 
         this.silent_redirect_uri = silent_redirect_uri;
-        this.silentRequestTimeout = silentRequestTimeout;
+        this.silentRequestTimeoutInSeconds = silentRequestTimeoutInSeconds;
         this.automaticSilentRenew = automaticSilentRenew;
         this.validateSubOnSilentRenew = validateSubOnSilentRenew;
         this.includeIdTokenInSilentRenew = includeIdTokenInSilentRenew;

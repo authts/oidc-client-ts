@@ -229,7 +229,7 @@ export class UserManager extends OidcClient {
 
         const user = await this._signin(args, this._iframeNavigator, {
             startUrl: url,
-            silentRequestTimeout: this.settings.silentRequestTimeout
+            silentRequestTimeoutInSeconds: this.settings.silentRequestTimeoutInSeconds
         });
         if (user) {
             if (user.profile && user.profile.sub) {
@@ -294,7 +294,7 @@ export class UserManager extends OidcClient {
         };
         const navResponse = await this._signinStart(args, this._iframeNavigator, {
             startUrl: url,
-            silentRequestTimeout: this.settings.silentRequestTimeout
+            silentRequestTimeoutInSeconds: this.settings.silentRequestTimeoutInSeconds
         });
         try {
             const signinResponse = await this.processSigninResponse(navResponse.url);

@@ -4,7 +4,7 @@
 import { Log } from "../utils";
 import { IWindow, NavigatorParams } from "./IWindow";
 
-const DefaultTimeout = 10000;
+const DefaultTimeoutInSeconds = 10;
 
 export class IFrameWindow implements IWindow {
     private _promise: Promise<unknown>;
@@ -44,9 +44,9 @@ export class IFrameWindow implements IWindow {
             this._error("No _frame, already closed");
         }
         else {
-            const timeout = params.silentRequestTimeout || DefaultTimeout;
-            Log.debug("IFrameWindow.navigate: Using timeout of:", timeout);
-            this._timer = window.setTimeout(this._timeout.bind(this), timeout);
+            const timeoutInSeconds = params.silentRequestTimeoutInSeconds || DefaultTimeoutInSeconds;
+            Log.debug("IFrameWindow.navigate: Using timeout of:", timeoutInSeconds);
+            this._timer = window.setTimeout(this._timeout.bind(this), timeoutInSeconds * 1000);
             this._frame.src = params.url;
         }
 

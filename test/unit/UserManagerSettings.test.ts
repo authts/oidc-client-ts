@@ -104,11 +104,11 @@ describe("UserManagerSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                silentRequestTimeout: 123
+                silentRequestTimeoutInSeconds: 123
             });
 
             // assert
-            expect(subject.silentRequestTimeout).toEqual(123);
+            expect(subject.silentRequestTimeoutInSeconds).toEqual(123);
         });
 
     });
