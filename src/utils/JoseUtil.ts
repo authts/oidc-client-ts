@@ -17,8 +17,9 @@ export class JoseUtil {
                 header: token.headerObj,
                 payload: token.payloadObj
             };
-        } catch (e) {
-            Log.error(e);
+        }
+        catch (err) {
+            Log.error(err instanceof Error ? err.message : err);
             return null;
         }
     }
@@ -50,9 +51,10 @@ export class JoseUtil {
             }
 
             return JoseUtil._validateJwt(jwt, key, issuer, audience, clockSkew, now, timeInsensitive);
-        } catch (e) {
-            Log.error(e && e.message || e);
-            throw e;
+        }
+        catch (err) {
+            Log.error(err instanceof Error ? err.message : err);
+            throw err;
         }
     }
 
@@ -127,8 +129,9 @@ export class JoseUtil {
         let isValid: boolean;
         try {
             isValid = KJUR.jws.JWS.verify(jwt, key, AllowedSigningAlgs);
-        } catch (e) {
-            Log.error(e && e.message || e);
+        }
+        catch (err) {
+            Log.error(err instanceof Error ? err.message : err);
             throw new Error("signature validation failed");
         }
 
@@ -143,18 +146,20 @@ export class JoseUtil {
     public static hashString(value: string, alg: string) {
         try {
             return KJUR.crypto.Util.hashString(value, alg);
-        } catch (e) {
-            Log.error(e);
-            throw e;
+        }
+        catch (err) {
+            Log.error(err);
+            throw err;
         }
     }
 
     public static hexToBase64Url(value: string) {
         try {
             return hextob64u(value);
-        } catch (e) {
-            Log.error(e);
-            throw e;
+        }
+        catch (err) {
+            Log.error(err);
+            throw err;
         }
     }
 }

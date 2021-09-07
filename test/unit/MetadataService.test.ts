@@ -161,8 +161,10 @@ describe("MetadataService", () => {
             try {
                 await subject.getMetadata();
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("test");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("test");
             }
         });
     });
@@ -212,8 +214,10 @@ describe("MetadataService", () => {
             try {
                 await subject.getIssuer();
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("issuer");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("issuer");
             }
         });
 
@@ -233,8 +237,10 @@ describe("MetadataService", () => {
             try {
                 await subject.getIssuer();
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("test");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("test");
             }
         });
 
@@ -430,8 +436,10 @@ describe("MetadataService", () => {
             try {
                 await subject.getSigningKeys();
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("jwks_uri");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("jwks_uri");
             }
         });
 
@@ -453,8 +461,10 @@ describe("MetadataService", () => {
             try {
                 await subject.getSigningKeys();
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("keyset");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("keyset");
             }
         });
 

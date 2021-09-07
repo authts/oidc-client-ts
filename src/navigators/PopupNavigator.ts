@@ -19,8 +19,8 @@ export class PopupNavigator implements INavigator {
             PopupWindow.notifyOpener(url, keepOpen, delimiter);
             return Promise.resolve();
         }
-        catch (e) {
-            return Promise.reject(e);
+        catch (err) {
+            return Promise.reject(err);
         }
     }
 }

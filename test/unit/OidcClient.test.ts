@@ -9,6 +9,7 @@ import { State } from "../../src/State";
 import { SigninRequest } from "../../src/SigninRequest";
 import { SignoutRequest } from "../../src/SignoutRequest";
 import { SignoutResponse } from "../../src/SignoutResponse";
+import { ErrorResponse } from "../../src/ErrorResponse";
 
 describe("OidcClient", () => {
     let subject: OidcClient;
@@ -173,8 +174,10 @@ describe("OidcClient", () => {
             try {
                 await subject.createSigninRequest(args);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("hybrid");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("hybrid");
             }
         });
 
@@ -190,8 +193,10 @@ describe("OidcClient", () => {
             try {
                 await subject.createSigninRequest(args);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("hybrid");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("hybrid");
             }
         });
 
@@ -207,8 +212,10 @@ describe("OidcClient", () => {
             try {
                 await subject.createSigninRequest(args);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("hybrid");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("hybrid");
             }
         });
 
@@ -225,8 +232,10 @@ describe("OidcClient", () => {
             try {
                 await subject.createSigninRequest(args);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("test");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("test");
             }
         });
 
@@ -244,8 +253,10 @@ describe("OidcClient", () => {
             try {
                 await subject.createSigninRequest(args);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("foo");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("foo");
             }
         });
 
@@ -287,8 +298,10 @@ describe("OidcClient", () => {
             try {
                 await subject.readSigninResponseState("");
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("state");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("state");
             }
         });
 
@@ -300,8 +313,10 @@ describe("OidcClient", () => {
             try {
                 await subject.readSigninResponseState("state=state");
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("fail");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("fail");
             }
         });
 
@@ -332,7 +347,6 @@ describe("OidcClient", () => {
     });
 
     describe("processSigninResponse", () => {
-
         it("should return a promise", async () => {
             // act
             const p = subject.processSigninResponse("state=state");
@@ -351,8 +365,10 @@ describe("OidcClient", () => {
             try {
                 await subject.processSigninResponse("");
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("state");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("state");
             }
         });
 
@@ -364,8 +380,10 @@ describe("OidcClient", () => {
             try {
                 await subject.processSigninResponse("state=state");
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("fail");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("fail");
             }
         });
 
@@ -467,8 +485,10 @@ describe("OidcClient", () => {
             try {
                 await subject.createSignoutRequest();
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("test");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("test");
             }
         });
 
@@ -480,8 +500,10 @@ describe("OidcClient", () => {
             try {
                 await subject.createSignoutRequest();
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("no end session endpoint");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("no end session endpoint");
             }
         });
 
@@ -536,8 +558,10 @@ describe("OidcClient", () => {
             try {
                 await subject.readSignoutResponseState("error=foo");
                 fail("should not come here");
-            } catch (err) {
-                expect(err.error).toEqual("foo");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as ErrorResponse).error).toEqual("foo");
             }
         });
 
@@ -549,8 +573,10 @@ describe("OidcClient", () => {
             try {
                 await subject.readSignoutResponseState("state=state");
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("fail");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("fail");
             }
         });
 
@@ -590,7 +616,6 @@ describe("OidcClient", () => {
     });
 
     describe("processSignoutResponse", () => {
-
         it("should return a promise", async () => {
             // act
             const p = subject.processSignoutResponse("state=state");
@@ -614,8 +639,10 @@ describe("OidcClient", () => {
             try {
                 await subject.processSignoutResponse("error=foo");
                 fail("should not come here");
-            } catch (err) {
-                expect(err.error).toEqual("foo");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as ErrorResponse).error).toEqual("foo");
             }
         });
 
@@ -627,8 +654,10 @@ describe("OidcClient", () => {
             try {
                 await subject.processSignoutResponse("state=state");
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("fail");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("fail");
             }
         });
 

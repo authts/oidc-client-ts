@@ -26,7 +26,7 @@ export class SilentRenewService {
             }
             catch (err) {
                 // catch to suppress errors since we're in a ctor
-                Log.error("SilentRenewService.start: Error from getUser:", err.message);
+                Log.error("SilentRenewService.start: Error from getUser:", err instanceof Error ? err.message : err);
             }
         }
     }
@@ -44,8 +44,8 @@ export class SilentRenewService {
             Log.debug("SilentRenewService._tokenExpiring: Silent token renewal successful");
         }
         catch (err) {
-            Log.error("SilentRenewService._tokenExpiring: Error from signinSilent:", err.message);
-            this._userManager.events._raiseSilentRenewError(err);
+            Log.error("SilentRenewService._tokenExpiring: Error from signinSilent:", err instanceof Error ? err.message : err);
+            this._userManager.events._raiseSilentRenewError(err instanceof Error ? err : new Error("Silent renew failed"));
         }
     }
 }

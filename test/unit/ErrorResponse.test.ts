@@ -12,8 +12,9 @@ describe("ErrorResponse", () => {
             try {
                 new ErrorResponse({});
             }
-            catch (e) {
-                expect(e.message).toContain("error");
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("error");
                 return;
             }
 

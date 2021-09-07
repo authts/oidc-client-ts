@@ -14,6 +14,7 @@ import { TokenRevocationClient } from "./TokenRevocationClient";
 import { TokenClient } from "./TokenClient";
 import { SessionStatus } from "./SessionStatus";
 import { SignoutResponse } from "./SignoutResponse";
+import { ErrorResponse } from "./ErrorResponse";
 
 type SigninArgs = CreateSigninRequestArgs & { current_sub?: string };
 type SignoutArgs = CreateSignoutRequestArgs;
@@ -137,7 +138,7 @@ export class UserManager extends OidcClient {
             Log.info("UserManager.signinPopupCallback: successful");
         }
         catch (err) {
-            Log.error("UserManager.signinPopupCallback error", err.message);
+            Log.error("UserManager.signinPopupCallback error", err instanceof Error ? err.message : err);
         }
     }
 
@@ -313,7 +314,8 @@ export class UserManager extends OidcClient {
             }
         }
         catch (err) {
-            if (err.session_state && this.settings.monitorAnonymousSession) {
+            if (this.settings.monitorAnonymousSession &&
+                err instanceof ErrorResponse && err.session_state) {
                 if (err.message == "login_required" ||
                     err.message == "consent_required" ||
                     err.message == "interaction_required" ||
