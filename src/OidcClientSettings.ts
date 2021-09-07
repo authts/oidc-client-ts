@@ -50,7 +50,7 @@ export interface OidcClientSettings {
     /** Number (in seconds) indicating the age of state entries in storage for authorize requests that are considered abandoned and thus can be cleaned up (default: 300) */
     staleStateAge?: number;
     /** The window of time (in seconds) to allow the current time to deviate when validating id_token's iat, nbf, and exp values (default: 300) */
-    clockSkew?: number;
+    clockSkewInSeconds?: number;
     userInfoJwtIssuer?: "ANY" | "OP" | string;
     mergeClaims?: boolean;
 
@@ -91,7 +91,7 @@ export class OidcClientSettingsStore {
     public readonly filterProtocolClaims: boolean | undefined;
     public readonly loadUserInfo: boolean | undefined;
     public readonly staleStateAge: number;
-    public readonly clockSkew: number;
+    public readonly clockSkewInSeconds: number;
     public readonly userInfoJwtIssuer: "ANY" | "OP" | string | undefined;
     public readonly mergeClaims: boolean | undefined;
 
@@ -113,7 +113,7 @@ export class OidcClientSettingsStore {
         // behavior flags
         filterProtocolClaims = true, loadUserInfo = true,
         staleStateAge = DefaultStaleStateAge,
-        clockSkew = DefaultClockSkewInSeconds,
+        clockSkewInSeconds = DefaultClockSkewInSeconds,
         userInfoJwtIssuer = "OP",
         mergeClaims = false,
         // other behavior
@@ -148,7 +148,7 @@ export class OidcClientSettingsStore {
         this.filterProtocolClaims = !!filterProtocolClaims;
         this.loadUserInfo = !!loadUserInfo;
         this.staleStateAge = staleStateAge;
-        this.clockSkew = clockSkew;
+        this.clockSkewInSeconds = clockSkewInSeconds;
         this.userInfoJwtIssuer = userInfoJwtIssuer;
         this.mergeClaims = !!mergeClaims;
 

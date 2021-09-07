@@ -194,7 +194,7 @@ export class UserManager extends OidcClient {
     protected async _validateIdTokenFromTokenRefreshToken(profile: any, id_token: string) {
         const issuer = await this.metadataService.getIssuer();
         const now = Timer.getEpochTime();
-        const payload = await JoseUtil.validateJwtAttributes(id_token, issuer, this.settings.client_id, this.settings.clockSkew, now);
+        const payload = await JoseUtil.validateJwtAttributes(id_token, issuer, this.settings.client_id, this.settings.clockSkewInSeconds, now);
         if (!payload) {
             Log.error("UserManager._validateIdTokenFromTokenRefreshToken: Failed to validate id_token");
             throw new Error("Failed to validate id_token");

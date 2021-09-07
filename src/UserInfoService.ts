@@ -86,8 +86,7 @@ export class UserInfoService {
             }
 
             const audience = this._settings.client_id;
-
-            const clockSkewInSeconds = this._settings.clockSkew;
+            const clockSkewInSeconds = this._settings.clockSkewInSeconds;
             Log.debug("UserInfoService._getClaimsFromJwt: Validaing JWT; using clock skew (in seconds) of: ", clockSkewInSeconds);
 
             await JoseUtil.validateJwt(responseText, key, issuer, audience, clockSkewInSeconds, undefined, true);

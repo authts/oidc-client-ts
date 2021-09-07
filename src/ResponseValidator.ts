@@ -275,7 +275,7 @@ export class ResponseValidator {
         const issuer = await this._metadataService.getIssuer();
 
         const audience = state.client_id;
-        const clockSkewInSeconds = this._settings.clockSkew;
+        const clockSkewInSeconds = this._settings.clockSkewInSeconds;
         Log.debug("ResponseValidator._validateIdTokenAttributes: Validaing JWT attributes; using clock skew (in seconds) of: ", clockSkewInSeconds);
 
         const now = Timer.getEpochTime();
@@ -358,8 +358,7 @@ export class ResponseValidator {
         }
 
         const audience = state.client_id;
-
-        const clockSkewInSeconds = this._settings.clockSkew;
+        const clockSkewInSeconds = this._settings.clockSkewInSeconds;
         Log.debug("ResponseValidator._validateIdToken: Validaing JWT; using clock skew (in seconds) of: ", clockSkewInSeconds);
 
         await JoseUtil.validateJwt(id_token, key, issuer, audience, clockSkewInSeconds);
