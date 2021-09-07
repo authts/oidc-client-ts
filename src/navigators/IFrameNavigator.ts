@@ -17,8 +17,8 @@ export class IFrameNavigator implements INavigator {
             IFrameWindow.notifyParent(url);
             return Promise.resolve();
         }
-        catch (e) {
-            return Promise.reject(e);
+        catch (err) {
+            return Promise.reject(err);
         }
     }
 }

@@ -122,8 +122,10 @@ describe("JoseUtil", () => {
             try {
                 await JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 0, expectedNow);
                 fail("should not come here");
-            } catch (e) {
-                expect(e.message).toContain("foo");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("foo");
             }
         });
 
@@ -132,8 +134,10 @@ describe("JoseUtil", () => {
             try {
                 await JoseUtil.validateJwt(jwtFromRsa, ecKey, expectedIssuer, expectedAudience, 0, expectedNow);
                 fail("should not come here");
-            } catch (e) {
-                expect(e.message).toContain("signature");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("signature");
             }
         });
 
@@ -142,8 +146,10 @@ describe("JoseUtil", () => {
             try {
                 await JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 0, notBefore - 1);
                 fail("should not come here");
-            } catch (e) {
-                expect(e.message).toContain("iat");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("iat");
             }
         });
 
@@ -159,8 +165,10 @@ describe("JoseUtil", () => {
             try {
                 await JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, notBefore - 11);
                 fail("should not come here");
-            } catch (e) {
-                expect(e.message).toContain("iat");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("iat");
             }
         });
 
@@ -169,8 +177,10 @@ describe("JoseUtil", () => {
             try {
                 await JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 0, issuedAt - 1);
                 fail("should not come here");
-            } catch (e) {
-                expect(e.message).toContain("iat");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("iat");
             }
         });
 
@@ -186,8 +196,10 @@ describe("JoseUtil", () => {
             try {
                 await JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, issuedAt - 11);
                 fail("should not come here");
-            } catch (e) {
-                expect(e.message).toContain("iat");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("iat");
             }
         });
 
@@ -196,8 +208,10 @@ describe("JoseUtil", () => {
             try {
                 await JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 0, expires + 1);
                 fail("should not come here");
-            } catch (e) {
-                expect(e.message).toContain("exp");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("exp");
             }
         });
 
@@ -213,8 +227,10 @@ describe("JoseUtil", () => {
             try {
                 await JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, expires + 11);
                 fail("should not come here");
-            } catch (e) {
-                expect(e.message).toContain("exp");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("exp");
             }
         });
 
@@ -223,8 +239,10 @@ describe("JoseUtil", () => {
             try {
                 await JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, "invalid aud", 0, expectedNow);
                 fail("should not come here");
-            } catch (e) {
-                expect(e.message).toContain("aud");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("aud");
             }
         });
 
@@ -233,8 +251,10 @@ describe("JoseUtil", () => {
             try {
                 await JoseUtil.validateJwt(jwtFromRsa, rsaKey, "invalid issuer", expectedAudience, 0, expectedNow);
                 fail("should not come here");
-            } catch (e) {
-                expect(e.message).toContain("issuer");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("issuer");
             }
         });
     });

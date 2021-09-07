@@ -62,7 +62,8 @@ export class TokenRevocationClient {
         try {
             Log.debug("TokenRevocationClient.revoke, url: ", url);
             response = await fetch(url, { method: "POST", headers, body });
-        } catch (err) {
+        }
+        catch (err) {
             Log.error("TokenRevocationClient.revoke: network error");
             throw new Error("Network Error");
         }

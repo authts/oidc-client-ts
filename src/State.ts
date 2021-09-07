@@ -63,8 +63,8 @@ export class State {
                         remove = true;
                     }
                 }
-                catch (e) {
-                    Log.error("State.clearStaleState: Error parsing state for key", key, e.message);
+                catch (err) {
+                    Log.error("State.clearStaleState: Error parsing state for key", key, err instanceof Error ? err.message : err);
                     remove = true;
                 }
             }

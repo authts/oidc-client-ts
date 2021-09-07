@@ -94,9 +94,9 @@ export class UserInfoService {
             Log.debug("UserInfoService._getClaimsFromJwt: JWT validation successful");
             return payload;
         }
-        catch (e) {
-            Log.error("UserInfoService._getClaimsFromJwt: Error parsing JWT response", e.message);
-            throw e;
+        catch (err) {
+            Log.error("UserInfoService._getClaimsFromJwt: Error parsing JWT response", err instanceof Error ? err.message : err);
+            throw err;
         }
     }
 
@@ -123,7 +123,6 @@ export class UserInfoService {
         });
 
         Log.debug("UserInfoService._filterByAlg: Number of keys that match kty: ", kty, keys.length);
-
         return keys;
     }
 }

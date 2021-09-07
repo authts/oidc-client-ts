@@ -7,6 +7,7 @@ import { MetadataService } from "../../src/MetadataService";
 import { UserInfoService } from "../../src/UserInfoService";
 import { SigninState } from "../../src/SigninState";
 import { SigninResponse } from "../../src/SigninResponse";
+import { ErrorResponse } from "../../src/ErrorResponse";
 
 // access private methods
 class ResponseValidatorWrapper extends ResponseValidator {
@@ -101,8 +102,10 @@ describe("ResponseValidator", () => {
             try {
                 subject.validateSignoutResponse(stubState, stubResponse);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("match");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("match");
             }
         });
 
@@ -114,8 +117,10 @@ describe("ResponseValidator", () => {
             try {
                 subject.validateSignoutResponse(stubState, stubResponse);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.error).toEqual("some_error");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as ErrorResponse).error).toEqual("some_error");
             }
         });
 
@@ -127,8 +132,10 @@ describe("ResponseValidator", () => {
             try {
                 subject.validateSignoutResponse(stubState, stubResponse);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.state).toEqual({ some: "data" });
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as ErrorResponse).state).toEqual({ some: "data" });
             }
         });
 
@@ -182,7 +189,9 @@ describe("ResponseValidator", () => {
             try {
                 await subject.validateSigninResponse(stubState, stubResponse);
                 fail("should not come here");
-            } catch (err) {
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
                 expect(_validateTokensMock).not.toBeCalled();
             }
         });
@@ -208,7 +217,7 @@ describe("ResponseValidator", () => {
             jest.spyOn(subject, "_processSigninParams")
                 .mockImplementation(() => stubResponse);
             jest.spyOn(subject, "_validateTokens")
-                .mockImplementation(() => Promise.reject("error"));
+                .mockImplementation(() => Promise.reject(new Error("error")));
             const _processClaimsMock = jest.spyOn(subject, "_processClaims")
                 .mockImplementation(() => Promise.resolve(stubResponse));
 
@@ -216,7 +225,9 @@ describe("ResponseValidator", () => {
             try {
                 await subject.validateSigninResponse(stubState, stubResponse);
                 fail("should not come here");
-            } catch (err) {
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
                 expect(_processClaimsMock).not.toBeCalled();
             }
         });
@@ -232,8 +243,10 @@ describe("ResponseValidator", () => {
             try {
                 subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("authority");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("authority");
             }
         });
 
@@ -245,8 +258,10 @@ describe("ResponseValidator", () => {
             try {
                 subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("client_id");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("client_id");
             }
         });
 
@@ -258,8 +273,10 @@ describe("ResponseValidator", () => {
             try {
                 subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("authority mismatch");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("authority mismatch");
             }
         });
 
@@ -271,8 +288,10 @@ describe("ResponseValidator", () => {
             try {
                 subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("client_id mismatch");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("client_id mismatch");
             }
         });
 
@@ -284,8 +303,10 @@ describe("ResponseValidator", () => {
             try {
                 subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("match");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("match");
             }
         });
 
@@ -297,8 +318,10 @@ describe("ResponseValidator", () => {
             try {
                 subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.error).toEqual("some_error");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as ErrorResponse).error).toEqual("some_error");
             }
         });
 
@@ -310,8 +333,10 @@ describe("ResponseValidator", () => {
             try {
                 subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.state).toEqual({ some: "data" });
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as ErrorResponse).state).toEqual({ some: "data" });
             }
         });
 
@@ -324,8 +349,10 @@ describe("ResponseValidator", () => {
             try {
                 subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("id_token");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("id_token");
             }
         });
 
@@ -338,8 +365,10 @@ describe("ResponseValidator", () => {
             try {
                 subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("id_token");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("id_token");
             }
         });
 
@@ -353,8 +382,10 @@ describe("ResponseValidator", () => {
             try {
                 subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("code");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("code");
             }
         });
 
@@ -367,8 +398,10 @@ describe("ResponseValidator", () => {
             try {
                 subject._processSigninParams(stubState, stubResponse);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("code");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("code");
             }
         });
 
@@ -711,7 +744,9 @@ describe("ResponseValidator", () => {
             try {
                 await subject._validateTokens(stubState, stubResponse);
                 fail("should not come here");
-            } catch (err) {
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
                 expect(_validateIdTokenMock).toBeCalled();
                 expect(_validateAccessTokenMock).not.toBeCalled();
             }
@@ -761,8 +796,10 @@ describe("ResponseValidator", () => {
             try {
                 await subject._getSigningKeyForJwt(jwt);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("keys");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("keys");
             }
         });
 
@@ -823,8 +860,10 @@ describe("ResponseValidator", () => {
             try {
                 await subject._validateIdToken(stubState, stubResponse, id_token);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("nonce");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("nonce");
             }
         });
 
@@ -833,8 +872,10 @@ describe("ResponseValidator", () => {
             try {
                 await subject._validateIdToken(stubState, stubResponse, "dummy");
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("id_token");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("id_token");
             }
         });
 
@@ -850,8 +891,9 @@ describe("ResponseValidator", () => {
             try {
                 await subject._validateIdToken(stubState, stubResponse, id_token);
                 fail("should not come here");
+            }
             // eslint-disable-next-line no-empty
-            } catch (err) {}
+            catch (err) {}
         });
 
         it("should fail if nonce doesn't match id_token", async () => {
@@ -866,8 +908,10 @@ describe("ResponseValidator", () => {
             try {
                 await subject._validateIdToken(stubState, stubResponse, id_token);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("nonce");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("nonce");
             }
         });
 
@@ -884,8 +928,10 @@ describe("ResponseValidator", () => {
             try {
                 await subject._validateIdToken(stubState, stubResponse, id_token);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("issuer");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("issuer");
             }
         });
 
@@ -903,8 +949,10 @@ describe("ResponseValidator", () => {
             try {
                 await subject._validateIdToken(stubState, stubResponse, id_token);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("keys");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("keys");
             }
         });
 
@@ -922,8 +970,10 @@ describe("ResponseValidator", () => {
             try {
                 await subject._validateIdToken(stubState, stubResponse, id_token);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("kid");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("kid");
             }
         });
 
@@ -983,8 +1033,10 @@ describe("ResponseValidator", () => {
             try {
                 subject._validateAccessToken(stubResponse, access_token);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("id_token");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("id_token");
             }
         });
 
@@ -997,8 +1049,10 @@ describe("ResponseValidator", () => {
             try {
                 subject._validateAccessToken(stubResponse, access_token);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("profile");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("profile");
             }
         });
 
@@ -1012,8 +1066,10 @@ describe("ResponseValidator", () => {
             try {
                 subject._validateAccessToken(stubResponse, access_token);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("at_hash");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("at_hash");
             }
         });
 
@@ -1028,8 +1084,10 @@ describe("ResponseValidator", () => {
             try {
                 subject._validateAccessToken(stubResponse, access_token);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("id_token");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("id_token");
             }
         });
 
@@ -1047,8 +1105,10 @@ describe("ResponseValidator", () => {
             try {
                 subject._validateAccessToken(stubResponse, access_token);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("alg");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("alg");
             }
         });
 
@@ -1067,8 +1127,10 @@ describe("ResponseValidator", () => {
             try {
                 subject._validateAccessToken(stubResponse, access_token);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("alg");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("alg");
             }
         });
 
@@ -1087,8 +1149,10 @@ describe("ResponseValidator", () => {
             try {
                 subject._validateAccessToken(stubResponse, access_token);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("alg");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("alg");
             }
         });
 
@@ -1113,8 +1177,10 @@ describe("ResponseValidator", () => {
             try {
                 subject._validateAccessToken(stubResponse, access_token);
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("at_hash");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("at_hash");
             }
         });
 

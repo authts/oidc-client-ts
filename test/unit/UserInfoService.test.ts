@@ -42,8 +42,10 @@ describe("UserInfoService", () => {
             try {
                 await subject.getClaims();
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("token");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("token");
             }
         });
 
@@ -68,8 +70,10 @@ describe("UserInfoService", () => {
             try {
                 await subject.getClaims("token");
                 fail("should not come here");
-            } catch (err) {
-                expect(err.message).toContain("test");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("test");
             }
         });
 

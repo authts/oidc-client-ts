@@ -96,7 +96,7 @@ export class SessionMonitor {
                 }
                 catch (err) {
                     // catch to suppress errors since we're in non-promise callback
-                    Log.error("SessionMonitor._start: Error from getCheckSessionIframe:", err.message);
+                    Log.error("SessionMonitor._start: Error from getCheckSessionIframe:", err instanceof Error ? err.message : err);
                 }
             }
             else {
@@ -134,7 +134,7 @@ export class SessionMonitor {
                 }
                 catch (err) {
                     // catch to suppress errors since we're in a callback
-                    Log.error("SessionMonitor: error from querySessionStatus:", err.message);
+                    Log.error("SessionMonitor: error from querySessionStatus:", err instanceof Error ? err.message : err);
                 }
             }, 1000);
         }
@@ -179,7 +179,8 @@ export class SessionMonitor {
         }
         catch (err) {
             if (this._sub) {
-                Log.debug("SessionMonitor._callback: Error calling queryCurrentSigninSession; raising signed out event", err.message);
+                Log.debug("SessionMonitor._callback: Error calling queryCurrentSigninSession; raising signed out event",
+                    err instanceof Error ? err.message : err);
                 this._userManager.events._raiseUserSignedOut();
             }
         }

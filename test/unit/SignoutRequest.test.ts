@@ -29,8 +29,9 @@ describe("SignoutRequest", () => {
                 new SignoutRequest(settings);
                 fail("should not come here");
             }
-            catch (e) {
-                expect(e.message).toContain("url");
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("url");
             }
         });
     });

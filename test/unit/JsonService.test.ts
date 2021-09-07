@@ -85,10 +85,11 @@ describe("JsonService", () => {
             try {
                 await subject.getJson("http://test");
                 fail("should not come here");
-            } catch (error) {
-                expect(error).toBeInstanceOf(Error);
-                expect(error.message).toContain("500");
-                expect(error.message).toContain("server error");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("500");
+                expect((err as Error).message).toContain("server error");
             }
         });
 
@@ -100,9 +101,10 @@ describe("JsonService", () => {
             try {
                 await subject.getJson("http://test");
                 fail("should not come here");
-            } catch (error) {
-                expect(error).toBeInstanceOf(Error);
-                expect(error.message).toEqual("Network Error");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toEqual("Network Error");
             }
         });
 
@@ -121,9 +123,10 @@ describe("JsonService", () => {
             try {
                 await subject.getJson("http://test");
                 fail("should not come here");
-            } catch (error) {
-                expect(error).toBeInstanceOf(Error);
-                expect(error.message).toContain("Invalid response Content-Type: text/html");
+            }
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("Invalid response Content-Type: text/html");
             }
         });
 

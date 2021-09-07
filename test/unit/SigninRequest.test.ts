@@ -32,8 +32,9 @@ describe("SigninRequest", () => {
                 new SigninRequest(settings);
                 fail("should not come here");
             }
-            catch (e) {
-                expect(e.message).toContain("url");
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("url");
             }
         });
 
@@ -46,8 +47,9 @@ describe("SigninRequest", () => {
                 new SigninRequest(settings);
                 fail("should not come here");
             }
-            catch (e) {
-                expect(e.message).toContain("client_id");
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("client_id");
             }
         });
 
@@ -60,8 +62,9 @@ describe("SigninRequest", () => {
                 new SigninRequest(settings);
                 fail("should not come here");
             }
-            catch (e) {
-                expect(e.message).toContain("redirect_uri");
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("redirect_uri");
             }
         });
 
@@ -74,8 +77,9 @@ describe("SigninRequest", () => {
                 new SigninRequest(settings);
                 fail("should not come here");
             }
-            catch (e) {
-                expect(e.message).toContain("response_type");
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("response_type");
             }
         });
 
@@ -88,8 +92,9 @@ describe("SigninRequest", () => {
                 new SigninRequest(settings);
                 fail("should not come here");
             }
-            catch (e) {
-                expect(e.message).toContain("scope");
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("scope");
             }
         });
 
@@ -102,8 +107,9 @@ describe("SigninRequest", () => {
                 new SigninRequest(settings);
                 fail("should not come here");
             }
-            catch (e) {
-                expect(e.message).toContain("authority");
+            catch (err) {
+                expect(err).toBeInstanceOf(Error);
+                expect((err as Error).message).toContain("authority");
             }
         });
     });

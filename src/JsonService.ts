@@ -43,7 +43,8 @@ export class JsonService {
         try {
             Log.debug("JsonService.getJson, url: ", url);
             response = await fetch(url, { method: "GET", headers });
-        } catch (err) {
+        }
+        catch (err) {
             Log.error("JsonService.getJson: network error");
             throw new Error("Network Error");
         }
@@ -66,9 +67,9 @@ export class JsonService {
                         const json = await response.json();
                         return json;
                     }
-                    catch (e) {
-                        Log.error("JsonService.getJson: Error parsing JSON response", e.message);
-                        throw e;
+                    catch (err) {
+                        Log.error("JsonService.getJson: Error parsing JSON response", err instanceof Error ? err.message : err);
+                        throw err;
                     }
                 }
             }
@@ -105,7 +106,8 @@ export class JsonService {
         try {
             Log.debug("JsonService.postForm, url: ", url);
             response = await fetch(url, { method: "POST", headers, body });
-        } catch (err) {
+        }
+        catch (err) {
             Log.error("JsonService.postForm: network error");
             throw new Error("Network Error");
         }
@@ -122,9 +124,9 @@ export class JsonService {
                         const json = await response.json();
                         return json;
                     }
-                    catch (e) {
-                        Log.error("JsonService.postForm: Error parsing JSON response", e.message);
-                        throw e;
+                    catch (err) {
+                        Log.error("JsonService.postForm: Error parsing JSON response", err instanceof Error ? err.message : err);
+                        throw err;
                     }
                 }
             }
@@ -145,9 +147,9 @@ export class JsonService {
 
                         return json;
                     }
-                    catch (e) {
-                        Log.error("JsonService.postForm: Error parsing JSON response", e.message);
-                        throw e;
+                    catch (err) {
+                        Log.error("JsonService.postForm: Error parsing JSON response", err instanceof Error ? err.message : err);
+                        throw err;
                     }
                 }
             }
