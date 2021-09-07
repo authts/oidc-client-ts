@@ -4,7 +4,7 @@
 import { Log } from "./Log";
 import { Event } from "./Event";
 
-const TimerDuration = 5; // seconds
+const DefaultTimerDurationInSeconds = 5; // seconds
 
 export type IntervalTimer = {
     setInterval: (cb: (...args: any[]) => void, duration?: number | undefined) => number;
@@ -36,13 +36,13 @@ export class Timer extends Event {
         return Math.floor(Date.now() / 1000);
     }
 
-    public init(duration: number) {
-        if (duration <= 0) {
-            duration = 1;
+    public init(durationInSeconds: number) {
+        if (durationInSeconds <= 0) {
+            durationInSeconds = 1;
         }
 
-        duration = Math.floor(duration);
-        const expiration = Timer.getEpochTime() + duration;
+        durationInSeconds = Math.floor(durationInSeconds);
+        const expiration = Timer.getEpochTime() + durationInSeconds;
         if (this.expiration === expiration && this._timerHandle) {
             // no need to reinitialize to same expiration, so bail out
             Log.debug("Timer.init timer " + this._name + " skipping initialization since already initialized for expiration:", this.expiration);
@@ -51,17 +51,17 @@ export class Timer extends Event {
 
         this.cancel();
 
-        Log.debug("Timer.init timer " + this._name + " for duration:", duration);
+        Log.debug("Timer.init timer " + this._name + " for duration:", durationInSeconds);
         this._expiration = expiration;
 
         // we're using a fairly short timer and then checking the expiration in the
         // callback to handle scenarios where the browser device sleeps, and then
         // the timers end up getting delayed.
-        let timerDuration = TimerDuration;
-        if (duration < timerDuration) {
-            timerDuration = duration;
+        let timerDurationInSeconds = DefaultTimerDurationInSeconds;
+        if (durationInSeconds < timerDurationInSeconds) {
+            timerDurationInSeconds = durationInSeconds;
         }
-        this._timerHandle = this._timer.setInterval(this._callback.bind(this), timerDuration * 1000);
+        this._timerHandle = this._timer.setInterval(this._callback.bind(this), timerDurationInSeconds * 1000);
     }
 
     public get expiration() {
