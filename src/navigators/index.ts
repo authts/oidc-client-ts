@@ -1,6 +1,3 @@
-export * from "./CordovaIFrameNavigator";
-export * from "./CordovaPopupNavigator";
-export * from "./CordovaPopupWindow";
 export * from "./IFrameNavigator";
 export * from "./IFrameWindow";
 export * from "./INavigator";
