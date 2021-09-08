@@ -5,8 +5,8 @@ import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSetting
 import { WebStorageStateStore } from "./WebStorageStateStore";
 import { SigninRequest } from "./SigninRequest";
 
-const DefaultAccessTokenExpiringNotificationTime = 60;
-const DefaultCheckSessionInterval = 2000;
+const DefaultAccessTokenExpiringNotificationTimeInSeconds = 60;
+const DefaultCheckSessionIntervalInSeconds = 2;
 
 export interface UserManagerSettings extends OidcClientSettings {
     /** The URL for the page containing the call to signinPopupCallback to handle the callback from the OIDC/OAuth2 */
@@ -21,8 +21,8 @@ export interface UserManagerSettings extends OidcClientSettings {
 
     /** The URL for the page containing the code handling the silent renew */
     silent_redirect_uri?: string;
-    /** Number of milliseconds to wait for the silent renew to return before assuming it has failed or timed out (default: 10000) */
-    silentRequestTimeout?: number;
+    /** Number of seconds to wait for the silent renew to return before assuming it has failed or timed out (default: 10) */
+    silentRequestTimeoutInSeconds?: number;
     /** Flag to indicate if there should be an automatic attempt to renew the access token prior to its expiration (default: false) */
     automaticSilentRenew?: boolean;
     validateSubOnSilentRenew?: boolean;
@@ -32,15 +32,15 @@ export interface UserManagerSettings extends OidcClientSettings {
     /** Will raise events for when user has performed a signout at the OP (default: true) */
     monitorSession?: boolean;
     monitorAnonymousSession?: boolean;
-    /** Interval, in ms, to check the user's session (default: 2000) */
-    checkSessionInterval?: number;
+    /** Interval in seconds to check the user's session (default: 2) */
+    checkSessionIntervalInSeconds?: number;
     query_status_response_type?: string;
     stopCheckSessionOnError?: boolean;
 
     /** Will invoke the revocation endpoint on signout if there is an access token for the user (default: false) */
     revokeAccessTokenOnSignout?: boolean;
     /** The number of seconds before an access token is to expire to raise the accessTokenExpiring event (default: 60) */
-    accessTokenExpiringNotificationTime?: number;
+    accessTokenExpiringNotificationTimeInSeconds?: number;
 
     /** Storage object used to persist User for currently authenticated user (default: session storage) */
     userStore?: WebStorageStateStore;
@@ -53,19 +53,19 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly popupWindowTarget: string | undefined;
 
     public readonly silent_redirect_uri: string | undefined;
-    public readonly silentRequestTimeout: number | undefined;
+    public readonly silentRequestTimeoutInSeconds: number | undefined;
     public readonly automaticSilentRenew: boolean;
     public readonly validateSubOnSilentRenew: boolean;
     public readonly includeIdTokenInSilentRenew: boolean;
 
     public readonly monitorSession: boolean;
     public readonly monitorAnonymousSession: boolean;
-    public readonly checkSessionInterval: number;
+    public readonly checkSessionIntervalInSeconds: number;
     public readonly query_status_response_type: string | undefined;
-    public readonly stopCheckSessionOnError: boolean | undefined;
+    public readonly stopCheckSessionOnError: boolean;
 
     public readonly revokeAccessTokenOnSignout: boolean;
-    public readonly accessTokenExpiringNotificationTime: number;
+    public readonly accessTokenExpiringNotificationTimeInSeconds: number;
 
     public readonly userStore: WebStorageStateStore;
 
@@ -76,17 +76,17 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             popupWindowFeatures,
             popupWindowTarget,
             silent_redirect_uri,
-            silentRequestTimeout,
+            silentRequestTimeoutInSeconds,
             automaticSilentRenew = false,
             validateSubOnSilentRenew = false,
             includeIdTokenInSilentRenew = true,
             monitorSession = true,
             monitorAnonymousSession = false,
-            checkSessionInterval = DefaultCheckSessionInterval,
+            checkSessionIntervalInSeconds = DefaultCheckSessionIntervalInSeconds,
             stopCheckSessionOnError = true,
             query_status_response_type,
             revokeAccessTokenOnSignout = false,
-            accessTokenExpiringNotificationTime = DefaultAccessTokenExpiringNotificationTime,
+            accessTokenExpiringNotificationTimeInSeconds = DefaultAccessTokenExpiringNotificationTimeInSeconds,
             userStore = new WebStorageStateStore({ store: sessionStorage })
         } = args;
 
@@ -98,14 +98,14 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         this.popupWindowTarget = popupWindowTarget;
 
         this.silent_redirect_uri = silent_redirect_uri;
-        this.silentRequestTimeout = silentRequestTimeout;
+        this.silentRequestTimeoutInSeconds = silentRequestTimeoutInSeconds;
         this.automaticSilentRenew = automaticSilentRenew;
         this.validateSubOnSilentRenew = validateSubOnSilentRenew;
         this.includeIdTokenInSilentRenew = includeIdTokenInSilentRenew;
 
         this.monitorSession = monitorSession;
         this.monitorAnonymousSession = monitorAnonymousSession;
-        this.checkSessionInterval = checkSessionInterval;
+        this.checkSessionIntervalInSeconds = checkSessionIntervalInSeconds;
         this.stopCheckSessionOnError = stopCheckSessionOnError;
         if (query_status_response_type) {
             this.query_status_response_type = query_status_response_type;
@@ -118,7 +118,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         }
 
         this.revokeAccessTokenOnSignout = revokeAccessTokenOnSignout;
-        this.accessTokenExpiringNotificationTime = accessTokenExpiringNotificationTime;
+        this.accessTokenExpiringNotificationTimeInSeconds = accessTokenExpiringNotificationTimeInSeconds;
 
         this.userStore = userStore;
     }

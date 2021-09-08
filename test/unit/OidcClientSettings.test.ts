@@ -380,7 +380,7 @@ describe("OidcClientSettings", () => {
             });
 
             // assert
-            expect(subject.staleStateAge).toEqual(900);
+            expect(subject.staleStateAgeInSeconds).toEqual(900);
         });
 
         it("should return value from initial settings", () => {
@@ -389,11 +389,11 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                staleStateAge: 100
+                staleStateAgeInSeconds: 100
             });
 
             // assert
-            expect(subject.staleStateAge).toEqual(100);
+            expect(subject.staleStateAgeInSeconds).toEqual(100);
         });
     });
 
@@ -408,7 +408,7 @@ describe("OidcClientSettings", () => {
             });
 
             // assert
-            expect(subject.clockSkew).toEqual(5 * 60); // 5 mins
+            expect(subject.clockSkewInSeconds).toEqual(5 * 60); // 5 mins
         });
 
         it("should return value from initial settings", () => {
@@ -417,11 +417,11 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                clockSkew: 10
+                clockSkewInSeconds: 10
             });
 
             // assert
-            expect(subject.clockSkew).toEqual(10);
+            expect(subject.clockSkewInSeconds).toEqual(10);
         });
     });
 

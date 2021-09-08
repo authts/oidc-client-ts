@@ -4,21 +4,17 @@
 import { Log, Timer } from "./utils";
 import { User } from "./User";
 
-const DefaultAccessTokenExpiringNotificationTime = 60; // seconds
-
 export type AccessTokenCallback = (...ev: any[]) => void;
 
 export class AccessTokenEvents {
-    private _accessTokenExpiringNotificationTime: number
-    private _accessTokenExpiring: Timer
-    private _accessTokenExpired: Timer
+    private _expiringNotificationTimeInSeconds: number
+    private _expiringTimer: Timer
+    private _expiredTimer: Timer
 
-    public constructor({
-        accessTokenExpiringNotificationTime = DefaultAccessTokenExpiringNotificationTime
-    }: { accessTokenExpiringNotificationTime?: number }) {
-        this._accessTokenExpiringNotificationTime = accessTokenExpiringNotificationTime;
-        this._accessTokenExpiring = new Timer("Access token expiring");
-        this._accessTokenExpired = new Timer("Access token expired");
+    public constructor({ expiringNotificationTimeInSeconds }: { expiringNotificationTimeInSeconds: number }) {
+        this._expiringNotificationTimeInSeconds = expiringNotificationTimeInSeconds;
+        this._expiringTimer = new Timer("Access token expiring");
+        this._expiredTimer = new Timer("Access token expired");
     }
 
     public load(container: User) {
@@ -29,47 +25,47 @@ export class AccessTokenEvents {
 
             if (duration > 0) {
                 // only register expiring if we still have time
-                let expiring = duration - this._accessTokenExpiringNotificationTime;
+                let expiring = duration - this._expiringNotificationTimeInSeconds;
                 if (expiring <= 0) {
                     expiring = 1;
                 }
 
                 Log.debug("AccessTokenEvents.load: registering expiring timer in:", expiring);
-                this._accessTokenExpiring.init(expiring);
+                this._expiringTimer.init(expiring);
             }
             else {
                 Log.debug("AccessTokenEvents.load: canceling existing expiring timer becase we're past expiration.");
-                this._accessTokenExpiring.cancel();
+                this._expiringTimer.cancel();
             }
 
             // if it's negative, it will still fire
             const expired = duration + 1;
             Log.debug("AccessTokenEvents.load: registering expired timer in:", expired);
-            this._accessTokenExpired.init(expired);
+            this._expiredTimer.init(expired);
         }
         else {
-            this._accessTokenExpiring.cancel();
-            this._accessTokenExpired.cancel();
+            this._expiringTimer.cancel();
+            this._expiredTimer.cancel();
         }
     }
 
     public unload() {
         Log.debug("AccessTokenEvents.unload: canceling existing access token timers");
-        this._accessTokenExpiring.cancel();
-        this._accessTokenExpired.cancel();
+        this._expiringTimer.cancel();
+        this._expiredTimer.cancel();
     }
 
     public addAccessTokenExpiring(cb: AccessTokenCallback) {
-        this._accessTokenExpiring.addHandler(cb);
+        this._expiringTimer.addHandler(cb);
     }
     public removeAccessTokenExpiring(cb: AccessTokenCallback) {
-        this._accessTokenExpiring.removeHandler(cb);
+        this._expiringTimer.removeHandler(cb);
     }
 
     public addAccessTokenExpired(cb: AccessTokenCallback) {
-        this._accessTokenExpired.addHandler(cb);
+        this._expiredTimer.addHandler(cb);
     }
     public removeAccessTokenExpired(cb: AccessTokenCallback) {
-        this._accessTokenExpired.removeHandler(cb);
+        this._expiredTimer.removeHandler(cb);
     }
 }

@@ -7,7 +7,7 @@ export interface NavigatorParams {
     startUrl?: string;
     popupWindowFeatures?: string;
     popupWindowTarget?: string;
-    silentRequestTimeout?: number;
+    silentRequestTimeoutInSeconds?: number;
     redirectMethod?: "replace" | "assign";
 }
 

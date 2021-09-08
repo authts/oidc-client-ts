@@ -221,6 +221,6 @@ export class OidcClient {
     public clearStaleState(): Promise<void> {
         Log.debug("OidcClient.clearStaleState");
 
-        return State.clearStaleState(this.settings.stateStore, this.settings.staleStateAge);
+        return State.clearStaleState(this.settings.stateStore, this.settings.staleStateAgeInSeconds);
     }
 }

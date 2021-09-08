@@ -22,7 +22,7 @@ export class UserManagerEvents extends AccessTokenEvents {
     private _userSessionChanged: Event;
 
     public constructor(settings: UserManagerSettingsStore) {
-        super(settings);
+        super({ expiringNotificationTimeInSeconds: settings.accessTokenExpiringNotificationTimeInSeconds });
         this._userLoaded = new Event("User loaded");
         this._userUnloaded = new Event("User unloaded");
         this._silentRenewError = new Event("Silent renew error");

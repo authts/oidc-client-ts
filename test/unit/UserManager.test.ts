@@ -75,7 +75,7 @@ describe("UserManager", () => {
 
             settings = {
                 ...settings,
-                silentRequestTimeout: 123,
+                silentRequestTimeoutInSeconds: 123,
                 silent_redirect_uri: "http://client/silent_callback"
             };
             subject = new UserManager(settings);
@@ -92,7 +92,7 @@ describe("UserManager", () => {
             await subject.signinSilent();
 
             // assert
-            expect(navArgs.silentRequestTimeout).toEqual(123);
+            expect(navArgs.silentRequestTimeoutInSeconds).toEqual(123);
         });
 
         it("should work when having no User present", async () => {

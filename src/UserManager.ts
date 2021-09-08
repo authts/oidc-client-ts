@@ -194,7 +194,7 @@ export class UserManager extends OidcClient {
     protected async _validateIdTokenFromTokenRefreshToken(profile: any, id_token: string) {
         const issuer = await this.metadataService.getIssuer();
         const now = Timer.getEpochTime();
-        const payload = await JoseUtil.validateJwtAttributes(id_token, issuer, this.settings.client_id, this.settings.clockSkew, now);
+        const payload = await JoseUtil.validateJwtAttributes(id_token, issuer, this.settings.client_id, this.settings.clockSkewInSeconds, now);
         if (!payload) {
             Log.error("UserManager._validateIdTokenFromTokenRefreshToken: Failed to validate id_token");
             throw new Error("Failed to validate id_token");
@@ -229,7 +229,7 @@ export class UserManager extends OidcClient {
 
         const user = await this._signin(args, this._iframeNavigator, {
             startUrl: url,
-            silentRequestTimeout: this.settings.silentRequestTimeout
+            silentRequestTimeoutInSeconds: this.settings.silentRequestTimeoutInSeconds
         });
         if (user) {
             if (user.profile && user.profile.sub) {
@@ -294,7 +294,7 @@ export class UserManager extends OidcClient {
         };
         const navResponse = await this._signinStart(args, this._iframeNavigator, {
             startUrl: url,
-            silentRequestTimeout: this.settings.silentRequestTimeout
+            silentRequestTimeoutInSeconds: this.settings.silentRequestTimeoutInSeconds
         });
         try {
             const signinResponse = await this.processSigninResponse(navResponse.url);

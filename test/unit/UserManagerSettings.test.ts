@@ -104,11 +104,11 @@ describe("UserManagerSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                silentRequestTimeout: 123
+                silentRequestTimeoutInSeconds: 123
             });
 
             // assert
-            expect(subject.silentRequestTimeout).toEqual(123);
+            expect(subject.silentRequestTimeoutInSeconds).toEqual(123);
         });
 
     });
@@ -219,11 +219,11 @@ describe("UserManagerSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                accessTokenExpiringNotificationTime: 10
+                accessTokenExpiringNotificationTimeInSeconds: 10
             });
 
             // assert
-            expect(subject.accessTokenExpiringNotificationTime).toEqual(10);
+            expect(subject.accessTokenExpiringNotificationTimeInSeconds).toEqual(10);
         });
 
         it("should use default value", () => {
@@ -235,7 +235,7 @@ describe("UserManagerSettings", () => {
             });
 
             // assert
-            expect(subject.accessTokenExpiringNotificationTime).toEqual(60);
+            expect(subject.accessTokenExpiringNotificationTimeInSeconds).toEqual(60);
         });
 
     });
@@ -279,11 +279,11 @@ describe("UserManagerSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                checkSessionInterval : 6000
+                checkSessionIntervalInSeconds: 6
             });
 
             // assert
-            expect(subject.checkSessionInterval).toEqual(6000);
+            expect(subject.checkSessionIntervalInSeconds).toEqual(6);
         });
         it("should use default value", () => {
             // act
@@ -294,7 +294,7 @@ describe("UserManagerSettings", () => {
             });
 
             // assert
-            expect(subject.checkSessionInterval).toEqual(2000);
+            expect(subject.checkSessionIntervalInSeconds).toEqual(2);
         });
     });
 
