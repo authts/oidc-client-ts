@@ -15,13 +15,15 @@ import { TokenClient } from "./TokenClient";
 import { SessionStatus } from "./SessionStatus";
 import { SignoutResponse } from "./SignoutResponse";
 import { ErrorResponse } from "./ErrorResponse";
+import { MetadataService } from "./MetadataService";
 
 type SigninArgs = CreateSigninRequestArgs & { current_sub?: string };
 type SignoutArgs = CreateSignoutRequestArgs;
 
-export class UserManager extends OidcClient {
-    declare public readonly settings: UserManagerSettingsStore; /* TODO: port-ts */
+export class UserManager {
+    public readonly settings: UserManagerSettingsStore;
 
+    protected readonly _client: OidcClient;
     protected readonly _redirectNavigator: RedirectNavigator;
     protected readonly _popupNavigator: PopupNavigator;
     protected readonly _iframeNavigator: IFrameNavigator;
@@ -34,8 +36,9 @@ export class UserManager extends OidcClient {
     protected readonly _tokenClient: TokenClient;
 
     public constructor(settings: UserManagerSettings) {
-        super(settings);
         this.settings = new UserManagerSettingsStore(settings);
+
+        this._client = new OidcClient(settings);
 
         this._redirectNavigator = new RedirectNavigator();
         this._popupNavigator = new PopupNavigator();
@@ -60,8 +63,12 @@ export class UserManager extends OidcClient {
         this._tokenClient = new TokenClient(this.settings, this.metadataService);
     }
 
-    public get events() {
+    public get events(): UserManagerEvents {
         return this._events;
+    }
+
+    public get metadataService(): MetadataService {
+        return this._client.metadataService;
     }
 
     public async getUser(): Promise<User | null> {
@@ -249,7 +256,7 @@ export class UserManager extends OidcClient {
     }
 
     public async signinCallback(url?: string): Promise<User | null> {
-        const { state } = await this.readSigninResponseState(url);
+        const { state } = await this._client.readSigninResponseState(url);
         if (state.request_type === "si:r") {
             return this.signinRedirectCallback(url);
         }
@@ -265,7 +272,7 @@ export class UserManager extends OidcClient {
     }
 
     public async signoutCallback(url?: string, keepOpen = false): Promise<void> {
-        const { state } = await this.readSignoutResponseState(url);
+        const { state } = await this._client.readSignoutResponseState(url);
         if (state) {
             if (state.request_type === "so:r") {
                 await this.signoutRedirectCallback(url);
@@ -297,7 +304,7 @@ export class UserManager extends OidcClient {
             silentRequestTimeoutInSeconds: this.settings.silentRequestTimeoutInSeconds
         });
         try {
-            const signinResponse = await this.processSigninResponse(navResponse.url);
+            const signinResponse = await this._client.processSigninResponse(navResponse.url);
             Log.debug("UserManager.querySessionStatus: got signin response");
 
             if (signinResponse.session_state && signinResponse.profile.sub) {
@@ -341,7 +348,7 @@ export class UserManager extends OidcClient {
         Log.debug("UserManager._signinStart: got navigator window handle");
 
         try {
-            const signinRequest = await this.createSigninRequest(args);
+            const signinRequest = await this._client.createSigninRequest(args);
             Log.debug("UserManager._signinStart: got signin request");
 
             navigatorParams.url = signinRequest.url;
@@ -356,7 +363,7 @@ export class UserManager extends OidcClient {
         }
     }
     protected async _signinEnd(url: string, args: SigninArgs = {}): Promise<User> {
-        const signinResponse = await this.processSigninResponse(url);
+        const signinResponse = await this._client.processSigninResponse(url);
         Log.debug("UserManager._signinEnd: got signin response");
 
         const user = new User(signinResponse);
@@ -459,7 +466,7 @@ export class UserManager extends OidcClient {
             await this.removeUser();
             Log.debug("UserManager._signoutStart: user removed, creating signout request");
 
-            const signoutRequest = await this.createSignoutRequest(args);
+            const signoutRequest = await this._client.createSignoutRequest(args);
             Log.debug("UserManager._signoutStart: got signout request");
 
             navigatorParams.url = signoutRequest.url;
@@ -475,7 +482,7 @@ export class UserManager extends OidcClient {
         }
     }
     protected async _signoutEnd(url: string) {
-        const signoutResponse = await this.processSignoutResponse(url);
+        const signoutResponse = await this._client.processSignoutResponse(url);
         Log.debug("UserManager._signoutEnd: got signout response");
 
         return signoutResponse;
@@ -570,5 +577,9 @@ export class UserManager extends OidcClient {
             Log.debug("storeUser.storeUser: removing user");
             await this.settings.userStore.remove(this._userStoreKey);
         }
+    }
+
+    public async clearStaleState(): Promise<void> {
+        await this._client.clearStaleState();
     }
 }
