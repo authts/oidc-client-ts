@@ -8,17 +8,10 @@ export class JsonService {
     private _jwtHandler: any;
 
     public constructor(
-        additionalContentTypes: string[] | null = null,
+        additionalContentTypes: string[] = [],
         jwtHandler: any = null
     ) {
-        if (additionalContentTypes && Array.isArray(additionalContentTypes))
-        {
-            this._contentTypes = additionalContentTypes.slice();
-        }
-        else
-        {
-            this._contentTypes = [];
-        }
+        this._contentTypes = additionalContentTypes.slice();
         this._contentTypes.push("application/json");
         if (jwtHandler) {
             this._contentTypes.push("application/jwt");

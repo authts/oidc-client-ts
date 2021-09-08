@@ -68,7 +68,8 @@ export class UserInfoService {
             let key: Record<string, string> | null;
             if (header.kid) {
                 key = keys.filter(key => key.kid === header.kid)[0] ?? null;
-            } else {
+            }
+            else {
                 keys = this._filterByAlg(keys, jwt.header.alg);
                 if (keys.length !== 1) {
                     Log.error("UserInfoService._getClaimsFromJwt: No kid found in id_token and more than one key found in metadata");

@@ -212,15 +212,13 @@ export class OidcClient {
             Log.debug("OidcClient.processSignoutResponse: Received state from storage; validating response");
             return this._validator.validateSignoutResponse(state, response);
         }
-        else {
-            Log.debug("OidcClient.processSignoutResponse: No state from storage; skipping validating response");
-            return response;
-        }
+
+        Log.debug("OidcClient.processSignoutResponse: No state from storage; skipping validating response");
+        return response;
     }
 
     public clearStaleState(): Promise<void> {
         Log.debug("OidcClient.clearStaleState");
-
         return State.clearStaleState(this.settings.stateStore, this.settings.staleStateAgeInSeconds);
     }
 }

@@ -112,10 +112,9 @@ export class MetadataService {
                 Log.warn("MetadataService.getMetadataProperty: Metadata does not contain optional property " + name);
                 return undefined;
             }
-            else {
-                Log.error("MetadataService.getMetadataProperty: Metadata does not contain property " + name);
-                throw new Error("Metadata does not contain property " + name);
-            }
+
+            Log.error("MetadataService.getMetadataProperty: Metadata does not contain property " + name);
+            throw new Error("Metadata does not contain property " + name);
         }
 
         return metadata[name];

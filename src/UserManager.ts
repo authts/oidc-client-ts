@@ -75,15 +75,12 @@ export class UserManager {
         const user = await this._loadUser();
         if (user) {
             Log.info("UserManager.getUser: user loaded");
-
             this._events.load(user, false);
-
             return user;
         }
-        else {
-            Log.info("UserManager.getUser: user not found in storage");
-            return null;
-        }
+
+        Log.info("UserManager.getUser: user not found in storage");
+        return null;
     }
 
     public async removeUser(): Promise<void> {
@@ -315,10 +312,9 @@ export class UserManager {
                     sid: signinResponse.profile.sid
                 };
             }
-            else {
-                Log.info("querySessionStatus successful, user not authenticated");
-                return null;
-            }
+
+            Log.info("querySessionStatus successful, user not authenticated");
+            return null;
         }
         catch (err) {
             if (this.settings.monitorAnonymousSession &&
@@ -569,7 +565,6 @@ export class UserManager {
     public async storeUser(user: User | null): Promise<void> {
         if (user) {
             Log.debug("UserManager.storeUser: storing user");
-
             const storageString = user.toStorageString();
             await this.settings.userStore.set(this._userStoreKey, storageString);
         }

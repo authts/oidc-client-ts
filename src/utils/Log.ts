@@ -40,12 +40,11 @@ export class Log {
         return level;
     }
     public static set level(value: number) {
-        if (NONE <= value && value <= DEBUG) {
-            level = value;
-        }
-        else {
+        if (NONE > value || value > DEBUG) {
             throw new Error("Invalid log level");
         }
+
+        level = value;
     }
 
     public static get logger() {
