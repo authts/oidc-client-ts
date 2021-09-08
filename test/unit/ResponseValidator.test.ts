@@ -567,28 +567,28 @@ describe("ResponseValidator", () => {
 
         it("should not merge claims when claim types are objects", () => {
             // arrange
-            const c1 = { custom: {"apple": "foo", "pear": "bar"} };
-            const c2 = { custom: {"apple": "foo", "orange": "peel"}, b: "banana" };
+            const c1 = { custom: { "apple": "foo", "pear": "bar" } };
+            const c2 = { custom: { "apple": "foo", "orange": "peel" }, b: "banana" };
 
             // act
             const result = subject._mergeClaims(c1, c2);
 
             // assert
-            expect(result).toEqual({ custom: [{"apple": "foo", "pear": "bar"}, {"apple": "foo", "orange": "peel"}], b: "banana" });
+            expect(result).toEqual({ custom: [{ "apple": "foo", "pear": "bar" }, { "apple": "foo", "orange": "peel" }], b: "banana" });
         });
 
         it("should merge claims when claim types are objects when mergeClaims settings is true", () => {
             // arrange
             settings.mergeClaims = true;
 
-            const c1 = { custom: {"apple": "foo", "pear": "bar"} };
-            const c2 = { custom: {"apple": "foo", "orange": "peel"}, b: "banana" };
+            const c1 = { custom: { "apple": "foo", "pear": "bar" } };
+            const c2 = { custom: { "apple": "foo", "orange": "peel" }, b: "banana" };
 
             // act
             const result = subject._mergeClaims(c1, c2);
 
             // assert
-            expect(result).toEqual({ custom: {"apple": "foo", "pear": "bar", "orange": "peel"}, b: "banana" });
+            expect(result).toEqual({ custom: { "apple": "foo", "pear": "bar", "orange": "peel" }, b: "banana" });
         });
 
         it("should merge same claim types into array", () => {
@@ -789,7 +789,7 @@ describe("ResponseValidator", () => {
 
         it("should fail if loading keys fails.", async () => {
             // arrange
-            const jwt = { header: { kid: "a3rMUgMFv9tPclLa6yF3zAkfquE" }};
+            const jwt = { header: { kid: "a3rMUgMFv9tPclLa6yF3zAkfquE" } };
             jest.spyOn(metadataService, "getSigningKeys").mockRejectedValue(new Error("keys"));
 
             // act
@@ -805,7 +805,7 @@ describe("ResponseValidator", () => {
 
         it("should fetch suitable signing key for the jwt.", async () => {
             // arrange
-            const jwt = { header: { kid: "a3rMUgMFv9tPclLa6yF3zAkfquE" }};
+            const jwt = { header: { kid: "a3rMUgMFv9tPclLa6yF3zAkfquE" } };
             const keys = [{ kid: "a3rMUgMFv9tPclLa6yF3zAkfquE" }, { kid: "other_key" } ];
             jest.spyOn(metadataService, "getSigningKeys").mockImplementation(() => Promise.resolve(keys));
 
@@ -821,7 +821,7 @@ describe("ResponseValidator", () => {
 
         it("should retry once if suitable signing key is not found.", async () => {
             // arrange
-            const jwt = { header: { kid: "a3rMUgMFv9tPclLa6yF3zAkfquE" }};
+            const jwt = { header: { kid: "a3rMUgMFv9tPclLa6yF3zAkfquE" } };
             const _getSigningKeyForJwtMock = jest.spyOn(subject, "_getSigningKeyForJwt")
                 .mockImplementation(() => Promise.resolve(null));
 
@@ -834,7 +834,7 @@ describe("ResponseValidator", () => {
 
         it("should not retry if suitable signing key is found.", async () => {
             // arrange
-            const jwt = { header: { kid: "a3rMUgMFv9tPclLa6yF3zAkfquE" }};
+            const jwt = { header: { kid: "a3rMUgMFv9tPclLa6yF3zAkfquE" } };
             const keys = [{ kid: "a3rMUgMFv9tPclLa6yF3zAkfquE" }];
             jest.spyOn(metadataService, "getSigningKeys")
                 .mockImplementation(() => Promise.resolve(keys));

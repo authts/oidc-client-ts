@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log } from "./utils";
-import { CordovaPopupNavigator, CordovaIFrameNavigator } from "./navigators";
 
 import { OidcClient } from "./OidcClient";
 import { OidcClientSettings } from "./OidcClientSettings";
@@ -34,8 +33,6 @@ export {
     UserManager,
     AccessTokenEvents,
     MetadataService,
-    CordovaPopupNavigator,
-    CordovaIFrameNavigator,
     CheckSessionIFrame,
     TokenRevocationClient,
     SessionMonitor,
