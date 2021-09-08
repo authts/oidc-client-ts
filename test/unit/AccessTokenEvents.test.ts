@@ -8,24 +8,24 @@ import { User } from "../../src/User";
 describe("AccessTokenEvents", () => {
 
     let subject: AccessTokenEvents;
-    let accessTokenExpiringTimer: StubTimer;
-    let accessTokenExpiredTimer: StubTimer;
+    let expiringTimer: StubTimer;
+    let expiredTimer: StubTimer;
 
     beforeEach(() => {
-        accessTokenExpiringTimer = new StubTimer("stub expiring timer");
-        accessTokenExpiredTimer = new StubTimer("stub expired timer");
+        expiringTimer = new StubTimer("stub expiring timer");
+        expiredTimer = new StubTimer("stub expired timer");
 
-        subject = new AccessTokenEvents({ accessTokenExpiringNotificationTimeInSeconds: 60 });
+        subject = new AccessTokenEvents({ expiringNotificationTimeInSeconds: 60 });
 
         // access private members
-        subject["_accessTokenExpiring"] = accessTokenExpiringTimer;
-        subject["_accessTokenExpired"] = accessTokenExpiredTimer;
+        subject["_expiringTimer"] = expiringTimer;
+        subject["_expiredTimer"] = expiredTimer;
     });
 
     describe("constructor", () => {
 
         it("should use default expiringNotificationTime", () => {
-            expect(subject["_accessTokenExpiringNotificationTimeInSeconds"]).toEqual(60);
+            expect(subject["_expiringNotificationTimeInSeconds"]).toEqual(60);
         });
 
     });
@@ -37,8 +37,8 @@ describe("AccessTokenEvents", () => {
             subject.load({} as User);
 
             // assert
-            expect(accessTokenExpiringTimer.cancelWasCalled).toEqual(true);
-            expect(accessTokenExpiredTimer.cancelWasCalled).toEqual(true);
+            expect(expiringTimer.cancelWasCalled).toEqual(true);
+            expect(expiredTimer.cancelWasCalled).toEqual(true);
         });
 
         it("should initialize timers", () => {
@@ -49,8 +49,8 @@ describe("AccessTokenEvents", () => {
             } as User);
 
             // assert
-            expect(accessTokenExpiringTimer.duration).toEqual(10);
-            expect(accessTokenExpiredTimer.duration).toEqual(71);
+            expect(expiringTimer.duration).toEqual(10);
+            expect(expiredTimer.duration).toEqual(71);
         });
 
         it("should immediately schedule expiring timer if expiration is soon", () => {
@@ -61,7 +61,7 @@ describe("AccessTokenEvents", () => {
             } as User);
 
             // assert
-            expect(accessTokenExpiringTimer.duration).toEqual(1);
+            expect(expiringTimer.duration).toEqual(1);
         });
 
         it("should not initialize expiring timer if already expired", () => {
@@ -72,7 +72,7 @@ describe("AccessTokenEvents", () => {
             } as User);
 
             // assert
-            expect(accessTokenExpiringTimer.duration).toEqual(undefined);
+            expect(expiringTimer.duration).toEqual(undefined);
         });
 
         it("should initialize expired timer if already expired", () => {
@@ -83,7 +83,7 @@ describe("AccessTokenEvents", () => {
             } as User);
 
             // assert
-            expect(accessTokenExpiredTimer.duration).toEqual(1);
+            expect(expiredTimer.duration).toEqual(1);
         });
 
         it("should not initialize timers if no access token", () => {
@@ -93,8 +93,8 @@ describe("AccessTokenEvents", () => {
             } as User);
 
             // assert
-            expect(accessTokenExpiringTimer.duration).toEqual(undefined);
-            expect(accessTokenExpiredTimer.duration).toEqual(undefined);
+            expect(expiringTimer.duration).toEqual(undefined);
+            expect(expiredTimer.duration).toEqual(undefined);
         });
 
         it("should not initialize timers if no expiration on access token", () => {
@@ -104,8 +104,8 @@ describe("AccessTokenEvents", () => {
             } as User);
 
             // assert
-            expect(accessTokenExpiringTimer.duration).toEqual(undefined);
-            expect(accessTokenExpiredTimer.duration).toEqual(undefined);
+            expect(expiringTimer.duration).toEqual(undefined);
+            expect(expiredTimer.duration).toEqual(undefined);
         });
     });
 
@@ -116,8 +116,8 @@ describe("AccessTokenEvents", () => {
             subject.unload();
 
             // assert
-            expect(accessTokenExpiringTimer.cancelWasCalled).toEqual(true);
-            expect(accessTokenExpiredTimer.cancelWasCalled).toEqual(true);
+            expect(expiringTimer.cancelWasCalled).toEqual(true);
+            expect(expiredTimer.cancelWasCalled).toEqual(true);
         });
     });
 });
