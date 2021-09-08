@@ -16,7 +16,7 @@ describe("SigninRequest", () => {
             response_type: "id_token",
             scope: "openid",
             authority : "op",
-            data: {data: "test"}
+            data: { data: "test" }
         };
         subject = new SigninRequest(settings);
     });

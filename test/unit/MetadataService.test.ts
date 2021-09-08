@@ -142,7 +142,7 @@ describe("MetadataService", () => {
             // assert
             expect(result).toEqual({ issuer: "one", jwks_uri: "two" });
             const _metadata = subject["_metadata"]; // access private member
-            expect(_metadata).toEqual({issuer: "one", jwks_uri: "two" });
+            expect(_metadata).toEqual({ issuer: "one", jwks_uri: "two" });
         });
 
         it("should fail if json call fails", async () => {

@@ -70,7 +70,7 @@ describe("UserManager", () => {
 
         it("should pass silentRequestTimeout from settings", async () => {
             // arrange
-            const user = new User({id_token:"id_token"});
+            const user = new User({ id_token:"id_token" });
             userStoreMock.item = user.toStorageString();
 
             settings = {

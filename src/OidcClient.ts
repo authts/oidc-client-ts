@@ -129,7 +129,7 @@ export class OidcClient {
         }
 
         const state = SigninState.fromStorageString(storedStateString);
-        return {state, response};
+        return { state, response };
     }
 
     public async processSigninResponse(url: string) {
@@ -187,7 +187,7 @@ export class OidcClient {
                 throw new ErrorResponse(response);
             }
 
-            return {state: undefined, response};
+            return { state: undefined, response };
         }
 
         const stateKey = response.state;
@@ -201,13 +201,13 @@ export class OidcClient {
         }
 
         const state = State.fromStorageString(storedStateString);
-        return {state, response};
+        return { state, response };
     }
 
     public async processSignoutResponse(url: string) {
         Log.debug("OidcClient.processSignoutResponse");
 
-        const {state, response} = await this.readSignoutResponseState(url, true);
+        const { state, response } = await this.readSignoutResponseState(url, true);
         if (state) {
             Log.debug("OidcClient.processSignoutResponse: Received state from storage; validating response");
             return this._validator.validateSignoutResponse(state, response);
