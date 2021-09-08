@@ -61,16 +61,15 @@ export class TokenClient {
             Log.error("TokenClient.exchangeCode: No code_verifier passed");
             throw new Error("A code_verifier is required");
         }
-        if (!args.client_secret && client_authentication == "client_secret_basic") {
-            Log.error("TokenClient.exchangeCode: No client_secret passed");
-            throw new Error("A client_secret is required");
-        }
 
         // Sending the client credentials using the Basic Auth method
         let basicAuth: string | undefined = undefined;
-        if (client_authentication == "client_secret_basic")
-        {
-            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+        if (client_authentication == "client_secret_basic") {
+            if (!args.client_secret) {
+                Log.error("TokenClient.exchangeCode: No client_secret passed");
+                throw new Error("A client_secret is required");
+            }
+
             basicAuth = args.client_id + ":" + args.client_secret;
             delete args.client_id;
             delete args.client_secret;
@@ -105,10 +104,12 @@ export class TokenClient {
 
         // Sending the client credentials using the Basic Auth method
         let basicAuth: string | undefined = undefined;
-        if (client_authentication == "client_secret_basic")
-        {
-            // TODO defined types for this line
-            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+        if (client_authentication == "client_secret_basic") {
+            if (!args.client_secret) {
+                Log.error("TokenClient.exchangeCode: No client_secret passed");
+                throw new Error("A client_secret is required");
+            }
+
             basicAuth = args.client_id + ":" + args.client_secret;
             delete args.client_id;
             delete args.client_secret;
