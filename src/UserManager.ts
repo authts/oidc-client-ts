@@ -75,15 +75,12 @@ export class UserManager {
         const user = await this._loadUser();
         if (user) {
             Log.info("UserManager.getUser: user loaded");
-
             this._events.load(user, false);
-
             return user;
         }
-        else {
-            Log.info("UserManager.getUser: user not found in storage");
-            return null;
-        }
+
+        Log.info("UserManager.getUser: user not found in storage");
+        return null;
     }
 
     public async removeUser(): Promise<void> {
@@ -96,7 +93,9 @@ export class UserManager {
         const args = {
             request_type: "si:r"
         };
-        await this._signinStart(args, this._redirectNavigator);
+        await this._signinStart(args, this._redirectNavigator, {
+            redirectMethod: this.settings.redirectMethod
+        });
         Log.info("UserManager.signinRedirect: successful");
     }
     public async signinRedirectCallback(url?: string): Promise<User> {
@@ -126,7 +125,8 @@ export class UserManager {
         const user = await this._signin(args, this._popupNavigator, {
             startUrl: url,
             popupWindowFeatures: this.settings.popupWindowFeatures,
-            popupWindowTarget: this.settings.popupWindowTarget
+            popupWindowTarget: this.settings.popupWindowTarget,
+            redirectMethod: this.settings.redirectMethod
         });
         if (user) {
             if (user.profile && user.profile.sub) {
@@ -301,7 +301,8 @@ export class UserManager {
         };
         const navResponse = await this._signinStart(args, this._iframeNavigator, {
             startUrl: url,
-            silentRequestTimeoutInSeconds: this.settings.silentRequestTimeoutInSeconds
+            silentRequestTimeoutInSeconds: this.settings.silentRequestTimeoutInSeconds,
+            redirectMethod: this.settings.redirectMethod
         });
         try {
             const signinResponse = await this._client.processSigninResponse(navResponse.url);
@@ -315,10 +316,9 @@ export class UserManager {
                     sid: signinResponse.profile.sid
                 };
             }
-            else {
-                Log.info("querySessionStatus successful, user not authenticated");
-                return null;
-            }
+
+            Log.info("querySessionStatus successful, user not authenticated");
+            return null;
         }
         catch (err) {
             if (this.settings.monitorAnonymousSession &&
@@ -343,7 +343,7 @@ export class UserManager {
         const navResponse = await this._signinStart(args, navigator, navigatorParams);
         return this._signinEnd(navResponse.url, args);
     }
-    protected async _signinStart(args: SigninArgs, navigator: INavigator, navigatorParams: NavigatorParams = {}) {
+    protected async _signinStart(args: SigninArgs, navigator: INavigator, navigatorParams: NavigatorParams) {
         const handle = await navigator.prepare(navigatorParams);
         Log.debug("UserManager._signinStart: got navigator window handle");
 
@@ -569,7 +569,6 @@ export class UserManager {
     public async storeUser(user: User | null): Promise<void> {
         if (user) {
             Log.debug("UserManager.storeUser: storing user");
-
             const storageString = user.toStorageString();
             await this.settings.userStore.set(this._userStoreKey, storageString);
         }

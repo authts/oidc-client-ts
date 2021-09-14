@@ -264,10 +264,8 @@ export class ResponseValidator {
             Log.debug("ResponseValidator._processCode: token response successful, processing id_token");
             return this._validateIdTokenAttributes(state, response, response.id_token);
         }
-        else {
-            Log.debug("ResponseValidator._processCode: token response successful, returning response");
-        }
 
+        Log.debug("ResponseValidator._processCode: token response successful, returning response");
         return response;
     }
 

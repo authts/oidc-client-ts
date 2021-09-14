@@ -62,46 +62,47 @@ export class SessionMonitor {
             } | null;
     }) {
         const session_state = user.session_state;
+        if (!session_state) {
+            return;
+        }
 
-        if (session_state) {
-            if (user.profile) {
-                this._sub = user.profile.sub;
-                this._sid = user.profile.sid;
-                Log.debug("SessionMonitor._start: session_state:", session_state, ", sub:", this._sub);
+        if (user.profile) {
+            this._sub = user.profile.sub;
+            this._sid = user.profile.sid;
+            Log.debug("SessionMonitor._start: session_state:", session_state, ", sub:", this._sub);
+        }
+        else {
+            this._sub = undefined;
+            this._sid = undefined;
+            Log.debug("SessionMonitor._start: session_state:", session_state, ", anonymous user");
+        }
+
+        if (this._checkSessionIFrame) {
+            this._checkSessionIFrame.start(session_state);
+            return;
+        }
+
+        try {
+            const url = await this._userManager.metadataService.getCheckSessionIframe();
+            if (url) {
+                Log.debug("SessionMonitor._start: Initializing check session iframe");
+
+                const client_id = this._userManager.settings.client_id;
+                const intervalInSeconds = this._userManager.settings.checkSessionIntervalInSeconds;
+                const stopOnError = this._userManager.settings.stopCheckSessionOnError;
+
+                const checkSessionIFrame = new CheckSessionIFrame(this._callback.bind(this), client_id, url, intervalInSeconds, stopOnError);
+                await checkSessionIFrame.load();
+                this._checkSessionIFrame = checkSessionIFrame;
+                checkSessionIFrame.start(session_state);
             }
             else {
-                this._sub = undefined;
-                this._sid = undefined;
-                Log.debug("SessionMonitor._start: session_state:", session_state, ", anonymous user");
+                Log.warn("SessionMonitor._start: No check session iframe found in the metadata");
             }
-
-            if (!this._checkSessionIFrame) {
-                try {
-                    const url = await this._userManager.metadataService.getCheckSessionIframe();
-                    if (url) {
-                        Log.debug("SessionMonitor._start: Initializing check session iframe");
-
-                        const client_id = this._userManager.settings.client_id;
-                        const intervalInSeconds = this._userManager.settings.checkSessionIntervalInSeconds;
-                        const stopOnError = this._userManager.settings.stopCheckSessionOnError;
-
-                        this._checkSessionIFrame = new CheckSessionIFrame(this._callback.bind(this), client_id, url, intervalInSeconds, stopOnError);
-                        await this._checkSessionIFrame.load();
-                        this._checkSessionIFrame &&
-                        this._checkSessionIFrame.start(session_state);
-                    }
-                    else {
-                        Log.warn("SessionMonitor._start: No check session iframe found in the metadata");
-                    }
-                }
-                catch (err) {
-                    // catch to suppress errors since we're in non-promise callback
-                    Log.error("SessionMonitor._start: Error from getCheckSessionIframe:", err instanceof Error ? err.message : err);
-                }
-            }
-            else {
-                this._checkSessionIFrame.start(session_state);
-            }
+        }
+        catch (err) {
+            // catch to suppress errors since we're in non-promise callback
+            Log.error("SessionMonitor._start: Error from getCheckSessionIframe:", err instanceof Error ? err.message : err);
         }
     }
 
