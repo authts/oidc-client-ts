@@ -49,7 +49,7 @@
     "open": "^8.2.1",
     "parcel": "^2.0.0-rc.0",
     "http-proxy-middleware": "^2.0.1"
-},
+  },
   "jest": {
     "clearMocks": true,
     "testMatch": [
