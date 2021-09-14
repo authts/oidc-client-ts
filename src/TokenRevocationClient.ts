@@ -17,7 +17,7 @@ export class TokenRevocationClient {
         this._metadataService = metadataService;
     }
 
-    public async revoke(token: string, required: boolean, type = "access_token") {
+    public async revoke(token: string, required: boolean, type = "access_token"): Promise<void> {
         if (!token) {
             Log.error("TokenRevocationClient.revoke: No token provided");
             throw new Error("No token provided.");
@@ -45,7 +45,7 @@ export class TokenRevocationClient {
         return this._revoke(url, client_id, client_secret, token, type);
     }
 
-    protected async _revoke(url: string, client_id: string, client_secret: string | undefined, token: string, type: string) {
+    protected async _revoke(url: string, client_id: string, client_secret: string | undefined, token: string, type: string): Promise<void> {
         const headers: HeadersInit = {
             "Content-Type": "application/x-www-form-urlencoded",
         };

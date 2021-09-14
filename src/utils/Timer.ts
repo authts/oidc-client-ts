@@ -32,11 +32,11 @@ export class Timer extends Event {
     }
 
     // get the time
-    public static getEpochTime() {
+    public static getEpochTime(): number {
         return Math.floor(Date.now() / 1000);
     }
 
-    public init(durationInSeconds: number) {
+    public init(durationInSeconds: number): void {
         if (durationInSeconds <= 0) {
             durationInSeconds = 1;
         }
@@ -64,11 +64,11 @@ export class Timer extends Event {
         this._timerHandle = this._timer.setInterval(this._callback.bind(this), timerDurationInSeconds * 1000);
     }
 
-    public get expiration() {
+    public get expiration(): number {
         return this._expiration;
     }
 
-    public cancel() {
+    public cancel(): void {
         if (this._timerHandle) {
             Log.debug("Timer.cancel: ", this._name);
             this._timer.clearInterval(this._timerHandle);
@@ -76,7 +76,7 @@ export class Timer extends Event {
         }
     }
 
-    protected _callback() {
+    protected _callback(): void {
         const diff = this._expiration - Timer.getEpochTime();
         Log.debug("Timer.callback; " + this._name + " timer expires in:", diff);
 

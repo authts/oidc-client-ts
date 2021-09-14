@@ -168,7 +168,7 @@ export class UserManager {
         return this._signinSilentIframe(args);
     }
 
-    protected async _useRefreshToken(user: User) {
+    protected async _useRefreshToken(user: User): Promise<User> {
         const args = {
             refresh_token: user.refresh_token || ""
         };
@@ -198,7 +198,7 @@ export class UserManager {
         return user;
     }
 
-    protected async _validateIdTokenFromTokenRefreshToken(profile: any, id_token: string) {
+    protected async _validateIdTokenFromTokenRefreshToken(profile: any, id_token: string): Promise<void> {
         const issuer = await this.metadataService.getIssuer();
         const now = Timer.getEpochTime();
         const payload = await JoseUtil.validateJwtAttributes(id_token, issuer, this.settings.client_id, this.settings.clockSkewInSeconds, now);
@@ -224,7 +224,7 @@ export class UserManager {
         }
     }
 
-    protected async _signinSilentIframe(args: SigninArgs) {
+    protected async _signinSilentIframe(args: SigninArgs): Promise<User> {
         const url = args.redirect_uri || this.settings.silent_redirect_uri || this.settings.redirect_uri;
         if (!url) {
             Log.error("UserManager.signinSilent: No silent_redirect_uri configured");
@@ -343,7 +343,7 @@ export class UserManager {
         const navResponse = await this._signinStart(args, navigator, navigatorParams);
         return this._signinEnd(navResponse.url, args);
     }
-    protected async _signinStart(args: SigninArgs, navigator: INavigator, navigatorParams: NavigatorParams) {
+    protected async _signinStart(args: SigninArgs, navigator: INavigator, navigatorParams: NavigatorParams): Promise<any> {
         const handle = await navigator.prepare(navigatorParams);
         Log.debug("UserManager._signinStart: got navigator window handle");
 
@@ -430,7 +430,7 @@ export class UserManager {
         });
         Log.info("UserManager.signoutPopup: successful");
     }
-    public async signoutPopupCallback(url: any, keepOpen: any) {
+    public async signoutPopupCallback(url: any, keepOpen: any): Promise<void> {
         if (typeof(keepOpen) === "undefined" && typeof(url) === "boolean") {
             keepOpen = url;
             url = null;
@@ -441,11 +441,11 @@ export class UserManager {
         Log.info("UserManager.signoutPopupCallback: successful");
     }
 
-    protected async _signout(args: SignoutArgs, navigator: INavigator, navigatorParams: NavigatorParams) {
+    protected async _signout(args: SignoutArgs, navigator: INavigator, navigatorParams: NavigatorParams): Promise<SignoutResponse> {
         const navResponse = await this._signoutStart(args, navigator, navigatorParams);
         return this._signoutEnd(navResponse.url);
     }
-    protected async _signoutStart(args: SignoutArgs = {}, navigator: INavigator, navigatorParams: NavigatorParams = {}) {
+    protected async _signoutStart(args: SignoutArgs = {}, navigator: INavigator, navigatorParams: NavigatorParams = {}): Promise<any> {
         const handle = await navigator.prepare(navigatorParams);
         Log.debug("UserManager._signoutStart: got navigator window handle");
 
@@ -481,7 +481,7 @@ export class UserManager {
             throw err;
         }
     }
-    protected async _signoutEnd(url: string) {
+    protected async _signoutEnd(url: string): Promise<SignoutResponse> {
         const signoutResponse = await this._client.processSignoutResponse(url);
         Log.debug("UserManager._signoutEnd: got signout response");
 
@@ -551,11 +551,11 @@ export class UserManager {
         this._silentRenewService.stop();
     }
 
-    protected get _userStoreKey() {
+    protected get _userStoreKey(): string {
         return `user:${this.settings.authority}:${this.settings.client_id}`;
     }
 
-    protected async _loadUser() {
+    protected async _loadUser(): Promise<User | null> {
         const storageString = await this.settings.userStore.get(this._userStoreKey);
         if (storageString) {
             Log.debug("UserManager._loadUser: user storageString loaded");

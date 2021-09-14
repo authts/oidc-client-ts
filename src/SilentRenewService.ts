@@ -14,7 +14,7 @@ export class SilentRenewService {
         this._callback = null;
     }
 
-    public async start() {
+    public async start(): Promise<void> {
         if (!this._callback) {
             this._callback = this._tokenExpiring.bind(this);
             this._userManager.events.addAccessTokenExpiring(this._callback);
@@ -31,14 +31,14 @@ export class SilentRenewService {
         }
     }
 
-    public stop() {
+    public stop(): void {
         if (this._callback) {
             this._userManager.events.removeAccessTokenExpiring(this._callback);
             this._callback = null;
         }
     }
 
-    protected async _tokenExpiring() {
+    protected async _tokenExpiring(): Promise<void> {
         try {
             await this._userManager.signinSilent();
             Log.debug("SilentRenewService._tokenExpiring: Silent token renewal successful");

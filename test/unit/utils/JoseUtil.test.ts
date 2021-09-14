@@ -97,30 +97,30 @@ describe("JoseUtil", () => {
 
     describe("validateJwt", () => {
 
-        it("should validate from RSA X509 key", async () => {
+        it("should validate from RSA X509 key", () => {
             // arrange
             delete rsaKey.n;
             delete rsaKey.e;
 
             // act
-            await JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 0, expectedNow);
+            JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 0, expectedNow);
         });
 
-        it("should validate from RSA exponent and modulus", async () => {
+        it("should validate from RSA exponent and modulus", () => {
             // arrange
             delete rsaKey.x5c;
 
             // act
-            await JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 0, expectedNow);
+            JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 0, expectedNow);
         });
 
-        it("should fail for unsupported key types", async () => {
+        it("should fail for unsupported key types", () => {
             // arrange
             rsaKey.kty = "foo";
 
             // act
             try {
-                await JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 0, expectedNow);
+                JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 0, expectedNow);
                 fail("should not come here");
             }
             catch (err) {
@@ -129,10 +129,10 @@ describe("JoseUtil", () => {
             }
         });
 
-        it("should fail for mismatched keys", async () => {
+        it("should fail for mismatched keys", () => {
             // act
             try {
-                await JoseUtil.validateJwt(jwtFromRsa, ecKey, expectedIssuer, expectedAudience, 0, expectedNow);
+                JoseUtil.validateJwt(jwtFromRsa, ecKey, expectedIssuer, expectedAudience, 0, expectedNow);
                 fail("should not come here");
             }
             catch (err) {
@@ -141,10 +141,10 @@ describe("JoseUtil", () => {
             }
         });
 
-        it("should not validate before nbf", async () => {
+        it("should not validate before nbf", () => {
             // act
             try {
-                await JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 0, notBefore - 1);
+                JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 0, notBefore - 1);
                 fail("should not come here");
             }
             catch (err) {
@@ -160,10 +160,10 @@ describe("JoseUtil", () => {
             await Promise.all([p1, p2]);
         });
 
-        it("should not allow nbf outside clock skew", async () => {
+        it("should not allow nbf outside clock skew", () => {
             // act
             try {
-                await JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, notBefore - 11);
+                JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, notBefore - 11);
                 fail("should not come here");
             }
             catch (err) {
@@ -172,10 +172,10 @@ describe("JoseUtil", () => {
             }
         });
 
-        it("should not validate before iat", async () => {
+        it("should not validate before iat", () => {
             // act
             try {
-                await JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 0, issuedAt - 1);
+                JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 0, issuedAt - 1);
                 fail("should not come here");
             }
             catch (err) {
@@ -191,10 +191,10 @@ describe("JoseUtil", () => {
             await Promise.all([p1, p2]);
         });
 
-        it("should now allow iat outside clock skew", async () => {
+        it("should now allow iat outside clock skew", () => {
             // act
             try {
-                await JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, issuedAt - 11);
+                JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, issuedAt - 11);
                 fail("should not come here");
             }
             catch (err) {
@@ -203,10 +203,10 @@ describe("JoseUtil", () => {
             }
         });
 
-        it("should not validate after exp", async () => {
+        it("should not validate after exp", () => {
             // act
             try {
-                await JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 0, expires + 1);
+                JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 0, expires + 1);
                 fail("should not come here");
             }
             catch (err) {
@@ -222,10 +222,10 @@ describe("JoseUtil", () => {
             await Promise.all([p1, p2]);
         });
 
-        it("should now allow exp outside clock skew", async () => {
+        it("should now allow exp outside clock skew", () => {
             // act
             try {
-                await JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, expires + 11);
+                JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, expires + 11);
                 fail("should not come here");
             }
             catch (err) {
@@ -234,10 +234,10 @@ describe("JoseUtil", () => {
             }
         });
 
-        it("should not validate for invalid audience", async () => {
+        it("should not validate for invalid audience", () => {
             // act
             try {
-                await JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, "invalid aud", 0, expectedNow);
+                JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, "invalid aud", 0, expectedNow);
                 fail("should not come here");
             }
             catch (err) {
@@ -246,10 +246,10 @@ describe("JoseUtil", () => {
             }
         });
 
-        it("should not validate for invalid issuer", async () => {
+        it("should not validate for invalid issuer", () => {
             // act
             try {
-                await JoseUtil.validateJwt(jwtFromRsa, rsaKey, "invalid issuer", expectedAudience, 0, expectedNow);
+                JoseUtil.validateJwt(jwtFromRsa, rsaKey, "invalid issuer", expectedAudience, 0, expectedNow);
                 fail("should not come here");
             }
             catch (err) {

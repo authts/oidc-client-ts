@@ -73,7 +73,7 @@ export class SigninState extends State {
         this.skipUserInfo = args.skipUserInfo;
     }
 
-    public toStorageString() {
+    public toStorageString(): string {
         Log.debug("SigninState.toStorageString");
         return JSON.stringify({
             id: this.id,
@@ -94,7 +94,7 @@ export class SigninState extends State {
         });
     }
 
-    public static fromStorageString(storageString: string) {
+    public static fromStorageString(storageString: string): SigninState {
         Log.debug("SigninState.fromStorageString");
         const data = JSON.parse(storageString);
         return new SigninState(data);

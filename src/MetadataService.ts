@@ -45,7 +45,7 @@ export class MetadataService {
         }
     }
 
-    public resetSigningKeys() {
+    public resetSigningKeys(): void {
         this._signingKeys = null;
     }
 
@@ -69,39 +69,39 @@ export class MetadataService {
         return this._metadata;
     }
 
-    public getIssuer() {
+    public getIssuer(): Promise<string> {
         return this._getMetadataProperty("issuer") as Promise<string>;
     }
 
-    public getAuthorizationEndpoint() {
+    public getAuthorizationEndpoint(): Promise<string> {
         return this._getMetadataProperty("authorization_endpoint") as Promise<string>;
     }
 
-    public getUserInfoEndpoint() {
+    public getUserInfoEndpoint(): Promise<string> {
         return this._getMetadataProperty("userinfo_endpoint") as Promise<string>;
     }
 
-    public getTokenEndpoint(optional=true) {
+    public getTokenEndpoint(optional=true): Promise<string | undefined> {
         return this._getMetadataProperty("token_endpoint", optional) as Promise<string | undefined>;
     }
 
-    public getCheckSessionIframe() {
+    public getCheckSessionIframe(): Promise<string | undefined> {
         return this._getMetadataProperty("check_session_iframe", true) as Promise<string | undefined>;
     }
 
-    public getEndSessionEndpoint() {
+    public getEndSessionEndpoint(): Promise<string | undefined> {
         return this._getMetadataProperty("end_session_endpoint", true) as Promise<string | undefined>;
     }
 
-    public getRevocationEndpoint() {
+    public getRevocationEndpoint(): Promise<string | undefined> {
         return this._getMetadataProperty("revocation_endpoint", true) as Promise<string | undefined>;
     }
 
-    public getKeysEndpoint(optional=true) {
+    public getKeysEndpoint(optional=true): Promise<string | undefined> {
         return this._getMetadataProperty("jwks_uri", optional) as Promise<string | undefined>;
     }
 
-    protected async _getMetadataProperty(name: keyof OidcMetadata, optional=false) {
+    protected async _getMetadataProperty(name: keyof OidcMetadata, optional=false): Promise<string | boolean | string[] | undefined> {
         Log.debug("MetadataService.getMetadataProperty for: " + name);
 
         const metadata = await this.getMetadata();
@@ -120,7 +120,7 @@ export class MetadataService {
         return metadata[name];
     }
 
-    public async getSigningKeys() {
+    public async getSigningKeys(): Promise<Record<string, string>[] | null> {
         if (this._signingKeys) {
             Log.debug("MetadataService.getSigningKeys: Returning signingKeys from cache");
             return this._signingKeys;

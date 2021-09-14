@@ -28,7 +28,7 @@ export class User {
         this.expires_at = expires_at;
     }
 
-    public get expires_in() {
+    public get expires_in(): number | undefined {
         if (this.expires_at) {
             const now = Timer.getEpochTime();
             return this.expires_at - now;
@@ -43,7 +43,7 @@ export class User {
         }
     }
 
-    public get expired() {
+    public get expired(): boolean | undefined {
         const expires_in = this.expires_in;
         if (expires_in !== undefined) {
             return expires_in <= 0;
@@ -51,11 +51,11 @@ export class User {
         return undefined;
     }
 
-    public get scopes() {
+    public get scopes(): string[] {
         return (this.scope || "").split(" ");
     }
 
-    public toStorageString() {
+    public toStorageString(): string {
         Log.debug("User.toStorageString");
         return JSON.stringify({
             id_token: this.id_token,
@@ -69,7 +69,7 @@ export class User {
         });
     }
 
-    public static fromStorageString(storageString: string) {
+    public static fromStorageString(storageString: string): User {
         Log.debug("User.fromStorageString");
         return new User(JSON.parse(storageString));
     }

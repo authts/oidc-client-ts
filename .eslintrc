@@ -34,17 +34,12 @@
                 "maxEOF": 0
             }
         ],
-        "@typescript-eslint/explicit-function-return-type": [
-            "off",
-            {
-                "allowExpressions": true,
-                "allowTypedFunctionExpressions": true,
-                "allowHigherOrderFunctions": true
-            }
-        ],
         "@typescript-eslint/member-delimiter-style": "error",
         "@typescript-eslint/explicit-module-boundary-types": [
-            "off"
+            "error",
+            {
+                "allowArgumentsExplicitlyTypedAsAny": true
+            }
         ],
         "@typescript-eslint/object-curly-spacing": [
             "error",

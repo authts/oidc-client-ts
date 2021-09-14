@@ -12,18 +12,18 @@ export class Event {
         this._callbacks = [];
     }
 
-    public addHandler(cb: (...ev: any[]) => Promise<void> | void) {
+    public addHandler(cb: (...ev: any[]) => Promise<void> | void): void {
         this._callbacks.push(cb);
     }
 
-    public removeHandler(cb: (...ev: any[]) => Promise<void> | void) {
+    public removeHandler(cb: (...ev: any[]) => Promise<void> | void): void {
         const idx = this._callbacks.findIndex(item => item === cb);
         if (idx >= 0) {
             this._callbacks.splice(idx, 1);
         }
     }
 
-    public raise(...params: any[]) {
+    public raise(...params: any[]): void {
         Log.debug("Event: Raising event: " + this._name);
         for (let i = 0; i < this._callbacks.length; i++) {
             void this._callbacks[i](...params);

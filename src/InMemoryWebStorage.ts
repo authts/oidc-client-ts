@@ -15,26 +15,26 @@ export class InMemoryWebStorage implements Storage {
         this._data = {};
     }
 
-    public getItem(key: string) {
+    public getItem(key: string): any {
         Log.debug("InMemoryWebStorage.getItem", key);
         return this._data[key];
     }
 
-    public setItem(key: string, value: any) {
+    public setItem(key: string, value: any): void {
         Log.debug("InMemoryWebStorage.setItem", key);
         this._data[key] = value;
     }
 
-    public removeItem(key: string) {
+    public removeItem(key: string): void {
         Log.debug("InMemoryWebStorage.removeItem", key);
         delete this._data[key];
     }
 
-    public get length() {
+    public get length(): number {
         return Object.getOwnPropertyNames(this._data).length;
     }
 
-    public key(index: number) {
+    public key(index: number): string {
         return Object.getOwnPropertyNames(this._data)[index];
     }
 }

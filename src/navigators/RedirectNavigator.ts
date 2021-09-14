@@ -6,11 +6,11 @@ import { INavigator } from "./INavigator";
 import { IWindow, NavigatorParams } from "./IWindow";
 
 export class RedirectNavigator implements INavigator, IWindow {
-    public prepare() {
+    public prepare(): Promise<IWindow> {
         return Promise.resolve(this);
     }
 
-    public navigate(params: NavigatorParams) {
+    public navigate(params: NavigatorParams): Promise<any> {
         if (!params || !params.url) {
             Log.error("RedirectNavigator.navigate: No url provided");
             throw new Error("No url provided");
@@ -20,11 +20,11 @@ export class RedirectNavigator implements INavigator, IWindow {
         return Promise.resolve();
     }
 
-    public get url() {
+    public get url(): string {
         return window.location.href;
     }
 
-    public close() {
+    public close(): void {
         Log.warn("Function not implemented");
     }
 }

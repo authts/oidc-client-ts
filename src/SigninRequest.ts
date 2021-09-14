@@ -115,21 +115,21 @@ export class SigninRequest {
         this.url = url;
     }
 
-    public static isOidc(response_type: string) {
+    public static isOidc(response_type: string): boolean {
         const result = response_type.split(/\s+/g).filter(function(item) {
             return item === "id_token";
         });
         return !!(result[0]);
     }
 
-    public static isOAuth(response_type: string) {
+    public static isOAuth(response_type: string): boolean {
         const result = response_type.split(/\s+/g).filter(function(item) {
             return item === "token";
         });
         return !!(result[0]);
     }
 
-    public static isCode(response_type: string) {
+    public static isCode(response_type: string): boolean {
         const result = response_type.split(/\s+/g).filter(function(item) {
             return item === "code";
         });

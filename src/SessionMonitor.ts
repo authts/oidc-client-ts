@@ -32,7 +32,7 @@ export class SessionMonitor {
             });
     }
 
-    protected async _init() {
+    protected async _init(): Promise<void> {
         const user = await this._userManager.getUser();
         // doing this manually here since calling getUser
         // doesn't trigger load event.
@@ -60,7 +60,7 @@ export class SessionMonitor {
                 sub: string;
                 sid: string;
             } | null;
-    }) {
+    }): Promise<void> {
         const session_state = user.session_state;
         if (!session_state) {
             return;
@@ -106,7 +106,7 @@ export class SessionMonitor {
         }
     }
 
-    protected _stop() {
+    protected _stop(): void {
         this._sub = undefined;
         this._sid = undefined;
 
@@ -141,7 +141,7 @@ export class SessionMonitor {
         }
     }
 
-    protected async _callback() {
+    protected async _callback(): Promise<void> {
         try {
             const session: any = await this._userManager.querySessionStatus();
             let raiseEvent = true;

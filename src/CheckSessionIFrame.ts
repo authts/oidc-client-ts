@@ -38,7 +38,7 @@ export class CheckSessionIFrame {
         this._session_state = null;
     }
 
-    public load() {
+    public load(): Promise<void> {
         return new Promise<void>((resolve) => {
             this._frame.onload = () => {
                 resolve();
@@ -71,7 +71,7 @@ export class CheckSessionIFrame {
         }
     }
 
-    public start(session_state: string) {
+    public start(session_state: string): void {
         if (this._session_state === session_state) {
             return;
         }
@@ -97,7 +97,7 @@ export class CheckSessionIFrame {
         this._timer = window.setInterval(send, this._intervalInSeconds * 1000);
     }
 
-    public stop() {
+    public stop(): void {
         this._session_state = null;
 
         if (this._timer) {

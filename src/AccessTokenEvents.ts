@@ -17,7 +17,7 @@ export class AccessTokenEvents {
         this._expiredTimer = new Timer("Access token expired");
     }
 
-    public load(container: User) {
+    public load(container: User): void {
         // only register events if there's an access token and it has an expiration
         if (container.access_token && container.expires_in !== undefined) {
             const duration = container.expires_in;
@@ -49,23 +49,23 @@ export class AccessTokenEvents {
         }
     }
 
-    public unload() {
+    public unload(): void {
         Log.debug("AccessTokenEvents.unload: canceling existing access token timers");
         this._expiringTimer.cancel();
         this._expiredTimer.cancel();
     }
 
-    public addAccessTokenExpiring(cb: AccessTokenCallback) {
+    public addAccessTokenExpiring(cb: AccessTokenCallback): void {
         this._expiringTimer.addHandler(cb);
     }
-    public removeAccessTokenExpiring(cb: AccessTokenCallback) {
+    public removeAccessTokenExpiring(cb: AccessTokenCallback): void {
         this._expiringTimer.removeHandler(cb);
     }
 
-    public addAccessTokenExpired(cb: AccessTokenCallback) {
+    public addAccessTokenExpired(cb: AccessTokenCallback): void {
         this._expiredTimer.addHandler(cb);
     }
-    public removeAccessTokenExpired(cb: AccessTokenCallback) {
+    public removeAccessTokenExpired(cb: AccessTokenCallback): void {
         this._expiredTimer.removeHandler(cb);
     }
 }

@@ -63,7 +63,7 @@ export class SigninResponse {
         }
     }
 
-    public get expired() {
+    public get expired(): boolean | undefined {
         const expires_in = this.expires_in;
         if (expires_in !== undefined) {
             return expires_in <= 0;
@@ -71,11 +71,11 @@ export class SigninResponse {
         return undefined;
     }
 
-    public get scopes() {
+    public get scopes(): string[] {
         return (this.scope || "").split(" ");
     }
 
-    public get isOpenIdConnect() {
+    public get isOpenIdConnect(): boolean {
         return this.scopes.indexOf(OidcScope) >= 0 || !!this.id_token;
     }
 }

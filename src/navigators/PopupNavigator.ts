@@ -4,15 +4,15 @@
 import { Log } from "../utils";
 import { PopupWindow } from "./PopupWindow";
 import { INavigator } from "./INavigator";
-import { NavigatorParams } from "./IWindow";
+import { IWindow, NavigatorParams } from "./IWindow";
 
 export class PopupNavigator implements INavigator {
-    public prepare(params: NavigatorParams) {
+    public prepare(params: NavigatorParams): Promise<IWindow> {
         const popup = new PopupWindow(params);
         return Promise.resolve(popup);
     }
 
-    public callback(url: string | undefined, keepOpen: boolean, delimiter: string) {
+    public callback(url: string | undefined, keepOpen: boolean, delimiter: string): Promise<void> {
         Log.debug("PopupNavigator.callback");
 
         try {

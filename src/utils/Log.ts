@@ -25,18 +25,18 @@ let logger: Logger;
 let level: number;
 
 export class Log {
-    public static get NONE() {return NONE;}
-    public static get ERROR() {return ERROR;}
-    public static get WARN() {return WARN;}
-    public static get INFO() {return INFO;}
-    public static get DEBUG() {return DEBUG;}
+    public static get NONE(): number {return NONE;}
+    public static get ERROR(): number {return ERROR;}
+    public static get WARN(): number {return WARN;}
+    public static get INFO(): number {return INFO;}
+    public static get DEBUG(): number {return DEBUG;}
 
-    public static reset() {
+    public static reset(): void {
         level = INFO;
         logger = nopLogger;
     }
 
-    public static get level() {
+    public static get level(): number {
         return level;
     }
     public static set level(value: number) {
@@ -47,29 +47,29 @@ export class Log {
         level = value;
     }
 
-    public static get logger() {
+    public static get logger(): Logger {
         return logger;
     }
-    public static set logger(value) {
+    public static set logger(value: Logger) {
         logger = value;
     }
 
-    public static debug(...args: any[]) {
+    public static debug(...args: any[]): void {
         if (level >= DEBUG) {
             logger.debug(...args);
         }
     }
-    public static info(...args: any[]) {
+    public static info(...args: any[]): void {
         if (level >= INFO) {
             logger.info(...args);
         }
     }
-    public static warn(...args: any[]) {
+    public static warn(...args: any[]): void {
         if (level >= WARN) {
             logger.warn(...args);
         }
     }
-    public static error(...args: any[]) {
+    public static error(...args: any[]): void {
         if (level >= ERROR) {
             logger.error(...args);
         }
