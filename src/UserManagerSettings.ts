@@ -18,6 +18,8 @@ export interface UserManagerSettings extends OidcClientSettings {
     popupWindowFeatures?: string;
     /** The target parameter to window.open for the popup signin window (default: "_blank") */
     popupWindowTarget?: string;
+    /** The methods window.location method used to redirect (default: "assign") */
+    redirectMethod?: "replace" | "assign";
 
     /** The URL for the page containing the code handling the silent renew */
     silent_redirect_uri?: string;
@@ -51,6 +53,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly popup_post_logout_redirect_uri: string | undefined;
     public readonly popupWindowFeatures: string | undefined;
     public readonly popupWindowTarget: string | undefined;
+    public readonly redirectMethod: "replace" | "assign" | undefined;
 
     public readonly silent_redirect_uri: string | undefined;
     public readonly silentRequestTimeoutInSeconds: number | undefined;
@@ -75,6 +78,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             popup_post_logout_redirect_uri,
             popupWindowFeatures,
             popupWindowTarget,
+            redirectMethod,
             silent_redirect_uri,
             silentRequestTimeoutInSeconds,
             automaticSilentRenew = false,
@@ -96,6 +100,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         this.popup_post_logout_redirect_uri = popup_post_logout_redirect_uri;
         this.popupWindowFeatures = popupWindowFeatures;
         this.popupWindowTarget = popupWindowTarget;
+        this.redirectMethod = redirectMethod;
 
         this.silent_redirect_uri = silent_redirect_uri;
         this.silentRequestTimeoutInSeconds = silentRequestTimeoutInSeconds;

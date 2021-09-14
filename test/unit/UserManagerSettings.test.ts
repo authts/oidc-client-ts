@@ -79,6 +79,23 @@ describe("UserManagerSettings", () => {
 
     });
 
+    describe("redirectMethod", () => {
+
+        it("should return value from initial settings", () => {
+            // act
+            const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                redirectMethod: "replace"
+            });
+
+            // assert
+            expect(subject.redirectMethod).toEqual("replace");
+        });
+
+    });
+
     describe("silent_redirect_uri", () => {
 
         it("should return value from initial settings", () => {

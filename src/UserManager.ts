@@ -93,7 +93,9 @@ export class UserManager {
         const args = {
             request_type: "si:r"
         };
-        await this._signinStart(args, this._redirectNavigator);
+        await this._signinStart(args, this._redirectNavigator, {
+            redirectMethod: this.settings.redirectMethod
+        });
         Log.info("UserManager.signinRedirect: successful");
     }
     public async signinRedirectCallback(url?: string): Promise<User> {
@@ -123,7 +125,8 @@ export class UserManager {
         const user = await this._signin(args, this._popupNavigator, {
             startUrl: url,
             popupWindowFeatures: this.settings.popupWindowFeatures,
-            popupWindowTarget: this.settings.popupWindowTarget
+            popupWindowTarget: this.settings.popupWindowTarget,
+            redirectMethod: this.settings.redirectMethod
         });
         if (user) {
             if (user.profile && user.profile.sub) {
@@ -298,7 +301,8 @@ export class UserManager {
         };
         const navResponse = await this._signinStart(args, this._iframeNavigator, {
             startUrl: url,
-            silentRequestTimeoutInSeconds: this.settings.silentRequestTimeoutInSeconds
+            silentRequestTimeoutInSeconds: this.settings.silentRequestTimeoutInSeconds,
+            redirectMethod: this.settings.redirectMethod
         });
         try {
             const signinResponse = await this._client.processSigninResponse(navResponse.url);
@@ -339,7 +343,7 @@ export class UserManager {
         const navResponse = await this._signinStart(args, navigator, navigatorParams);
         return this._signinEnd(navResponse.url, args);
     }
-    protected async _signinStart(args: SigninArgs, navigator: INavigator, navigatorParams: NavigatorParams = {}) {
+    protected async _signinStart(args: SigninArgs, navigator: INavigator, navigatorParams: NavigatorParams) {
         const handle = await navigator.prepare(navigatorParams);
         Log.debug("UserManager._signinStart: got navigator window handle");
 
