@@ -84,7 +84,7 @@ export class TokenClient {
         return response;
     }
 
-    public async exchangeRefreshToken(args: ExchangeRefreshTokenArgs) {
+    public async exchangeRefreshToken(args: ExchangeRefreshTokenArgs): Promise<any> {
         args = Object.assign({}, args);
 
         args.grant_type = args.grant_type || "refresh_token";

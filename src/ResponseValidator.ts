@@ -27,7 +27,7 @@ export class ResponseValidator {
         this._tokenClient = new TokenClient(this._settings, metadataService);
     }
 
-    public async validateSigninResponse(state: SigninState, response: SigninResponse) {
+    public async validateSigninResponse(state: SigninState, response: SigninResponse): Promise<SigninResponse> {
         Log.debug("ResponseValidator.validateSigninResponse");
 
         response = this._processSigninParams(state, response);
@@ -42,7 +42,7 @@ export class ResponseValidator {
         return response;
     }
 
-    public validateSignoutResponse(state: State, response: SignoutResponse) {
+    public validateSignoutResponse(state: State, response: SignoutResponse): SignoutResponse {
         if (state.id !== response.state) {
             Log.error("ResponseValidator.validateSignoutResponse: State does not match");
             throw new Error("State does not match");
@@ -62,7 +62,7 @@ export class ResponseValidator {
         return response;
     }
 
-    protected _processSigninParams(state: SigninState, response: SigninResponse) {
+    protected _processSigninParams(state: SigninState, response: SigninResponse): SigninResponse {
         if (state.id !== response.state) {
             Log.error("ResponseValidator._processSigninParams: State does not match");
             throw new Error("State does not match");
@@ -160,7 +160,7 @@ export class ResponseValidator {
         return response;
     }
 
-    protected _mergeClaims(claims1: any, claims2: any) {
+    protected _mergeClaims(claims1: any, claims2: any): any {
         const result = Object.assign({}, claims1);
 
         for (const name in claims2) {
@@ -193,7 +193,7 @@ export class ResponseValidator {
         return result;
     }
 
-    protected _filterProtocolClaims(claims: any) {
+    protected _filterProtocolClaims(claims: any): any {
         Log.debug("ResponseValidator._filterProtocolClaims, incoming claims:", claims);
 
         const result = Object.assign({}, claims);
@@ -212,7 +212,7 @@ export class ResponseValidator {
         return result;
     }
 
-    protected async _validateTokens(state: SigninState, response: SigninResponse) {
+    protected async _validateTokens(state: SigninState, response: SigninResponse): Promise<SigninResponse> {
         if (response.code) {
             Log.debug("ResponseValidator._validateTokens: Validating code");
             return this._processCode(state, response);
@@ -269,7 +269,7 @@ export class ResponseValidator {
         return response;
     }
 
-    protected async _validateIdTokenAttributes(state: SigninState, response: SigninResponse, id_token: string) {
+    protected async _validateIdTokenAttributes(state: SigninState, response: SigninResponse, id_token: string): Promise<SigninResponse> {
         const issuer = await this._metadataService.getIssuer();
 
         const audience = state.client_id;
@@ -292,7 +292,7 @@ export class ResponseValidator {
         return response;
     }
 
-    protected async _getSigningKeyForJwt(jwt: any) {
+    protected async _getSigningKeyForJwt(jwt: any): Promise<Record<string, string> | null> {
         let keys = await this._metadataService.getSigningKeys();
         if (!keys) {
             Log.error("ResponseValidator._getSigningKeyForJwt: No signing keys from metadata");
@@ -317,7 +317,7 @@ export class ResponseValidator {
         return keys[0];
     }
 
-    protected async _getSigningKeyForJwtWithSingleRetry(jwt: any) {
+    protected async _getSigningKeyForJwtWithSingleRetry(jwt: any): Promise<Record<string, string> | null> {
         const key = await this._getSigningKeyForJwt(jwt);
         if (key) {
             return key;
@@ -359,7 +359,7 @@ export class ResponseValidator {
         const clockSkewInSeconds = this._settings.clockSkewInSeconds;
         Log.debug("ResponseValidator._validateIdToken: Validaing JWT; using clock skew (in seconds) of: ", clockSkewInSeconds);
 
-        await JoseUtil.validateJwt(id_token, key, issuer, audience, clockSkewInSeconds);
+        JoseUtil.validateJwt(id_token, key, issuer, audience, clockSkewInSeconds);
         Log.debug("ResponseValidator._validateIdToken: JWT validation successful");
 
         if (!payload.sub) {
@@ -371,7 +371,7 @@ export class ResponseValidator {
         return response;
     }
 
-    protected _filterByAlg(keys: Record<string, string>[], alg: string) {
+    protected _filterByAlg(keys: Record<string, string>[], alg: string): Record<string, string>[] {
         let kty: string | null = null;
         if (alg.startsWith("RS")) {
             kty = "RSA";
@@ -398,7 +398,7 @@ export class ResponseValidator {
         return keys;
     }
 
-    protected _validateAccessToken(response: SigninResponse, access_token: string) {
+    protected _validateAccessToken(response: SigninResponse, access_token: string): SigninResponse {
         if (!response.profile) {
             Log.error("ResponseValidator._validateAccessToken: No profile loaded from id_token");
             throw new Error("No profile loaded from id_token");
@@ -423,19 +423,19 @@ export class ResponseValidator {
         const hashAlg = jwt.header.alg;
         if (!hashAlg || hashAlg.length !== 5) {
             Log.error("ResponseValidator._validateAccessToken: Unsupported alg:", hashAlg);
-            throw new Error("Unsupported alg: " + hashAlg);
+            throw new Error("Unsupported alg: " + String(hashAlg));
         }
 
         const hashBitsString = hashAlg.substr(2, 3);
         if (!hashBitsString) {
             Log.error("ResponseValidator._validateAccessToken: Unsupported alg:", hashAlg, hashBitsString);
-            throw new Error("Unsupported alg: " + hashAlg);
+            throw new Error("Unsupported alg: " + String(hashAlg));
         }
 
         const hashBits = parseInt(hashBitsString);
         if (hashBits !== 256 && hashBits !== 384 && hashBits !== 512) {
             Log.error("ResponseValidator._validateAccessToken: Unsupported alg:", hashAlg, hashBits);
-            throw new Error("Unsupported alg: " + hashAlg);
+            throw new Error("Unsupported alg: " + String(hashAlg));
         }
 
         const sha = "sha" + hashBits.toString();

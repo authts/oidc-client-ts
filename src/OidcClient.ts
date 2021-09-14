@@ -105,7 +105,7 @@ export class OidcClient {
         return signinRequest;
     }
 
-    public async readSigninResponseState(url?: string, removeState = false) {
+    public async readSigninResponseState(url?: string, removeState = false): Promise<{ state: SigninState; response: SigninResponse }> {
         Log.debug("OidcClient.readSigninResponseState");
 
         const useQuery = this.settings.response_mode === "query" ||
@@ -132,7 +132,7 @@ export class OidcClient {
         return { state, response };
     }
 
-    public async processSigninResponse(url: string) {
+    public async processSigninResponse(url: string): Promise<SigninResponse> {
         Log.debug("OidcClient.processSigninResponse");
 
         const { state, response } = await this.readSigninResponseState(url, true);
@@ -143,7 +143,7 @@ export class OidcClient {
     public async createSignoutRequest({
         // TODO: eliminate data in favor of state
         id_token_hint, data, state, post_logout_redirect_uri, extraQueryParams, request_type
-    }: CreateSignoutRequestArgs = {}) {
+    }: CreateSignoutRequestArgs = {}): Promise<SignoutRequest> {
         Log.debug("OidcClient.createSignoutRequest");
 
         post_logout_redirect_uri = post_logout_redirect_uri || this.settings.post_logout_redirect_uri;
@@ -204,7 +204,7 @@ export class OidcClient {
         return { state, response };
     }
 
-    public async processSignoutResponse(url: string) {
+    public async processSignoutResponse(url: string): Promise<SignoutResponse> {
         Log.debug("OidcClient.processSignoutResponse");
 
         const { state, response } = await this.readSignoutResponseState(url, true);

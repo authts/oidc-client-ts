@@ -9,7 +9,7 @@ import { Timer } from "./Timer";
 const AllowedSigningAlgs = ["RS256", "RS384", "RS512", "PS256", "PS384", "PS512", "ES256", "ES384", "ES512"];
 
 export class JoseUtil {
-    public static parseJwt(jwt: string) {
+    public static parseJwt(jwt: string): Record<string, any> | null {
         Log.debug("JoseUtil.parseJwt");
         try {
             const token = KJUR.jws.JWS.parse(jwt);
@@ -24,7 +24,7 @@ export class JoseUtil {
         }
     }
 
-    public static validateJwt(jwt: string, key: any, issuer: string, audience: string, clockSkew: number, now?: number, timeInsensitive = false) {
+    public static validateJwt(jwt: string, key: any, issuer: string, audience: string, clockSkew: number, now?: number, timeInsensitive = false): Record<string, any> {
         Log.debug("JoseUtil.validateJwt");
 
         try {
@@ -58,7 +58,7 @@ export class JoseUtil {
         }
     }
 
-    public static validateJwtAttributes(jwt: string, issuer: string, audience: string, clockSkew: number, now?: number, timeInsensitive=false) {
+    public static validateJwtAttributes(jwt: string, issuer: string, audience: string, clockSkew: number, now?: number, timeInsensitive=false): any {
         if (!now) {
             now = Timer.getEpochTime();
         }
@@ -143,7 +143,7 @@ export class JoseUtil {
         return payload;
     }
 
-    public static hashString(value: string, alg: string) {
+    public static hashString(value: string, alg: string): string {
         try {
             return KJUR.crypto.Util.hashString(value, alg);
         }
@@ -153,7 +153,7 @@ export class JoseUtil {
         }
     }
 
-    public static hexToBase64Url(value: string) {
+    public static hexToBase64Url(value: string): string {
         try {
             return hextob64u(value);
         }

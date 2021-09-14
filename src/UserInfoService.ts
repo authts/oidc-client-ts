@@ -17,7 +17,7 @@ export class UserInfoService {
         this._metadataService = metadataService;
     }
 
-    public async getClaims(token?: string) {
+    public async getClaims(token?: string): Promise<any> {
         if (!token) {
             Log.error("UserInfoService.getClaims: No token passed");
             throw new Error("A token is required");
@@ -32,7 +32,7 @@ export class UserInfoService {
         return claims;
     }
 
-    protected async _getClaimsFromJwt(responseText: string) {
+    protected async _getClaimsFromJwt(responseText: string): Promise<any> {
         try {
             const jwt = JoseUtil.parseJwt(responseText);
             if (!jwt || !jwt.header || !jwt.payload) {
@@ -90,7 +90,7 @@ export class UserInfoService {
             const clockSkewInSeconds = this._settings.clockSkewInSeconds;
             Log.debug("UserInfoService._getClaimsFromJwt: Validaing JWT; using clock skew (in seconds) of: ", clockSkewInSeconds);
 
-            await JoseUtil.validateJwt(responseText, key, issuer, audience, clockSkewInSeconds, undefined, true);
+            JoseUtil.validateJwt(responseText, key, issuer, audience, clockSkewInSeconds, undefined, true);
             Log.debug("UserInfoService._getClaimsFromJwt: JWT validation successful");
             return payload;
         }
@@ -100,7 +100,7 @@ export class UserInfoService {
         }
     }
 
-    protected _filterByAlg(keys: Record<string, string>[], alg: string) {
+    protected _filterByAlg(keys: Record<string, string>[], alg: string): Record<string, string>[] {
         let kty: string | null = null;
         if (alg.startsWith("RS")) {
             kty = "RSA";

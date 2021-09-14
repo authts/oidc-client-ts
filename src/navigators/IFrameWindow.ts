@@ -36,7 +36,7 @@ export class IFrameWindow implements IWindow {
         this._timer = null;
     }
 
-    public navigate(params: NavigatorParams) {
+    public navigate(params: NavigatorParams): Promise<any> {
         if (!params || !params.url) {
             this._error("No url provided");
         }
@@ -53,24 +53,24 @@ export class IFrameWindow implements IWindow {
         return this._promise;
     }
 
-    protected _success(data: any) {
+    protected _success(data: any): void {
         this._cleanup();
 
         Log.debug("IFrameWindow: Successful response from frame window");
         this._resolve(data);
     }
-    protected _error(message: string) {
+    protected _error(message: string): void {
         this._cleanup();
 
         Log.error(message);
         this._reject(new Error(message));
     }
 
-    close() {
+    close(): void {
         this._cleanup();
     }
 
-    protected _cleanup() {
+    protected _cleanup(): void {
         Log.debug("IFrameWindow: cleanup");
         if (this._timer) {
             window.clearTimeout(this._timer);
@@ -87,12 +87,12 @@ export class IFrameWindow implements IWindow {
         this._frame = null;
     }
 
-    protected _timeout() {
+    protected _timeout(): void {
         Log.debug("IFrameWindow.timeout");
         this._error("Frame window timed out");
     }
 
-    protected _message(e: any) {
+    protected _message(e: any): void {
         Log.debug("IFrameWindow.message");
 
         const origin = location.protocol + "//" + location.host;
@@ -111,7 +111,7 @@ export class IFrameWindow implements IWindow {
         }
     }
 
-    public static notifyParent(url: string | undefined) {
+    public static notifyParent(url: string | undefined): void {
         Log.debug("IFrameWindow.notifyParent");
         url = url || window.location.href;
         if (url) {

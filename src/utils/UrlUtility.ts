@@ -4,7 +4,7 @@
 import { Log } from "./Log";
 
 export class UrlUtility {
-    public static addQueryParam(url: string, name: string, value: string) {
+    public static addQueryParam(url: string, name: string, value: string): string {
         if (url.indexOf("?") < 0) {
             url += "?";
         }
@@ -20,7 +20,7 @@ export class UrlUtility {
         return url;
     }
 
-    public static parseUrlFragment(value?: string, delimiter = "#") {
+    public static parseUrlFragment(value?: string, delimiter = "#"): Record<string, string> {
         if (!value) {
             value = location.href;
         }
@@ -38,7 +38,7 @@ export class UrlUtility {
             }
         }
 
-        const params: { [name: string]: string } = {};
+        const params: Record<string, string> = {};
         const regex = /([^&=]+)=([^&]*)/g;
         let m;
 

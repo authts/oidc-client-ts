@@ -35,7 +35,7 @@ export class PopupWindow implements IWindow {
         }
     }
 
-    public navigate(params: NavigatorParams) {
+    public navigate(params: NavigatorParams): Promise<any> {
         if (!this._popup) {
             this._error("PopupWindow.navigate: Error opening popup window");
         }
@@ -61,25 +61,25 @@ export class PopupWindow implements IWindow {
         return this._promise;
     }
 
-    protected _success(data: any) {
+    protected _success(data: any): void {
         Log.debug("PopupWindow.callback: Successful response from popup window");
 
         this._cleanup();
         this._resolve(data);
     }
 
-    protected _error(message: string) {
+    protected _error(message: string): void {
         Log.error("PopupWindow.error: ", message);
 
         this._cleanup();
         this._reject(new Error(message));
     }
 
-    public close() {
+    public close(): void {
         this._cleanup(false);
     }
 
-    protected _cleanup(keepOpen?: boolean) {
+    protected _cleanup(keepOpen?: boolean): void {
         Log.debug("PopupWindow.cleanup");
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -97,13 +97,13 @@ export class PopupWindow implements IWindow {
         this._popup = null;
     }
 
-    protected _checkForPopupClosed() {
+    protected _checkForPopupClosed(): void {
         if (!this._popup || this._popup.closed) {
             this._error("Popup window closed");
         }
     }
 
-    protected _callback(url: string, keepOpen: boolean) {
+    protected _callback(url: string, keepOpen: boolean): void {
         this._cleanup(keepOpen);
 
         if (url) {
@@ -116,7 +116,7 @@ export class PopupWindow implements IWindow {
         }
     }
 
-    public static notifyOpener(url: string | undefined, keepOpen: boolean, delimiter: string) {
+    public static notifyOpener(url: string | undefined, keepOpen: boolean, delimiter: string): void {
         if (window.opener) {
             url = url || window.location.href;
             if (url) {

@@ -28,7 +28,7 @@ export class State {
         this.request_type =  args.request_type;
     }
 
-    public toStorageString() {
+    public toStorageString(): string {
         Log.debug("State.toStorageString");
         return JSON.stringify({
             id: this.id,
@@ -38,12 +38,12 @@ export class State {
         });
     }
 
-    public static fromStorageString(storageString: string) {
+    public static fromStorageString(storageString: string): State {
         Log.debug("State.fromStorageString");
         return new State(JSON.parse(storageString));
     }
 
-    public static async clearStaleState(storage: StateStore, age: number) {
+    public static async clearStaleState(storage: StateStore, age: number): Promise<void> {
         const cutoff = Timer.getEpochTime() - age;
 
         const keys = await storage.getAllKeys();
