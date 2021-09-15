@@ -5,7 +5,7 @@ import { WebStorageStateStore } from "./WebStorageStateStore";
 import { OidcMetadata } from "./OidcMetadata";
 import { StateStore } from "./StateStore";
 
-const DefaultResponseType = "id_token";
+const DefaultResponseType = "code";
 const DefaultScope = "openid";
 const DefaultClientAuthentication = "client_secret_post"; // The default value must be client_secret_basic, as explained in https://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication
 const DefaultStaleStateAgeInSeconds = 60 * 15; // seconds
@@ -25,9 +25,9 @@ export interface OidcClientSettings {
     /** Your client application's identifier as registered with the OIDC/OAuth2 */
     client_id: string;
     client_secret?: string;
-    /** The type of response desired from the OIDC/OAuth2 provider (default: 'id_token') */
+    /** The type of response desired from the OIDC/OAuth2 provider (default: "code") */
     response_type?: string;
-    /** The scope being requested from the OIDC/OAuth2 provider (default: 'openid') */
+    /** The scope being requested from the OIDC/OAuth2 provider (default: "openid") */
     scope?: string;
     /** The redirect URI of your client application to receive a response from the OIDC/OAuth2 provider */
     redirect_uri: string;

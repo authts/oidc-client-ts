@@ -138,11 +138,11 @@ describe("UserManagerSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                automaticSilentRenew: true
+                automaticSilentRenew: false
             });
 
             // assert
-            expect(subject.automaticSilentRenew).toEqual(true);
+            expect(subject.automaticSilentRenew).toEqual(false);
         });
 
         it("should use default value", () => {
@@ -154,7 +154,7 @@ describe("UserManagerSettings", () => {
             });
 
             // assert
-            expect(subject.automaticSilentRenew).toEqual(false);
+            expect(subject.automaticSilentRenew).toEqual(true);
         });
 
     });
@@ -167,11 +167,11 @@ describe("UserManagerSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                validateSubOnSilentRenew: true
+                validateSubOnSilentRenew: false
             });
 
             // assert
-            expect(subject.validateSubOnSilentRenew).toEqual(true);
+            expect(subject.validateSubOnSilentRenew).toEqual(false);
         });
 
         it("should use default value", () => {
@@ -183,7 +183,7 @@ describe("UserManagerSettings", () => {
             });
 
             // assert
-            expect(subject.validateSubOnSilentRenew).toEqual(false);
+            expect(subject.validateSubOnSilentRenew).toEqual(true);
         });
 
     });
@@ -202,19 +202,6 @@ describe("UserManagerSettings", () => {
             expect(subject.includeIdTokenInSilentRenew).toEqual(true);
         });
 
-        it("should return false value from initial settings", () => {
-            // act
-            const subject = new UserManagerSettingsStore({
-                authority: "authority",
-                client_id: "client",
-                redirect_uri: "redirect",
-                includeIdTokenInSilentRenew: false,
-            });
-
-            // assert
-            expect(subject.includeIdTokenInSilentRenew).toEqual(false);
-        });
-
         it("should use default value", () => {
             // act
             const subject = new UserManagerSettingsStore({
@@ -224,7 +211,7 @@ describe("UserManagerSettings", () => {
             });
 
             // assert
-            expect(subject.includeIdTokenInSilentRenew).toEqual(true);
+            expect(subject.includeIdTokenInSilentRenew).toEqual(false);
         });
     });
 

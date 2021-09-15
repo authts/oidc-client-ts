@@ -25,13 +25,14 @@ export interface UserManagerSettings extends OidcClientSettings {
     silent_redirect_uri?: string;
     /** Number of seconds to wait for the silent renew to return before assuming it has failed or timed out (default: 10) */
     silentRequestTimeoutInSeconds?: number;
-    /** Flag to indicate if there should be an automatic attempt to renew the access token prior to its expiration (default: false) */
+    /** Flag to indicate if there should be an automatic attempt to renew the access token prior to its expiration (default: true) */
     automaticSilentRenew?: boolean;
+    /** Flag to validate user.profile.sub in silent renew calls (default: true) */
     validateSubOnSilentRenew?: boolean;
-    /** Flag to control if id_token is included as id_token_hint in silent renew calls (default: true) */
+    /** Flag to control if id_token is included as id_token_hint in silent renew calls (default: false) */
     includeIdTokenInSilentRenew?: boolean;
 
-    /** Will raise events for when user has performed a signout at the OP (default: true) */
+    /** Will raise events for when user has performed a signout at the OP (default: false) */
     monitorSession?: boolean;
     monitorAnonymousSession?: boolean;
     /** Interval in seconds to check the user's session (default: 2) */
@@ -79,18 +80,22 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             popupWindowFeatures,
             popupWindowTarget,
             redirectMethod,
+
             silent_redirect_uri,
             silentRequestTimeoutInSeconds,
-            automaticSilentRenew = false,
-            validateSubOnSilentRenew = false,
-            includeIdTokenInSilentRenew = true,
-            monitorSession = true,
+            automaticSilentRenew = true,
+            validateSubOnSilentRenew = true,
+            includeIdTokenInSilentRenew = false,
+
+            monitorSession = false,
             monitorAnonymousSession = false,
             checkSessionIntervalInSeconds = DefaultCheckSessionIntervalInSeconds,
-            stopCheckSessionOnError = true,
             query_status_response_type,
+            stopCheckSessionOnError = true,
+
             revokeAccessTokenOnSignout = false,
             accessTokenExpiringNotificationTimeInSeconds = DefaultAccessTokenExpiringNotificationTimeInSeconds,
+
             userStore = new WebStorageStateStore({ store: sessionStorage })
         } = args;
 
