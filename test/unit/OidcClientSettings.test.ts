@@ -64,7 +64,7 @@ describe("OidcClientSettings", () => {
             });
 
             // assert
-            expect(subject.response_type).toEqual("id_token");
+            expect(subject.response_type).toEqual("code");
         });
 
     });
