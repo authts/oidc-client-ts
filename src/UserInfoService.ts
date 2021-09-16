@@ -41,7 +41,7 @@ export class UserInfoService {
             }
 
             const header: any = jwt.header;
-            const payload: any = jwt.payload;
+            const payload = jwt.payload;
 
             let issuer: string;
             switch (this._settings.userInfoJwtIssuer) {
@@ -49,7 +49,7 @@ export class UserInfoService {
                     issuer = await this._metadataService.getIssuer();
                     break;
                 case "ANY":
-                    issuer = payload.iss;
+                    issuer = payload.iss as string;
                     break;
                 default:
                     issuer = this._settings.userInfoJwtIssuer as string;

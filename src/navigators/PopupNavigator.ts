@@ -4,10 +4,10 @@
 import { Log } from "../utils";
 import { PopupWindow } from "./PopupWindow";
 import type { INavigator } from "./INavigator";
-import type { IWindow, NavigatorParams } from "./IWindow";
+import type { IWindow, NavigateParams } from "./IWindow";
 
 export class PopupNavigator implements INavigator {
-    public prepare(params: NavigatorParams): Promise<IWindow> {
+    public prepare(params: NavigateParams): Promise<IWindow> {
         const popup = new PopupWindow(params);
         return Promise.resolve(popup);
     }

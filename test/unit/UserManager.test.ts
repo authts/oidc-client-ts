@@ -51,7 +51,12 @@ describe("UserManager", () => {
 
         it("should be able to call getUser without recursion", () => {
             // arrange
-            const user = new User({ id_token: "id_token" });
+            const user = new User({
+                id_token: "id_token",
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {}
+            });
             userStoreMock.item = user.toStorageString();
 
             // lamda function is never called but complier thinks it returns Promise
@@ -70,7 +75,12 @@ describe("UserManager", () => {
 
         it("should pass silentRequestTimeout from settings", async () => {
             // arrange
-            const user = new User({ id_token:"id_token" });
+            const user = new User({
+                id_token:"id_token",
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {}
+            });
             userStoreMock.item = user.toStorageString();
 
             settings = {
@@ -97,6 +107,11 @@ describe("UserManager", () => {
 
         it("should work when having no User present", async () => {
             // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {}
+            });
             settings = {
                 ...settings,
                 silent_redirect_uri: "http://client/silent_callback"
@@ -105,7 +120,7 @@ describe("UserManager", () => {
 
             subject["_signin"] = function(args: any, navigator: INavigator, navigatorParams: any = {}) {
                 Log.debug("_signin", args, navigator, navigatorParams);
-                return Promise.resolve(new User({}));
+                return Promise.resolve(user);
             };
 
             // act

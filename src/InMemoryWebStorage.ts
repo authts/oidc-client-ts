@@ -7,7 +7,7 @@ import { Log } from "./utils";
  * @public
  */
 export class InMemoryWebStorage implements Storage {
-    private _data: Record<string, any>;
+    private _data: Record<string, string>;
 
     public constructor() {
         this._data = {};
@@ -18,12 +18,12 @@ export class InMemoryWebStorage implements Storage {
         this._data = {};
     }
 
-    public getItem(key: string): any {
+    public getItem(key: string): string {
         Log.debug("InMemoryWebStorage.getItem", key);
         return this._data[key];
     }
 
-    public setItem(key: string, value: any): void {
+    public setItem(key: string, value: string): void {
         Log.debug("InMemoryWebStorage.setItem", key);
         this._data[key] = value;
     }

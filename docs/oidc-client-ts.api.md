@@ -42,7 +42,7 @@ export class InMemoryWebStorage implements Storage {
     // (undocumented)
     clear(): void;
     // (undocumented)
-    getItem(key: string): any;
+    getItem(key: string): string;
     // (undocumented)
     key(index: number): string;
     // (undocumented)
@@ -50,7 +50,7 @@ export class InMemoryWebStorage implements Storage {
     // (undocumented)
     removeItem(key: string): void;
     // (undocumented)
-    setItem(key: string, value: any): void;
+    setItem(key: string, value: string): void;
 }
 
 // @public (undocumented)
@@ -135,7 +135,7 @@ export class OidcClient {
     // (undocumented)
     readonly metadataService: MetadataService;
     // (undocumented)
-    processSigninResponse(url: string): Promise<SigninResponse>;
+    processSigninResponse(url?: string): Promise<SigninResponse>;
     // (undocumented)
     processSignoutResponse(url: string): Promise<SignoutResponse>;
     // (undocumented)
@@ -241,32 +241,41 @@ export class TokenRevocationClient {
 
 // @public (undocumented)
 export class User {
-    constructor({ id_token, session_state, access_token, refresh_token, token_type, scope, profile, expires_at, state }: any);
+    constructor(args: {
+        id_token?: string;
+        session_state?: string;
+        access_token: string;
+        refresh_token?: string;
+        token_type: string;
+        scope?: string;
+        profile: UserProfile;
+        expires_at?: number;
+    });
     // (undocumented)
     access_token: string;
     // (undocumented)
     get expired(): boolean | undefined;
     // (undocumented)
-    expires_at: number;
+    expires_at: number | undefined;
     // (undocumented)
     get expires_in(): number | undefined;
     set expires_in(value: number | undefined);
     // (undocumented)
     static fromStorageString(storageString: string): User;
     // (undocumented)
-    id_token: string;
+    id_token: string | undefined;
+    // Warning: (ae-forgotten-export) The symbol "UserProfile" needs to be exported by the entry point index.d.ts
+    //
     // (undocumented)
-    profile: any;
+    profile: UserProfile;
     // (undocumented)
     refresh_token: string | undefined;
     // (undocumented)
-    scope: string;
+    scope: string | undefined;
     // (undocumented)
     get scopes(): string[];
     // (undocumented)
     session_state: string | undefined;
-    // (undocumented)
-    state: any | undefined;
     // (undocumented)
     token_type: string;
     // (undocumented)
@@ -323,16 +332,16 @@ export class UserManager {
     // (undocumented)
     readonly settings: UserManagerSettingsStore;
     // Warning: (ae-forgotten-export) The symbol "INavigator" needs to be exported by the entry point index.d.ts
-    // Warning: (ae-forgotten-export) The symbol "NavigatorParams" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "NavigateParams" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    protected _signin(args: SigninArgs, navigator: INavigator, navigatorParams: NavigatorParams): Promise<User>;
+    protected _signin(args: SigninArgs, navigator: INavigator, navigatorParams: NavigateParams): Promise<User>;
     // (undocumented)
     signinCallback(url?: string): Promise<User | null>;
     // (undocumented)
     protected _signinCallback(url: string | undefined, navigator: IFrameNavigator | PopupNavigator): Promise<void>;
     // (undocumented)
-    protected _signinEnd(url: string, args?: SigninArgs): Promise<User>;
+    protected _signinEnd(url?: string, args?: SigninArgs): Promise<User>;
     // (undocumented)
     signinPopup(): Promise<User>;
     // (undocumented)
@@ -349,12 +358,14 @@ export class UserManager {
     //
     // (undocumented)
     protected _signinSilentIframe(args: SigninArgs): Promise<User>;
+    // Warning: (ae-forgotten-export) The symbol "NavigateResponse" needs to be exported by the entry point index.d.ts
+    //
     // (undocumented)
-    protected _signinStart(args: SigninArgs, navigator: INavigator, navigatorParams: NavigatorParams): Promise<any>;
+    protected _signinStart(args: SigninArgs, navigator: INavigator, navigatorParams: NavigateParams): Promise<NavigateResponse>;
     // Warning: (ae-forgotten-export) The symbol "SignoutArgs" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    protected _signout(args: SignoutArgs, navigator: INavigator, navigatorParams: NavigatorParams): Promise<SignoutResponse>;
+    protected _signout(args: SignoutArgs, navigator: INavigator, navigatorParams: NavigateParams): Promise<SignoutResponse>;
     // (undocumented)
     signoutCallback(url?: string, keepOpen?: boolean): Promise<void>;
     // (undocumented)
@@ -368,7 +379,7 @@ export class UserManager {
     // (undocumented)
     signoutRedirectCallback(url?: string): Promise<SignoutResponse>;
     // (undocumented)
-    protected _signoutStart(args: CreateSignoutRequestArgs | undefined, navigator: INavigator, navigatorParams?: NavigatorParams): Promise<any>;
+    protected _signoutStart(args: CreateSignoutRequestArgs | undefined, navigator: INavigator, navigatorParams?: NavigateParams): Promise<any>;
     // Warning: (ae-forgotten-export) The symbol "SilentRenewService" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -390,7 +401,7 @@ export class UserManager {
     // (undocumented)
     protected get _userStoreKey(): string;
     // (undocumented)
-    protected _validateIdTokenFromTokenRefreshToken(profile: any, id_token: string): Promise<void>;
+    protected _validateIdTokenFromTokenRefreshToken(profile: UserProfile, id_token: string): Promise<void>;
 }
 
 // @public (undocumented)

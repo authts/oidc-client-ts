@@ -135,7 +135,7 @@ export class OidcClient {
         return { state, response };
     }
 
-    public async processSigninResponse(url: string): Promise<SigninResponse> {
+    public async processSigninResponse(url?: string): Promise<SigninResponse> {
         Log.debug("OidcClient.processSigninResponse");
 
         const { state, response } = await this.readSigninResponseState(url, true);

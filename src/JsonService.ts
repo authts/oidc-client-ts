@@ -3,13 +3,15 @@
 
 import { Log } from "./utils";
 
+export type JwtHandler = (text: string) => Promise<any>;
+
 export class JsonService {
     private _contentTypes: string[];
-    private _jwtHandler: any;
+    private _jwtHandler: JwtHandler | null;
 
     public constructor(
         additionalContentTypes: string[] = [],
-        jwtHandler: any = null
+        jwtHandler: JwtHandler | null = null
     ) {
         this._contentTypes = additionalContentTypes.slice();
         this._contentTypes.push("application/json");
@@ -42,17 +44,14 @@ export class JsonService {
             throw new Error("Network Error");
         }
 
-        const allowedContentTypes = this._contentTypes;
-        const jwtHandler = this._jwtHandler;
-
         Log.debug("JsonService.getJson: HTTP response received, status", response.status);
         if (response.status === 200) {
             const contentType = response.headers.get("Content-Type");
             if (contentType) {
-                const found = allowedContentTypes.find(item => contentType.startsWith(item));
-                if (found === "application/jwt") {
+                const found = this._contentTypes.find(item => contentType.startsWith(item));
+                if (found === "application/jwt" && this._jwtHandler) {
                     const text = await response.text();
-                    return await jwtHandler(text);
+                    return await this._jwtHandler(text);
                 }
 
                 if (found) {
