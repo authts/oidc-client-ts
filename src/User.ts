@@ -14,11 +14,10 @@ export class User {
     public token_type: string;
     public scope: string;
     public profile: any;
-    public state: any | undefined;
     public expires_at: number;
 
     public constructor({
-        id_token, session_state, access_token, refresh_token, token_type, scope, profile, expires_at, state
+        id_token, session_state, access_token, refresh_token, token_type, scope, profile, expires_at
     }: any) {
         this.id_token = id_token;
         this.session_state = session_state;
@@ -27,7 +26,6 @@ export class User {
         this.token_type = token_type;
         this.scope = scope;
         this.profile = profile;
-        this.state = state;
         this.expires_at = expires_at;
     }
 
