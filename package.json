@@ -32,19 +32,19 @@
     "lint": "eslint ./src/**/*.ts ./test/unit/**/*.ts"
   },
   "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.29.0",
-    "@typescript-eslint/parser": "^4.29.0",
-    "eslint": "^7.32.0",
-    "eslint-plugin-testing-library": "^4.10.1",
     "jsrsasign": "^10.3.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.5.0",
     "@types/jsrsasign": "^8.0.13",
+    "@typescript-eslint/eslint-plugin": "^4.29.0",
+    "@typescript-eslint/parser": "^4.29.0",
     "@weiran.zsd/tsdx": "^0.16.2",
+    "eslint": "^7.32.0",
+    "eslint-plugin-testing-library": "^4.10.1",
     "http-proxy-middleware": "^2.0.1",
     "tslib": "^2.2.0",
-    "typescript": "^4.2.4"
+    "typescript": "~4.3.5"
   },
   "jest": {
     "clearMocks": true,
