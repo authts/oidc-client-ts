@@ -12,6 +12,12 @@ dist/
 
 # dependencies
 node_modules/
+/.yarn/*
+!/.yarn/patches
+!/.yarn/plugins
+!/.yarn/releases
+!/.yarn/sdks
+/.pnp.*
 
 *.log
 .DS_Store
