@@ -6,7 +6,6 @@ import { IWindow, NavigatorParams } from "./IWindow";
 
 const CheckForPopupClosedInterval = 500;
 const DefaultPopupFeatures = "location=no,toolbar=no,width=500,height=500,left=100,top=100;";
-//const DefaultPopupFeatures = 'location=no,toolbar=no,width=500,height=500,left=100,top=100;resizable=yes';
 
 const DefaultPopupTarget = "_blank";
 
@@ -16,7 +15,7 @@ export class PopupWindow implements IWindow {
     private _reject!: (reason?: any) => void;
     private _popup: Window | null;
     private _checkForPopupClosedTimer: number | null;
-    private _id: any;
+    private _id: string | undefined;
 
     public constructor(params: NavigatorParams) {
         this._promise = new Promise((resolve, reject) => {
@@ -56,6 +55,7 @@ export class PopupWindow implements IWindow {
 
             this._popup.focus();
             this._popup.window.location[params.redirectMethod || "assign"](params.url);
+            window.addEventListener("message", this._messageReceived, false);
         }
 
         return this._promise;
@@ -67,13 +67,11 @@ export class PopupWindow implements IWindow {
             return;
         };
 
-        let { data, url, keepOpen } = JSON.parse(event.data);
+        let { data, url, keepOpen } = JSON.parse(event.data) as { data: Record<string, string>, url: string, keepOpen: boolean };
 
         if (data.state) {
-            const name = "popupCallback_" + data.state;
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            const callback = window[name];
+            const callback = window["popupCallback_" + data.state];
             if (callback) {
                 Log.debug("PopupWindow.notifyOpener: passing url message to opener");
                 callback(url, keepOpen);
@@ -108,9 +106,10 @@ export class PopupWindow implements IWindow {
     protected _cleanup(keepOpen?: boolean): void {
         Log.debug("PopupWindow.cleanup");
 
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         window.clearInterval(this._checkForPopupClosedTimer!);
         this._checkForPopupClosedTimer = null;
+
+        window.removeEventListener("message", this._messageReceived);
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -124,10 +123,6 @@ export class PopupWindow implements IWindow {
     }
 
     protected _checkForPopupClosed(): void {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        if (window.crossOriginIsolated) return;
         if (!this._popup || this._popup.closed) {
             this._error("Popup window closed");
         }
@@ -146,39 +141,11 @@ export class PopupWindow implements IWindow {
         }
     }
 
-
-        // if (window.opener) {
-        //     url = url || window.location.href;
-        //     if (url) {
-        //         const data = UrlUtility.parseUrlFragment(url, delimiter);
-
-        //         if (data.state) {
-        //             const name = "popupCallback_" + data.state;
-        //             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //             // @ts-ignore
-        //             const callback = window.opener[name];
-        //             if (callback) {
-        //                 Log.debug("PopupWindow.notifyOpener: passing url message to opener");
-        //                 callback(url, keepOpen);
-        //             }
-        //             else {
-        //                 Log.warn("PopupWindow.notifyOpener: no matching callback found on opener");
-        //             }
-        //         }
-        //         else {
-        //             Log.warn("PopupWindow.notifyOpener: no state found in response url");
-        //         }
-        //     }
-        // }
-        // else {
-        //     Log.warn("PopupWindow.notifyOpener: no window.opener. Can't complete notification.");
-    // static notifyOpener(url: string | undefined, keepOpen: boolean, delimiter: string) {
     public static notifyOpener(url: string | undefined, keepOpen: boolean, delimiter: string): void {
         url = url || window.location.href;
 
         if (url) {
             const data = UrlUtility.parseUrlFragment(url, delimiter);
-
             window.opener?.postMessage(JSON.stringify({
                 data,
                 url,
