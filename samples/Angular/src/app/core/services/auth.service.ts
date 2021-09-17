@@ -19,7 +19,7 @@ export class AuthService {
       redirect_uri: `${environment.clientRoot}assets/signin-callback.html`,
       silent_redirect_uri: `${environment.clientRoot}assets/silent-callback.html`,
       post_logout_redirect_uri: `${environment.clientRoot}`,
-      response_type: 'id_token token',
+      response_type: 'code',
       scope: environment.clientScope
     };
     this.userManager = new UserManager(settings);

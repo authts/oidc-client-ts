@@ -1,5 +1,6 @@
 {
   "name": "parcel-sample",
+  "private": true,
   "scripts": {
     "start": "concurrently --kill-others \"npm run serve\" \"npm run server\"",
     "serve": "parcel serve ./src/index.html",
