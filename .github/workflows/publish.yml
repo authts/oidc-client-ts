@@ -9,14 +9,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v2
         with:
           node-version: 16.x
-          cache: npm
-          registry-url: https://registry.npmjs.org
+          cache: yarn
 
-      - run: npm install
-      - run: npm publish
+      - run: yarn install
+      - run: yarn npm publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          YARN_NPM_PUBLISH_REGISTRY: https://registry.npmjs.org
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
