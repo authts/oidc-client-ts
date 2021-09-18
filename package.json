@@ -11,6 +11,10 @@
   "main": "dist/index.js",
   "module": "dist/oidc-client-ts.esm.js",
   "typings": "dist/index.d.ts",
+  "workspaces": [
+      "samples/*",
+      "website"
+  ],
   "files": [
     "dist"
   ],
