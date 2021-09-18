@@ -12,8 +12,8 @@
   "module": "dist/oidc-client-ts.esm.js",
   "typings": "dist/index.d.ts",
   "workspaces": [
-      "samples/*",
-      "website"
+    "samples/*",
+    "website"
   ],
   "files": [
     "dist"
