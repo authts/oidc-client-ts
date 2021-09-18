@@ -9,7 +9,7 @@ var url = "http://localhost:" + 1234;
 var express = require("express");
 var app = express();
 
-var oidc = require("./oidc.js");
+var oidc = require("./oidc");
 oidc(url, app);
 
 console.log("listening on " + url);
