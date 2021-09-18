@@ -10,3 +10,6 @@ quote_type = double
 
 [{package,package-lock}.json]
 indent_size = 2
+
+[*.{yaml,yml}]
+indent_size = 2
