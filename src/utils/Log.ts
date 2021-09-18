@@ -24,6 +24,9 @@ const DEBUG = 4;
 let logger: Logger;
 let level: number;
 
+/**
+ * @public
+ */
 export class Log {
     public static get NONE(): number {return NONE;}
     public static get ERROR(): number {return ERROR;}

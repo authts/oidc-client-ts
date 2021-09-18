@@ -6,6 +6,9 @@ import { CheckSessionIFrame } from "./CheckSessionIFrame";
 import type { UserManager } from "./UserManager";
 import type { User } from "./User";
 
+/**
+ * @public
+ */
 export class SessionMonitor {
     private readonly _userManager: UserManager;
     private readonly _timer: IntervalTimer;

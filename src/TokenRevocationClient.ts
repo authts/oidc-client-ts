@@ -8,6 +8,9 @@ import type { OidcClientSettingsStore } from "./OidcClientSettings";
 const AccessTokenTypeHint = "access_token";
 const RefreshTokenTypeHint = "refresh_token";
 
+/**
+ * @public
+ */
 export class TokenRevocationClient {
     private _settings: OidcClientSettingsStore
     private _metadataService: MetadataService;

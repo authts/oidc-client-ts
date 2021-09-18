@@ -8,6 +8,9 @@ import { SigninRequest } from "./SigninRequest";
 const DefaultAccessTokenExpiringNotificationTimeInSeconds = 60;
 const DefaultCheckSessionIntervalInSeconds = 2;
 
+/**
+ * @public
+ */
 export interface UserManagerSettings extends OidcClientSettings {
     /** The URL for the page containing the call to signinPopupCallback to handle the callback from the OIDC/OAuth2 */
     popup_redirect_uri?: string;

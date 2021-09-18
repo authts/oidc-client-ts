@@ -3,6 +3,9 @@
 
 import { Log, Timer } from "./utils";
 
+/**
+ * @public
+ */
 export class User {
     public id_token: string;
     public session_state: string | undefined;

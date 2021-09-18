@@ -11,6 +11,9 @@ const DefaultClientAuthentication = "client_secret_post"; // The default value m
 const DefaultStaleStateAgeInSeconds = 60 * 15; // seconds
 const DefaultClockSkewInSeconds = 60 * 5;
 
+/**
+ * @public
+ */
 export interface OidcClientSettings {
     /** The URL of the OIDC/OAuth2 provider */
     authority: string;

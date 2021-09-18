@@ -8,6 +8,9 @@ import type { OidcMetadata } from "./OidcMetadata";
 
 const OidcMetadataUrlPath = ".well-known/openid-configuration";
 
+/**
+ * @public
+ */
 export class MetadataService {
     private readonly _settings: OidcClientSettingsStore
     private readonly _jsonService: JsonService
