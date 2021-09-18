@@ -29,7 +29,7 @@
     "start": "tsdx watch",
     "build": "tsdx build",
     "test": "tsdx test",
-    "lint": "eslint ./src/**/*.ts ./test/unit/**/*.ts"
+    "lint": "eslint ."
   },
   "dependencies": {
     "jsrsasign": "^10.3.0"
@@ -37,8 +37,8 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^5.5.0",
     "@types/jsrsasign": "^8.0.13",
-    "@typescript-eslint/eslint-plugin": "^4.29.0",
-    "@typescript-eslint/parser": "^4.29.0",
+    "@typescript-eslint/eslint-plugin": "^4.31.1",
+    "@typescript-eslint/parser": "^4.31.1",
     "@weiran.zsd/tsdx": "^0.16.2",
     "eslint": "^7.32.0",
     "eslint-plugin-testing-library": "^4.10.1",
