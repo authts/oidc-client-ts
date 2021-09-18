@@ -1,8 +1,16 @@
+# build artifacts
+*.tsbuildinfo
+/docs/api/
+dist/
+
+# caches
+.eslintcache
+.cache
+.parcel-cache/
+
+# dependencies
+node_modules/
+
 *.log
 .DS_Store
-node_modules
-.cache
-dist
-.vscode
-.parcel-cache
-/docs/api
+.vscode/
