@@ -54,6 +54,6 @@
     "testEnvironment": "jsdom"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=12.13.0"
   }
 }
