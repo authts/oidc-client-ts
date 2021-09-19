@@ -42,7 +42,7 @@ export class TokenRevocationClient {
         Log.debug("TokenRevocationClient.revoke: Revoking " + type);
         const client_id = this._settings.client_id;
         const client_secret = this._settings.client_secret;
-        return this._revoke(url, client_id, client_secret, token, type);
+        await this._revoke(url, client_id, client_secret, token, type);
     }
 
     protected async _revoke(url: string, client_id: string, client_secret: string | undefined, token: string, type: string): Promise<void> {

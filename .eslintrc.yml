@@ -9,6 +9,7 @@ parserOptions:
 extends:
   - eslint:recommended
 rules:
+  consistent-return: error
   indent:
     - error
     - 4
