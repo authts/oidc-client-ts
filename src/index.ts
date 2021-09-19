@@ -1,40 +1,19 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./utils";
+export { Log } from "./utils";
 
-import { OidcClient } from "./OidcClient";
-import type { OidcClientSettings } from "./OidcClientSettings";
-import { WebStorageStateStore } from "./WebStorageStateStore";
-import { InMemoryWebStorage } from "./InMemoryWebStorage";
-import { UserManager } from "./UserManager";
-import type { UserManagerSettings } from "./UserManagerSettings";
-import { AccessTokenEvents } from "./AccessTokenEvents";
-import { MetadataService } from "./MetadataService";
-import { CheckSessionIFrame } from "./CheckSessionIFrame";
-import { TokenRevocationClient } from "./TokenRevocationClient";
-import { SessionMonitor } from "./SessionMonitor";
-import type { SessionStatus } from "./SessionStatus";
-import { User } from "./User";
-import { Version } from "./Version";
-
-export type {
-    OidcClientSettings,
-    UserManagerSettings,
-    SessionStatus
-};
-
-export {
-    Version,
-    Log,
-    OidcClient,
-    WebStorageStateStore,
-    InMemoryWebStorage,
-    UserManager,
-    AccessTokenEvents,
-    MetadataService,
-    CheckSessionIFrame,
-    TokenRevocationClient,
-    SessionMonitor,
-    User
-};
+export { OidcClient } from "./OidcClient";
+export type { OidcClientSettings } from "./OidcClientSettings";
+export { WebStorageStateStore } from "./WebStorageStateStore";
+export { InMemoryWebStorage } from "./InMemoryWebStorage";
+export { UserManager } from "./UserManager";
+export type { UserManagerSettings } from "./UserManagerSettings";
+export { AccessTokenEvents } from "./AccessTokenEvents";
+export { MetadataService } from "./MetadataService";
+export { CheckSessionIFrame } from "./CheckSessionIFrame";
+export { TokenRevocationClient } from "./TokenRevocationClient";
+export { SessionMonitor } from "./SessionMonitor";
+export type { SessionStatus } from "./SessionStatus";
+export { User } from "./User";
+export { Version } from "./Version";
