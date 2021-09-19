@@ -3,7 +3,7 @@
 
 import { UserInfoService } from "../../src/UserInfoService";
 import { MetadataService } from "../../src/MetadataService";
-import { JsonService } from "../../src/JsonService";
+import type { JsonService } from "../../src/JsonService";
 import { OidcClientSettingsStore } from "../../src/OidcClientSettings";
 
 describe("UserInfoService", () => {

@@ -3,7 +3,7 @@
 
 import { Log } from "../../src/utils";
 import { OidcClientSettingsStore } from "../../src/OidcClientSettings";
-import { StateStore } from "../../src/StateStore";
+import type { StateStore } from "../../src/StateStore";
 
 describe("OidcClientSettings", () => {
 

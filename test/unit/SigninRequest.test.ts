@@ -143,7 +143,7 @@ describe("SigninRequest", () => {
 
         it("should include state", () => {
             // assert
-            expect(subject.url).toContain("state=" + subject.state?.id);
+            expect(subject.url).toContain("state=" + subject.state.id);
         });
 
         it("should include prompt", () => {
