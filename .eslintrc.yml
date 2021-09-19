@@ -1,5 +1,6 @@
 plugins:
   - "@typescript-eslint"
+  - testing-library
 env:
   browser: true
   node: true
@@ -8,6 +9,7 @@ parserOptions:
   sourceType: module
 extends:
   - eslint:recommended
+  - plugin:testing-library/dom
 rules:
   consistent-return: error
   indent:
