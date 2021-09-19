@@ -55,21 +55,22 @@ export class PopupWindow implements IWindow {
 
             this._popup.focus();
             this._popup.window.location[params.redirectMethod || "assign"](params.url);
-            window.addEventListener("message", this._messageReceived, false);
+            window.addEventListener("message", this._messageReceived.bind(this), false);
         }
 
         return this._promise;
     }
 
-    _messageReceived(event: MessageEvent) {
+    _messageReceived(event: MessageEvent): void {
         if (event.origin !== window.location.origin) {
-            Log.warn('PopupWindow:messageRecieved: Message not coming from same origin: ' + event.origin);
+            Log.warn("PopupWindow:messageRecieved: Message not coming from same origin: " + event.origin);
             return;
-        };
+        }
 
-        let { data, url, keepOpen } = JSON.parse(event.data) as { data: Record<string, string>, url: string, keepOpen: boolean };
+        const { data, url, keepOpen } = JSON.parse(event.data) as { data: Record<string, string>; url: string; keepOpen: boolean };
 
         if (data.state) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             const callback = window["popupCallback_" + data.state];
             if (callback) {
@@ -106,10 +107,12 @@ export class PopupWindow implements IWindow {
     protected _cleanup(keepOpen?: boolean): void {
         Log.debug("PopupWindow.cleanup");
 
-        window.clearInterval(this._checkForPopupClosedTimer!);
-        this._checkForPopupClosedTimer = null;
+        if (this._checkForPopupClosedTimer) {
+            window.clearInterval(this._checkForPopupClosedTimer);
+            this._checkForPopupClosedTimer = null;
+        }
 
-        window.removeEventListener("message", this._messageReceived);
+        window.removeEventListener("message", this._messageReceived.bind(this));
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
