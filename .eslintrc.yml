@@ -1,0 +1,57 @@
+plugins:
+  - "@typescript-eslint"
+env:
+  browser: true
+  node: true
+parserOptions:
+  ecmaVersion: 2020
+  sourceType: module
+extends:
+  - eslint:recommended
+rules:
+  indent:
+    - error
+    - 4
+    - SwitchCase: 1
+  quotes: error
+  semi: error
+  keyword-spacing: error
+  space-before-blocks: error
+  no-multiple-empty-lines:
+    - error
+    - max: 1
+      maxEOF: 0
+overrides:
+  - files: ["*.ts", "*.tsx"]
+    parserOptions:
+      project:
+        - ./tsconfig.json
+        - ./test/unit/tsconfig.json
+    extends:
+      - plugin:@typescript-eslint/recommended
+      - plugin:@typescript-eslint/recommended-requiring-type-checking
+    rules:
+      indent: "off"
+      "@typescript-eslint/indent":
+        - error
+        - 4
+        - SwitchCase: 1
+      "@typescript-eslint/member-delimiter-style": error
+      "@typescript-eslint/explicit-module-boundary-types":
+        - error
+        - allowArgumentsExplicitlyTypedAsAny: true
+      "@typescript-eslint/object-curly-spacing":
+        - error
+        - always
+      # custom rules to fix code style
+      "@typescript-eslint/no-unsafe-assignment": "off"
+      "@typescript-eslint/no-unsafe-call": "off"
+      "@typescript-eslint/no-unsafe-member-access": "off"
+      "@typescript-eslint/no-explicit-any": "off"
+      "@typescript-eslint/no-unsafe-return": "off"
+  - files: src/**/*
+    env:
+      node: false
+  - files: test/**/*
+    env:
+      jest: true

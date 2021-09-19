@@ -56,10 +56,10 @@ export class SessionMonitor {
 
     protected async _start(user: User | {
         session_state: string;
-            profile: {
-                sub: string;
-                sid: string;
-            } | null;
+        profile: {
+            sub: string;
+            sid: string;
+        } | null;
     }): Promise<void> {
         const session_state = user.session_state;
         if (!session_state) {
