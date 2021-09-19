@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log, random, Timer } from "./utils";
-import { StateStore } from "./StateStore";
+import type { StateStore } from "./StateStore";
 
 export class State {
     public readonly id: string;

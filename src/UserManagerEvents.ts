@@ -3,8 +3,8 @@
 
 import { Log, Event } from "./utils";
 import { AccessTokenEvents } from "./AccessTokenEvents";
-import { UserManagerSettingsStore } from "./UserManagerSettings";
-import { User } from "./User";
+import type { UserManagerSettingsStore } from "./UserManagerSettings";
+import type { User } from "./User";
 
 export type UserLoadedCallback = (user: User) => Promise<void> | void;
 export type UserUnloadedCallback = () => Promise<void> | void;

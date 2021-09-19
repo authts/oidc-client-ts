@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log, UrlUtility } from "../utils";
-import { IWindow, NavigatorParams } from "./IWindow";
+import type { IWindow, NavigatorParams } from "./IWindow";
 
 const CheckForPopupClosedInterval = 500;
 const DefaultPopupFeatures = "location=no,toolbar=no,width=500,height=500,left=100,top=100;";

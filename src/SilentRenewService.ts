@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log } from "./utils";
-import { UserManager } from "./UserManager";
-import { AccessTokenCallback } from "./AccessTokenEvents";
+import type { UserManager } from "./UserManager";
+import type { AccessTokenCallback } from "./AccessTokenEvents";
 
 export class SilentRenewService {
     private _userManager: UserManager;

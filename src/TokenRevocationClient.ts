@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log } from "./utils";
-import { MetadataService } from "./MetadataService";
-import { OidcClientSettingsStore } from "./OidcClientSettings";
+import type { MetadataService } from "./MetadataService";
+import type { OidcClientSettingsStore } from "./OidcClientSettings";
 
 const AccessTokenTypeHint = "access_token";
 const RefreshTokenTypeHint = "refresh_token";
