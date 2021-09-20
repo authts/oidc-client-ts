@@ -145,15 +145,20 @@ export class PopupWindow implements IWindow {
     }
 
     public static notifyOpener(url: string | undefined, keepOpen: boolean, delimiter: string): void {
-        url = url || window.location.href;
+        if (window.opener) {
+            url = url || window.location.href;
 
-        if (url) {
-            const data = UrlUtility.parseUrlFragment(url, delimiter);
-            window.opener?.postMessage(JSON.stringify({
-                data,
-                url,
-                keepOpen,
-            }), window.location.origin);
+            if (url) {
+                const data = UrlUtility.parseUrlFragment(url, delimiter);
+                window.opener?.postMessage(JSON.stringify({
+                    data,
+                    url,
+                    keepOpen,
+                }), window.location.origin);
+            }
+        }
+        else {
+            Log.warn("PopupWindow.notifyOpener: no window.opener. Can't complete notification.");
         }
     }
 }
