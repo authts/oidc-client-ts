@@ -12,10 +12,10 @@ import { SessionMonitor } from "./SessionMonitor";
 import { SigninRequest } from "./SigninRequest";
 import { TokenRevocationClient } from "./TokenRevocationClient";
 import { TokenClient } from "./TokenClient";
-import { SessionStatus } from "./SessionStatus";
-import { SignoutResponse } from "./SignoutResponse";
+import type { SessionStatus } from "./SessionStatus";
+import type { SignoutResponse } from "./SignoutResponse";
 import { ErrorResponse } from "./ErrorResponse";
-import { MetadataService } from "./MetadataService";
+import type { MetadataService } from "./MetadataService";
 
 type SigninArgs = CreateSigninRequestArgs & { current_sub?: string };
 type SignoutArgs = CreateSignoutRequestArgs;

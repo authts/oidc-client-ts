@@ -3,8 +3,8 @@
 
 import { Log } from "./utils";
 import { JsonService } from "./JsonService";
-import { OidcClientSettingsStore } from "./OidcClientSettings";
-import { OidcMetadata } from "./OidcMetadata";
+import type { OidcClientSettingsStore } from "./OidcClientSettings";
+import type { OidcMetadata } from "./OidcMetadata";
 
 const OidcMetadataUrlPath = ".well-known/openid-configuration";
 

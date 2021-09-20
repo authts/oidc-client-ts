@@ -3,8 +3,8 @@
 
 import { Log, IntervalTimer, g_timer } from "./utils";
 import { CheckSessionIFrame } from "./CheckSessionIFrame";
-import { UserManager } from "./UserManager";
-import { User } from "./User";
+import type { UserManager } from "./UserManager";
+import type { User } from "./User";
 
 export class SessionMonitor {
     private readonly _userManager: UserManager;

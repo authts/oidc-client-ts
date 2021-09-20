@@ -3,8 +3,8 @@
 
 import { Log } from "../utils";
 import { PopupWindow } from "./PopupWindow";
-import { INavigator } from "./INavigator";
-import { IWindow, NavigatorParams } from "./IWindow";
+import type { INavigator } from "./INavigator";
+import type { IWindow, NavigatorParams } from "./IWindow";
 
 export class PopupNavigator implements INavigator {
     public prepare(params: NavigatorParams): Promise<IWindow> {

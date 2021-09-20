@@ -2,15 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log, JoseUtil, Timer } from "./utils";
-import { MetadataService } from "./MetadataService";
+import type { MetadataService } from "./MetadataService";
 import { UserInfoService } from "./UserInfoService";
 import { TokenClient } from "./TokenClient";
 import { ErrorResponse } from "./ErrorResponse";
-import { OidcClientSettingsStore } from "./OidcClientSettings";
-import { SigninState } from "./SigninState";
-import { SigninResponse } from "./SigninResponse";
-import { State } from "./State";
-import { SignoutResponse } from "./SignoutResponse";
+import type { OidcClientSettingsStore } from "./OidcClientSettings";
+import type { SigninState } from "./SigninState";
+import type { SigninResponse } from "./SigninResponse";
+import type { State } from "./State";
+import type { SignoutResponse } from "./SignoutResponse";
 
 const ProtocolClaims = ["nonce", "at_hash", "iat", "nbf", "exp", "aud", "iss", "c_hash"];
 

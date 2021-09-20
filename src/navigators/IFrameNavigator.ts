@@ -3,8 +3,8 @@
 
 import { Log } from "../utils";
 import { IFrameWindow } from "./IFrameWindow";
-import { INavigator } from "./INavigator";
-import { IWindow } from "./IWindow";
+import type { INavigator } from "./INavigator";
+import type { IWindow } from "./IWindow";
 
 export class IFrameNavigator implements INavigator {
     public prepare(): Promise<IWindow> {

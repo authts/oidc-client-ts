@@ -3,7 +3,7 @@
 
 import { Timer } from "../../src/utils";
 import { AccessTokenEvents } from "../../src/AccessTokenEvents";
-import { User } from "../../src/User";
+import type { User } from "../../src/User";
 
 describe("AccessTokenEvents", () => {
 

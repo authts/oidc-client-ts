@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log, Timer } from "./utils";
-import { User } from "./User";
+import type { User } from "./User";
 
 export type AccessTokenCallback = (...ev: any[]) => void;
 

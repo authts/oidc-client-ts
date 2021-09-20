@@ -3,7 +3,7 @@
 
 import { Log } from "../../src/utils";
 import { UserManagerSettingsStore } from "../../src/UserManagerSettings";
-import { WebStorageStateStore } from "../../src/WebStorageStateStore";
+import type { WebStorageStateStore } from "../../src/WebStorageStateStore";
 
 describe("UserManagerSettings", () => {
 

@@ -8,7 +8,7 @@ import { User } from "../../src/User";
 import { WebStorageStateStore } from "../../src/WebStorageStateStore";
 
 import { mocked } from "ts-jest/utils";
-import { INavigator } from "../../src/navigators";
+import type { INavigator } from "../../src/navigators";
 
 describe("UserManager", () => {
     let settings: UserManagerSettings;

@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { WebStorageStateStore } from "./WebStorageStateStore";
-import { OidcMetadata } from "./OidcMetadata";
-import { StateStore } from "./StateStore";
+import type { OidcMetadata } from "./OidcMetadata";
+import type { StateStore } from "./StateStore";
 
 const DefaultResponseType = "code";
 const DefaultScope = "openid";

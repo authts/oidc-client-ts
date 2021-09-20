@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { JsonService } from "./JsonService";
-import { MetadataService } from "./MetadataService";
+import type { MetadataService } from "./MetadataService";
 import { Log } from "./utils";
-import { OidcClientSettingsStore } from "./OidcClientSettings";
+import type { OidcClientSettingsStore } from "./OidcClientSettings";
 
 interface ExchangeCodeArgs {
     client_id?: string;

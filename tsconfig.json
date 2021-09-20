@@ -14,12 +14,6 @@
     "rootDir": "./src",
     // stricter type-checking for stronger correctness. Recommended by TS
     "strict": true,
-    // linter checks for common issues
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    // noUnused* overlap with @typescript-eslint/no-unused-vars, can disable if duplicative
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
     // use Node's module resolution algorithm, instead of the legacy TS one
     "moduleResolution": "node",
     // interop between ESM and CJS modules. Recommended by TS
@@ -30,5 +24,7 @@
     "forceConsistentCasingInFileNames": true,
     // `tsdx build` ignores this option, but it is commonly used when type-checking separately with `tsc`
     "noEmit": true,
+    // ensure type imports are side-effect free by enforcing that `import type` is used
+    "importsNotUsedAsValues": "error",
   }
 }

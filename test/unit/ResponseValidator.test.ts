@@ -4,10 +4,10 @@
 import { Log, JoseUtil } from "../../src/utils";
 import { ResponseValidator } from "../../src/ResponseValidator";
 import { MetadataService } from "../../src/MetadataService";
-import { UserInfoService } from "../../src/UserInfoService";
+import type { UserInfoService } from "../../src/UserInfoService";
 import { SigninState } from "../../src/SigninState";
-import { SigninResponse } from "../../src/SigninResponse";
-import { ErrorResponse } from "../../src/ErrorResponse";
+import type { SigninResponse } from "../../src/SigninResponse";
+import type { ErrorResponse } from "../../src/ErrorResponse";
 
 // access private methods
 class ResponseValidatorWrapper extends ResponseValidator {

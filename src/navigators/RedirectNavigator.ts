@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log } from "../utils";
-import { INavigator } from "./INavigator";
-import { IWindow, NavigatorParams } from "./IWindow";
+import type { INavigator } from "./INavigator";
+import type { IWindow, NavigatorParams } from "./IWindow";
 
 export class RedirectNavigator implements INavigator, IWindow {
     public prepare(): Promise<IWindow> {

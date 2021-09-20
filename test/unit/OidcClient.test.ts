@@ -9,7 +9,7 @@ import { State } from "../../src/State";
 import { SigninRequest } from "../../src/SigninRequest";
 import { SignoutRequest } from "../../src/SignoutRequest";
 import { SignoutResponse } from "../../src/SignoutResponse";
-import { ErrorResponse } from "../../src/ErrorResponse";
+import type { ErrorResponse } from "../../src/ErrorResponse";
 
 describe("OidcClient", () => {
     let subject: OidcClient;

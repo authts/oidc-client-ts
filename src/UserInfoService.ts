@@ -3,8 +3,8 @@
 
 import { Log, JoseUtil } from "./utils";
 import { JsonService } from "./JsonService";
-import { MetadataService } from "./MetadataService";
-import { OidcClientSettingsStore } from "./OidcClientSettings";
+import type { MetadataService } from "./MetadataService";
+import type { OidcClientSettingsStore } from "./OidcClientSettings";
 
 export class UserInfoService {
     private _settings: OidcClientSettingsStore;
