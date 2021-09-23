@@ -6,7 +6,6 @@ import type { IWindow, NavigatorParams } from "./IWindow";
 
 const CheckForPopupClosedInterval = 500;
 const DefaultPopupFeatures = "location=no,toolbar=no,width=500,height=500,left=100,top=100;";
-//const DefaultPopupFeatures = 'location=no,toolbar=no,width=500,height=500,left=100,top=100;resizable=yes';
 
 const DefaultPopupTarget = "_blank";
 
@@ -16,7 +15,7 @@ export class PopupWindow implements IWindow {
     private _reject!: (reason?: any) => void;
     private _popup: Window | null;
     private _checkForPopupClosedTimer: number | null;
-    private _id: any;
+    private _id: string | undefined;
 
     public constructor(params: NavigatorParams) {
         this._promise = new Promise((resolve, reject) => {
@@ -56,9 +55,35 @@ export class PopupWindow implements IWindow {
 
             this._popup.focus();
             this._popup.window.location[params.redirectMethod || "assign"](params.url);
+            window.addEventListener("message", this._messageReceived.bind(this), false);
         }
 
         return this._promise;
+    }
+
+    _messageReceived(event: MessageEvent): void {
+        if (event.origin !== window.location.origin) {
+            Log.warn("PopupWindow:messageRecieved: Message not coming from same origin: " + event.origin);
+            return;
+        }
+
+        const { data, url, keepOpen } = JSON.parse(event.data) as { data: Record<string, string>; url: string; keepOpen: boolean };
+
+        if (data.state) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            const callback = window["popupCallback_" + data.state];
+            if (callback) {
+                Log.debug("PopupWindow.notifyOpener: passing url message to opener");
+                callback(url, keepOpen);
+            }
+            else {
+                Log.warn("PopupWindow.notifyOpener: no matching callback found on opener");
+            }
+        }
+        else {
+            Log.warn("PopupWindow.notifyOpener: no state found in response url");
+        }
     }
 
     protected _success(data: any): void {
@@ -82,9 +107,12 @@ export class PopupWindow implements IWindow {
     protected _cleanup(keepOpen?: boolean): void {
         Log.debug("PopupWindow.cleanup");
 
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        window.clearInterval(this._checkForPopupClosedTimer!);
-        this._checkForPopupClosedTimer = null;
+        if (this._checkForPopupClosedTimer) {
+            window.clearInterval(this._checkForPopupClosedTimer);
+            this._checkForPopupClosedTimer = null;
+        }
+
+        window.removeEventListener("message", this._messageReceived.bind(this));
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -119,25 +147,14 @@ export class PopupWindow implements IWindow {
     public static notifyOpener(url: string | undefined, keepOpen: boolean, delimiter: string): void {
         if (window.opener) {
             url = url || window.location.href;
+
             if (url) {
                 const data = UrlUtility.parseUrlFragment(url, delimiter);
-
-                if (data.state) {
-                    const name = "popupCallback_" + data.state;
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    const callback = window.opener[name];
-                    if (callback) {
-                        Log.debug("PopupWindow.notifyOpener: passing url message to opener");
-                        callback(url, keepOpen);
-                    }
-                    else {
-                        Log.warn("PopupWindow.notifyOpener: no matching callback found on opener");
-                    }
-                }
-                else {
-                    Log.warn("PopupWindow.notifyOpener: no state found in response url");
-                }
+                window.opener?.postMessage(JSON.stringify({
+                    data,
+                    url,
+                    keepOpen,
+                }), window.location.origin);
             }
         }
         else {
