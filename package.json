@@ -34,7 +34,7 @@
     "build-types": "tsc --emitDeclarationOnly && api-extractor run",
     "prepack": "npm run build",
     "test": "tsc -p test/unit/tsconfig.json && jest",
-    "lint": "eslint .",
+    "lint": "eslint --cache .",
     "prepare": "husky install"
   },
   "dependencies": {
