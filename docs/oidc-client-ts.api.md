@@ -420,7 +420,7 @@ export interface UserManagerSettings extends OidcClientSettings {
 }
 
 // @public (undocumented)
-export const Version = "2.0.0-alpha2";
+export const Version: string;
 
 // @public (undocumented)
 export class WebStorageStateStore implements StateStore {
