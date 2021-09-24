@@ -3,6 +3,9 @@
 
 import { Log } from "./utils";
 
+/**
+ * @public
+ */
 export class CheckSessionIFrame {
     private _callback: () => Promise<void> | void;
     private _client_id: string;

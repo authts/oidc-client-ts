@@ -6,6 +6,9 @@ import type { User } from "./User";
 
 export type AccessTokenCallback = (...ev: any[]) => void;
 
+/**
+ * @public
+ */
 export class AccessTokenEvents {
     private _expiringNotificationTimeInSeconds: number
     private _expiringTimer: Timer

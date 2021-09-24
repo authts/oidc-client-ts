@@ -3,6 +3,9 @@
 
 import { Log } from "./utils";
 
+/**
+ * @public
+ */
 export class InMemoryWebStorage implements Storage {
     private _data: Record<string, any>;
 

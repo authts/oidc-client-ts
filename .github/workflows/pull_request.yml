@@ -10,20 +10,33 @@ jobs:
         node-version: [16.x]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: npm
-      env:
-        CI: true
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+        env:
+          CI: true
 
-    # library
-    - run: npm install
-    - run: npm run build
-    - run: npm run lint
-    - run: npm test
+      - name: Cache incremental builds
+        uses: actions/cache@v2
+        with:
+          path: |
+            .eslintcache
+            lib/
+            **/*.tsbuildinfo
+            **/node_modules/.cache
+          key: build-${{ github.head_ref }}-${{ github.sha }}
+          restore-keys: |
+            build-${{ github.head_ref }}-
+            build-refs/heads/main-
 
-    # samples: Parcel
-    - run: npm run -w parcel-sample build
+      # library
+      - run: npm install
+      - run: npm run lint
+      - run: npm test
+      - run: npm pack --dry-run
+
+      # samples: Parcel
+      - run: npm run -w parcel-sample build

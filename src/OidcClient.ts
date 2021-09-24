@@ -41,6 +41,9 @@ export interface CreateSigninRequestArgs {
 
 export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url"> & { state?: any };
 
+/**
+ * @public
+ */
 export class OidcClient {
     public readonly settings: OidcClientSettingsStore;
     public readonly metadataService: MetadataService;

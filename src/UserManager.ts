@@ -20,6 +20,9 @@ import type { MetadataService } from "./MetadataService";
 type SigninArgs = CreateSigninRequestArgs & { current_sub?: string };
 type SignoutArgs = CreateSignoutRequestArgs;
 
+/**
+ * @public
+ */
 export class UserManager {
     public readonly settings: UserManagerSettingsStore;
 

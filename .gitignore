@@ -1,6 +1,8 @@
+
 # build artifacts
 *.tsbuildinfo
-/docs/api/
+/docs/api
+/lib/
 dist/
 
 # caches
@@ -14,3 +16,4 @@ node_modules/
 *.log
 .DS_Store
 .vscode/
+temp/

@@ -4,6 +4,9 @@
 import { Log } from "./utils";
 import type { StateStore } from "./StateStore";
 
+/**
+ * @public
+ */
 export class WebStorageStateStore implements StateStore {
     private _store: Storage
     private _prefix: string

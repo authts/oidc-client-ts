@@ -2,5 +2,7 @@
 /.pnp.*
 node_modules/
 dist/
-samples/
-test/conformance/
+/lib/
+/samples/
+/test/conformance/
+/types/
