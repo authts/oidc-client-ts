@@ -9,8 +9,10 @@ import type { INavigator } from "./INavigator";
 export class IFrameNavigator implements INavigator {
     constructor(private _settings: UserManagerSettingsStore) {}
 
-    public async prepare(params: IFrameWindowParams): Promise<IFrameWindow> {
-        return new IFrameWindow({ ...this._settings, ...params });
+    public async prepare({
+        silentRequestTimeoutInSeconds = this._settings.silentRequestTimeoutInSeconds
+    }: IFrameWindowParams): Promise<IFrameWindow> {
+        return new IFrameWindow({ silentRequestTimeoutInSeconds });
     }
 
     public async callback(url: string | undefined): Promise<void> {

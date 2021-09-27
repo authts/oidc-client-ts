@@ -9,8 +9,11 @@ import type { UserManagerSettingsStore } from "../UserManagerSettings";
 export class PopupNavigator implements INavigator {
     constructor(private _settings: UserManagerSettingsStore) {}
 
-    public async prepare(params: PopupWindowParams): Promise<PopupWindow> {
-        return new PopupWindow({ ...this._settings, ...params });
+    public async prepare({
+        popupWindowFeatures = this._settings.popupWindowFeatures,
+        popupWindowTarget = this._settings.popupWindowTarget,
+    }: PopupWindowParams): Promise<PopupWindow> {
+        return new PopupWindow({ popupWindowFeatures, popupWindowTarget });
     }
 
     public async callback(url: string | undefined, keepOpen: boolean, delimiter: string): Promise<void> {
