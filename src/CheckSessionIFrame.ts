@@ -30,8 +30,9 @@ export class CheckSessionIFrame {
 
         // shotgun approach
         this._frame.style.visibility = "hidden";
-        this._frame.style.position = "absolute";
-        this._frame.style.display = "none";
+        this._frame.style.position = "fixed";
+        this._frame.style.left = "-1000px";
+        this._frame.style.top = "0";
         this._frame.width = "0";
         this._frame.height = "0";
         this._frame.src = url;
