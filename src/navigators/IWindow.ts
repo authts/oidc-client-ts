@@ -4,7 +4,6 @@
 export interface NavigateParams {
     url?: string;
     id?: string;
-    startUrl?: string;
     popupWindowFeatures?: string;
     popupWindowTarget?: string;
     silentRequestTimeoutInSeconds?: number;

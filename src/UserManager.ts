@@ -127,7 +127,6 @@ export class UserManager {
             display: "popup"
         };
         const user = await this._signin(args, this._popupNavigator, {
-            startUrl: url,
             popupWindowFeatures: this.settings.popupWindowFeatures,
             popupWindowTarget: this.settings.popupWindowTarget,
             redirectMethod: this.settings.redirectMethod
@@ -239,7 +238,6 @@ export class UserManager {
         args.prompt = args.prompt || "none";
 
         const user = await this._signin(args, this._iframeNavigator, {
-            startUrl: url,
             silentRequestTimeoutInSeconds: this.settings.silentRequestTimeoutInSeconds
         });
         if (user) {
@@ -304,7 +302,6 @@ export class UserManager {
             skipUserInfo: true
         };
         const navResponse = await this._signinStart(args, this._iframeNavigator, {
-            startUrl: url,
             silentRequestTimeoutInSeconds: this.settings.silentRequestTimeoutInSeconds,
             redirectMethod: this.settings.redirectMethod
         });
@@ -428,7 +425,6 @@ export class UserManager {
         }
 
         await this._signout(args, this._popupNavigator, {
-            startUrl: url,
             popupWindowFeatures: this.settings.popupWindowFeatures,
             popupWindowTarget: this.settings.popupWindowTarget
         });
