@@ -27,7 +27,7 @@ export class AccessTokenEvents {
 
 // @public (undocumented)
 export class CheckSessionIFrame {
-    constructor(callback: () => Promise<void> | void, client_id: string, url: string, intervalInSeconds: number, stopOnError: boolean);
+    constructor(_callback: () => Promise<void>, _client_id: string, url: string, _intervalInSeconds: number, _stopOnError: boolean);
     // (undocumented)
     load(): Promise<void>;
     // (undocumented)
@@ -208,19 +208,19 @@ export interface OidcClientSettings {
 export class SessionMonitor {
     constructor(userManager: UserManager);
     // (undocumented)
-    protected _callback(): Promise<void>;
+    protected _callback: () => Promise<void>;
     // (undocumented)
     protected _init(): Promise<void>;
     // (undocumented)
-    protected _start(user: User | {
+    protected _start: (user: User | {
         session_state: string;
         profile: {
             sub: string;
             sid: string;
         } | null;
-    }): Promise<void>;
+    }) => Promise<void>;
     // (undocumented)
-    protected _stop(): void;
+    protected _stop: () => void;
 }
 
 // @public (undocumented)
@@ -310,7 +310,7 @@ export class UserManager {
     // (undocumented)
     protected readonly _popupNavigator: PopupNavigator;
     // (undocumented)
-    querySessionStatus(): Promise<SessionStatus | null>;
+    querySessionStatus({ silentRequestTimeoutInSeconds, ...args }?: IFrameWindowParams & ExtraSigninRequestArgs): Promise<SessionStatus | null>;
     // Warning: (ae-forgotten-export) The symbol "RedirectNavigator" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -331,55 +331,57 @@ export class UserManager {
     //
     // (undocumented)
     readonly settings: UserManagerSettingsStore;
-    // Warning: (ae-forgotten-export) The symbol "INavigator" needs to be exported by the entry point index.d.ts
-    // Warning: (ae-forgotten-export) The symbol "NavigateParams" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "IWindow" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    protected _signin(args: SigninArgs, navigator: INavigator, navigatorParams: NavigateParams): Promise<User>;
+    protected _signin(args: CreateSigninRequestArgs, handle: IWindow, verifySub?: string): Promise<User>;
     // (undocumented)
     signinCallback(url?: string): Promise<User | null>;
     // (undocumented)
     protected _signinCallback(url: string | undefined, navigator: IFrameNavigator | PopupNavigator): Promise<void>;
     // (undocumented)
-    protected _signinEnd(url?: string, args?: SigninArgs): Promise<User>;
-    // (undocumented)
-    signinPopup(): Promise<User>;
-    // (undocumented)
-    signinPopupCallback(url?: string): Promise<void>;
-    // (undocumented)
-    signinRedirect(): Promise<void>;
-    // (undocumented)
-    signinRedirectCallback(url?: string): Promise<User>;
-    // (undocumented)
-    signinSilent(): Promise<User | null>;
-    // (undocumented)
-    signinSilentCallback(url?: string): Promise<void>;
-    // Warning: (ae-forgotten-export) The symbol "SigninArgs" needs to be exported by the entry point index.d.ts
+    protected _signinEnd(url: string, verifySub?: string): Promise<User>;
+    // Warning: (ae-forgotten-export) The symbol "PopupWindowParams" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    protected _signinSilentIframe(args: SigninArgs): Promise<User>;
+    signinPopup({ popupWindowFeatures, popupWindowTarget, ...args }?: PopupWindowParams & ExtraSigninRequestArgs): Promise<User>;
+    // (undocumented)
+    signinPopupCallback(url?: string): Promise<void>;
+    // Warning: (ae-forgotten-export) The symbol "RedirectParams" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "ExtraSigninRequestArgs" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    signinRedirect({ redirectMethod, ...args }?: RedirectParams & ExtraSigninRequestArgs): Promise<void>;
+    // (undocumented)
+    signinRedirectCallback(url?: string): Promise<User>;
+    // Warning: (ae-forgotten-export) The symbol "IFrameWindowParams" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    signinSilent({ silentRequestTimeoutInSeconds, ...args }?: IFrameWindowParams & ExtraSigninRequestArgs): Promise<User | null>;
+    // (undocumented)
+    signinSilentCallback(url?: string): Promise<void>;
     // Warning: (ae-forgotten-export) The symbol "NavigateResponse" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    protected _signinStart(args: SigninArgs, navigator: INavigator, navigatorParams: NavigateParams): Promise<NavigateResponse>;
-    // Warning: (ae-forgotten-export) The symbol "SignoutArgs" needs to be exported by the entry point index.d.ts
-    //
+    protected _signinStart(args: CreateSigninRequestArgs, handle: IWindow): Promise<NavigateResponse>;
     // (undocumented)
-    protected _signout(args: SignoutArgs, navigator: INavigator, navigatorParams: NavigateParams): Promise<SignoutResponse>;
+    protected _signout(args: CreateSignoutRequestArgs, handle: IWindow): Promise<SignoutResponse>;
     // (undocumented)
     signoutCallback(url?: string, keepOpen?: boolean): Promise<void>;
     // (undocumented)
     protected _signoutEnd(url: string): Promise<SignoutResponse>;
     // (undocumented)
-    signoutPopup(): Promise<void>;
+    signoutPopup({ popupWindowFeatures, popupWindowTarget, ...args }?: PopupWindowParams & ExtraSignoutRequestArgs): Promise<void>;
     // (undocumented)
     signoutPopupCallback(url: any, keepOpen: any): Promise<void>;
+    // Warning: (ae-forgotten-export) The symbol "ExtraSignoutRequestArgs" needs to be exported by the entry point index.d.ts
+    //
     // (undocumented)
-    signoutRedirect(): Promise<void>;
+    signoutRedirect({ redirectMethod, ...args }?: RedirectParams & ExtraSignoutRequestArgs): Promise<void>;
     // (undocumented)
     signoutRedirectCallback(url?: string): Promise<SignoutResponse>;
     // (undocumented)
-    protected _signoutStart(args: CreateSignoutRequestArgs | undefined, navigator: INavigator, navigatorParams?: NavigateParams): Promise<any>;
+    protected _signoutStart(args: CreateSignoutRequestArgs | undefined, handle: IWindow): Promise<any>;
     // Warning: (ae-forgotten-export) The symbol "SilentRenewService" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
