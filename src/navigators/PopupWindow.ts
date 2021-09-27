@@ -30,7 +30,7 @@ export class PopupWindow implements IWindow {
         this._checkForPopupClosedTimer = null;
         if (this._popup) {
             Log.debug("PopupWindow.ctor: popup successfully created");
-            this._checkForPopupClosedTimer = window.setInterval(this._checkForPopupClosed.bind(this), CheckForPopupClosedInterval);
+            this._checkForPopupClosedTimer = window.setInterval(this._checkForPopupClosed, CheckForPopupClosedInterval);
         }
     }
 
@@ -47,21 +47,18 @@ export class PopupWindow implements IWindow {
 
             this._id = params.id;
             if (this._id) {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-                window["popupCallback_" + params.id] = this._callback.bind(this);
+                (window as any)["popupCallback_" + params.id!] = this._callback;
             }
 
             this._popup.focus();
             this._popup.window.location[params.redirectMethod || "assign"](params.url);
-            window.addEventListener("message", this._messageReceived.bind(this), false);
+            window.addEventListener("message", this._messageReceived, false);
         }
 
         return this._promise;
     }
 
-    _messageReceived(event: MessageEvent): void {
+    _messageReceived = (event: MessageEvent): void => {
         if (event.origin !== window.location.origin) {
             Log.warn("PopupWindow:messageRecieved: Message not coming from same origin: " + event.origin);
             return;
@@ -112,12 +109,9 @@ export class PopupWindow implements IWindow {
             this._checkForPopupClosedTimer = null;
         }
 
-        window.removeEventListener("message", this._messageReceived.bind(this));
+        window.removeEventListener("message", this._messageReceived);
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        delete window["popupCallback_" + this._id];
+        delete (window as any)["popupCallback_" + this._id!];
 
         if (this._popup && !keepOpen) {
             this._popup.close();
@@ -125,13 +119,13 @@ export class PopupWindow implements IWindow {
         this._popup = null;
     }
 
-    protected _checkForPopupClosed(): void {
+    protected _checkForPopupClosed = (): void => {
         if (!this._popup || this._popup.closed) {
             this._error("Popup window closed");
         }
     }
 
-    protected _callback(url: string, keepOpen: boolean): void {
+    protected _callback = (url: string, keepOpen: boolean): void => {
         this._cleanup(keepOpen);
 
         if (url) {

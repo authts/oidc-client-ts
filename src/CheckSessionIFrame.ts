@@ -7,22 +7,18 @@ import { Log } from "./utils";
  * @public
  */
 export class CheckSessionIFrame {
-    private _callback: () => Promise<void> | void;
-    private _client_id: string;
-    private _intervalInSeconds: number;
-    private _stopOnError: boolean;
     private _frame_origin: string;
     private _frame: HTMLIFrameElement;
-    private _boundMessageEvent: ((e: MessageEvent<string>) => void) | null;
-    private _timer: number | null;
-    private _session_state: string | null;
+    private _timer: number | null = null
+    private _session_state: string | null = null;
 
-    public constructor(callback: () => Promise<void> | void, client_id: string, url: string, intervalInSeconds: number, stopOnError: boolean) {
-        this._callback = callback;
-        this._client_id = client_id;
-        this._intervalInSeconds = intervalInSeconds;
-        this._stopOnError = stopOnError;
-
+    public constructor(
+        private _callback: () => Promise<void>,
+        private _client_id: string,
+        url: string,
+        private _intervalInSeconds: number,
+        private _stopOnError: boolean
+    ) {
         const idx = url.indexOf("/", url.indexOf("//") + 2);
         this._frame_origin = url.substr(0, idx);
 
@@ -36,10 +32,6 @@ export class CheckSessionIFrame {
         this._frame.width = "0";
         this._frame.height = "0";
         this._frame.src = url;
-
-        this._boundMessageEvent = null;
-        this._timer = null;
-        this._session_state = null;
     }
 
     public load(): Promise<void> {
@@ -49,12 +41,11 @@ export class CheckSessionIFrame {
             };
 
             window.document.body.appendChild(this._frame);
-            this._boundMessageEvent = this._message.bind(this);
-            window.addEventListener("message", this._boundMessageEvent, false);
+            window.addEventListener("message", this._message, false);
         });
     }
 
-    private async _message(e: MessageEvent<string>) {
+    private _message = (e: MessageEvent<string>): void => {
         if (e.origin === this._frame_origin &&
             e.source === this._frame.contentWindow
         ) {
@@ -67,7 +58,7 @@ export class CheckSessionIFrame {
             else if (e.data === "changed") {
                 Log.debug("CheckSessionIFrame: changed message from check session op iframe");
                 this.stop();
-                await this._callback();
+                void this._callback();
             }
             else {
                 Log.debug("CheckSessionIFrame: " + e.data + " message from check session op iframe");

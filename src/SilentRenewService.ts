@@ -6,18 +6,14 @@ import type { UserManager } from "./UserManager";
 import type { AccessTokenCallback } from "./AccessTokenEvents";
 
 export class SilentRenewService {
-    private _userManager: UserManager;
-    private _callback: AccessTokenCallback | null;
+    private _isStarted = false;
 
-    public constructor(userManager: UserManager) {
-        this._userManager = userManager;
-        this._callback = null;
-    }
+    public constructor(private _userManager: UserManager) {}
 
     public async start(): Promise<void> {
-        if (!this._callback) {
-            this._callback = this._tokenExpiring.bind(this);
-            this._userManager.events.addAccessTokenExpiring(this._callback);
+        if (!this._isStarted) {
+            this._isStarted = true;
+            this._userManager.events.addAccessTokenExpiring(this._tokenExpiring);
 
             // this will trigger loading of the user so the expiring events can be initialized
             try {
@@ -32,20 +28,20 @@ export class SilentRenewService {
     }
 
     public stop(): void {
-        if (this._callback) {
-            this._userManager.events.removeAccessTokenExpiring(this._callback);
-            this._callback = null;
+        if (this._isStarted) {
+            this._userManager.events.removeAccessTokenExpiring(this._tokenExpiring);
+            this._isStarted = false;
         }
     }
 
-    protected async _tokenExpiring(): Promise<void> {
-        try {
-            await this._userManager.signinSilent();
-            Log.debug("SilentRenewService._tokenExpiring: Silent token renewal successful");
-        }
-        catch (err) {
-            Log.error("SilentRenewService._tokenExpiring: Error from signinSilent:", err instanceof Error ? err.message : err);
-            this._userManager.events._raiseSilentRenewError(err instanceof Error ? err : new Error("Silent renew failed"));
-        }
+    protected _tokenExpiring: AccessTokenCallback = () => {
+        this._userManager.signinSilent()
+            .then(() => {
+                Log.debug("SilentRenewService._tokenExpiring: Silent token renewal successful");
+            })
+            .catch((err) => {
+                Log.error("SilentRenewService._tokenExpiring: Error from signinSilent:", err instanceof Error ? err.message : err);
+                this._userManager.events._raiseSilentRenewError(err instanceof Error ? err : new Error("Silent renew failed"));
+            });
     }
 }

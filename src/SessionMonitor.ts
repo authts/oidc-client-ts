@@ -25,8 +25,8 @@ export class SessionMonitor {
         this._userManager = userManager;
         this._timer = g_timer;
 
-        this._userManager.events.addUserLoaded(this._start.bind(this));
-        this._userManager.events.addUserUnloaded(this._stop.bind(this));
+        this._userManager.events.addUserLoaded(this._start);
+        this._userManager.events.addUserUnloaded(this._stop);
 
         Promise.resolve(this._init())
             .catch((err: Error) => {
@@ -57,13 +57,12 @@ export class SessionMonitor {
         }
     }
 
-    protected async _start(user: User | {
-        session_state: string;
-        profile: {
-            sub: string;
-            sid: string;
-        } | null;
-    }): Promise<void> {
+    protected _start = async (
+        user: User | {
+            session_state: string;
+            profile: { sub: string; sid: string } | null;
+        }
+    ): Promise<void> => {
         const session_state = user.session_state;
         if (!session_state) {
             return;
@@ -94,7 +93,7 @@ export class SessionMonitor {
                 const intervalInSeconds = this._userManager.settings.checkSessionIntervalInSeconds;
                 const stopOnError = this._userManager.settings.stopCheckSessionOnError;
 
-                const checkSessionIFrame = new CheckSessionIFrame(this._callback.bind(this), client_id, url, intervalInSeconds, stopOnError);
+                const checkSessionIFrame = new CheckSessionIFrame(this._callback, client_id, url, intervalInSeconds, stopOnError);
                 await checkSessionIFrame.load();
                 this._checkSessionIFrame = checkSessionIFrame;
                 checkSessionIFrame.start(session_state);
@@ -109,7 +108,7 @@ export class SessionMonitor {
         }
     }
 
-    protected _stop(): void {
+    protected _stop = (): void => {
         this._sub = undefined;
         this._sid = undefined;
 
@@ -146,7 +145,7 @@ export class SessionMonitor {
         }
     }
 
-    protected async _callback(): Promise<void> {
+    protected _callback = async (): Promise<void> => {
         try {
             const session = await this._userManager.querySessionStatus();
             let raiseEvent = true;
