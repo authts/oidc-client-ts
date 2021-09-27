@@ -4,22 +4,14 @@
 import { Log } from "../utils";
 import { IFrameWindow } from "./IFrameWindow";
 import type { INavigator } from "./INavigator";
-import type { IWindow } from "./IWindow";
 
 export class IFrameNavigator implements INavigator {
-    public prepare(): Promise<IWindow> {
-        const frame = new IFrameWindow();
-        return Promise.resolve(frame);
+    public async prepare(): Promise<IFrameWindow> {
+        return new IFrameWindow();
     }
 
-    public callback(url: string | undefined): Promise<void> {
+    public async callback(url: string | undefined): Promise<void> {
         Log.debug("IFrameNavigator.callback");
-        try {
-            IFrameWindow.notifyParent(url);
-            return Promise.resolve();
-        }
-        catch (err) {
-            return Promise.reject(err);
-        }
+        IFrameWindow.notifyParent(url);
     }
 }

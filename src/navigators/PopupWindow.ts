@@ -34,7 +34,7 @@ export class PopupWindow implements IWindow {
         }
     }
 
-    public navigate(params: NavigateParams): Promise<NavigateResponse> {
+    public async navigate(params: NavigateParams): Promise<NavigateResponse> {
         if (!this._popup) {
             this._error("PopupWindow.navigate: Error opening popup window");
         }
@@ -55,7 +55,7 @@ export class PopupWindow implements IWindow {
             window.addEventListener("message", this._messageReceived, false);
         }
 
-        return this._promise;
+        return await this._promise;
     }
 
     _messageReceived = (event: MessageEvent): void => {

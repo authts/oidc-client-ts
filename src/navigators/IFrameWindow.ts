@@ -32,7 +32,7 @@ export class IFrameWindow implements IWindow {
         window.document.body.appendChild(this._frame);
     }
 
-    public navigate(params: NavigateParams): Promise<NavigateResponse> {
+    public async navigate(params: NavigateParams): Promise<NavigateResponse> {
         if (!params || !params.url) {
             this._error("No url provided");
         }
@@ -46,7 +46,7 @@ export class IFrameWindow implements IWindow {
             this._frame.src = params.url;
         }
 
-        return this._promise;
+        return await this._promise;
     }
 
     protected _success(data: any): void {

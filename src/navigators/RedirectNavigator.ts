@@ -6,25 +6,21 @@ import type { INavigator } from "./INavigator";
 import type { IWindow, NavigateParams, NavigateResponse } from "./IWindow";
 
 export class RedirectNavigator implements INavigator, IWindow {
-    public prepare(): Promise<IWindow> {
-        return Promise.resolve(this);
+    public async prepare(): Promise<IWindow> {
+        return this;
     }
 
-    public navigate(params: NavigateParams): Promise<NavigateResponse> {
+    public async navigate(params: NavigateParams): Promise<NavigateResponse> {
         if (!params || !params.url) {
             Log.error("RedirectNavigator.navigate: No url provided");
             throw new Error("No url provided");
         }
 
         window.location[params.redirectMethod || "assign"](params.url);
-        return Promise.resolve(this);
-    }
-
-    public get url(): string {
-        return window.location.href;
+        return { url: window.location.href };
     }
 
     public close(): void {
-        Log.warn("Function not implemented");
+        Log.warn("RedirectNavigator cannot close the current window");
     }
 }

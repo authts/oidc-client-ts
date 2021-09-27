@@ -101,8 +101,9 @@ export class UserManager {
         });
         Log.info("UserManager.signinRedirect: successful");
     }
-    public async signinRedirectCallback(url?: string): Promise<User> {
-        const user = await this._signinEnd(url || this._redirectNavigator.url);
+
+    public async signinRedirectCallback(url = window.location.href): Promise<User> {
+        const user = await this._signinEnd(url);
         if (user.profile && user.profile.sub) {
             Log.info("UserManager.signinRedirectCallback: successful, signed in sub: ", user.profile.sub);
         }
@@ -386,11 +387,11 @@ export class UserManager {
 
         return user;
     }
-    protected _signinCallback(url: string | undefined, navigator: IFrameNavigator | PopupNavigator): Promise<void> {
+    protected async _signinCallback(url: string | undefined, navigator: IFrameNavigator | PopupNavigator): Promise<void> {
         Log.debug("UserManager._signinCallback");
         const useQuery = this.settings.response_mode === "query" || (!this.settings.response_mode && SigninRequest.isCode(this.settings.response_type));
         const delimiter = useQuery ? "?" : "#";
-        return navigator.callback(url, false, delimiter);
+        await navigator.callback(url, false, delimiter);
     }
 
     public async signoutRedirect(): Promise<void> {
@@ -405,8 +406,8 @@ export class UserManager {
         await this._signoutStart(args, this._redirectNavigator);
         Log.info("UserManager.signoutRedirect: successful");
     }
-    public async signoutRedirectCallback(url?: string): Promise<SignoutResponse> {
-        const response = await this._signoutEnd(url || this._redirectNavigator.url);
+    public async signoutRedirectCallback(url = window.location.href): Promise<SignoutResponse> {
+        const response = await this._signoutEnd(url);
         Log.info("UserManager.signoutRedirectCallback: successful");
         return response;
     }
