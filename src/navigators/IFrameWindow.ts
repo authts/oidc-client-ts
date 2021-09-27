@@ -4,7 +4,11 @@
 import { Log } from "../utils";
 import type { IWindow, NavigateParams, NavigateResponse } from "./IWindow";
 
-const DefaultTimeoutInSeconds = 10;
+const defaultTimeoutInSeconds = 10;
+
+export interface IFrameWindowParams {
+    silentRequestTimeoutInSeconds?: number;
+}
 
 export class IFrameWindow implements IWindow {
     private _resolve!: (value: NavigateResponse) => void;
@@ -13,10 +17,14 @@ export class IFrameWindow implements IWindow {
         this._resolve = resolve;
         this._reject = reject;
     })
+    private _timeoutInSeconds: number;
     private _frame: HTMLIFrameElement | null;
     private _timer: number | null = null;
 
-    public constructor() {
+    public constructor({
+        silentRequestTimeoutInSeconds = defaultTimeoutInSeconds
+    }: IFrameWindowParams) {
+        this._timeoutInSeconds = silentRequestTimeoutInSeconds;
         window.addEventListener("message", this._message, false);
 
         this._frame = window.document.createElement("iframe");
@@ -40,9 +48,8 @@ export class IFrameWindow implements IWindow {
             this._error("No _frame, already closed");
         }
         else {
-            const timeoutInSeconds = params.silentRequestTimeoutInSeconds || DefaultTimeoutInSeconds;
-            Log.debug("IFrameWindow.navigate: Using timeout of:", timeoutInSeconds);
-            this._timer = window.setTimeout(this._timeout, timeoutInSeconds * 1000);
+            Log.debug("IFrameWindow.navigate: Using timeout of:", this._timeoutInSeconds);
+            this._timer = window.setTimeout(this._timeout, this._timeoutInSeconds * 1000);
             this._frame.src = params.url;
         }
 

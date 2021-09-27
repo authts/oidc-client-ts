@@ -8,7 +8,7 @@ import { User } from "../../src/User";
 import { WebStorageStateStore } from "../../src/WebStorageStateStore";
 
 import { mocked } from "ts-jest/utils";
-import type { INavigator } from "../../src/navigators";
+import type { IWindow } from "../../src/navigators";
 
 describe("UserManager", () => {
     let settings: UserManagerSettings;
@@ -90,19 +90,49 @@ describe("UserManager", () => {
             };
             subject = new UserManager(settings);
 
-            let navArgs: any = null;
+            let navInstance: any = null;
 
-            subject["_signin"] = function(args: any, navigator: INavigator, navigatorParams: any = {}) {
-                Log.debug("_signin", args, navigator, navigatorParams);
-                navArgs = navigatorParams;
-                return Promise.resolve(user);
+            subject["_signin"] = async function (args: any, handle: IWindow) {
+                Log.debug("_signin", args, handle);
+                navInstance = handle;
+                return user;
             };
 
             // act
             await subject.signinSilent();
 
             // assert
-            expect(navArgs.silentRequestTimeoutInSeconds).toEqual(123);
+            expect(navInstance._timeoutInSeconds).toEqual(123);
+        });
+
+        it("should pass silentRequestTimeout from params", async () => {
+            // arrange
+            const user = new User({
+                id_token:"id_token",
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {}
+            });
+            userStoreMock.item = user.toStorageString();
+
+            settings = {
+                ...settings,
+                silent_redirect_uri: "http://client/silent_callback"
+            };
+            subject = new UserManager(settings);
+
+            let navInstance: any = null;
+            subject["_signin"] = async function (args: any, handle: IWindow) {
+                Log.debug("_signin", args, handle);
+                navInstance = handle;
+                return user;
+            };
+
+            // act
+            await subject.signinSilent({ silentRequestTimeoutInSeconds: 234 });
+
+            // assert
+            expect(navInstance._timeoutInSeconds).toEqual(234);
         });
 
         it("should work when having no User present", async () => {
@@ -118,9 +148,9 @@ describe("UserManager", () => {
             };
             subject = new UserManager(settings);
 
-            subject["_signin"] = function(args: any, navigator: INavigator, navigatorParams: any = {}) {
-                Log.debug("_signin", args, navigator, navigatorParams);
-                return Promise.resolve(user);
+            subject["_signin"] = async function (args: any, handle: IWindow) {
+                Log.debug("_signin", args, handle);
+                return user;
             };
 
             // act

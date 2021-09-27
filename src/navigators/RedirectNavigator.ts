@@ -5,8 +5,15 @@ import { Log } from "../utils";
 import type { INavigator } from "./INavigator";
 import type { IWindow, NavigateParams, NavigateResponse } from "./IWindow";
 
+export interface RedirectParams {
+    redirectMethod?: "replace" | "assign";
+}
+
 export class RedirectNavigator implements INavigator, IWindow {
-    public async prepare(): Promise<IWindow> {
+    private _redirectMethod: "replace" | "assign" = "assign"
+
+    public async prepare({ redirectMethod }: RedirectParams): Promise<RedirectNavigator> {
+        this._redirectMethod = redirectMethod ?? this._redirectMethod;
         return this;
     }
 
@@ -16,7 +23,7 @@ export class RedirectNavigator implements INavigator, IWindow {
             throw new Error("No url provided");
         }
 
-        window.location[params.redirectMethod || "assign"](params.url);
+        window.location[this._redirectMethod](params.url);
         return { url: window.location.href };
     }
 

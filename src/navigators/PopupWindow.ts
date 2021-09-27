@@ -4,33 +4,35 @@
 import { Log, UrlUtility } from "../utils";
 import type { IWindow, NavigateParams, NavigateResponse } from "./IWindow";
 
-const CheckForPopupClosedInterval = 500;
-const DefaultPopupFeatures = "location=no,toolbar=no,width=500,height=500,left=100,top=100;";
+const checkForPopupClosedInterval = 500;
+const defaultPopupFeatures = "location=no,toolbar=no,width=500,height=500,left=100,top=100;";
 
-const DefaultPopupTarget = "_blank";
+const defaultPopupTarget = "_blank";
+
+export interface PopupWindowParams {
+    popupWindowFeatures?: string;
+    popupWindowTarget?: string;
+}
 
 export class PopupWindow implements IWindow {
-    private _promise: Promise<NavigateResponse>;
     private _resolve!: (value: NavigateResponse) => void;
     private _reject!: (reason?: any) => void;
+    private _promise = new Promise<NavigateResponse>((resolve, reject) => {
+        this._resolve = resolve;
+        this._reject = reject;
+    });
     private _popup: Window | null;
-    private _checkForPopupClosedTimer: number | null;
+    private _checkForPopupClosedTimer: number | null = null
     private _id: string | undefined;
 
-    public constructor(params: NavigateParams) {
-        this._promise = new Promise((resolve, reject) => {
-            this._resolve = resolve;
-            this._reject = reject;
-        });
-
-        const target = params.popupWindowTarget || DefaultPopupTarget;
-        const features = params.popupWindowFeatures || DefaultPopupFeatures;
-
-        this._popup = window.open("", target, features);
-        this._checkForPopupClosedTimer = null;
+    public constructor({
+        popupWindowTarget = defaultPopupTarget,
+        popupWindowFeatures = defaultPopupFeatures
+    }: PopupWindowParams) {
+        this._popup = window.open("", popupWindowTarget, popupWindowFeatures);
         if (this._popup) {
             Log.debug("PopupWindow.ctor: popup successfully created");
-            this._checkForPopupClosedTimer = window.setInterval(this._checkForPopupClosed, CheckForPopupClosedInterval);
+            this._checkForPopupClosedTimer = window.setInterval(this._checkForPopupClosed, checkForPopupClosedInterval);
         }
     }
 
@@ -51,7 +53,7 @@ export class PopupWindow implements IWindow {
             }
 
             this._popup.focus();
-            this._popup.window.location[params.redirectMethod || "assign"](params.url);
+            this._popup.window.location.replace(params.url);
             window.addEventListener("message", this._messageReceived, false);
         }
 
