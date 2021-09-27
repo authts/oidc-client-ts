@@ -4,10 +4,13 @@
 import { Log } from "../utils";
 import { PopupWindow, PopupWindowParams } from "./PopupWindow";
 import type { INavigator } from "./INavigator";
+import type { UserManagerSettingsStore } from "../UserManagerSettings";
 
 export class PopupNavigator implements INavigator {
+    constructor(private _settings: UserManagerSettingsStore) {}
+
     public async prepare(params: PopupWindowParams): Promise<PopupWindow> {
-        return new PopupWindow(params);
+        return new PopupWindow({ ...this._settings, ...params });
     }
 
     public async callback(url: string | undefined, keepOpen: boolean, delimiter: string): Promise<void> {

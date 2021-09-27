@@ -29,8 +29,6 @@ export class UserManager {
     protected readonly _iframeNavigator: IFrameNavigator;
     protected readonly _events: UserManagerEvents;
     protected readonly _silentRenewService: SilentRenewService;
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     protected readonly _sessionMonitor: SessionMonitor | null;
     protected readonly _tokenRevocationClient: TokenRevocationClient;
     protected readonly _tokenClient: TokenClient;
@@ -40,9 +38,9 @@ export class UserManager {
 
         this._client = new OidcClient(settings);
 
-        this._redirectNavigator = new RedirectNavigator();
-        this._popupNavigator = new PopupNavigator();
-        this._iframeNavigator = new IFrameNavigator();
+        this._redirectNavigator = new RedirectNavigator(this.settings);
+        this._popupNavigator = new PopupNavigator(this.settings);
+        this._iframeNavigator = new IFrameNavigator(this.settings);
 
         this._events = new UserManagerEvents(this.settings);
         this._silentRenewService = new SilentRenewService(this);
