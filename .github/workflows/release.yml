@@ -1,0 +1,55 @@
+name: Release
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  publish:
+    name: Publish
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      # Setup .npmrc file to publish to npm
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - run: npm install
+      - run: |
+          tag_name=$(git describe --tags --match 'v*' HEAD)
+          prerelease=${tag_name#*.*.*-}
+          prerelease_id=latest
+          if [ "$prerelease" != "$tag_name" ]; then
+            prerelease_id=${prerelease%.*}
+          fi
+          npm publish --tag "$prerelease_id"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  create:
+    name: Create
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Create GitHub release
+        run: |
+          tag_name=$(git describe --tags --match 'v*' HEAD)
+          # use the lines added to the changelog file as release notes
+          changelog=$(git diff -U0 "${tag_name}^" CHANGELOG.md | grep '^+' | tail -n+3 | cut -c 2-)
+          release_args=(--title "$tag_name" --notes "$changelog")
+          prerelease=${tag_name#*.*.*-}
+          if [ "$prerelease" != "$tag_name" ]; then
+            release_args+=(--prerelease)
+          fi
+          gh release create "$tag_name" "${release_args[@]}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
