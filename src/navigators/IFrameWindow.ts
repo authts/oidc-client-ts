@@ -2,13 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log } from "../utils";
-import type { IWindow, NavigatorParams } from "./IWindow";
+import type { IWindow, NavigateParams, NavigateResponse } from "./IWindow";
 
 const DefaultTimeoutInSeconds = 10;
 
 export class IFrameWindow implements IWindow {
-    private _promise: Promise<unknown>;
-    private _resolve!: (value: unknown) => void;
+    private _promise: Promise<NavigateResponse>;
+    private _resolve!: (value: NavigateResponse) => void;
     private _reject!: (reason?: any) => void;
     private _boundMessageEvent: ((e: any) => void) | null;
     private _frame: HTMLIFrameElement | null;
@@ -36,7 +36,7 @@ export class IFrameWindow implements IWindow {
         this._timer = null;
     }
 
-    public navigate(params: NavigatorParams): Promise<any> {
+    public navigate(params: NavigateParams): Promise<NavigateResponse> {
         if (!params || !params.url) {
             this._error("No url provided");
         }

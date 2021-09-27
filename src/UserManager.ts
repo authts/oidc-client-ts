@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log, JoseUtil, Timer } from "./utils";
-import { INavigator, NavigatorParams, IFrameNavigator, PopupNavigator, RedirectNavigator } from "./navigators";
+import { INavigator, NavigateParams, IFrameNavigator, PopupNavigator, RedirectNavigator, NavigateResponse } from "./navigators";
 import { OidcClient, CreateSigninRequestArgs, CreateSignoutRequestArgs } from "./OidcClient";
 import { UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
-import { User } from "./User";
+import { User, UserProfile } from "./User";
 import { UserManagerEvents } from "./UserManagerEvents";
 import { SilentRenewService } from "./SilentRenewService";
 import { SessionMonitor } from "./SessionMonitor";
@@ -201,10 +201,10 @@ export class UserManager {
         return user;
     }
 
-    protected async _validateIdTokenFromTokenRefreshToken(profile: any, id_token: string): Promise<void> {
+    protected async _validateIdTokenFromTokenRefreshToken(profile: UserProfile, id_token: string): Promise<void> {
         const issuer = await this.metadataService.getIssuer();
         const now = Timer.getEpochTime();
-        const payload = await JoseUtil.validateJwtAttributes(id_token, issuer, this.settings.client_id, this.settings.clockSkewInSeconds, now);
+        const payload = JoseUtil.validateJwtAttributes(id_token, issuer, this.settings.client_id, this.settings.clockSkewInSeconds, now);
         if (!payload) {
             Log.error("UserManager._validateIdTokenFromTokenRefreshToken: Failed to validate id_token");
             throw new Error("Failed to validate id_token");
@@ -342,11 +342,11 @@ export class UserManager {
         }
     }
 
-    protected async _signin(args: SigninArgs, navigator: INavigator, navigatorParams: NavigatorParams): Promise<User> {
+    protected async _signin(args: SigninArgs, navigator: INavigator, navigatorParams: NavigateParams): Promise<User> {
         const navResponse = await this._signinStart(args, navigator, navigatorParams);
         return this._signinEnd(navResponse.url, args);
     }
-    protected async _signinStart(args: SigninArgs, navigator: INavigator, navigatorParams: NavigatorParams): Promise<any> {
+    protected async _signinStart(args: SigninArgs, navigator: INavigator, navigatorParams: NavigateParams): Promise<NavigateResponse> {
         const handle = await navigator.prepare(navigatorParams);
         Log.debug("UserManager._signinStart: got navigator window handle");
 
@@ -365,7 +365,7 @@ export class UserManager {
             throw err;
         }
     }
-    protected async _signinEnd(url: string, args: SigninArgs = {}): Promise<User> {
+    protected async _signinEnd(url?: string, args: SigninArgs = {}): Promise<User> {
         const signinResponse = await this._client.processSigninResponse(url);
         Log.debug("UserManager._signinEnd: got signin response");
 
@@ -444,11 +444,11 @@ export class UserManager {
         Log.info("UserManager.signoutPopupCallback: successful");
     }
 
-    protected async _signout(args: SignoutArgs, navigator: INavigator, navigatorParams: NavigatorParams): Promise<SignoutResponse> {
+    protected async _signout(args: SignoutArgs, navigator: INavigator, navigatorParams: NavigateParams): Promise<SignoutResponse> {
         const navResponse = await this._signoutStart(args, navigator, navigatorParams);
         return this._signoutEnd(navResponse.url);
     }
-    protected async _signoutStart(args: SignoutArgs = {}, navigator: INavigator, navigatorParams: NavigatorParams = {}): Promise<any> {
+    protected async _signoutStart(args: SignoutArgs = {}, navigator: INavigator, navigatorParams: NavigateParams = {}): Promise<any> {
         const handle = await navigator.prepare(navigatorParams);
         Log.debug("UserManager._signoutStart: got navigator window handle");
 

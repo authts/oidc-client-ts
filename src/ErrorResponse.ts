@@ -14,7 +14,7 @@ export class ErrorResponse extends Error {
     public readonly session_state: string | undefined;
 
     public constructor(args: {
-        error?: string; error_description?: string; error_uri?: string; state?: string; session_state?: string;
+        error?: string; error_description?: string; error_uri?: string; state?: any; session_state?: string;
     }) {
         if (!args.error) {
             Log.error("No error passed to ErrorResponse");

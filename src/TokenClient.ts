@@ -75,10 +75,10 @@ export class TokenClient {
             delete args.client_secret;
         }
 
-        const url = await this._metadataService.getTokenEndpoint(false);
+        const url = await this._metadataService.getTokenEndpoint(false) as string;
         Log.debug("TokenClient.exchangeCode: Received token endpoint");
 
-        const response = await this._jsonService.postForm(url as string, args, basicAuth);
+        const response = await this._jsonService.postForm(url, args, basicAuth);
         Log.debug("TokenClient.exchangeCode: response received");
 
         return response;
@@ -115,10 +115,10 @@ export class TokenClient {
             delete args.client_secret;
         }
 
-        const url = await this._metadataService.getTokenEndpoint(false);
+        const url = await this._metadataService.getTokenEndpoint(false) as string;
         Log.debug("TokenClient.exchangeRefreshToken: Received token endpoint");
 
-        const response = await this._jsonService.postForm(url as string, args, basicAuth);
+        const response = await this._jsonService.postForm(url, args, basicAuth);
         Log.debug("TokenClient.exchangeRefreshToken: response received");
 
         return response;

@@ -124,11 +124,12 @@ describe("AccessTokenEvents", () => {
 
 class StubTimer extends Timer {
     cancelWasCalled: boolean;
-    duration: any;
+    duration: number | undefined;
 
     constructor(name: string) {
         super(name);
         this.cancelWasCalled = false;
+        this.duration = undefined;
     }
 
     init(duration: number) {

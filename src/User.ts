@@ -3,32 +3,40 @@
 
 import { Log, Timer } from "./utils";
 
+export interface UserProfile {
+    sub?: string;
+    sid?: string;
+    azp?: string;
+    at_hash?: string;
+    auth_time?: any;
+}
+
 /**
  * @public
  */
 export class User {
-    public id_token: string;
+    public id_token: string | undefined;
     public session_state: string | undefined;
     public access_token: string;
     public refresh_token: string | undefined;
     public token_type: string;
-    public scope: string;
-    public profile: any;
-    public state: any | undefined;
-    public expires_at: number;
+    public scope: string | undefined;
+    public profile: UserProfile;
+    public expires_at: number | undefined;
 
-    public constructor({
-        id_token, session_state, access_token, refresh_token, token_type, scope, profile, expires_at, state
-    }: any) {
-        this.id_token = id_token;
-        this.session_state = session_state;
-        this.access_token = access_token;
-        this.refresh_token = refresh_token;
-        this.token_type = token_type;
-        this.scope = scope;
-        this.profile = profile;
-        this.state = state;
-        this.expires_at = expires_at;
+    public constructor(args: {
+        id_token?: string; session_state?: string;
+        access_token: string; refresh_token?: string;
+        token_type: string; scope?: string; profile: UserProfile; expires_at?: number;
+    }) {
+        this.id_token = args.id_token;
+        this.session_state = args.session_state;
+        this.access_token = args.access_token;
+        this.refresh_token = args.refresh_token;
+        this.token_type = args.token_type;
+        this.scope = args.scope;
+        this.profile = args.profile;
+        this.expires_at = args.expires_at;
     }
 
     public get expires_in(): number | undefined {

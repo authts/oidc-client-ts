@@ -153,11 +153,10 @@ describe("JoseUtil", () => {
             }
         });
 
-        it("should allow nbf within clock skew", async () => {
+        it("should allow nbf within clock skew", () => {
             // act
-            const p1 = JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, notBefore - 1);
-            const p2 = JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, notBefore - 10);
-            await Promise.all([p1, p2]);
+            JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, notBefore - 1);
+            JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, notBefore - 10);
         });
 
         it("should not allow nbf outside clock skew", () => {
@@ -184,11 +183,10 @@ describe("JoseUtil", () => {
             }
         });
 
-        it("should allow iat within clock skew", async () => {
+        it("should allow iat within clock skew", () => {
             // act
-            const p1 = JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, issuedAt - 1);
-            const p2 = JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, issuedAt - 10);
-            await Promise.all([p1, p2]);
+            JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, issuedAt - 1);
+            JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, issuedAt - 10);
         });
 
         it("should now allow iat outside clock skew", () => {
@@ -215,11 +213,10 @@ describe("JoseUtil", () => {
             }
         });
 
-        it("should allow exp within clock skew", async () => {
+        it("should allow exp within clock skew", () => {
             // act
-            const p1 = JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, expires + 1);
-            const p2 = JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, expires + 10);
-            await Promise.all([p1, p2]);
+            JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, expires + 1);
+            JoseUtil.validateJwt(jwtFromRsa, rsaKey, expectedIssuer, expectedAudience, 10, expires + 10);
         });
 
         it("should now allow exp outside clock skew", () => {

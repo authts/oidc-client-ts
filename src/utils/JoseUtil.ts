@@ -8,8 +8,28 @@ import { Timer } from "./Timer";
 
 const AllowedSigningAlgs = ["RS256", "RS384", "RS512", "PS256", "PS384", "PS512", "ES256", "ES384", "ES512"];
 
+export interface ParsedJwt {
+    header: {
+        alg: string;
+        typ: string;
+    };
+    payload?: JwtPayload;
+}
+
+export interface JwtPayload {
+    iss?: string;
+    aud?: string;
+    azp?: string;
+    iat?: number;
+    nbf?: number;
+    exp?: number;
+    sub?: string;
+    nonce?: string;
+    auth_time?: any;
+}
+
 export class JoseUtil {
-    public static parseJwt(jwt: string): Record<string, any> | null {
+    public static parseJwt(jwt: string): ParsedJwt | null {
         Log.debug("JoseUtil.parseJwt");
         try {
             const token = KJUR.jws.JWS.parse(jwt);
@@ -24,7 +44,7 @@ export class JoseUtil {
         }
     }
 
-    public static validateJwt(jwt: string, key: any, issuer: string, audience: string, clockSkew: number, now?: number, timeInsensitive = false): Record<string, any> {
+    public static validateJwt(jwt: string, key: any, issuer: string, audience: string, clockSkew: number, now?: number, timeInsensitive = false): void {
         Log.debug("JoseUtil.validateJwt");
 
         try {
@@ -50,7 +70,7 @@ export class JoseUtil {
                 throw new Error("Unsupported key type: " + (key ? String(key.kty) : "undefined"));
             }
 
-            return JoseUtil._validateJwt(jwt, key, issuer, audience, clockSkew, now, timeInsensitive);
+            JoseUtil._validateJwt(jwt, key, issuer, audience, clockSkew, now, timeInsensitive);
         }
         catch (err) {
             Log.error(err instanceof Error ? err.message : err);
@@ -58,7 +78,7 @@ export class JoseUtil {
         }
     }
 
-    public static validateJwtAttributes(jwt: string, issuer: string, audience: string, clockSkew: number, now?: number, timeInsensitive=false): any {
+    public static validateJwtAttributes(jwt: string, issuer: string, audience: string, clockSkew: number, now?: number, timeInsensitive=false): JwtPayload {
         if (!now) {
             now = Timer.getEpochTime();
         }
@@ -68,28 +88,28 @@ export class JoseUtil {
             throw new Error("Failed to parse token");
         }
 
-        const payload: any = parsedJwt.payload;
+        const payload = parsedJwt.payload;
         if (!payload.iss) {
-            Log.error("JoseUtil._validateJwt: issuer was not provided");
+            Log.error("JoseUtil.validateJwtAttributes: issuer was not provided");
             throw new Error("issuer was not provided");
         }
         if (payload.iss !== issuer) {
-            Log.error("JoseUtil._validateJwt: Invalid issuer in token", payload.iss);
+            Log.error("JoseUtil.validateJwtAttributes: Invalid issuer in token", payload.iss);
             throw new Error("Invalid issuer in token: " + String(payload.iss));
         }
 
         if (!payload.aud) {
-            Log.error("JoseUtil._validateJwt: aud was not provided");
+            Log.error("JoseUtil.validateJwtAttributes: aud was not provided");
             throw new Error("aud was not provided");
         }
         const validAudience = payload.aud === audience || (Array.isArray(payload.aud) && payload.aud.indexOf(audience) >= 0);
         if (!validAudience) {
-            Log.error("JoseUtil._validateJwt: Invalid audience in token", payload.aud);
-            throw new Error("Invalid audience in token: " + String(payload.aud));
+            Log.error("JoseUtil.validateJwtAttributes: Invalid audience in token", payload.aud);
+            throw new Error("Invalid audience in token: " + payload.aud);
         }
         if (payload.azp && payload.azp !== audience) {
-            Log.error("JoseUtil._validateJwt: Invalid azp in token", payload.azp);
-            throw new Error("Invalid azp in token: " + String(payload.azp));
+            Log.error("JoseUtil.validateJwtAttributes: Invalid azp in token", payload.azp);
+            throw new Error("Invalid azp in token: " + payload.azp);
         }
 
         if (!timeInsensitive) {
@@ -97,25 +117,25 @@ export class JoseUtil {
             const upperNow = now - clockSkew;
 
             if (!payload.iat) {
-                Log.error("JoseUtil._validateJwt: iat was not provided");
+                Log.error("JoseUtil.validateJwtAttributes: iat was not provided");
                 throw new Error("iat was not provided");
             }
             if (lowerNow < payload.iat) {
-                Log.error("JoseUtil._validateJwt: iat is in the future", payload.iat);
+                Log.error("JoseUtil.validateJwtAttributes: iat is in the future", payload.iat);
                 throw new Error("iat is in the future: " + String(payload.iat));
             }
 
             if (payload.nbf && lowerNow < payload.nbf) {
-                Log.error("JoseUtil._validateJwt: nbf is in the future", payload.nbf);
+                Log.error("JoseUtil.validateJwtAttributes: nbf is in the future", payload.nbf);
                 throw new Error("nbf is in the future: " + String(payload.nbf));
             }
 
             if (!payload.exp) {
-                Log.error("JoseUtil._validateJwt: exp was not provided");
+                Log.error("JoseUtil.validateJwtAttributes: exp was not provided");
                 throw new Error("exp was not provided");
             }
             if (payload.exp < upperNow) {
-                Log.error("JoseUtil._validateJwt: exp is in the past", payload.exp);
+                Log.error("JoseUtil.validateJwtAttributes: exp is in the past", payload.exp);
                 throw new Error("exp is in the past: " + String(payload.exp));
             }
         }
@@ -123,8 +143,8 @@ export class JoseUtil {
         return payload;
     }
 
-    private static _validateJwt(jwt: string, key: string, issuer: string, audience: string, clockSkew: number, now?: number, timeInsensitive = false) {
-        const payload = JoseUtil.validateJwtAttributes(jwt, issuer, audience, clockSkew, now, timeInsensitive);
+    private static _validateJwt(jwt: string, key: any, issuer: string, audience: string, clockSkew: number, now?: number, timeInsensitive = false) {
+        JoseUtil.validateJwtAttributes(jwt, issuer, audience, clockSkew, now, timeInsensitive);
 
         let isValid: boolean;
         try {
@@ -139,8 +159,6 @@ export class JoseUtil {
             Log.error("JoseUtil._validateJwt: signature validation failed");
             throw new Error("signature validation failed");
         }
-
-        return payload;
     }
 
     public static hashString(value: string, alg: string): string {

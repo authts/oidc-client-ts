@@ -984,9 +984,7 @@ describe("ResponseValidator", () => {
             jest.spyOn(metadataService, "getIssuer").mockImplementation(() => Promise.resolve("test"));
             const keys = [{ kid: "a3rMUgMFv9tPclLa6yF3zAkfquE", kty: "EC" }];
             jest.spyOn(metadataService, "getSigningKeys").mockImplementation(() => Promise.resolve(keys));
-            const validateJwtMock = jest.spyOn(JoseUtil, "validateJwt").mockImplementation(() => {
-                return Promise.resolve();
-            });
+            const validateJwtMock = jest.spyOn(JoseUtil, "validateJwt").mockImplementation();
             jest.spyOn(JoseUtil, "parseJwt").mockImplementation(() => {
                 return { header: { alg: "ES123", typ: "JWT" }, payload: { nonce: stubState.nonce, sub: "sub" } };
             });
@@ -1005,9 +1003,7 @@ describe("ResponseValidator", () => {
             jest.spyOn(metadataService, "getIssuer").mockImplementation(() => Promise.resolve("test"));
             const keys = [{ kid: "a3rMUgMFv9tPclLa6yF3zAkfquE", kty: "EC" }];
             jest.spyOn(metadataService, "getSigningKeys").mockImplementation(() => Promise.resolve(keys));
-            jest.spyOn(JoseUtil, "validateJwt").mockImplementation(() => {
-                return Promise.resolve();
-            });
+            jest.spyOn(JoseUtil, "validateJwt").mockImplementation();
             jest.spyOn(JoseUtil, "parseJwt").mockImplementation(() => {
                 return { header: { alg: "ES123", typ: "JWT" }, payload: { nonce: stubState.nonce, sub: "sub" } };
             });

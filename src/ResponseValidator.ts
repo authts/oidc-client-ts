@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, JoseUtil, Timer } from "./utils";
+import { Log, JoseUtil, Timer, ParsedJwt } from "./utils";
 import type { MetadataService } from "./MetadataService";
 import { UserInfoService } from "./UserInfoService";
 import { TokenClient } from "./TokenClient";
@@ -11,6 +11,7 @@ import type { SigninState } from "./SigninState";
 import type { SigninResponse } from "./SigninResponse";
 import type { State } from "./State";
 import type { SignoutResponse } from "./SignoutResponse";
+import type { UserProfile } from "./User";
 
 const ProtocolClaims = ["nonce", "at_hash", "iat", "nbf", "exp", "aud", "iss", "c_hash"];
 
@@ -160,8 +161,8 @@ export class ResponseValidator {
         return response;
     }
 
-    protected _mergeClaims(claims1: any, claims2: any): any {
-        const result = Object.assign({}, claims1);
+    protected _mergeClaims(claims1: UserProfile, claims2: any): UserProfile {
+        const result = Object.assign({}, claims1 as Record<string, any>);
 
         for (const name in claims2) {
             let values = claims2[name];
@@ -193,10 +194,10 @@ export class ResponseValidator {
         return result;
     }
 
-    protected _filterProtocolClaims(claims: any): any {
+    protected _filterProtocolClaims(claims: UserProfile): UserProfile {
         Log.debug("ResponseValidator._filterProtocolClaims, incoming claims:", claims);
 
-        const result = Object.assign({}, claims);
+        const result = Object.assign({}, claims as Record<string, any>);
 
         if (this._settings.filterProtocolClaims) {
             ProtocolClaims.forEach(type => {
@@ -274,10 +275,10 @@ export class ResponseValidator {
 
         const audience = state.client_id;
         const clockSkewInSeconds = this._settings.clockSkewInSeconds;
-        Log.debug("ResponseValidator._validateIdTokenAttributes: Validaing JWT attributes; using clock skew (in seconds) of: ", clockSkewInSeconds);
+        Log.debug("ResponseValidator._validateIdTokenAttributes: Validating JWT attributes; using clock skew (in seconds) of: ", clockSkewInSeconds);
 
         const now = Timer.getEpochTime();
-        const payload = await JoseUtil.validateJwtAttributes(id_token, issuer, audience, clockSkewInSeconds, now);
+        const payload = JoseUtil.validateJwtAttributes(id_token, issuer, audience, clockSkewInSeconds, now);
         if (state.nonce && state.nonce !== payload.nonce) {
             Log.error("ResponseValidator._validateIdTokenAttributes: Invalid nonce in id_token");
             throw new Error("Invalid nonce in id_token");
@@ -292,7 +293,7 @@ export class ResponseValidator {
         return response;
     }
 
-    protected async _getSigningKeyForJwt(jwt: any): Promise<Record<string, string> | null> {
+    protected async _getSigningKeyForJwt(jwt: ParsedJwt): Promise<Record<string, string> | null> {
         let keys = await this._metadataService.getSigningKeys();
         if (!keys) {
             Log.error("ResponseValidator._getSigningKeyForJwt: No signing keys from metadata");
@@ -300,7 +301,7 @@ export class ResponseValidator {
         }
 
         Log.debug("ResponseValidator._getSigningKeyForJwt: Received signing keys");
-        const kid = jwt.header.kid;
+        const kid = (jwt.header as any).kid;
         if (kid) {
             const key = keys.filter(key => key.kid === kid)[0] ?? null;
             return key;
@@ -317,7 +318,7 @@ export class ResponseValidator {
         return keys[0];
     }
 
-    protected async _getSigningKeyForJwtWithSingleRetry(jwt: any): Promise<Record<string, string> | null> {
+    protected async _getSigningKeyForJwtWithSingleRetry(jwt: ParsedJwt): Promise<Record<string, string> | null> {
         const key = await this._getSigningKeyForJwt(jwt);
         if (key) {
             return key;
@@ -341,7 +342,7 @@ export class ResponseValidator {
             throw new Error("Failed to parse id_token");
         }
 
-        const payload: any = jwt.payload;
+        const payload = jwt.payload;
         if (state.nonce !== payload.nonce) {
             Log.error("ResponseValidator._validateIdToken: Invalid nonce in id_token");
             throw new Error("Invalid nonce in id_token");
@@ -357,7 +358,7 @@ export class ResponseValidator {
 
         const audience = state.client_id;
         const clockSkewInSeconds = this._settings.clockSkewInSeconds;
-        Log.debug("ResponseValidator._validateIdToken: Validaing JWT; using clock skew (in seconds) of: ", clockSkewInSeconds);
+        Log.debug("ResponseValidator._validateIdToken: Validating JWT; using clock skew (in seconds) of: ", clockSkewInSeconds);
 
         JoseUtil.validateJwt(id_token, key, issuer, audience, clockSkewInSeconds);
         Log.debug("ResponseValidator._validateIdToken: JWT validation successful");

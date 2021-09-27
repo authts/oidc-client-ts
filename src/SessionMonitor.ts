@@ -12,8 +12,8 @@ import type { User } from "./User";
 export class SessionMonitor {
     private readonly _userManager: UserManager;
     private readonly _timer: IntervalTimer;
-    private _sub: any;
-    private _sid: any;
+    private _sub: string | undefined;
+    private _sid: string | undefined;
     private _checkSessionIFrame?: CheckSessionIFrame;
 
     public constructor(userManager: UserManager) {
@@ -126,15 +126,17 @@ export class SessionMonitor {
                 this._timer.clearInterval(timerHandle);
 
                 try {
-                    const session: any = await this._userManager.querySessionStatus();
-                    const tmpUser = {
-                        session_state: session.session_state,
-                        profile: session.sub && session.sid ? {
-                            sub: session.sub,
-                            sid: session.sid
-                        } : null
-                    };
-                    void this._start(tmpUser);
+                    const session = await this._userManager.querySessionStatus();
+                    if (session) {
+                        const tmpUser = {
+                            session_state: session.session_state,
+                            profile: session.sub && session.sid ? {
+                                sub: session.sub,
+                                sid: session.sid
+                            } : null
+                        };
+                        void this._start(tmpUser);
+                    }
                 }
                 catch (err) {
                     // catch to suppress errors since we're in a callback
@@ -146,7 +148,7 @@ export class SessionMonitor {
 
     protected async _callback(): Promise<void> {
         try {
-            const session: any = await this._userManager.querySessionStatus();
+            const session = await this._userManager.querySessionStatus();
             let raiseEvent = true;
 
             if (session && this._checkSessionIFrame) {

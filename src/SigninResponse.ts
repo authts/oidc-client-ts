@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Timer, UrlUtility } from "./utils";
+import type { UserProfile } from "./User";
 
 const OidcScope = "openid";
 
@@ -19,16 +20,15 @@ export class SigninResponse {
     // updated by ResponseValidator
     public id_token: string | undefined;
     public session_state: string | undefined;
-    public access_token: string | undefined;
-    public token_type: string | undefined;
+    public access_token: string;
+    public token_type: string;
     public scope: string | undefined;
-    public expires_at: number | undefined
+    public expires_at: number | undefined;
 
     // set by ResponseValidator
-    public profile: any |  undefined;
+    public profile: UserProfile;
 
     public constructor(url?: string, delimiter = "#") {
-
         const values = UrlUtility.parseUrlFragment(url, delimiter);
 
         this.error = values.error;
@@ -45,7 +45,7 @@ export class SigninResponse {
         this.scope = values.scope;
         this.expires_in = parseInt(values.expires_in);
 
-        this.profile = undefined;
+        this.profile = {};
     }
 
     public get expires_in(): number | undefined {

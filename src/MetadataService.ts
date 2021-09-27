@@ -129,10 +129,10 @@ export class MetadataService {
             return this._signingKeys;
         }
 
-        const jwks_uri = await this.getKeysEndpoint(false);
+        const jwks_uri = await this.getKeysEndpoint(false) as string;
         Log.debug("MetadataService.getSigningKeys: jwks_uri received", jwks_uri);
 
-        const keySet = await this._jsonService.getJson(jwks_uri as string);
+        const keySet = await this._jsonService.getJson(jwks_uri);
         Log.debug("MetadataService.getSigningKeys: key set received", keySet);
 
         if (!keySet.keys) {
