@@ -47,7 +47,7 @@
     "@types/jsrsasign": "^8.0.13",
     "@typescript-eslint/eslint-plugin": "^4.31.1",
     "@typescript-eslint/parser": "^4.31.1",
-    "esbuild": "^0.12.28",
+    "esbuild": "^0.13.2",
     "eslint": "^7.32.0",
     "eslint-plugin-testing-library": "^4.10.1",
     "http-proxy-middleware": "^2.0.1",
