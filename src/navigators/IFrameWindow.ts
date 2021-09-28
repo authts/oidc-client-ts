@@ -4,39 +4,43 @@
 import { Log } from "../utils";
 import type { IWindow, NavigateParams, NavigateResponse } from "./IWindow";
 
-const DefaultTimeoutInSeconds = 10;
+const defaultTimeoutInSeconds = 10;
+
+export interface IFrameWindowParams {
+    silentRequestTimeoutInSeconds?: number;
+}
 
 export class IFrameWindow implements IWindow {
-    private _promise: Promise<NavigateResponse>;
     private _resolve!: (value: NavigateResponse) => void;
     private _reject!: (reason?: any) => void;
-    private _boundMessageEvent: ((e: any) => void) | null;
+    private _promise = new Promise<NavigateResponse>((resolve, reject) => {
+        this._resolve = resolve;
+        this._reject = reject;
+    })
+    private _timeoutInSeconds: number;
     private _frame: HTMLIFrameElement | null;
-    private _timer: number | null;
+    private _timer: number | null = null;
 
-    public constructor() {
-        this._promise = new Promise((resolve, reject) => {
-            this._resolve = resolve;
-            this._reject = reject;
-        });
-
-        this._boundMessageEvent = this._message.bind(this);
-        window.addEventListener("message", this._boundMessageEvent, false);
+    public constructor({
+        silentRequestTimeoutInSeconds = defaultTimeoutInSeconds
+    }: IFrameWindowParams) {
+        this._timeoutInSeconds = silentRequestTimeoutInSeconds;
+        window.addEventListener("message", this._message, false);
 
         this._frame = window.document.createElement("iframe");
 
         // shotgun approach
         this._frame.style.visibility = "hidden";
-        this._frame.style.position = "absolute";
+        this._frame.style.position = "fixed";
+        this._frame.style.left = "-1000px";
+        this._frame.style.top = "0";
         this._frame.width = "0";
         this._frame.height = "0";
 
         window.document.body.appendChild(this._frame);
-
-        this._timer = null;
     }
 
-    public navigate(params: NavigateParams): Promise<NavigateResponse> {
+    public async navigate(params: NavigateParams): Promise<NavigateResponse> {
         if (!params || !params.url) {
             this._error("No url provided");
         }
@@ -44,13 +48,12 @@ export class IFrameWindow implements IWindow {
             this._error("No _frame, already closed");
         }
         else {
-            const timeoutInSeconds = params.silentRequestTimeoutInSeconds || DefaultTimeoutInSeconds;
-            Log.debug("IFrameWindow.navigate: Using timeout of:", timeoutInSeconds);
-            this._timer = window.setTimeout(this._timeout.bind(this), timeoutInSeconds * 1000);
+            Log.debug("IFrameWindow.navigate: Using timeout of:", this._timeoutInSeconds);
+            this._timer = window.setTimeout(this._timeout, this._timeoutInSeconds * 1000);
             this._frame.src = params.url;
         }
 
-        return this._promise;
+        return await this._promise;
     }
 
     protected _success(data: any): void {
@@ -72,27 +75,24 @@ export class IFrameWindow implements IWindow {
 
     protected _cleanup(): void {
         Log.debug("IFrameWindow: cleanup");
-        if (this._timer) {
+        if (this._timer != null) {
             window.clearTimeout(this._timer);
         }
-        if (this._boundMessageEvent) {
-            window.removeEventListener("message", this._boundMessageEvent, false);
-        }
         if (this._frame) {
+            window.removeEventListener("message", this._message, false);
             window.document.body.removeChild(this._frame);
         }
 
         this._timer = null;
-        this._boundMessageEvent = null;
         this._frame = null;
     }
 
-    protected _timeout(): void {
+    protected _timeout = (): void => {
         Log.debug("IFrameWindow.timeout");
         this._error("Frame window timed out");
     }
 
-    protected _message(e: any): void {
+    protected _message = (e: any): void => {
         Log.debug("IFrameWindow.message");
 
         const origin = location.protocol + "//" + location.host;

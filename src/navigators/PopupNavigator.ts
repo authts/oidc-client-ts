@@ -2,25 +2,23 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log } from "../utils";
-import { PopupWindow } from "./PopupWindow";
+import { PopupWindow, PopupWindowParams } from "./PopupWindow";
 import type { INavigator } from "./INavigator";
-import type { IWindow, NavigateParams } from "./IWindow";
+import type { UserManagerSettingsStore } from "../UserManagerSettings";
 
 export class PopupNavigator implements INavigator {
-    public prepare(params: NavigateParams): Promise<IWindow> {
-        const popup = new PopupWindow(params);
-        return Promise.resolve(popup);
+    constructor(private _settings: UserManagerSettingsStore) {}
+
+    public async prepare({
+        popupWindowFeatures = this._settings.popupWindowFeatures,
+        popupWindowTarget = this._settings.popupWindowTarget,
+    }: PopupWindowParams): Promise<PopupWindow> {
+        return new PopupWindow({ popupWindowFeatures, popupWindowTarget });
     }
 
-    public callback(url: string | undefined, keepOpen: boolean, delimiter: string): Promise<void> {
+    public async callback(url: string | undefined, keepOpen: boolean, delimiter: string): Promise<void> {
         Log.debug("PopupNavigator.callback");
 
-        try {
-            PopupWindow.notifyOpener(url, keepOpen, delimiter);
-            return Promise.resolve();
-        }
-        catch (err) {
-            return Promise.reject(err);
-        }
+        PopupWindow.notifyOpener(url, keepOpen, delimiter);
     }
 }

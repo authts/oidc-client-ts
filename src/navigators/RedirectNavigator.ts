@@ -1,30 +1,36 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import type { UserManagerSettingsStore } from "../UserManagerSettings";
 import { Log } from "../utils";
 import type { INavigator } from "./INavigator";
 import type { IWindow, NavigateParams, NavigateResponse } from "./IWindow";
 
+export interface RedirectParams {
+    redirectMethod?: "replace" | "assign";
+}
+
 export class RedirectNavigator implements INavigator, IWindow {
-    public prepare(): Promise<IWindow> {
-        return Promise.resolve(this);
+    private _redirectMethod: "replace" | "assign" | undefined;
+
+    constructor(private _settings: UserManagerSettingsStore) {}
+
+    public async prepare({ redirectMethod }: RedirectParams): Promise<RedirectNavigator> {
+        this._redirectMethod = redirectMethod ?? this._settings.redirectMethod;
+        return this;
     }
 
-    public navigate(params: NavigateParams): Promise<NavigateResponse> {
+    public async navigate(params: NavigateParams): Promise<NavigateResponse> {
         if (!params || !params.url) {
             Log.error("RedirectNavigator.navigate: No url provided");
             throw new Error("No url provided");
         }
 
-        window.location[params.redirectMethod || "assign"](params.url);
-        return Promise.resolve(this);
-    }
-
-    public get url(): string {
-        return window.location.href;
+        window.location[this._redirectMethod!](params.url);
+        return { url: window.location.href };
     }
 
     public close(): void {
-        Log.warn("Function not implemented");
+        Log.warn("RedirectNavigator cannot close the current window");
     }
 }

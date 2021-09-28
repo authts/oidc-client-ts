@@ -4,13 +4,9 @@
 import { Log } from "./Log";
 
 export class Event {
-    protected _name: string;
-    private _callbacks: ((...ev: any[]) => Promise<void> | void)[];
+    private _callbacks: ((...ev: any[]) => Promise<void> | void)[] = [];
 
-    public constructor(name: string) {
-        this._name = name;
-        this._callbacks = [];
-    }
+    public constructor(protected _name: string) {}
 
     public addHandler(cb: (...ev: any[]) => Promise<void> | void): void {
         this._callbacks.push(cb);

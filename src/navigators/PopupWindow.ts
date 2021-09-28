@@ -4,37 +4,39 @@
 import { Log, UrlUtility } from "../utils";
 import type { IWindow, NavigateParams, NavigateResponse } from "./IWindow";
 
-const CheckForPopupClosedInterval = 500;
-const DefaultPopupFeatures = "location=no,toolbar=no,width=500,height=500,left=100,top=100;";
+const checkForPopupClosedInterval = 500;
+const defaultPopupFeatures = "location=no,toolbar=no,width=500,height=500,left=100,top=100;";
 
-const DefaultPopupTarget = "_blank";
+const defaultPopupTarget = "_blank";
+
+export interface PopupWindowParams {
+    popupWindowFeatures?: string;
+    popupWindowTarget?: string;
+}
 
 export class PopupWindow implements IWindow {
-    private _promise: Promise<NavigateResponse>;
     private _resolve!: (value: NavigateResponse) => void;
     private _reject!: (reason?: any) => void;
+    private _promise = new Promise<NavigateResponse>((resolve, reject) => {
+        this._resolve = resolve;
+        this._reject = reject;
+    });
     private _popup: Window | null;
-    private _checkForPopupClosedTimer: number | null;
+    private _checkForPopupClosedTimer: number | null = null
     private _id: string | undefined;
 
-    public constructor(params: NavigateParams) {
-        this._promise = new Promise((resolve, reject) => {
-            this._resolve = resolve;
-            this._reject = reject;
-        });
-
-        const target = params.popupWindowTarget || DefaultPopupTarget;
-        const features = params.popupWindowFeatures || DefaultPopupFeatures;
-
-        this._popup = window.open("", target, features);
-        this._checkForPopupClosedTimer = null;
+    public constructor({
+        popupWindowTarget = defaultPopupTarget,
+        popupWindowFeatures = defaultPopupFeatures
+    }: PopupWindowParams) {
+        this._popup = window.open("", popupWindowTarget, popupWindowFeatures);
         if (this._popup) {
             Log.debug("PopupWindow.ctor: popup successfully created");
-            this._checkForPopupClosedTimer = window.setInterval(this._checkForPopupClosed.bind(this), CheckForPopupClosedInterval);
+            this._checkForPopupClosedTimer = window.setInterval(this._checkForPopupClosed, checkForPopupClosedInterval);
         }
     }
 
-    public navigate(params: NavigateParams): Promise<NavigateResponse> {
+    public async navigate(params: NavigateParams): Promise<NavigateResponse> {
         if (!this._popup) {
             this._error("PopupWindow.navigate: Error opening popup window");
         }
@@ -47,21 +49,18 @@ export class PopupWindow implements IWindow {
 
             this._id = params.id;
             if (this._id) {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-                window["popupCallback_" + params.id] = this._callback.bind(this);
+                (window as any)["popupCallback_" + params.id!] = this._callback;
             }
 
             this._popup.focus();
-            this._popup.window.location[params.redirectMethod || "assign"](params.url);
-            window.addEventListener("message", this._messageReceived.bind(this), false);
+            this._popup.window.location.replace(params.url);
+            window.addEventListener("message", this._messageReceived, false);
         }
 
-        return this._promise;
+        return await this._promise;
     }
 
-    _messageReceived(event: MessageEvent): void {
+    _messageReceived = (event: MessageEvent): void => {
         if (event.origin !== window.location.origin) {
             Log.warn("PopupWindow:messageRecieved: Message not coming from same origin: " + event.origin);
             return;
@@ -112,12 +111,9 @@ export class PopupWindow implements IWindow {
             this._checkForPopupClosedTimer = null;
         }
 
-        window.removeEventListener("message", this._messageReceived.bind(this));
+        window.removeEventListener("message", this._messageReceived);
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        delete window["popupCallback_" + this._id];
+        delete (window as any)["popupCallback_" + this._id!];
 
         if (this._popup && !keepOpen) {
             this._popup.close();
@@ -125,13 +121,13 @@ export class PopupWindow implements IWindow {
         this._popup = null;
     }
 
-    protected _checkForPopupClosed(): void {
+    protected _checkForPopupClosed = (): void => {
         if (!this._popup || this._popup.closed) {
             this._error("Popup window closed");
         }
     }
 
-    protected _callback(url: string, keepOpen: boolean): void {
+    protected _callback = (url: string, keepOpen: boolean): void => {
         this._cleanup(keepOpen);
 
         if (url) {

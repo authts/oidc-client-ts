@@ -13,7 +13,7 @@ export class UserInfoService {
 
     public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
         this._settings = settings;
-        this._jsonService = new JsonService(undefined, this._getClaimsFromJwt.bind(this));
+        this._jsonService = new JsonService(undefined, this._getClaimsFromJwt);
         this._metadataService = metadataService;
     }
 
@@ -32,7 +32,7 @@ export class UserInfoService {
         return claims;
     }
 
-    protected async _getClaimsFromJwt(responseText: string): Promise<any> {
+    protected _getClaimsFromJwt = async (responseText: string): Promise<any> => {
         try {
             const jwt = JoseUtil.parseJwt(responseText);
             if (!jwt || !jwt.header || !jwt.payload) {

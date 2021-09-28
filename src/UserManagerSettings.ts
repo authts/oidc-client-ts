@@ -57,7 +57,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly popup_post_logout_redirect_uri: string | undefined;
     public readonly popupWindowFeatures: string | undefined;
     public readonly popupWindowTarget: string | undefined;
-    public readonly redirectMethod: "replace" | "assign" | undefined;
+    public readonly redirectMethod: "replace" | "assign";
 
     public readonly silent_redirect_uri: string | undefined;
     public readonly silentRequestTimeoutInSeconds: number | undefined;
@@ -82,7 +82,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             popup_post_logout_redirect_uri,
             popupWindowFeatures,
             popupWindowTarget,
-            redirectMethod,
+            redirectMethod = "assign",
 
             silent_redirect_uri,
             silentRequestTimeoutInSeconds,

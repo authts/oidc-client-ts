@@ -20,16 +20,9 @@ export const g_timer: IntervalTimer = {
 };
 
 export class Timer extends Event {
-    private _timer: IntervalTimer;
-    private _timerHandle: number | null;
-    private _expiration: number;
-
-    public constructor(name: string) {
-        super(name);
-        this._timer = g_timer;
-        this._timerHandle = null;
-        this._expiration = 0;
-    }
+    private _timer = g_timer;
+    private _timerHandle: number | null = null;
+    private _expiration = 0;
 
     // get the time
     public static getEpochTime(): number {
@@ -61,7 +54,7 @@ export class Timer extends Event {
         if (durationInSeconds < timerDurationInSeconds) {
             timerDurationInSeconds = durationInSeconds;
         }
-        this._timerHandle = this._timer.setInterval(this._callback.bind(this), timerDurationInSeconds * 1000);
+        this._timerHandle = this._timer.setInterval(this._callback, timerDurationInSeconds * 1000);
     }
 
     public get expiration(): number {
@@ -76,7 +69,7 @@ export class Timer extends Event {
         }
     }
 
-    protected _callback(): void {
+    protected _callback = (): void => {
         const diff = this._expiration - Timer.getEpochTime();
         Log.debug("Timer.callback; " + this._name + " timer expires in:", diff);
 
