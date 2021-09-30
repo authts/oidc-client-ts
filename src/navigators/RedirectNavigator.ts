@@ -26,7 +26,7 @@ export class RedirectNavigator implements INavigator, IWindow {
             throw new Error("No url provided");
         }
 
-        window.location[this._redirectMethod!](params.url);
+        window.location[this._redirectMethod || "assign"](params.url);
         return { url: window.location.href };
     }
 
