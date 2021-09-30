@@ -21,7 +21,7 @@ type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "extraQueryParams" |
 type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQueryParams">
 
 /**
- * @public
+ * The UserManager allows you to start and manage OIDC flows and adds session management on top of that.
  */
 export class UserManager {
     public readonly settings: UserManagerSettingsStore;

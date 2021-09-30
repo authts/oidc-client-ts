@@ -4,6 +4,7 @@
 /docs/api
 /lib/
 dist/
+typedoc
 
 # caches
 .eslintcache
