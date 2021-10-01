@@ -37,6 +37,59 @@ export class CheckSessionIFrame {
 }
 
 // @public (undocumented)
+export interface CreateSigninRequestArgs {
+    // (undocumented)
+    acr_values?: string;
+    // (undocumented)
+    client_secret?: string;
+    // (undocumented)
+    data?: any;
+    // (undocumented)
+    display?: string;
+    // (undocumented)
+    extraQueryParams?: Record<string, any>;
+    // (undocumented)
+    extraTokenParams?: Record<string, any>;
+    // (undocumented)
+    id_token_hint?: string;
+    // (undocumented)
+    login_hint?: string;
+    // (undocumented)
+    max_age?: number;
+    // (undocumented)
+    prompt?: string;
+    // (undocumented)
+    redirect_uri?: string;
+    // (undocumented)
+    request?: string;
+    // (undocumented)
+    request_type?: string;
+    // (undocumented)
+    request_uri?: string;
+    // (undocumented)
+    resource?: string;
+    // (undocumented)
+    response_mode?: string;
+    // (undocumented)
+    response_type?: string;
+    // (undocumented)
+    scope?: string;
+    // (undocumented)
+    skipUserInfo?: boolean;
+    // (undocumented)
+    state?: any;
+    // (undocumented)
+    ui_locales?: string;
+}
+
+// Warning: (ae-forgotten-export) The symbol "SignoutRequestArgs" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url"> & {
+    state?: any;
+};
+
+// @public (undocumented)
 export class InMemoryWebStorage implements Storage {
     constructor();
     // (undocumented)
@@ -122,12 +175,10 @@ export class OidcClient {
     constructor(settings: OidcClientSettings);
     // (undocumented)
     clearStaleState(): Promise<void>;
-    // Warning: (ae-forgotten-export) The symbol "CreateSigninRequestArgs" needs to be exported by the entry point index.d.ts
     // Warning: (ae-forgotten-export) The symbol "SigninRequest" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
     createSigninRequest({ response_type, scope, redirect_uri, data, state, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo }: CreateSigninRequestArgs): Promise<SigninRequest>;
-    // Warning: (ae-forgotten-export) The symbol "CreateSignoutRequestArgs" needs to be exported by the entry point index.d.ts
     // Warning: (ae-forgotten-export) The symbol "SignoutRequest" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -204,6 +255,12 @@ export interface OidcClientSettings {
     userInfoJwtIssuer?: "ANY" | "OP" | string;
 }
 
+// Warning: (ae-forgotten-export) The symbol "IFrameWindowParams" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "ExtraSigninRequestArgs" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export type QuerySessionStatusArgs = IFrameWindowParams & ExtraSigninRequestArgs;
+
 // @public (undocumented)
 export class SessionMonitor {
     constructor(userManager: UserManager);
@@ -229,6 +286,27 @@ export interface SessionStatus {
     sid?: string;
     sub?: string;
 }
+
+// Warning: (ae-forgotten-export) The symbol "PopupWindowParams" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export type SigninPopupArgs = PopupWindowParams & ExtraSigninRequestArgs;
+
+// Warning: (ae-forgotten-export) The symbol "RedirectParams" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export type SigninRedirectArgs = RedirectParams & ExtraSigninRequestArgs;
+
+// @public (undocumented)
+export type SigninSilentArgs = IFrameWindowParams & ExtraSigninRequestArgs;
+
+// Warning: (ae-forgotten-export) The symbol "ExtraSignoutRequestArgs" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export type SignoutPopupArgs = PopupWindowParams & ExtraSignoutRequestArgs;
+
+// @public (undocumented)
+export type SignoutRedirectArgs = RedirectParams & ExtraSignoutRequestArgs;
 
 // @public (undocumented)
 export class TokenRevocationClient {
@@ -291,8 +369,6 @@ export class UserManager {
     protected readonly _client: OidcClient;
     // (undocumented)
     get events(): UserManagerEvents;
-    // Warning: (ae-forgotten-export) The symbol "UserManagerEvents" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     protected readonly _events: UserManagerEvents;
     // (undocumented)
@@ -310,7 +386,7 @@ export class UserManager {
     // (undocumented)
     protected readonly _popupNavigator: PopupNavigator;
     // (undocumented)
-    querySessionStatus({ silentRequestTimeoutInSeconds, ...args }?: IFrameWindowParams & ExtraSigninRequestArgs): Promise<SessionStatus | null>;
+    querySessionStatus(args?: QuerySessionStatusArgs): Promise<SessionStatus | null>;
     // Warning: (ae-forgotten-export) The symbol "RedirectNavigator" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -341,23 +417,16 @@ export class UserManager {
     protected _signinCallback(url: string | undefined, navigator: IFrameNavigator | PopupNavigator): Promise<void>;
     // (undocumented)
     protected _signinEnd(url: string, verifySub?: string): Promise<User>;
-    // Warning: (ae-forgotten-export) The symbol "PopupWindowParams" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
-    signinPopup({ popupWindowFeatures, popupWindowTarget, ...args }?: PopupWindowParams & ExtraSigninRequestArgs): Promise<User>;
+    signinPopup(args?: SigninPopupArgs): Promise<User>;
     // (undocumented)
     signinPopupCallback(url?: string): Promise<void>;
-    // Warning: (ae-forgotten-export) The symbol "RedirectParams" needs to be exported by the entry point index.d.ts
-    // Warning: (ae-forgotten-export) The symbol "ExtraSigninRequestArgs" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
-    signinRedirect({ redirectMethod, ...args }?: RedirectParams & ExtraSigninRequestArgs): Promise<void>;
+    signinRedirect(args?: SigninRedirectArgs): Promise<void>;
     // (undocumented)
     signinRedirectCallback(url?: string): Promise<User>;
-    // Warning: (ae-forgotten-export) The symbol "IFrameWindowParams" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
-    signinSilent({ silentRequestTimeoutInSeconds, ...args }?: IFrameWindowParams & ExtraSigninRequestArgs): Promise<User | null>;
+    signinSilent(args?: SigninSilentArgs): Promise<User | null>;
     // (undocumented)
     signinSilentCallback(url?: string): Promise<void>;
     // Warning: (ae-forgotten-export) The symbol "NavigateResponse" needs to be exported by the entry point index.d.ts
@@ -371,13 +440,11 @@ export class UserManager {
     // (undocumented)
     protected _signoutEnd(url: string): Promise<SignoutResponse>;
     // (undocumented)
-    signoutPopup({ popupWindowFeatures, popupWindowTarget, ...args }?: PopupWindowParams & ExtraSignoutRequestArgs): Promise<void>;
+    signoutPopup(args?: SignoutPopupArgs): Promise<void>;
     // (undocumented)
     signoutPopupCallback(url: any, keepOpen: any): Promise<void>;
-    // Warning: (ae-forgotten-export) The symbol "ExtraSignoutRequestArgs" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
-    signoutRedirect({ redirectMethod, ...args }?: RedirectParams & ExtraSignoutRequestArgs): Promise<void>;
+    signoutRedirect(args?: SignoutRedirectArgs): Promise<void>;
     // (undocumented)
     signoutRedirectCallback(url?: string): Promise<SignoutResponse>;
     // (undocumented)
@@ -404,6 +471,59 @@ export class UserManager {
     protected get _userStoreKey(): string;
     // (undocumented)
     protected _validateIdTokenFromTokenRefreshToken(profile: UserProfile, id_token: string): Promise<void>;
+}
+
+// @public (undocumented)
+export class UserManagerEvents extends AccessTokenEvents {
+    constructor(settings: UserManagerSettingsStore);
+    // Warning: (ae-forgotten-export) The symbol "SilentRenewErrorCallback" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    addSilentRenewError(cb: SilentRenewErrorCallback): void;
+    // Warning: (ae-forgotten-export) The symbol "UserLoadedCallback" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    addUserLoaded(cb: UserLoadedCallback): void;
+    // Warning: (ae-forgotten-export) The symbol "UserSessionChangedCallback" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    addUserSessionChanged(cb: UserSessionChangedCallback): void;
+    // Warning: (ae-forgotten-export) The symbol "UserSignedInCallback" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    addUserSignedIn(cb: UserSignedInCallback): void;
+    // Warning: (ae-forgotten-export) The symbol "UserSignedOutCallback" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    addUserSignedOut(cb: UserSignedOutCallback): void;
+    // Warning: (ae-forgotten-export) The symbol "UserUnloadedCallback" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    addUserUnloaded(cb: UserUnloadedCallback): void;
+    // (undocumented)
+    load(user: User, raiseEvent?: boolean): void;
+    // (undocumented)
+    _raiseSilentRenewError(e: Error): void;
+    // (undocumented)
+    _raiseUserSessionChanged(): void;
+    // (undocumented)
+    _raiseUserSignedIn(): void;
+    // (undocumented)
+    _raiseUserSignedOut(): void;
+    // (undocumented)
+    removeSilentRenewError(cb: SilentRenewErrorCallback): void;
+    // (undocumented)
+    removeUserLoaded(cb: UserLoadedCallback): void;
+    // (undocumented)
+    removeUserSessionChanged(cb: UserSessionChangedCallback): void;
+    // (undocumented)
+    removeUserSignedIn(cb: UserSignedInCallback): void;
+    // (undocumented)
+    removeUserSignedOut(cb: UserSignedOutCallback): void;
+    // (undocumented)
+    removeUserUnloaded(cb: UserUnloadedCallback): void;
+    // (undocumented)
+    unload(): void;
 }
 
 // @public (undocumented)
@@ -453,10 +573,10 @@ export class WebStorageStateStore implements StateStore {
 
 // Warnings were encountered during analysis:
 //
-// src/OidcClient.ts:111:88 - (ae-forgotten-export) The symbol "SigninState" needs to be exported by the entry point index.d.ts
-// src/OidcClient.ts:111:108 - (ae-forgotten-export) The symbol "SigninResponse" needs to be exported by the entry point index.d.ts
-// src/OidcClient.ts:181:89 - (ae-forgotten-export) The symbol "State" needs to be exported by the entry point index.d.ts
-// src/OidcClient.ts:181:115 - (ae-forgotten-export) The symbol "SignoutResponse" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:117:88 - (ae-forgotten-export) The symbol "SigninState" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:117:108 - (ae-forgotten-export) The symbol "SigninResponse" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:187:89 - (ae-forgotten-export) The symbol "State" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:187:115 - (ae-forgotten-export) The symbol "SignoutResponse" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
