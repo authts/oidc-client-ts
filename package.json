@@ -1,6 +1,6 @@
 {
   "name": "oidc-client-ts",
-  "version": "2.0.0-alpha2",
+  "version": "2.0.0-beta.1",
   "description": "OpenID Connect (OIDC) & OAuth2 client library",
   "repository": {
     "type": "git",
