@@ -23,6 +23,36 @@ type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQueryParams"
 /**
  * @public
  */
+export type SigninRedirectArgs = RedirectParams & ExtraSigninRequestArgs;
+
+/**
+ * @public
+ */
+export type SigninPopupArgs = PopupWindowParams & ExtraSigninRequestArgs;
+
+/**
+ * @public
+ */
+export type SigninSilentArgs = IFrameWindowParams & ExtraSigninRequestArgs;
+
+/**
+ * @public
+ */
+export type QuerySessionStatusArgs = IFrameWindowParams & ExtraSigninRequestArgs;
+
+/**
+ * @public
+ */
+export type SignoutRedirectArgs = RedirectParams & ExtraSignoutRequestArgs;
+
+/**
+ * @public
+ */
+export type SignoutPopupArgs = PopupWindowParams & ExtraSignoutRequestArgs;
+
+/**
+ * @public
+ */
 export class UserManager {
     public readonly settings: UserManagerSettingsStore;
 
@@ -90,14 +120,15 @@ export class UserManager {
         this._events.unload();
     }
 
-    public async signinRedirect({
-        redirectMethod,
-        ...args
-    }: RedirectParams & ExtraSigninRequestArgs = {}): Promise<void> {
+    public async signinRedirect(args: SigninRedirectArgs = {}): Promise<void> {
+        const {
+            redirectMethod,
+            ...requestArgs
+        } = args;
         const handle = await this._redirectNavigator.prepare({ redirectMethod });
         await this._signinStart({
             request_type: "si:r",
-            ...args,
+            ...requestArgs,
         }, handle);
         Log.info("UserManager.signinRedirect: successful");
     }
@@ -114,11 +145,12 @@ export class UserManager {
         return user;
     }
 
-    public async signinPopup({
-        popupWindowFeatures,
-        popupWindowTarget,
-        ...args
-    }: PopupWindowParams & ExtraSigninRequestArgs = {}): Promise<User> {
+    public async signinPopup(args: SigninPopupArgs = {}): Promise<User> {
+        const {
+            popupWindowFeatures,
+            popupWindowTarget,
+            ...requestArgs
+        } = args;
         const url = this.settings.popup_redirect_uri || this.settings.redirect_uri;
         if (!url) {
             Log.error("UserManager.signinPopup: No popup_redirect_uri or redirect_uri configured");
@@ -130,7 +162,7 @@ export class UserManager {
             request_type: "si:p",
             redirect_uri: url,
             display: "popup",
-            ...args,
+            ...requestArgs,
         }, handle);
         if (user) {
             if (user.profile && user.profile.sub) {
@@ -153,10 +185,11 @@ export class UserManager {
         }
     }
 
-    public async signinSilent({
-        silentRequestTimeoutInSeconds,
-        ...args
-    }: IFrameWindowParams & ExtraSigninRequestArgs = {}): Promise<User | null> {
+    public async signinSilent(args: SigninSilentArgs = {}): Promise<User | null> {
+        const {
+            silentRequestTimeoutInSeconds,
+            ...requestArgs
+        } = args;
         // first determine if we have a refresh token, or need to use iframe
         let user = await this._loadUser();
         if (user && user.refresh_token) {
@@ -181,7 +214,7 @@ export class UserManager {
             redirect_uri: url,
             prompt: "none",
             id_token_hint: this.settings.includeIdTokenInSilentRenew ? user?.id_token : undefined,
-            ...args,
+            ...requestArgs,
         }, handle, verifySub);
         if (user) {
             if (user.profile && user.profile.sub) {
@@ -284,10 +317,11 @@ export class UserManager {
         }
     }
 
-    public async querySessionStatus({
-        silentRequestTimeoutInSeconds,
-        ...args
-    }: IFrameWindowParams & ExtraSigninRequestArgs = {}): Promise<SessionStatus | null> {
+    public async querySessionStatus(args: QuerySessionStatusArgs = {}): Promise<SessionStatus | null> {
+        const {
+            silentRequestTimeoutInSeconds,
+            ...requestArgs
+        } = args;
         const url = this.settings.silent_redirect_uri || this.settings.redirect_uri;
         if (!url) {
             Log.error("UserManager.querySessionStatus: No silent_redirect_uri configured");
@@ -302,7 +336,7 @@ export class UserManager {
             response_type: this.settings.query_status_response_type,
             scope: "openid",
             skipUserInfo: true,
-            ...args,
+            ...requestArgs,
         }, handle);
         try {
             const signinResponse = await this._client.processSigninResponse(navResponse.url);
@@ -389,15 +423,16 @@ export class UserManager {
         await navigator.callback(url, false, delimiter);
     }
 
-    public async signoutRedirect({
-        redirectMethod,
-        ...args
-    }: RedirectParams & ExtraSignoutRequestArgs = {}): Promise<void> {
+    public async signoutRedirect(args: SignoutRedirectArgs = {}): Promise<void> {
+        const {
+            redirectMethod,
+            ...requestArgs
+        } = args;
         const handle = await this._redirectNavigator.prepare({ redirectMethod });
         await this._signoutStart({
             request_type: "so:r",
             post_logout_redirect_uri: this.settings.post_logout_redirect_uri,
-            ...args,
+            ...requestArgs,
         }, handle);
         Log.info("UserManager.signoutRedirect: successful");
     }
@@ -407,11 +442,12 @@ export class UserManager {
         return response;
     }
 
-    public async signoutPopup({
-        popupWindowFeatures,
-        popupWindowTarget,
-        ...args
-    }: PopupWindowParams & ExtraSignoutRequestArgs = {}): Promise<void> {
+    public async signoutPopup(args: SignoutPopupArgs = {}): Promise<void> {
+        const {
+            popupWindowFeatures,
+            popupWindowTarget,
+            ...requestArgs
+        } = args;
         const url = this.settings.popup_post_logout_redirect_uri || this.settings.post_logout_redirect_uri;
 
         const handle = await this._popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget });
@@ -424,7 +460,7 @@ export class UserManager {
             // plan to return back to the client after signout
             // and so we can close the popup after signout
             state: url == null ? undefined : {},
-            ...args,
+            ...requestArgs,
         }, handle);
         Log.info("UserManager.signoutPopup: successful");
     }

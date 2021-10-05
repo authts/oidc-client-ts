@@ -13,6 +13,9 @@ import { SignoutResponse } from "./SignoutResponse";
 import { SigninState } from "./SigninState";
 import { State } from "./State";
 
+/**
+ * @public
+ */
 export interface CreateSigninRequestArgs {
     redirect_uri?: string;
     response_type?: string;
@@ -39,6 +42,9 @@ export interface CreateSigninRequestArgs {
     skipUserInfo?: boolean;
 }
 
+/**
+ * @public
+ */
 export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url"> & { state?: any };
 
 /**

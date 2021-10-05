@@ -49,7 +49,7 @@ export class PopupWindow implements IWindow {
 
             this._id = params.id;
             if (this._id) {
-                (window as any)["popupCallback_" + params.id!] = this._callback;
+                (window as any)["popupCallback_" + this._id] = this._callback;
             }
 
             this._popup.focus();
@@ -113,7 +113,10 @@ export class PopupWindow implements IWindow {
 
         window.removeEventListener("message", this._messageReceived);
 
-        delete (window as any)["popupCallback_" + this._id!];
+        if (this._id) {
+            delete (window as any)["popupCallback_" + this._id];
+        }
+        this._id = undefined;
 
         if (this._popup && !keepOpen) {
             this._popup.close();

@@ -3,11 +3,12 @@
 
 export { Log } from "./utils";
 
-export { OidcClient } from "./OidcClient";
+export * from "./OidcClient";
 export type { OidcClientSettings } from "./OidcClientSettings";
 export { WebStorageStateStore } from "./WebStorageStateStore";
 export { InMemoryWebStorage } from "./InMemoryWebStorage";
-export { UserManager } from "./UserManager";
+export * from "./UserManager";
+export { UserManagerEvents } from "./UserManagerEvents";
 export type { UserManagerSettings } from "./UserManagerSettings";
 export { AccessTokenEvents } from "./AccessTokenEvents";
 export { MetadataService } from "./MetadataService";

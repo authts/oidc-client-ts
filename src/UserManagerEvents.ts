@@ -13,6 +13,9 @@ export type UserSignedInCallback = () => Promise<void> | void;
 export type UserSignedOutCallback = () => Promise<void> | void;
 export type UserSessionChangedCallback = () => Promise<void> | void;
 
+/**
+ * @public
+ */
 export class UserManagerEvents extends AccessTokenEvents {
     private _userLoaded: Event;
     private _userUnloaded: Event;
