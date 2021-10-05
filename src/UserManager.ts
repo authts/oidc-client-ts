@@ -465,11 +465,6 @@ export class UserManager {
         Log.info("UserManager.signoutPopup: successful");
     }
     public async signoutPopupCallback(url?: string, keepOpen = false): Promise<void> {
-        if (typeof(keepOpen) === "undefined" && typeof(url) === "boolean") {
-            keepOpen = url;
-            url = undefined;
-        }
-
         const delimiter = "?";
         await this._popupNavigator.callback(url, keepOpen, delimiter);
         Log.info("UserManager.signoutPopupCallback: successful");
