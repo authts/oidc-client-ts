@@ -464,10 +464,10 @@ export class UserManager {
         }, handle);
         Log.info("UserManager.signoutPopup: successful");
     }
-    public async signoutPopupCallback(url: any, keepOpen: any): Promise<void> {
+    public async signoutPopupCallback(url?: string, keepOpen = false): Promise<void> {
         if (typeof(keepOpen) === "undefined" && typeof(url) === "boolean") {
             keepOpen = url;
-            url = null;
+            url = undefined;
         }
 
         const delimiter = "?";
@@ -479,7 +479,7 @@ export class UserManager {
         const navResponse = await this._signoutStart(args, handle);
         return this._signoutEnd(navResponse.url);
     }
-    protected async _signoutStart(args: CreateSignoutRequestArgs = {}, handle: IWindow): Promise<any> {
+    protected async _signoutStart(args: CreateSignoutRequestArgs = {}, handle: IWindow): Promise<NavigateResponse> {
         Log.debug("UserManager._signoutStart: got navigator window handle");
 
         try {

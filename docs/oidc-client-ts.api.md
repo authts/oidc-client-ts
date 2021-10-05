@@ -442,13 +442,13 @@ export class UserManager {
     // (undocumented)
     signoutPopup(args?: SignoutPopupArgs): Promise<void>;
     // (undocumented)
-    signoutPopupCallback(url: any, keepOpen: any): Promise<void>;
+    signoutPopupCallback(url?: string, keepOpen?: boolean): Promise<void>;
     // (undocumented)
     signoutRedirect(args?: SignoutRedirectArgs): Promise<void>;
     // (undocumented)
     signoutRedirectCallback(url?: string): Promise<SignoutResponse>;
     // (undocumented)
-    protected _signoutStart(args: CreateSignoutRequestArgs | undefined, handle: IWindow): Promise<any>;
+    protected _signoutStart(args: CreateSignoutRequestArgs | undefined, handle: IWindow): Promise<NavigateResponse>;
     // Warning: (ae-forgotten-export) The symbol "SilentRenewService" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
