@@ -14,6 +14,11 @@ const DefaultClockSkewInSeconds = 60 * 5;
 /**
  * @public
  */
+export type SigningKey = Record<string, string | string[]>;
+
+/**
+ * @public
+ */
 export interface OidcClientSettings {
     /** The URL of the OIDC/OAuth2 provider */
     authority: string;
@@ -23,7 +28,7 @@ export interface OidcClientSettings {
     /** Can be used to seed or add additional values to the results of the discovery request */
     metadataSeed?: Partial<OidcMetadata>;
     /** Provide signingKeys when authority server does not allow CORS on the jwks uri */
-    signingKeys?: Record<string, string>[];
+    signingKeys?: SigningKey[];
 
     /** Your client application's identifier as registered with the OIDC/OAuth2 */
     client_id: string;
@@ -70,7 +75,7 @@ export class OidcClientSettingsStore {
     public readonly metadataUrl: string | undefined;
     public readonly metadata: Partial<OidcMetadata> | undefined;
     public readonly metadataSeed: Partial<OidcMetadata> | undefined;
-    public readonly signingKeys: Record<string, string>[] | undefined;
+    public readonly signingKeys: SigningKey[] | undefined;
 
     // client config
     public readonly client_id: string;

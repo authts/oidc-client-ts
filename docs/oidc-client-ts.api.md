@@ -159,7 +159,7 @@ export class MetadataService {
     // (undocumented)
     getRevocationEndpoint(): Promise<string | undefined>;
     // (undocumented)
-    getSigningKeys(): Promise<Record<string, string>[] | null>;
+    getSigningKeys(): Promise<SigningKey[] | null>;
     // (undocumented)
     getTokenEndpoint(optional?: boolean): Promise<string | undefined>;
     // (undocumented)
@@ -241,7 +241,7 @@ export interface OidcClientSettings {
     response_mode?: "query" | "fragment";
     response_type?: string;
     scope?: string;
-    signingKeys?: Record<string, string>[];
+    signingKeys?: SigningKey[];
     staleStateAgeInSeconds?: number;
     // Warning: (ae-forgotten-export) The symbol "StateStore" needs to be exported by the entry point index.d.ts
     //
@@ -284,6 +284,9 @@ export interface SessionStatus {
     sid?: string;
     sub?: string;
 }
+
+// @public (undocumented)
+export type SigningKey = Record<string, string | string[]>;
 
 // Warning: (ae-forgotten-export) The symbol "PopupWindowParams" needs to be exported by the entry point index.d.ts
 //
