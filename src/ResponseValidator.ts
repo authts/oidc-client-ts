@@ -6,7 +6,7 @@ import type { MetadataService } from "./MetadataService";
 import { UserInfoService } from "./UserInfoService";
 import { TokenClient } from "./TokenClient";
 import { ErrorResponse } from "./ErrorResponse";
-import type { OidcClientSettingsStore } from "./OidcClientSettings";
+import type { OidcClientSettingsStore, SigningKey } from "./OidcClientSettings";
 import type { SigninState } from "./SigninState";
 import type { SigninResponse } from "./SigninResponse";
 import type { State } from "./State";
@@ -293,7 +293,7 @@ export class ResponseValidator {
         return response;
     }
 
-    protected async _getSigningKeyForJwt(jwt: ParsedJwt): Promise<Record<string, string> | null> {
+    protected async _getSigningKeyForJwt(jwt: ParsedJwt): Promise<SigningKey | null> {
         let keys = await this._metadataService.getSigningKeys();
         if (!keys) {
             Log.error("ResponseValidator._getSigningKeyForJwt: No signing keys from metadata");
@@ -317,7 +317,7 @@ export class ResponseValidator {
         return keys[0];
     }
 
-    protected async _getSigningKeyForJwtWithSingleRetry(jwt: ParsedJwt): Promise<Record<string, string> | null> {
+    protected async _getSigningKeyForJwtWithSingleRetry(jwt: ParsedJwt): Promise<SigningKey | null> {
         const key = await this._getSigningKeyForJwt(jwt);
         if (key) {
             return key;
@@ -371,7 +371,7 @@ export class ResponseValidator {
         return response;
     }
 
-    protected _filterByAlg(keys: Record<string, string>[], alg: string): Record<string, string>[] {
+    protected _filterByAlg(keys: SigningKey[], alg: string): SigningKey[] {
         let kty: string | null = null;
         if (alg.startsWith("RS")) {
             kty = "RSA";

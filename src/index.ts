@@ -4,7 +4,7 @@
 export { Log } from "./utils";
 
 export * from "./OidcClient";
-export type { OidcClientSettings } from "./OidcClientSettings";
+export type { OidcClientSettings, SigningKey } from "./OidcClientSettings";
 export { WebStorageStateStore } from "./WebStorageStateStore";
 export { InMemoryWebStorage } from "./InMemoryWebStorage";
 export * from "./UserManager";

@@ -4,7 +4,7 @@
 import { Log, JoseUtil } from "./utils";
 import { JsonService } from "./JsonService";
 import type { MetadataService } from "./MetadataService";
-import type { OidcClientSettingsStore } from "./OidcClientSettings";
+import type { OidcClientSettingsStore, SigningKey } from "./OidcClientSettings";
 
 export class UserInfoService {
     private _settings: OidcClientSettingsStore;
@@ -62,7 +62,7 @@ export class UserInfoService {
             }
 
             Log.debug("UserInfoService._getClaimsFromJwt: Received signing keys");
-            let key: Record<string, string> | null;
+            let key: SigningKey | null;
             if (jwt.header.kid) {
                 key = keys.filter(key => key.kid === jwt.header.kid)[0] ?? null;
             }
@@ -97,7 +97,7 @@ export class UserInfoService {
         }
     }
 
-    protected _filterByAlg(keys: Record<string, string>[], alg: string): Record<string, string>[] {
+    protected _filterByAlg(keys: SigningKey[], alg: string): SigningKey[] {
         let kty: string | null = null;
         if (alg.startsWith("RS")) {
             kty = "RSA";

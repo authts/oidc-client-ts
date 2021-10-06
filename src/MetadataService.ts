@@ -3,7 +3,7 @@
 
 import { Log } from "./utils";
 import { JsonService } from "./JsonService";
-import type { OidcClientSettingsStore } from "./OidcClientSettings";
+import type { OidcClientSettingsStore, SigningKey } from "./OidcClientSettings";
 import type { OidcMetadata } from "./OidcMetadata";
 
 const OidcMetadataUrlPath = ".well-known/openid-configuration";
@@ -17,7 +17,7 @@ export class MetadataService {
 
     // cache
     private _metadataUrl: string | null;
-    private _signingKeys: Record<string, string>[] | null;
+    private _signingKeys: SigningKey[] | null;
     private _metadata: Partial<OidcMetadata> | null;
 
     public constructor(settings: OidcClientSettingsStore) {
@@ -123,7 +123,7 @@ export class MetadataService {
         return metadata[name];
     }
 
-    public async getSigningKeys(): Promise<Record<string, string>[] | null> {
+    public async getSigningKeys(): Promise<SigningKey[] | null> {
         if (this._signingKeys) {
             Log.debug("MetadataService.getSigningKeys: Returning signingKeys from cache");
             return this._signingKeys;
