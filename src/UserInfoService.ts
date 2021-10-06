@@ -40,16 +40,13 @@ export class UserInfoService {
                 throw new Error("Failed to parse id_token");
             }
 
-            const header: any = jwt.header;
-            const payload = jwt.payload;
-
             let issuer: string;
             switch (this._settings.userInfoJwtIssuer) {
                 case "OP":
                     issuer = await this._metadataService.getIssuer();
                     break;
                 case "ANY":
-                    issuer = payload.iss as string;
+                    issuer = jwt.payload.iss as string;
                     break;
                 default:
                     issuer = this._settings.userInfoJwtIssuer as string;
@@ -66,8 +63,8 @@ export class UserInfoService {
 
             Log.debug("UserInfoService._getClaimsFromJwt: Received signing keys");
             let key: Record<string, string> | null;
-            if (header.kid) {
-                key = keys.filter(key => key.kid === header.kid)[0] ?? null;
+            if (jwt.header.kid) {
+                key = keys.filter(key => key.kid === jwt.header.kid)[0] ?? null;
             }
             else {
                 keys = this._filterByAlg(keys, jwt.header.alg);
@@ -88,11 +85,11 @@ export class UserInfoService {
 
             const audience = this._settings.client_id;
             const clockSkewInSeconds = this._settings.clockSkewInSeconds;
-            Log.debug("UserInfoService._getClaimsFromJwt: Validaing JWT; using clock skew (in seconds) of: ", clockSkewInSeconds);
+            Log.debug("UserInfoService._getClaimsFromJwt: Validating JWT; using clock skew (in seconds) of: ", clockSkewInSeconds);
 
             JoseUtil.validateJwt(responseText, key, issuer, audience, clockSkewInSeconds, undefined, true);
             Log.debug("UserInfoService._getClaimsFromJwt: JWT validation successful");
-            return payload;
+            return jwt.payload;
         }
         catch (err) {
             Log.error("UserInfoService._getClaimsFromJwt: Error parsing JWT response", err instanceof Error ? err.message : err);

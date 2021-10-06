@@ -8,7 +8,7 @@ export interface UserProfile {
     sid?: string;
     azp?: string;
     at_hash?: string;
-    auth_time?: any;
+    auth_time?: number;
 }
 
 /**

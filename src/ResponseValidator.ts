@@ -301,9 +301,8 @@ export class ResponseValidator {
         }
 
         Log.debug("ResponseValidator._getSigningKeyForJwt: Received signing keys");
-        const kid = (jwt.header as any).kid;
-        if (kid) {
-            const key = keys.filter(key => key.kid === kid)[0] ?? null;
+        if (jwt.header.kid) {
+            const key = keys.filter(key => key.kid === jwt.header.kid)[0] ?? null;
             return key;
         }
 
