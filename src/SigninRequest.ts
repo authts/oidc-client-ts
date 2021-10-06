@@ -14,7 +14,7 @@ export interface SigninRequestArgs {
     scope: string;
 
     // optional
-    data?: any;
+    state_data?: any;
     prompt?: string;
     display?: string;
     max_age?: number;
@@ -41,7 +41,7 @@ export class SigninRequest {
         // mandatory
         url, authority, client_id, redirect_uri, response_type, scope,
         // optional
-        data, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, response_mode,
+        state_data, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, response_mode,
         request, request_uri, extraQueryParams, request_type, client_secret, extraTokenParams, skipUserInfo
     }: SigninRequestArgs) {
         if (!url) {
@@ -77,7 +77,7 @@ export class SigninRequest {
         }
 
         this.state = new SigninState({
-            data,
+            data: state_data,
             request_type,
             nonce: isOidc,
             code_verifier: isCode,

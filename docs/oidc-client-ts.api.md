@@ -43,8 +43,6 @@ export interface CreateSigninRequestArgs {
     // (undocumented)
     client_secret?: string;
     // (undocumented)
-    data?: any;
-    // (undocumented)
     display?: string;
     // (undocumented)
     extraQueryParams?: Record<string, any>;
@@ -85,7 +83,7 @@ export interface CreateSigninRequestArgs {
 // Warning: (ae-forgotten-export) The symbol "SignoutRequestArgs" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
-export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url"> & {
+export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url" | "state_data"> & {
     state?: any;
 };
 
@@ -178,11 +176,11 @@ export class OidcClient {
     // Warning: (ae-forgotten-export) The symbol "SigninRequest" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    createSigninRequest({ response_type, scope, redirect_uri, data, state, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo }: CreateSigninRequestArgs): Promise<SigninRequest>;
+    createSigninRequest({ response_type, scope, redirect_uri, state, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo }: CreateSigninRequestArgs): Promise<SigninRequest>;
     // Warning: (ae-forgotten-export) The symbol "SignoutRequest" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    createSignoutRequest({ id_token_hint, data, state, post_logout_redirect_uri, extraQueryParams, request_type }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
+    createSignoutRequest({ state, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
     // (undocumented)
     readonly metadataService: MetadataService;
     // (undocumented)
@@ -573,10 +571,10 @@ export class WebStorageStateStore implements StateStore {
 
 // Warnings were encountered during analysis:
 //
-// src/OidcClient.ts:117:88 - (ae-forgotten-export) The symbol "SigninState" needs to be exported by the entry point index.d.ts
-// src/OidcClient.ts:117:108 - (ae-forgotten-export) The symbol "SigninResponse" needs to be exported by the entry point index.d.ts
-// src/OidcClient.ts:187:89 - (ae-forgotten-export) The symbol "State" needs to be exported by the entry point index.d.ts
-// src/OidcClient.ts:187:115 - (ae-forgotten-export) The symbol "SignoutResponse" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:114:88 - (ae-forgotten-export) The symbol "SigninState" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:114:108 - (ae-forgotten-export) The symbol "SigninResponse" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:184:89 - (ae-forgotten-export) The symbol "State" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:184:115 - (ae-forgotten-export) The symbol "SignoutResponse" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

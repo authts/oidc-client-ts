@@ -88,7 +88,7 @@ describe("OidcClient", () => {
 
             // act
             const request = await subject.createSigninRequest({
-                data: "foo",
+                state: "foo",
                 response_type: "bar",
                 response_mode: "mode",
                 scope: "baz",
@@ -393,7 +393,7 @@ describe("OidcClient", () => {
                 id: "1",
                 nonce: "2",
                 authority: "authority",
-                client_id:"client",
+                client_id: "client",
                 redirect_uri: "http://cb",
                 scope: "scope",
                 request_type: "type"
@@ -463,7 +463,7 @@ describe("OidcClient", () => {
 
             // act
             const request = await subject.createSignoutRequest({
-                data: "foo",
+                state: "foo",
                 post_logout_redirect_uri: "bar",
                 id_token_hint: "baz"
             });
@@ -514,7 +514,8 @@ describe("OidcClient", () => {
 
             // act
             await subject.createSignoutRequest({
-                data:"foo", id_token_hint:"hint"
+                state: "foo",
+                id_token_hint: "hint"
             });
 
             // assert
@@ -582,7 +583,7 @@ describe("OidcClient", () => {
 
         it("should deserialize stored state and return state and response", async () => {
             // arrange
-            const item = new State({ id: "1", request_type:"type" }).toStorageString();
+            const item = new State({ id: "1", request_type: "type" }).toStorageString();
             jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item));
 
             // act
@@ -683,7 +684,7 @@ describe("OidcClient", () => {
             // arrange
             const item = new State({
                 id: "1",
-                data:"bar",
+                data: "bar",
                 request_type: "type"
             });
             jest.spyOn(subject.settings.stateStore, "remove")
