@@ -1,19 +1,19 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { SignoutRequest } from "../../src/SignoutRequest";
+import { SignoutRequest, SignoutRequestArgs } from "../../src/SignoutRequest";
 
 describe("SignoutRequest", () => {
 
     let subject: SignoutRequest;
-    let settings: any;
+    let settings: SignoutRequestArgs;
 
     beforeEach(() => {
         settings = {
             url: "http://sts/signout",
             id_token_hint: "hint",
             post_logout_redirect_uri: "loggedout",
-            data: { data: "test" }
+            state_data: { data: "test" }
         };
         subject = new SignoutRequest(settings);
     });
@@ -22,7 +22,7 @@ describe("SignoutRequest", () => {
 
         it("should require a url param", () => {
             // arrange
-            delete settings.url;
+            delete (settings as any).url;
 
             // act
             try {
