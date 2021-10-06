@@ -25,7 +25,7 @@ export interface JwtPayload {
     exp?: number;
     sub?: string;
     nonce?: string;
-    auth_time?: any;
+    auth_time?: number;
 }
 
 export class JoseUtil {

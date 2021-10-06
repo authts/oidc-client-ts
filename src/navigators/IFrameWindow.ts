@@ -56,7 +56,7 @@ export class IFrameWindow implements IWindow {
         return await this._promise;
     }
 
-    protected _success(data: any): void {
+    protected _success(data: NavigateResponse): void {
         this._cleanup();
 
         Log.debug("IFrameWindow: Successful response from frame window");
@@ -92,7 +92,7 @@ export class IFrameWindow implements IWindow {
         this._error("Frame window timed out");
     }
 
-    protected _message = (e: any): void => {
+    protected _message = (e: MessageEvent): void => {
         Log.debug("IFrameWindow.message");
 
         const origin = location.protocol + "//" + location.host;

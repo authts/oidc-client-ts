@@ -60,9 +60,9 @@ export class PopupWindow implements IWindow {
         return await this._promise;
     }
 
-    _messageReceived = (event: MessageEvent): void => {
+    protected _messageReceived = (event: MessageEvent): void => {
         if (event.origin !== window.location.origin) {
-            Log.warn("PopupWindow:messageRecieved: Message not coming from same origin: " + event.origin);
+            Log.warn("PopupWindow:_messageReceived: Message not coming from same origin: " + event.origin);
             return;
         }
 
@@ -73,19 +73,19 @@ export class PopupWindow implements IWindow {
             // @ts-ignore
             const callback = window["popupCallback_" + data.state];
             if (callback) {
-                Log.debug("PopupWindow.notifyOpener: passing url message to opener");
+                Log.debug("PopupWindow._messageReceived: passing url message to opener");
                 callback(url, keepOpen);
             }
             else {
-                Log.warn("PopupWindow.notifyOpener: no matching callback found on opener");
+                Log.warn("PopupWindow._messageReceived: no matching callback found on opener");
             }
         }
         else {
-            Log.warn("PopupWindow.notifyOpener: no state found in response url");
+            Log.warn("PopupWindow._messageReceived: no state found in response url");
         }
     }
 
-    protected _success(data: any): void {
+    protected _success(data: NavigateResponse): void {
         Log.debug("PopupWindow.callback: Successful response from popup window");
 
         this._cleanup();
