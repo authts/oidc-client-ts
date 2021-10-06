@@ -10,8 +10,12 @@ const AllowedSigningAlgs = ["RS256", "RS384", "RS512", "PS256", "PS384", "PS512"
 
 export interface ParsedJwt {
     header: {
+        // identifies the cryptographic algorithm used to secure the JWT
         alg: string;
+        // to declare that this data structure is a JWT
         typ: string;
+        // a hint indicating which specific key owned by the signer should be used to validate the signature
+        kid?: string;
     };
     payload?: JwtPayload;
 }
