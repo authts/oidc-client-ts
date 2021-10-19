@@ -7,11 +7,11 @@ import { Event } from "./Event";
 const DefaultTimerDurationInSeconds = 5; // seconds
 
 export type IntervalTimer = {
-    setInterval: (cb: (...args: any[]) => void, duration?: number | undefined) => number;
+    setInterval: (cb: () => void, duration?: number | undefined) => number;
     clearInterval: (handle: number) => void;
 };
 export const g_timer: IntervalTimer = {
-    setInterval: function (cb: (...args: any[]) => void, duration?: number): number {
+    setInterval: function (cb: () => void, duration?: number): number {
         return window.setInterval(cb, duration);
     },
     clearInterval: function (handle: number): void {
