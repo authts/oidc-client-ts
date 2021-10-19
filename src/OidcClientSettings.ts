@@ -65,7 +65,7 @@ export interface OidcClientSettings {
     stateStore?: StateStore;
 
     /** An object containing additional query string parameters to be including in the authorization request */
-    extraQueryParams?: Record<string, any>;
+    extraQueryParams?: Record<string, string | number | boolean>;
     extraTokenParams?: Record<string, any>;
 }
 
@@ -106,7 +106,7 @@ export class OidcClientSettingsStore {
     public readonly stateStore: StateStore;
 
     // extra
-    public readonly extraQueryParams: Record<string, any> | undefined;
+    public readonly extraQueryParams: Record<string, string | number | boolean> | undefined;
     public readonly extraTokenParams: Record<string, any> | undefined;
 
     public constructor({

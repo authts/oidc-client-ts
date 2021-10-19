@@ -31,6 +31,23 @@ describe("UrlUtility", () => {
             expect(result).toEqual("url?x=1&foo=test");
         });
 
+        it("should stringify boolean values", () => {
+            // act
+            let result = UrlUtility.addQueryParam("url?x=1", "foo", true);
+            result = UrlUtility.addQueryParam(result, "bar", false);
+
+            // assert
+            expect(result).toEqual("url?x=1&foo=true&bar=false");
+        });
+
+        it("should stringify numeric values", () => {
+            // act
+            const result = UrlUtility.addQueryParam("url?x=1", "foo", 1.2);
+
+            // assert
+            expect(result).toEqual("url?x=1&foo=1.2");
+        });
+
         it("should urlencode key and value", () => {
             // act
             const result = UrlUtility.addQueryParam("url", "#", "#");

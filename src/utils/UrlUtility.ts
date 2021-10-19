@@ -4,7 +4,7 @@
 import { Log } from "./Log";
 
 export class UrlUtility {
-    public static addQueryParam(url: string, name: string, value: string): string {
+    public static addQueryParam(url: string, name: string, value: string | number | boolean): string {
         if (url.indexOf("?") < 0) {
             url += "?";
         }

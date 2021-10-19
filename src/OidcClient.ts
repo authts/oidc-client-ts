@@ -35,7 +35,7 @@ export interface CreateSigninRequestArgs {
     response_mode?: string;
     request?: string;
     request_uri?: string;
-    extraQueryParams?: Record<string, any>;
+    extraQueryParams?: Record<string, string | number | boolean>;
     request_type?: string;
     client_secret?: string;
     extraTokenParams?: Record<string, any>;

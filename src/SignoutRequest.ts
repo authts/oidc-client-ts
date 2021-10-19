@@ -12,7 +12,7 @@ export interface SignoutRequestArgs {
     state_data?: any;
     id_token_hint?: string;
     post_logout_redirect_uri?: string;
-    extraQueryParams?: Record<string, any>;
+    extraQueryParams?: Record<string, string | number | boolean>;
     request_type?: string;
 }
 

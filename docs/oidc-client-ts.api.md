@@ -45,7 +45,7 @@ export interface CreateSigninRequestArgs {
     // (undocumented)
     display?: string;
     // (undocumented)
-    extraQueryParams?: Record<string, any>;
+    extraQueryParams?: Record<string, string | number | boolean>;
     // (undocumented)
     extraTokenParams?: Record<string, any>;
     // (undocumented)
@@ -218,7 +218,7 @@ export interface OidcClientSettings {
     clockSkewInSeconds?: number;
     // (undocumented)
     display?: string;
-    extraQueryParams?: Record<string, any>;
+    extraQueryParams?: Record<string, string | number | boolean>;
     // (undocumented)
     extraTokenParams?: Record<string, any>;
     filterProtocolClaims?: boolean;
