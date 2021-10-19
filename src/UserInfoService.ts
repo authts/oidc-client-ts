@@ -3,6 +3,7 @@
 
 import { Log, JoseUtil } from "./utils";
 import { JsonService } from "./JsonService";
+import type { JwtPayload } from "./utils";
 import type { MetadataService } from "./MetadataService";
 import type { OidcClientSettingsStore, SigningKey } from "./OidcClientSettings";
 
@@ -32,7 +33,7 @@ export class UserInfoService {
         return claims;
     }
 
-    protected _getClaimsFromJwt = async (responseText: string): Promise<any> => {
+    protected _getClaimsFromJwt = async (responseText: string): Promise<JwtPayload> => {
         try {
             const jwt = JoseUtil.parseJwt(responseText);
             if (!jwt || !jwt.header || !jwt.payload) {
