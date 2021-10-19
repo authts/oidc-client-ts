@@ -5,7 +5,7 @@ import { Event } from "../../../src/utils";
 
 describe("Event", () => {
 
-    let subject: Event;
+    let subject: Event<any>;
 
     beforeEach(() => {
         subject = new Event("test name");
