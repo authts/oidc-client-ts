@@ -19,7 +19,7 @@ export const g_timer: IntervalTimer = {
     }
 };
 
-export class Timer extends Event {
+export class Timer extends Event<[void]> {
     private _timer = g_timer;
     private _timerHandle: number | null = null;
     private _expiration = 0;

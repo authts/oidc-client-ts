@@ -17,12 +17,12 @@ export type UserSessionChangedCallback = () => Promise<void> | void;
  * @public
  */
 export class UserManagerEvents extends AccessTokenEvents {
-    private _userLoaded: Event;
-    private _userUnloaded: Event;
-    private _silentRenewError: Event;
-    private _userSignedIn: Event;
-    private _userSignedOut: Event;
-    private _userSessionChanged: Event;
+    private _userLoaded: Event<[User]>;
+    private _userUnloaded: Event<[void]>;
+    private _silentRenewError: Event<[Error]>;
+    private _userSignedIn: Event<[void]>;
+    private _userSignedOut: Event<[void]>;
+    private _userSessionChanged: Event<[void]>;
 
     public constructor(settings: UserManagerSettingsStore) {
         super({ expiringNotificationTimeInSeconds: settings.accessTokenExpiringNotificationTimeInSeconds });
