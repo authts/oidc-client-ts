@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, random, CryptoUtils } from "./utils";
+import { Log, CryptoUtils } from "./utils";
 import { State } from "./State";
 
 export class SigninState extends State {
@@ -39,8 +39,7 @@ export class SigninState extends State {
         super(args);
 
         if (args.code_verifier === true) {
-            // random() produces 32 length
-            this.code_verifier = random() + random() + random();
+            this.code_verifier = CryptoUtils.generateCodeVerifier();
         }
         else if (args.code_verifier) {
             this.code_verifier = args.code_verifier;
