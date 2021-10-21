@@ -32,8 +32,6 @@ export interface UserManagerSettings extends OidcClientSettings {
     automaticSilentRenew?: boolean;
     /** Flag to validate user.profile.sub in silent renew calls (default: true) */
     validateSubOnSilentRenew?: boolean;
-    /** Flag to control if id_token is included as id_token_hint in silent renew calls (default: false) */
-    includeIdTokenInSilentRenew?: boolean;
 
     /** Will raise events for when user has performed a signout at the OP (default: false) */
     monitorSession?: boolean;
@@ -63,7 +61,6 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly silentRequestTimeoutInSeconds: number | undefined;
     public readonly automaticSilentRenew: boolean;
     public readonly validateSubOnSilentRenew: boolean;
-    public readonly includeIdTokenInSilentRenew: boolean;
 
     public readonly monitorSession: boolean;
     public readonly monitorAnonymousSession: boolean;
@@ -88,7 +85,6 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             silentRequestTimeoutInSeconds,
             automaticSilentRenew = true,
             validateSubOnSilentRenew = true,
-            includeIdTokenInSilentRenew = false,
 
             monitorSession = false,
             monitorAnonymousSession = false,
@@ -114,7 +110,6 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         this.silentRequestTimeoutInSeconds = silentRequestTimeoutInSeconds;
         this.automaticSilentRenew = automaticSilentRenew;
         this.validateSubOnSilentRenew = validateSubOnSilentRenew;
-        this.includeIdTokenInSilentRenew = includeIdTokenInSilentRenew;
 
         this.monitorSession = monitorSession;
         this.monitorAnonymousSession = monitorAnonymousSession;
@@ -123,11 +118,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         if (query_status_response_type) {
             this.query_status_response_type = query_status_response_type;
         }
-        else if (args && args.response_type) {
-            this.query_status_response_type = SigninRequest.isOidc(args.response_type) ? "id_token" : "code";
-        }
         else {
-            this.query_status_response_type = "id_token";
+            this.query_status_response_type = "code";
         }
 
         this.revokeAccessTokenOnSignout = revokeAccessTokenOnSignout;

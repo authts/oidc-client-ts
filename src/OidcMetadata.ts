@@ -13,12 +13,6 @@ export interface OidcMetadata {
     response_types_supported: string[];
     acr_values_supported: string[];
     subject_types_supported: string[];
-    userinfo_signing_alg_values_supported: string[];
-    userinfo_encryption_alg_values_supported: string[];
-    userinfo_encryption_enc_values_supported: string[];
-    id_token_signing_alg_values_supported: string[];
-    id_token_encryption_alg_values_supported: string[];
-    id_token_encryption_enc_values_supported: string[];
     request_object_signing_alg_values_supported: string[];
     display_values_supported: string[];
     claim_types_supported: string[];

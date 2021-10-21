@@ -28,7 +28,6 @@ export interface CreateSigninRequestArgs {
     display?: string;
     max_age?: number;
     ui_locales?: string;
-    id_token_hint?: string;
     login_hint?: string;
     acr_values?: string;
     resource?: string;
@@ -65,7 +64,7 @@ export class OidcClient {
     public async createSigninRequest({
         response_type, scope, redirect_uri,
         state,
-        prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
+        prompt, display, max_age, ui_locales, login_hint, acr_values,
         resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo
     }: CreateSigninRequestArgs): Promise<SigninRequest> {
         Log.debug("OidcClient.createSigninRequest");
@@ -74,7 +73,7 @@ export class OidcClient {
         scope = scope || this.settings.scope;
         redirect_uri = redirect_uri || this.settings.redirect_uri;
 
-        // id_token_hint, login_hint aren't allowed on _settings
+        // login_hint isn't allowed on _settings
         prompt = prompt || this.settings.prompt;
         display = display || this.settings.display;
         max_age = max_age || this.settings.max_age;
@@ -85,8 +84,8 @@ export class OidcClient {
         extraQueryParams = extraQueryParams || this.settings.extraQueryParams;
         extraTokenParams = extraTokenParams || this.settings.extraTokenParams;
 
-        if (SigninRequest.isCode(response_type) && response_type !== "code") {
-            throw new Error("OpenID Connect hybrid flow is not supported");
+        if (response_type !== "code") {
+            throw new Error("Only the Authorization Code flow (with PKCE) is supported");
         }
 
         const url = await this.metadataService.getAuthorizationEndpoint();
@@ -100,7 +99,7 @@ export class OidcClient {
             response_type,
             scope,
             state_data: state,
-            prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
+            prompt, display, max_age, ui_locales, login_hint, acr_values,
             resource, request, request_uri, extraQueryParams, extraTokenParams, request_type, response_mode,
             client_secret: this.settings.client_secret,
             skipUserInfo
@@ -115,8 +114,7 @@ export class OidcClient {
         Log.debug("OidcClient.readSigninResponseState");
 
         const useQuery = this.settings.response_mode === "query" ||
-            (!this.settings.response_mode &&
-                this.settings.response_type && SigninRequest.isCode(this.settings.response_type));
+            (!this.settings.response_mode && this.settings.response_type === "code");
         const delimiter = useQuery ? "?" : "#";
 
         const response = new SigninResponse(url, delimiter);
@@ -148,7 +146,7 @@ export class OidcClient {
 
     public async createSignoutRequest({
         state,
-        id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type
+        post_logout_redirect_uri, extraQueryParams, request_type
     }: CreateSignoutRequestArgs = {}): Promise<SignoutRequest> {
         Log.debug("OidcClient.createSignoutRequest");
 
@@ -165,7 +163,6 @@ export class OidcClient {
 
         const request = new SignoutRequest({
             url,
-            id_token_hint,
             post_logout_redirect_uri,
             state_data: state,
             extraQueryParams,

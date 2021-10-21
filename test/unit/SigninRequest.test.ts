@@ -13,7 +13,7 @@ describe("SigninRequest", () => {
             url: "http://sts/signin",
             client_id: "client",
             redirect_uri: "http://app",
-            response_type: "id_token",
+            response_type: "code",
             scope: "openid",
             authority : "op",
             data: { data: "test" }
@@ -133,7 +133,7 @@ describe("SigninRequest", () => {
 
         it("should include response_type", () => {
             // assert
-            expect(subject.url).toContain("response_type=id_token");
+            expect(subject.url).toContain("response_type=code");
         });
 
         it("should include scope", () => {
@@ -188,17 +188,6 @@ describe("SigninRequest", () => {
 
             // assert
             expect(subject.url).toContain("ui_locales=foo");
-        });
-
-        it("should include id_token_hint", () => {
-            // arrange
-            settings.id_token_hint = "foo";
-
-            // act
-            subject = new SigninRequest(settings);
-
-            // assert
-            expect(subject.url).toContain("id_token_hint=foo");
         });
 
         it("should include login_hint", () => {
@@ -306,56 +295,6 @@ describe("SigninRequest", () => {
             // assert
             expect(subject.url).toContain("code_challenge=");
             expect(subject.url).toContain("code_challenge_method=S256");
-        });
-
-        it("should include hybrid flow params", () => {
-            // arrange
-            settings.response_type = "code id_token";
-
-            // act
-            subject = new SigninRequest(settings);
-
-            // assert
-            expect(subject.url).toContain("nonce=");
-            expect(subject.url).toContain("code_challenge=");
-            expect(subject.url).toContain("code_challenge_method=S256");
-        });
-    });
-
-    describe("isOidc", () => {
-        it("should indicate if response_type is oidc", () => {
-            // assert
-            expect(SigninRequest.isOidc("id_token")).toEqual(true);
-            expect(SigninRequest.isOidc("id_token token")).toEqual(true);
-            expect(SigninRequest.isOidc("token id_token")).toEqual(true);
-
-            expect(SigninRequest.isOidc("token")).toEqual(false);
-        });
-    });
-
-    describe("isOAuth", () => {
-        it("should indicate if response_type is oauth", () => {
-            // assert
-            expect(SigninRequest.isOAuth("token")).toEqual(true);
-            expect(SigninRequest.isOAuth("id_token token")).toEqual(true);
-            expect(SigninRequest.isOAuth("token id_token")).toEqual(true);
-
-            expect(SigninRequest.isOAuth("id_token")).toEqual(false);
-        });
-    });
-
-    describe("isCode", () => {
-        it("should indicate if response_type is code", () => {
-            // assert
-            expect(SigninRequest.isCode("code")).toEqual(true);
-            expect(SigninRequest.isCode("id_token code")).toEqual(true);
-            expect(SigninRequest.isCode("code id_token")).toEqual(true);
-            expect(SigninRequest.isCode("id_token token code")).toEqual(true);
-            expect(SigninRequest.isCode("id_token code token")).toEqual(true);
-            expect(SigninRequest.isCode("code id_token token")).toEqual(true);
-
-            expect(SigninRequest.isCode("id_token token")).toEqual(false);
-            expect(SigninRequest.isCode("token id_token")).toEqual(false);
         });
     });
 });

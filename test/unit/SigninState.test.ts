@@ -33,37 +33,6 @@ describe("SigninState", () => {
             expect(subject.data).toEqual(7);
         });
 
-        it("should accept nonce", () => {
-            // act
-            const subject = new SigninState({
-                code_verifier: true,
-                authority: "authority",
-                client_id: "client",
-                redirect_uri: "http://cb",
-                scope: "scope",
-                request_type: "type",
-                nonce: "5"
-            });
-
-            // assert
-            expect(subject.nonce).toEqual("5");
-        });
-
-        it("should generate nonce", () => {
-            // act
-            const subject = new SigninState({
-                authority: "authority",
-                client_id: "client",
-                redirect_uri: "http://cb",
-                scope: "scope",
-                request_type: "type",
-                nonce: true
-            });
-
-            // assert
-            expect(subject.nonce).toBeDefined();
-        });
-
         it("should accept redirect_uri", () => {
             // act
             const subject = new SigninState({
@@ -190,7 +159,6 @@ describe("SigninState", () => {
         const subject1 = new SigninState({
             data: { foo: "test" },
             created: 1000,
-            nonce: true,
             code_verifier: true,
             authority: "authority",
             client_id: "client",

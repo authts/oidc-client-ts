@@ -11,7 +11,6 @@ describe("SignoutRequest", () => {
     beforeEach(() => {
         settings = {
             url: "http://sts/signout",
-            id_token_hint: "hint",
             post_logout_redirect_uri: "loggedout",
             state_data: { data: "test" }
         };
@@ -43,23 +42,7 @@ describe("SignoutRequest", () => {
             expect(subject.url.indexOf("http://sts/signout")).toEqual(0);
         });
 
-        it("should include id_token_hint", () => {
-            // assert
-            expect(subject.url).toContain("id_token_hint=hint");
-        });
-
-        it("should include post_logout_redirect_uri if id_token_hint also provided", () => {
-            // assert
-            expect(subject.url).toContain("post_logout_redirect_uri=loggedout");
-        });
-
-        it("should include post_logout_redirect_uri if no id_token_hint provided", () => {
-            // arrange
-            delete settings.id_token_hint;
-
-            // act
-            subject = new SignoutRequest(settings);
-
+        it("should include post_logout_redirect_uri", () => {
             // assert
             expect(subject.url).toContain("post_logout_redirect_uri=loggedout");
         });
@@ -82,11 +65,10 @@ describe("SignoutRequest", () => {
             expect(subject.url).not.toContain("state=");
         });
 
-        it("should include id_token_hint, post_logout_redirect_uri, and state", () => {
+        it("should include post_logout_redirect_uri, and state", () => {
             // assert
             const url = subject.url;
             expect(url.indexOf("http://sts/signout?")).toEqual(0);
-            expect(url).toContain("id_token_hint=hint");
             expect(url).toContain("post_logout_redirect_uri=loggedout");
             expect(subject.state).toBeDefined();
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

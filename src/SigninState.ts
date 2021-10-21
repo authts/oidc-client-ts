@@ -1,13 +1,10 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, JoseUtil, random } from "./utils";
+import { Log, random, CryptoUtils } from "./utils";
 import { State } from "./State";
 
 export class SigninState extends State {
-    // isOidc
-    public readonly nonce: string | undefined;
-
     // isCode
     public readonly code_verifier: string | undefined;
     public readonly code_challenge: string | undefined;
@@ -29,7 +26,6 @@ export class SigninState extends State {
         created?: number;
         request_type?: string;
 
-        nonce?: string | boolean;
         code_verifier?: string | boolean;
         authority: string;
         client_id: string;
@@ -42,13 +38,6 @@ export class SigninState extends State {
     }) {
         super(args);
 
-        if (args.nonce === true) {
-            this.nonce = random();
-        }
-        else if (args.nonce) {
-            this.nonce = args.nonce;
-        }
-
         if (args.code_verifier === true) {
             // random() produces 32 length
             this.code_verifier = random() + random() + random();
@@ -58,8 +47,7 @@ export class SigninState extends State {
         }
 
         if (this.code_verifier) {
-            const hash = JoseUtil.hashString(this.code_verifier, "SHA256");
-            this.code_challenge = JoseUtil.hexToBase64Url(hash);
+            this.code_challenge = CryptoUtils.generateCodeChallenge(this.code_verifier);
         }
 
         this.authority = args.authority;
@@ -81,7 +69,6 @@ export class SigninState extends State {
             created: this.created,
             request_type: this.request_type,
 
-            nonce: this.nonce,
             code_verifier: this.code_verifier,
             authority: this.authority,
             client_id: this.client_id,

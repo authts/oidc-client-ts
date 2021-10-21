@@ -48,14 +48,6 @@ describe("SigninResponse", () => {
             expect(subject.code).toEqual("foo");
         });
 
-        it("should read id_token", () => {
-            // act
-            const subject = new SigninResponse("id_token=foo");
-
-            // assert
-            expect(subject.id_token).toEqual("foo");
-        });
-
         it("should read session_state", () => {
             // act
             const subject = new SigninResponse("session_state=foo");

@@ -10,7 +10,6 @@ export interface SignoutRequestArgs {
 
     // optional
     state_data?: any;
-    id_token_hint?: string;
     post_logout_redirect_uri?: string;
     extraQueryParams?: Record<string, string | number | boolean>;
     request_type?: string;
@@ -22,15 +21,11 @@ export class SignoutRequest {
 
     public constructor({
         url,
-        state_data, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type
+        state_data, post_logout_redirect_uri, extraQueryParams, request_type
     }: SignoutRequestArgs) {
         if (!url) {
             Log.error("SignoutRequest.ctor: No url passed");
             throw new Error("url");
-        }
-
-        if (id_token_hint) {
-            url = UrlUtility.addQueryParam(url, "id_token_hint", id_token_hint);
         }
 
         if (post_logout_redirect_uri) {
