@@ -16,7 +16,7 @@ document.getElementById("links").addEventListener("change", toggleLinks, false);
 // OidcClient config
 ///////////////////////////////
 Log.logger = console;
-Log.level = Log.INFO;
+Log.level = Log.DEBUG;
 
 function log() {
     document.getElementById("out").innerText = "";
@@ -59,7 +59,7 @@ function processSigninResponse() {
 }
 
 function signout() {
-    client.createSignoutRequest({ id_token_hint: signinResponse && signinResponse.id_token, state: { foo: 5 } }).then(function(req) {
+    client.createSignoutRequest({ state: { foo: 5 } }).then(function(req) {
         log("signout request", req, "<a href='" + req.url + "'>go signout</a>");
         if (followLinks()) {
             window.location = req.url;

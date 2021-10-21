@@ -12,6 +12,7 @@ var signingKeysPath = path + "/.well-known/jwks";
 var authorizationPath = path + "/connect/authorize";
 var userInfoPath = path + "/connect/userinfo";
 var endSessionPath = path + "/connect/endsession";
+var tokenPath = path + "/connect/token";
 
 var metadata = {
     issuer: path,
@@ -19,6 +20,7 @@ var metadata = {
     authorization_endpoint: authorizationPath,
     userinfo_endpoint: userInfoPath,
     end_session_endpoint: endSessionPath,
+    token_endpoint: tokenPath,
 };
 
 function prependBaseUrlToMetadata(baseUrl) {
@@ -45,58 +47,6 @@ var claims = {
     "email_verified": true,
     "role": ["Admin", "Geek"]
 };
-
-function genAccessToken() {
-    return parseInt(Math.random().toString().replace("0.", "")).toString(16);
-}
-
-function hashAccessToken(access_token) {
-    var hash = jsrsasign.crypto.Util.hashString(access_token, "sha256");
-    var left = hash.substr(0, hash.length / 2);
-    var left_b64u = jsrsasign.hextob64u(left);
-    return left_b64u;
-}
-
-function genIdToken(aud, nonce, access_token) {
-    var now = parseInt(Date.now() / 1000);
-    var payload = {
-        aud: aud,
-        iss: metadata.issuer,
-        nonce: nonce,
-        sid: "37889234079034890",
-        nbf: now,
-        iat: now,
-        exp: now + 300,
-        idp: "some_idp",
-        amr: ["password"]
-    };
-
-    if (access_token) {
-        payload.at_hash = hashAccessToken(access_token);
-        payload.sub = claims.sub;
-    }
-    else {
-        for (var key in claims) {
-            payload[key] = claims[key];
-        }
-    }
-
-    return jsrsasign.jws.JWS.sign(null, { alg: "RS256", kid: "1" }, payload, rsaKey.prvKeyObj);
-}
-
-function isOidc(response_type) {
-    var result = response_type.split(/\s+/g).filter(function(item) {
-        return item === "id_token";
-    });
-    return !!(result[0]);
-}
-
-function isOAuth(response_type) {
-    var result = response_type.split(/\s+/g).filter(function(item) {
-        return item === "token";
-    });
-    return !!(result[0]);
-}
 
 function addFragment(url, name, value) {
     if (url.indexOf("#") < 0) {
@@ -129,29 +79,16 @@ module.exports = function(baseUrl, app) {
     app.get(authorizationPath, function(req, res) {
         //res.send("<h1>waiting...</h1>"); return;
 
-        var response_type = req.query.response_type;
-
         var url = req.query.redirect_uri;
-
         var state = req.query.state;
         if (state) {
             url = addFragment(url, "state", state);
+            if (req.url.indexOf("code_challenge") !== -1) {
+                url = addFragment(url, "code", "foo");
+            }
         }
 
         //url = addFragment(url, "error", "bad_stuff"); res.redirect(url); return;
-
-        if (isOAuth(response_type)) {
-            var access_token = genAccessToken();
-            url = addFragment(url, "access_token", access_token);
-            url = addFragment(url, "token_type", "Bearer");
-            url = addFragment(url, "expires_in", "70");
-            url = addFragment(url, "scope", req.query.scope);
-        }
-
-        if (isOidc(response_type)) {
-            url = addFragment(url, "id_token", genIdToken(req.query.client_id, req.query.nonce, access_token));
-            url = addFragment(url, "session_state", "123");
-        }
 
         res.redirect(url);
     });
@@ -173,4 +110,9 @@ module.exports = function(baseUrl, app) {
             res.send("logged out");
         }
     });
+
+    app.post(tokenPath, function(req, res) {
+        res.json({});
+    });
+
 };
