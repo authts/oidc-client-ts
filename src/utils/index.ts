@@ -2,4 +2,4 @@ export * from "./CryptoUtils";
 export * from "./Event";
 export * from "./Log";
 export * from "./Timer";
-export * from "./UrlUtility";
+export * from "./UrlUtils";

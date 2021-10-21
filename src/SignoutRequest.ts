@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, UrlUtility } from "./utils";
+import { Log, UrlUtils } from "./utils";
 import { State } from "./State";
 
 export interface SignoutRequestArgs {
@@ -29,17 +29,17 @@ export class SignoutRequest {
         }
 
         if (post_logout_redirect_uri) {
-            url = UrlUtility.addQueryParam(url, "post_logout_redirect_uri", post_logout_redirect_uri);
+            url = UrlUtils.addQueryParam(url, "post_logout_redirect_uri", post_logout_redirect_uri);
 
             if (state_data) {
                 this.state = new State({ data: state_data, request_type });
 
-                url = UrlUtility.addQueryParam(url, "state", this.state.id);
+                url = UrlUtils.addQueryParam(url, "state", this.state.id);
             }
         }
 
         for (const key in extraQueryParams) {
-            url = UrlUtility.addQueryParam(url, key, extraQueryParams[key]);
+            url = UrlUtils.addQueryParam(url, key, extraQueryParams[key]);
         }
 
         this.url = url;

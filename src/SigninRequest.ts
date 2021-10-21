@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, UrlUtility } from "./utils";
+import { Log, UrlUtils } from "./utils";
 import { SigninState } from "./SigninState";
 
 export interface SigninRequestArgs {
@@ -82,26 +82,26 @@ export class SigninRequest {
             skipUserInfo
         });
 
-        url = UrlUtility.addQueryParam(url, "client_id", client_id);
-        url = UrlUtility.addQueryParam(url, "redirect_uri", redirect_uri);
-        url = UrlUtility.addQueryParam(url, "response_type", response_type);
-        url = UrlUtility.addQueryParam(url, "scope", scope);
+        url = UrlUtils.addQueryParam(url, "client_id", client_id);
+        url = UrlUtils.addQueryParam(url, "redirect_uri", redirect_uri);
+        url = UrlUtils.addQueryParam(url, "response_type", response_type);
+        url = UrlUtils.addQueryParam(url, "scope", scope);
 
-        url = UrlUtility.addQueryParam(url, "state", this.state.id);
+        url = UrlUtils.addQueryParam(url, "state", this.state.id);
         if (this.state.code_challenge) {
-            url = UrlUtility.addQueryParam(url, "code_challenge", this.state.code_challenge);
-            url = UrlUtility.addQueryParam(url, "code_challenge_method", "S256");
+            url = UrlUtils.addQueryParam(url, "code_challenge", this.state.code_challenge);
+            url = UrlUtils.addQueryParam(url, "code_challenge_method", "S256");
         }
 
         const optional: Record<string, any> = { prompt, display, max_age, ui_locales, login_hint, acr_values, resource, request, request_uri, response_mode };
         for (const key in optional) {
             if (optional[key]) {
-                url = UrlUtility.addQueryParam(url, key, optional[key]);
+                url = UrlUtils.addQueryParam(url, key, optional[key]);
             }
         }
 
         for (const key in extraQueryParams) {
-            url = UrlUtility.addQueryParam(url, key, extraQueryParams[key]);
+            url = UrlUtils.addQueryParam(url, key, extraQueryParams[key]);
         }
 
         this.url = url;

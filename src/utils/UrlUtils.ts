@@ -3,7 +3,7 @@
 
 import { Log } from "./Log";
 
-export class UrlUtility {
+export class UrlUtils {
     public static addQueryParam(url: string, name: string, value: string | number | boolean): string {
         if (url.indexOf("?") < 0) {
             url += "?";
@@ -46,7 +46,7 @@ export class UrlUtility {
         while ((m = regex.exec(value)) !== null) {
             params[decodeURIComponent(m[1])] = decodeURIComponent(m[2].replace(/\+/g, " "));
             if (counter++ > 50) {
-                Log.error("UrlUtility.parseUrlFragment: response exceeded expected number of parameters", value);
+                Log.error("UrlUtils.parseUrlFragment: response exceeded expected number of parameters", value);
                 return {
                     error: "Response exceeded expected number of parameters"
                 };

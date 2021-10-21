@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { UrlUtility } from "./utils";
+import { UrlUtils } from "./utils";
 
 export class SignoutResponse {
     public error: string | undefined;
@@ -11,7 +11,7 @@ export class SignoutResponse {
     public state: any | undefined;
 
     public constructor(url?: string) {
-        const values = UrlUtility.parseUrlFragment(url, "?");
+        const values = UrlUtils.parseUrlFragment(url, "?");
 
         this.error = values.error;
         this.error_description = values.error_description;
