@@ -1,23 +1,27 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./utils";
+import { Logger } from "./utils";
 import type { StateStore } from "./StateStore";
 
 /**
  * @public
  */
 export class WebStorageStateStore implements StateStore {
+    private _logger: Logger;
+
     private _store: Storage
     private _prefix: string
 
     public constructor({ prefix = "oidc.", store = localStorage } = {}) {
+        this._logger = new Logger("WebStorageStateStore");
+
         this._store = store;
         this._prefix = prefix;
     }
 
     public set(key: string, value: string): Promise<void> {
-        Log.debug("WebStorageStateStore.set", key);
+        this._logger.debug("set", key);
 
         key = this._prefix + key;
         this._store.setItem(key, value);
@@ -25,7 +29,7 @@ export class WebStorageStateStore implements StateStore {
     }
 
     public get(key: string): Promise<string | null> {
-        Log.debug("WebStorageStateStore.get", key);
+        this._logger.debug("get", key);
 
         key = this._prefix + key;
         const item = this._store.getItem(key);
@@ -33,7 +37,7 @@ export class WebStorageStateStore implements StateStore {
     }
 
     public remove(key: string): Promise<string | null> {
-        Log.debug("WebStorageStateStore.remove", key);
+        this._logger.debug("remove", key);
 
         key = this._prefix + key;
         const item = this._store.getItem(key);
@@ -42,7 +46,7 @@ export class WebStorageStateStore implements StateStore {
     }
 
     public getAllKeys(): Promise<string[]> {
-        Log.debug("WebStorageStateStore.getAllKeys");
+        this._logger.debug("getAllKeys");
 
         const keys = [];
         for (let index = 0; index < this._store.length; index++) {

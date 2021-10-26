@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./utils";
+import { Logger } from "./utils";
 
 export class ErrorResponse extends Error {
     public readonly name: string;
@@ -18,12 +18,12 @@ export class ErrorResponse extends Error {
     public constructor(args: {
         error?: string; error_description?: string; error_uri?: string; state?: unknown; session_state?: string;
     }) {
-        if (!args.error) {
-            Log.error("No error passed to ErrorResponse");
-            throw new Error("error");
-        }
-
         super(args.error_description || args.error);
+
+        if (!args.error) {
+            Logger.error("ErrorResponse", "No error passed");
+            throw new Error("No error passed");
+        }
 
         this.name = "ErrorResponse";
 

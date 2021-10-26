@@ -1,35 +1,37 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./utils";
+import { Logger } from "./utils";
 
 /**
  * @public
  */
 export class InMemoryWebStorage implements Storage {
+    private readonly _logger: Logger;
     private _data: Record<string, string>;
 
     public constructor() {
+        this._logger = new Logger("InMemoryWebStorage");
         this._data = {};
     }
 
     public clear(): void {
-        Log.debug("InMemoryWebStorage.clear");
+        this._logger.debug("clear");
         this._data = {};
     }
 
     public getItem(key: string): string {
-        Log.debug("InMemoryWebStorage.getItem", key);
+        this._logger.debug("getItem", key);
         return this._data[key];
     }
 
     public setItem(key: string, value: string): void {
-        Log.debug("InMemoryWebStorage.setItem", key);
+        this._logger.debug("setItem", key);
         this._data[key] = value;
     }
 
     public removeItem(key: string): void {
-        Log.debug("InMemoryWebStorage.removeItem", key);
+        this._logger.debug("removeItem", key);
         delete this._data[key];
     }
 

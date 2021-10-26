@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./utils";
+import { Logger } from "./utils";
 import { JsonService } from "./JsonService";
 import type { OidcClientSettingsStore, SigningKey } from "./OidcClientSettings";
 import type { OidcMetadata } from "./OidcMetadata";
@@ -12,8 +12,9 @@ const OidcMetadataUrlPath = ".well-known/openid-configuration";
  * @public
  */
 export class MetadataService {
-    private readonly _settings: OidcClientSettingsStore
-    private readonly _jsonService: JsonService
+    private readonly _settings: OidcClientSettingsStore;
+    private readonly _logger: Logger;
+    private readonly _jsonService: JsonService;
 
     // cache
     private _metadataUrl: string | null;
@@ -22,6 +23,7 @@ export class MetadataService {
 
     public constructor(settings: OidcClientSettingsStore) {
         this._settings = settings;
+        this._logger = new Logger("MetadataService");
         this._jsonService = new JsonService(["application/jwk-set+json"]);
 
         this._metadataUrl = null;
@@ -37,13 +39,13 @@ export class MetadataService {
 
         this._signingKeys = null;
         if (this._settings.signingKeys) {
-            Log.debug("MetadataService.ctor: Using signingKeys from settings");
+            this._logger.debug("ctor: Using signingKeys from settings");
             this._signingKeys = this._settings.signingKeys;
         }
 
         this._metadata = null;
         if (this._settings.metadata) {
-            Log.debug("MetadataService.ctor: Using metadata from settings");
+            this._logger.debug("ctor: Using metadata from settings");
             this._metadata = this._settings.metadata;
         }
     }
@@ -54,19 +56,19 @@ export class MetadataService {
 
     public async getMetadata(): Promise<Partial<OidcMetadata>> {
         if (this._metadata) {
-            Log.debug("MetadataService.getMetadata: Returning metadata from cache");
+            this._logger.debug("getMetadata: Returning metadata from cache");
             return this._metadata;
         }
 
         if (!this._metadataUrl) {
-            Log.error("MetadataService.getMetadata: No authority or metadataUrl configured on settings");
+            this._logger.error("getMetadata: No authority or metadataUrl configured on settings");
             throw new Error("No authority or metadataUrl configured on settings");
         }
 
-        Log.debug("MetadataService.getMetadata: getting metadata from", this._metadataUrl);
+        this._logger.debug("getMetadata: getting metadata from", this._metadataUrl);
         const metadata = await this._jsonService.getJson(this._metadataUrl);
 
-        Log.debug("MetadataService.getMetadata: json received");
+        this._logger.debug("getMetadata: json received");
         const seed = this._settings.metadataSeed || {};
         this._metadata = Object.assign({}, seed, metadata) as Partial<OidcMetadata>;
         return this._metadata;
@@ -105,18 +107,18 @@ export class MetadataService {
     }
 
     protected async _getMetadataProperty(name: keyof OidcMetadata, optional=false): Promise<string | boolean | string[] | undefined> {
-        Log.debug("MetadataService.getMetadataProperty for: " + name);
+        this._logger.debug("getMetadataProperty for: " + name);
 
         const metadata = await this.getMetadata();
-        Log.debug("MetadataService.getMetadataProperty: metadata recieved");
+        this._logger.debug("getMetadataProperty: metadata received");
 
         if (metadata[name] === undefined) {
             if (optional === true) {
-                Log.warn("MetadataService.getMetadataProperty: Metadata does not contain optional property " + name);
+                this._logger.warn("getMetadataProperty: Metadata does not contain optional property " + name);
                 return undefined;
             }
 
-            Log.error("MetadataService.getMetadataProperty: Metadata does not contain property " + name);
+            this._logger.error("getMetadataProperty: Metadata does not contain property " + name);
             throw new Error("Metadata does not contain property " + name);
         }
 
@@ -125,18 +127,18 @@ export class MetadataService {
 
     public async getSigningKeys(): Promise<SigningKey[] | null> {
         if (this._signingKeys) {
-            Log.debug("MetadataService.getSigningKeys: Returning signingKeys from cache");
+            this._logger.debug("getSigningKeys: Returning signingKeys from cache");
             return this._signingKeys;
         }
 
         const jwks_uri = await this.getKeysEndpoint(false) as string;
-        Log.debug("MetadataService.getSigningKeys: jwks_uri received", jwks_uri);
+        this._logger.debug("getSigningKeys: jwks_uri received", jwks_uri);
 
         const keySet = await this._jsonService.getJson(jwks_uri);
-        Log.debug("MetadataService.getSigningKeys: key set received", keySet);
+        this._logger.debug("getSigningKeys: key set received", keySet);
 
         if (!keySet.keys) {
-            Log.error("MetadataService.getSigningKeys: Missing keys on keyset");
+            this._logger.error("getSigningKeys: Missing keys on keyset");
             throw new Error("Missing keys on keyset");
         }
 

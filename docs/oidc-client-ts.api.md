@@ -17,6 +17,10 @@ export class AccessTokenEvents {
     addAccessTokenExpiring(cb: AccessTokenCallback): void;
     // (undocumented)
     load(container: User): void;
+    // Warning: (ae-forgotten-export) The symbol "Logger" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    protected _logger: Logger;
     // (undocumented)
     removeAccessTokenExpired(cb: AccessTokenCallback): void;
     // (undocumented)
@@ -104,36 +108,28 @@ export class InMemoryWebStorage implements Storage {
     setItem(key: string, value: string): void;
 }
 
-// @public (undocumented)
+// @public
 export class Log {
     // (undocumented)
     static get DEBUG(): number;
     // (undocumented)
-    static debug(...args: any[]): void;
-    // (undocumented)
     static get ERROR(): number;
-    // (undocumented)
-    static error(...args: any[]): void;
     // (undocumented)
     static get INFO(): number;
     // (undocumented)
-    static info(...args: any[]): void;
-    // (undocumented)
     static get level(): number;
     static set level(value: number);
-    // Warning: (ae-forgotten-export) The symbol "Logger" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "ILogger" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    static get logger(): Logger;
-    static set logger(value: Logger);
+    static get logger(): ILogger;
+    static set logger(value: ILogger);
     // (undocumented)
     static get NONE(): number;
     // (undocumented)
     static reset(): void;
     // (undocumented)
     static get WARN(): number;
-    // (undocumented)
-    static warn(...args: any[]): void;
 }
 
 // @public (undocumented)
@@ -181,6 +177,8 @@ export class OidcClient {
     //
     // (undocumented)
     createSignoutRequest({ state, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
+    // (undocumented)
+    protected readonly _logger: Logger;
     // (undocumented)
     readonly metadataService: MetadataService;
     // (undocumented)
@@ -384,6 +382,8 @@ export class UserManager {
     // (undocumented)
     protected _loadUser(): Promise<User | null>;
     // (undocumented)
+    protected readonly _logger: Logger;
+    // (undocumented)
     get metadataService(): MetadataService;
     // Warning: (ae-forgotten-export) The symbol "PopupNavigator" needs to be exported by the entry point index.d.ts
     //
@@ -577,10 +577,10 @@ export class WebStorageStateStore implements StateStore {
 
 // Warnings were encountered during analysis:
 //
-// src/OidcClient.ts:114:88 - (ae-forgotten-export) The symbol "SigninState" needs to be exported by the entry point index.d.ts
-// src/OidcClient.ts:114:108 - (ae-forgotten-export) The symbol "SigninResponse" needs to be exported by the entry point index.d.ts
-// src/OidcClient.ts:181:89 - (ae-forgotten-export) The symbol "State" needs to be exported by the entry point index.d.ts
-// src/OidcClient.ts:181:115 - (ae-forgotten-export) The symbol "SignoutResponse" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:117:88 - (ae-forgotten-export) The symbol "SigninState" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:117:108 - (ae-forgotten-export) The symbol "SigninResponse" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:184:89 - (ae-forgotten-export) The symbol "State" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:184:115 - (ae-forgotten-export) The symbol "SignoutResponse" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

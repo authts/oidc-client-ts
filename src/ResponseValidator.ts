@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, JwtUtils } from "./utils";
+import { Logger, JwtUtils } from "./utils";
 import type { MetadataService } from "./MetadataService";
 import { UserInfoService } from "./UserInfoService";
 import { TokenClient } from "./TokenClient";
@@ -17,46 +17,48 @@ const ProtocolClaims = ["at_hash", "iat", "nbf", "exp", "aud", "iss", "c_hash"];
 
 export class ResponseValidator {
     protected readonly _settings: OidcClientSettingsStore;
+    protected readonly _logger: Logger;
     protected readonly _metadataService: MetadataService;
     protected readonly _userInfoService: UserInfoService;
     protected readonly _tokenClient: TokenClient;
 
     public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
         this._settings = settings;
+        this._logger = new Logger("ResponseValidator");
         this._metadataService = metadataService;
         this._userInfoService = new UserInfoService(metadataService);
         this._tokenClient = new TokenClient(this._settings, metadataService);
     }
 
     public async validateSigninResponse(state: SigninState, response: SigninResponse): Promise<SigninResponse> {
-        Log.debug("ResponseValidator.validateSigninResponse");
+        this._logger.debug("validateSigninResponse");
 
         response = this._processSigninParams(state, response);
-        Log.debug("ResponseValidator.validateSigninResponse: state processed");
+        this._logger.debug("validateSigninResponse: state processed");
 
         response = await this._validateTokens(state, response);
-        Log.debug("ResponseValidator.validateSigninResponse: tokens validated");
+        this._logger.debug("validateSigninResponse: tokens validated");
 
         response = await this._processClaims(state, response);
-        Log.debug("ResponseValidator.validateSigninResponse: claims processed");
+        this._logger.debug("validateSigninResponse: claims processed");
 
         return response;
     }
 
     public validateSignoutResponse(state: State, response: SignoutResponse): SignoutResponse {
         if (state.id !== response.state_id) {
-            Log.error("ResponseValidator.validateSignoutResponse: State does not match");
+            this._logger.error("validateSignoutResponse: State does not match");
             throw new Error("State does not match");
         }
 
         // now that we know the state matches, take the stored data
         // and set it into the response so callers can get their state
         // this is important for both success & error outcomes
-        Log.debug("ResponseValidator.validateSignoutResponse: state validated");
+        this._logger.debug("validateSignoutResponse: state validated");
         response.state = state.data;
 
         if (response.error) {
-            Log.warn("ResponseValidator.validateSignoutResponse: Response was error", response.error);
+            this._logger.warn("validateSignoutResponse: Response was error", response.error);
             throw new ErrorResponse(response);
         }
 
@@ -65,48 +67,48 @@ export class ResponseValidator {
 
     protected _processSigninParams(state: SigninState, response: SigninResponse): SigninResponse {
         if (state.id !== response.state_id) {
-            Log.error("ResponseValidator._processSigninParams: State does not match");
+            this._logger.error("_processSigninParams: State does not match");
             throw new Error("State does not match");
         }
 
         if (!state.client_id) {
-            Log.error("ResponseValidator._processSigninParams: No client_id on state");
+            this._logger.error("_processSigninParams: No client_id on state");
             throw new Error("No client_id on state");
         }
 
         if (!state.authority) {
-            Log.error("ResponseValidator._processSigninParams: No authority on state");
+            this._logger.error("_processSigninParams: No authority on state");
             throw new Error("No authority on state");
         }
 
         // ensure we're using the correct authority
         if (this._settings.authority !== state.authority) {
-            Log.error("ResponseValidator._processSigninParams: authority mismatch on settings vs. signin state");
+            this._logger.error("_processSigninParams: authority mismatch on settings vs. signin state");
             throw new Error("authority mismatch on settings vs. signin state");
         }
         if (this._settings.client_id && this._settings.client_id !== state.client_id) {
-            Log.error("ResponseValidator._processSigninParams: client_id mismatch on settings vs. signin state");
+            this._logger.error("_processSigninParams: client_id mismatch on settings vs. signin state");
             throw new Error("client_id mismatch on settings vs. signin state");
         }
 
         // now that we know the state matches, take the stored data
         // and set it into the response so callers can get their state
         // this is important for both success & error outcomes
-        Log.debug("ResponseValidator._processSigninParams: state validated");
+        this._logger.debug("_processSigninParams: state validated");
         response.state = state.data;
 
         if (response.error) {
-            Log.warn("ResponseValidator._processSigninParams: Response was error", response.error);
+            this._logger.warn("_processSigninParams: Response was error", response.error);
             throw new ErrorResponse(response);
         }
 
         if (state.code_verifier && !response.code) {
-            Log.error("ResponseValidator._processSigninParams: Expecting code in response");
+            this._logger.error("_processSigninParams: Expecting code in response");
             throw new Error("No code in response");
         }
 
         if (!state.code_verifier && response.code) {
-            Log.error("ResponseValidator._processSigninParams: Not expecting code in response");
+            this._logger.error("_processSigninParams: Not expecting code in response");
             throw new Error("Unexpected code in response");
         }
 
@@ -120,31 +122,31 @@ export class ResponseValidator {
 
     protected async _processClaims(state: SigninState, response: SigninResponse): Promise<SigninResponse> {
         if (response.isOpenIdConnect) {
-            Log.debug("ResponseValidator._processClaims: response is OIDC, processing claims");
+            this._logger.debug("_processClaims: response is OIDC, processing claims");
             response.profile = this._filterProtocolClaims(response.profile);
 
             if (state.skipUserInfo !== true && this._settings.loadUserInfo && response.access_token) {
-                Log.debug("ResponseValidator._processClaims: loading user info");
+                this._logger.debug("_processClaims: loading user info");
 
                 const claims  = await this._userInfoService.getClaims(response.access_token);
-                Log.debug("ResponseValidator._processClaims: user info claims received from user info endpoint");
+                this._logger.debug("_processClaims: user info claims received from user info endpoint");
 
                 if (claims.sub !== response.profile.sub) {
-                    Log.error("ResponseValidator._processClaims: sub from user info endpoint does not match sub in id_token");
+                    this._logger.error("_processClaims: sub from user info endpoint does not match sub in id_token");
                     throw new Error("sub from user info endpoint does not match sub in id_token");
                 }
 
                 response.profile = this._mergeClaims(response.profile, claims);
-                Log.debug("ResponseValidator._processClaims: user info claims received, updated profile:", response.profile);
+                this._logger.debug("_processClaims: user info claims received, updated profile:", response.profile);
 
                 return response;
             }
             else {
-                Log.debug("ResponseValidator._processClaims: not loading user info");
+                this._logger.debug("_processClaims: not loading user info");
             }
         }
         else {
-            Log.debug("ResponseValidator._processClaims: response is not OIDC, not processing claims");
+            this._logger.debug("_processClaims: response is not OIDC, not processing claims");
         }
 
         return response;
@@ -184,7 +186,7 @@ export class ResponseValidator {
     }
 
     protected _filterProtocolClaims(claims: UserProfile): UserProfile {
-        Log.debug("ResponseValidator._filterProtocolClaims, incoming claims:", claims);
+        this._logger.debug("_filterProtocolClaims, incoming claims:", claims);
 
         const result = Object.assign({}, claims as Record<string, any>);
 
@@ -193,10 +195,10 @@ export class ResponseValidator {
                 delete result[type];
             });
 
-            Log.debug("ResponseValidator._filterProtocolClaims: protocol claims filtered", result);
+            this._logger.debug("_filterProtocolClaims: protocol claims filtered:", result);
         }
         else {
-            Log.debug("ResponseValidator._filterProtocolClaims: protocol claims not filtered");
+            this._logger.debug("_filterProtocolClaims: protocol claims not filtered");
         }
 
         return result;
@@ -204,11 +206,11 @@ export class ResponseValidator {
 
     protected async _validateTokens(state: SigninState, response: SigninResponse): Promise<SigninResponse> {
         if (response.code) {
-            Log.debug("ResponseValidator._validateTokens: Validating code");
+            this._logger.debug("_validateTokens: Validating code");
             return this._processCode(state, response);
         }
 
-        Log.debug("ResponseValidator._validateTokens: No code to process");
+        this._logger.debug("_validateTokens: No code to process");
         return response;
     }
 
@@ -241,21 +243,21 @@ export class ResponseValidator {
         response.expires_in = parseInt(tokenResponse.expires_in) || response.expires_in;
 
         if (response.id_token) {
-            Log.debug("ResponseValidator._processCode: token response successful, processing id_token");
+            this._logger.debug("_processCode: token response successful, processing id_token");
             return this._validateIdTokenAttributes(state, response, response.id_token);
         }
 
-        Log.debug("ResponseValidator._processCode: token response successful, returning response");
+        this._logger.debug("_processCode: token response successful, returning response");
         return response;
     }
 
     protected async _validateIdTokenAttributes(state: SigninState, response: SigninResponse, id_token: string): Promise<SigninResponse> {
-        Log.debug("ResponseValidator._validateIdTokenAttributes: Decoding JWT attributes");
+        this._logger.debug("_validateIdTokenAttributes: Decoding JWT attributes");
 
         const payload = JwtUtils.decode(id_token);
 
         if (!payload.sub) {
-            Log.error("ResponseValidator._validateIdTokenAttributes: No sub present in id_token");
+            this._logger.error("_validateIdTokenAttributes: No sub present in id_token");
             throw new Error("No sub present in id_token");
         }
 

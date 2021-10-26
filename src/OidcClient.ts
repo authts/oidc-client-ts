@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./utils";
+import { Logger } from "./utils";
 import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 import { ResponseValidator } from "./ResponseValidator";
 import { MetadataService } from "./MetadataService";
@@ -52,11 +52,14 @@ export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url" | "state_d
  */
 export class OidcClient {
     public readonly settings: OidcClientSettingsStore;
+    protected readonly _logger: Logger;
+
     public readonly metadataService: MetadataService;
     protected readonly _validator: ResponseValidator;
 
     public constructor(settings: OidcClientSettings) {
         this.settings = new OidcClientSettingsStore(settings);
+        this._logger = new Logger("OidcClient");
 
         this.metadataService = new MetadataService(this.settings);
         this._validator = new ResponseValidator(this.settings, this.metadataService);
@@ -68,7 +71,7 @@ export class OidcClient {
         prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
         resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo
     }: CreateSigninRequestArgs): Promise<SigninRequest> {
-        Log.debug("OidcClient.createSigninRequest");
+        this._logger.debug("createSigninRequest");
 
         response_type = response_type || this.settings.response_type;
         scope = scope || this.settings.scope;
@@ -90,7 +93,7 @@ export class OidcClient {
         }
 
         const url = await this.metadataService.getAuthorizationEndpoint();
-        Log.debug("OidcClient.createSigninRequest: Received authorization endpoint", url);
+        this._logger.debug("createSigninRequest: Received authorization endpoint", url);
 
         const signinRequest = new SigninRequest({
             url,
@@ -112,13 +115,13 @@ export class OidcClient {
     }
 
     public async readSigninResponseState(url?: string, removeState = false): Promise<{ state: SigninState; response: SigninResponse }> {
-        Log.debug("OidcClient.readSigninResponseState");
+        this._logger.debug("readSigninResponseState");
 
         const delimiter = this.settings.response_mode === "query" ? "?" : "#";
         const response = new SigninResponse(url, delimiter);
         const stateKey = response.state_id;
         if (!stateKey) {
-            Log.error("OidcClient.readSigninResponseState: No state in response");
+            this._logger.error("readSigninResponseState: No state in response");
             throw new Error("No state in response");
         }
 
@@ -127,7 +130,7 @@ export class OidcClient {
 
         const storedStateString = await stateApi(stateKey);
         if (!storedStateString) {
-            Log.error("OidcClient.readSigninResponseState: No matching state found in storage");
+            this._logger.error("readSigninResponseState: No matching state found in storage");
             throw new Error("No matching state found in storage");
         }
 
@@ -136,10 +139,10 @@ export class OidcClient {
     }
 
     public async processSigninResponse(url?: string): Promise<SigninResponse> {
-        Log.debug("OidcClient.processSigninResponse");
+        this._logger.debug("processSigninResponse");
 
         const { state, response } = await this.readSigninResponseState(url, true);
-        Log.debug("OidcClient.processSigninResponse: Received state from storage; validating response");
+        this._logger.debug("processSigninResponse: Received state from storage; validating response");
         return this._validator.validateSigninResponse(state, response);
     }
 
@@ -147,18 +150,18 @@ export class OidcClient {
         state,
         id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type
     }: CreateSignoutRequestArgs = {}): Promise<SignoutRequest> {
-        Log.debug("OidcClient.createSignoutRequest");
+        this._logger.debug("createSignoutRequest");
 
         post_logout_redirect_uri = post_logout_redirect_uri || this.settings.post_logout_redirect_uri;
         extraQueryParams = extraQueryParams || this.settings.extraQueryParams;
 
         const url = await this.metadataService.getEndSessionEndpoint();
         if (!url) {
-            Log.error("OidcClient.createSignoutRequest: No end session endpoint url returned");
+            this._logger.error("createSignoutRequest: No end session endpoint url returned");
             throw new Error("no end session endpoint");
         }
 
-        Log.debug("OidcClient.createSignoutRequest: Received end session endpoint", url);
+        this._logger.debug("createSignoutRequest: Received end session endpoint", url);
 
         const request = new SignoutRequest({
             url,
@@ -171,7 +174,7 @@ export class OidcClient {
 
         const signoutState = request.state;
         if (signoutState) {
-            Log.debug("OidcClient.createSignoutRequest: Signout request has state to persist");
+            this._logger.debug("createSignoutRequest: Signout request has state to persist");
             await this.settings.stateStore.set(signoutState.id, signoutState.toStorageString());
         }
 
@@ -179,15 +182,15 @@ export class OidcClient {
     }
 
     public async readSignoutResponseState(url?: string, removeState = false): Promise<{ state: State | undefined; response: SignoutResponse }> {
-        Log.debug("OidcClient.readSignoutResponseState");
+        this._logger.debug("readSignoutResponseState");
 
         const response = new SignoutResponse(url);
         const stateKey = response.state_id;
         if (!stateKey) {
-            Log.debug("OidcClient.readSignoutResponseState: No state in response");
+            this._logger.debug("readSignoutResponseState: No state in response");
 
             if (response.error) {
-                Log.warn("OidcClient.readSignoutResponseState: Response was error: ", response.error);
+                this._logger.warn("readSignoutResponseState: Response was error:", response.error);
                 throw new ErrorResponse(response);
             }
 
@@ -199,7 +202,7 @@ export class OidcClient {
         const stateApi = removeState ? stateStore.remove.bind(stateStore) : stateStore.get.bind(stateStore);
         const storedStateString = await stateApi(stateKey);
         if (!storedStateString) {
-            Log.error("OidcClient.readSignoutResponseState: No matching state found in storage");
+            this._logger.error("readSignoutResponseState: No matching state found in storage");
             throw new Error("No matching state found in storage");
         }
 
@@ -208,20 +211,20 @@ export class OidcClient {
     }
 
     public async processSignoutResponse(url: string): Promise<SignoutResponse> {
-        Log.debug("OidcClient.processSignoutResponse");
+        this._logger.debug("processSignoutResponse");
 
         const { state, response } = await this.readSignoutResponseState(url, true);
         if (state) {
-            Log.debug("OidcClient.processSignoutResponse: Received state from storage; validating response");
+            this._logger.debug("processSignoutResponse: Received state from storage; validating response");
             return this._validator.validateSignoutResponse(state, response);
         }
 
-        Log.debug("OidcClient.processSignoutResponse: No state from storage; skipping validating response");
+        this._logger.debug("processSignoutResponse: No state from storage; skipping validating response");
         return response;
     }
 
     public clearStaleState(): Promise<void> {
-        Log.debug("OidcClient.clearStaleState");
+        this._logger.debug("clearStaleState");
         return State.clearStaleState(this.settings.stateStore, this.settings.staleStateAgeInSeconds);
     }
 }

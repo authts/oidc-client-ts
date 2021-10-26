@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, UrlUtils } from "../utils";
+import { Logger, UrlUtils } from "../utils";
 import type { IWindow, NavigateParams, NavigateResponse } from "./IWindow";
 
 const checkForPopupClosedInterval = 500;
@@ -15,6 +15,8 @@ export interface PopupWindowParams {
 }
 
 export class PopupWindow implements IWindow {
+    private readonly _logger: Logger;
+
     private _resolve!: (value: NavigateResponse) => void;
     private _reject!: (reason?: any) => void;
     private _promise = new Promise<NavigateResponse>((resolve, reject) => {
@@ -29,9 +31,11 @@ export class PopupWindow implements IWindow {
         popupWindowTarget = defaultPopupTarget,
         popupWindowFeatures = defaultPopupFeatures
     }: PopupWindowParams) {
+        this._logger = new Logger("PopupWindow");
+
         this._popup = window.open("", popupWindowTarget, popupWindowFeatures);
         if (this._popup) {
-            Log.debug("PopupWindow.ctor: popup successfully created");
+            this._logger.debug("ctor: popup successfully created");
             this._checkForPopupClosedTimer = window.setInterval(this._checkForPopupClosed, checkForPopupClosedInterval);
         }
     }
@@ -45,7 +49,7 @@ export class PopupWindow implements IWindow {
             this._error("No url provided");
         }
         else {
-            Log.debug("PopupWindow.navigate: Setting URL in popup");
+            this._logger.debug("navigate: Setting URL in popup");
 
             this._id = params.id;
             if (this._id) {
@@ -62,7 +66,7 @@ export class PopupWindow implements IWindow {
 
     protected _messageReceived = (event: MessageEvent): void => {
         if (event.origin !== window.location.origin) {
-            Log.warn("PopupWindow:_messageReceived: Message not coming from same origin: " + event.origin);
+            this._logger.warn("_messageReceived: Message not coming from same origin: " + event.origin);
             return;
         }
 
@@ -73,27 +77,27 @@ export class PopupWindow implements IWindow {
             // @ts-ignore
             const callback = window["popupCallback_" + data.state];
             if (callback) {
-                Log.debug("PopupWindow._messageReceived: passing url message to opener");
+                this._logger.debug("_messageReceived: passing url message to opener");
                 callback(url, keepOpen);
             }
             else {
-                Log.warn("PopupWindow._messageReceived: no matching callback found on opener");
+                this._logger.warn("_messageReceived: no matching callback found on opener");
             }
         }
         else {
-            Log.warn("PopupWindow._messageReceived: no state found in response url");
+            this._logger.warn("_messageReceived: no state found in response url");
         }
     }
 
     protected _success(data: NavigateResponse): void {
-        Log.debug("PopupWindow.callback: Successful response from popup window");
+        this._logger.debug("callback: Successful response from popup window");
 
         this._cleanup();
         this._resolve(data);
     }
 
     protected _error(message: string): void {
-        Log.error("PopupWindow.error: ", message);
+        this._logger.error("_error", message);
 
         this._cleanup();
         this._reject(new Error(message));
@@ -104,7 +108,7 @@ export class PopupWindow implements IWindow {
     }
 
     protected _cleanup(keepOpen?: boolean): void {
-        Log.debug("PopupWindow.cleanup");
+        this._logger.debug("cleanup");
 
         if (this._checkForPopupClosedTimer) {
             window.clearInterval(this._checkForPopupClosedTimer);
@@ -134,11 +138,11 @@ export class PopupWindow implements IWindow {
         this._cleanup(keepOpen);
 
         if (url) {
-            Log.debug("PopupWindow.callback success");
+            this._logger.debug("callback success");
             this._success({ url: url });
         }
         else {
-            Log.debug("PopupWindow.callback: Invalid response from popup");
+            this._logger.debug("callback: Invalid response from popup");
             this._error("Invalid response from popup");
         }
     }
@@ -157,7 +161,7 @@ export class PopupWindow implements IWindow {
             }
         }
         else {
-            Log.warn("PopupWindow.notifyOpener: no window.opener. Can't complete notification.");
+            Logger.warn("PopupWindow", "notifyOpener: no window.opener. Can't complete notification.");
         }
     }
 }

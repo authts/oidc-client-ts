@@ -1,14 +1,17 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./utils";
+import { Logger } from "./utils";
 import type { UserManager } from "./UserManager";
 import type { AccessTokenCallback } from "./AccessTokenEvents";
 
 export class SilentRenewService {
+    protected _logger: Logger;
     private _isStarted = false;
 
-    public constructor(private _userManager: UserManager) {}
+    public constructor(private _userManager: UserManager) {
+        this._logger = new Logger("SilentRenewService");
+    }
 
     public async start(): Promise<void> {
         if (!this._isStarted) {
@@ -22,7 +25,7 @@ export class SilentRenewService {
             }
             catch (err) {
                 // catch to suppress errors since we're in a ctor
-                Log.error("SilentRenewService.start: Error from getUser:", err instanceof Error ? err.message : err);
+                this._logger.error("start: Error from getUser:", err instanceof Error ? err.message : err);
             }
         }
     }
@@ -37,11 +40,12 @@ export class SilentRenewService {
     protected _tokenExpiring: AccessTokenCallback = () => {
         this._userManager.signinSilent()
             .then(() => {
-                Log.debug("SilentRenewService._tokenExpiring: Silent token renewal successful");
+                this._logger.debug("_tokenExpiring: Silent token renewal successful");
             })
             .catch((err) => {
-                Log.error("SilentRenewService._tokenExpiring: Error from signinSilent:", err instanceof Error ? err.message : err);
-                this._userManager.events._raiseSilentRenewError(err instanceof Error ? err : new Error("Silent renew failed"));
+                const error = err instanceof Error ? err : new Error("Silent renew failed");
+                this._logger.error("_tokenExpiring: Error from signinSilent:", error.message);
+                this._userManager.events._raiseSilentRenewError(error);
             });
     }
 }

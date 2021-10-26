@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./utils";
+import { Logger } from "./utils";
 import type { MetadataService } from "./MetadataService";
 import type { OidcClientSettingsStore } from "./OidcClientSettings";
 
@@ -12,29 +12,31 @@ const RefreshTokenTypeHint = "refresh_token";
  * @public
  */
 export class TokenRevocationClient {
-    private _settings: OidcClientSettingsStore
+    private _settings: OidcClientSettingsStore;
+    private readonly _logger: Logger;
     private _metadataService: MetadataService;
 
     public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
         this._settings = settings;
+        this._logger = new Logger("TokenRevocationClient");
         this._metadataService = metadataService;
     }
 
     public async revoke(token: string, required: boolean, type = "access_token"): Promise<void> {
         if (!token) {
-            Log.error("TokenRevocationClient.revoke: No token provided");
+            this._logger.error("revoke: No token provided");
             throw new Error("No token provided.");
         }
 
         if (type !== AccessTokenTypeHint && type != RefreshTokenTypeHint) {
-            Log.error("TokenRevocationClient.revoke: Invalid token type");
+            this._logger.error("revoke: Invalid token type");
             throw new Error("Invalid token type.");
         }
 
         const url = await this._metadataService.getRevocationEndpoint();
         if (!url) {
             if (required) {
-                Log.error("TokenRevocationClient.revoke: Revocation not supported");
+                this._logger.error("revoke: Revocation not supported");
                 throw new Error("Revocation not supported");
             }
 
@@ -42,7 +44,7 @@ export class TokenRevocationClient {
             return;
         }
 
-        Log.debug("TokenRevocationClient.revoke: Revoking " + type);
+        this._logger.debug("revoke: Revoking " + type);
         const client_id = this._settings.client_id;
         const client_secret = this._settings.client_secret;
         await this._revoke(url, client_id, client_secret, token, type);
@@ -63,15 +65,15 @@ export class TokenRevocationClient {
 
         let response: Response;
         try {
-            Log.debug("TokenRevocationClient.revoke, url: ", url);
+            this._logger.debug("revoke, url: ", url);
             response = await fetch(url, { method: "POST", headers, body });
         }
         catch (err) {
-            Log.error("TokenRevocationClient.revoke: network error");
+            this._logger.error("revoke: network error");
             throw new Error("Network Error");
         }
 
-        Log.debug("TokenRevocationClient.revoke: HTTP response received, status", response.status);
+        this._logger.debug("revoke: HTTP response received, status", response.status);
         if (response.status !== 200) {
             throw new Error(response.statusText + " (" + response.status.toString() + ")");
         }

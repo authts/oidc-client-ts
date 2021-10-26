@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, UrlUtils } from "./utils";
+import { Logger, UrlUtils } from "./utils";
 import { SigninState } from "./SigninState";
 
 export interface SigninRequestArgs {
@@ -36,6 +36,8 @@ export interface SigninRequestArgs {
 }
 
 export class SigninRequest {
+    private readonly _logger: Logger;
+
     public readonly url: string;
     public readonly state: SigninState;
 
@@ -46,28 +48,30 @@ export class SigninRequest {
         state_data, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, response_mode,
         request, request_uri, extraQueryParams, request_type, client_secret, extraTokenParams, skipUserInfo
     }: SigninRequestArgs) {
+        this._logger = new Logger("SigninRequest");
+
         if (!url) {
-            Log.error("SigninRequest.ctor: No url passed");
+            this._logger.error("ctor: No url passed");
             throw new Error("url");
         }
         if (!client_id) {
-            Log.error("SigninRequest.ctor: No client_id passed");
+            this._logger.error("ctor: No client_id passed");
             throw new Error("client_id");
         }
         if (!redirect_uri) {
-            Log.error("SigninRequest.ctor: No redirect_uri passed");
+            this._logger.error("ctor: No redirect_uri passed");
             throw new Error("redirect_uri");
         }
         if (!response_type) {
-            Log.error("SigninRequest.ctor: No response_type passed");
+            this._logger.error("ctor: No response_type passed");
             throw new Error("response_type");
         }
         if (!scope) {
-            Log.error("SigninRequest.ctor: No scope passed");
+            this._logger.error("ctor: No scope passed");
             throw new Error("scope");
         }
         if (!authority) {
-            Log.error("SigninRequest.ctor: No authority passed");
+            this._logger.error("ctor: No authority passed");
             throw new Error("authority");
         }
 

@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, CryptoUtils, Timer } from "./utils";
+import { Logger, CryptoUtils, Timer } from "./utils";
 import type { StateStore } from "./StateStore";
 
 export class State {
@@ -31,7 +31,7 @@ export class State {
     }
 
     public toStorageString(): string {
-        Log.debug("State.toStorageString");
+        Logger.debug("State", "toStorageString");
         return JSON.stringify({
             id: this.id,
             data: this.data,
@@ -41,7 +41,7 @@ export class State {
     }
 
     public static fromStorageString(storageString: string): State {
-        Log.debug("State.fromStorageString");
+        Logger.debug("State", "fromStorageString");
         return new State(JSON.parse(storageString));
     }
 
@@ -49,7 +49,7 @@ export class State {
         const cutoff = Timer.getEpochTime() - age;
 
         const keys = await storage.getAllKeys();
-        Log.debug("State.clearStaleState: got keys", keys);
+        Logger.debug("State", "clearStaleState: got keys", keys);
 
         for (let i = 0; i < keys.length; i++) {
             const key = keys[i];
@@ -60,23 +60,23 @@ export class State {
                 try {
                     const state = State.fromStorageString(item);
 
-                    Log.debug("State.clearStaleState: got item from key: ", key, state.created);
+                    Logger.debug("State", "clearStaleState: got item from key: ", key, state.created);
                     if (state.created <= cutoff) {
                         remove = true;
                     }
                 }
                 catch (err) {
-                    Log.error("State.clearStaleState: Error parsing state for key", key, err instanceof Error ? err.message : err);
+                    Logger.error("State", "clearStaleState: Error parsing state for key", key, err instanceof Error ? err.message : err);
                     remove = true;
                 }
             }
             else {
-                Log.debug("State.clearStaleState: no item in storage for key: ", key);
+                Logger.debug("State", "clearStaleState: no item in storage for key: ", key);
                 remove = true;
             }
 
             if (remove) {
-                Log.debug("State.clearStaleState: removed item for key: ", key);
+                Logger.debug("State", "clearStaleState: removed item for key: ", key);
                 void storage.remove(key);
             }
         }

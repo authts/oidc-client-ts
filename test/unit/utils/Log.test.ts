@@ -1,12 +1,15 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, Logger } from "../../../src/utils";
+import { Log, ILogger, Logger } from "../../../src/utils";
 
 describe("Log", () => {
+    let subject: Logger;
+
     beforeEach(() => {
         Log.reset();
         Log.level = Log.INFO;
+        subject = new Logger("name");
     });
 
     describe("level", () => {
@@ -18,9 +21,9 @@ describe("Log", () => {
             Log.level = Log.NONE;
 
             // act
-            Log.info("test info");
-            Log.warn("test warn");
-            Log.error("test error");
+            subject.info("test info");
+            subject.warn("test warn");
+            subject.error("test error");
 
             // assert
             expect(stub.infoWasCalled).toEqual(false);
@@ -35,9 +38,9 @@ describe("Log", () => {
             Log.level = Log.ERROR;
 
             // act
-            Log.info("test info");
-            Log.warn("test warn");
-            Log.error("test error");
+            subject.info("test info");
+            subject.warn("test warn");
+            subject.error("test error");
 
             // assert
             expect(stub.infoWasCalled).toEqual(false);
@@ -52,9 +55,9 @@ describe("Log", () => {
             Log.level = Log.WARN;
 
             // act
-            Log.info("test info");
-            Log.warn("test warn");
-            Log.error("test error");
+            subject.info("test info");
+            subject.warn("test warn");
+            subject.error("test error");
 
             // assert
             expect(stub.infoWasCalled).toEqual(false);
@@ -69,9 +72,9 @@ describe("Log", () => {
             Log.level = Log.INFO;
 
             // act
-            Log.info("test info");
-            Log.warn("test warn");
-            Log.error("test error");
+            subject.info("test info");
+            subject.warn("test warn");
+            subject.error("test error");
 
             // assert
             expect(stub.infoWasCalled).toEqual(true);
@@ -88,28 +91,28 @@ describe("Log", () => {
             Log.logger = stub;
 
             // act
-            Log.info("test info");
-            Log.warn("test warn");
-            Log.error("test error");
+            subject.info("test info");
+            subject.warn("test warn");
+            subject.error("test error");
 
             // assert
-            expect(stub.infoParam).toEqual("test info");
-            expect(stub.warnParam).toEqual("test warn");
-            expect(stub.errorParam).toEqual("test error");
+            expect(stub.infoParam).toEqual("[name] test info");
+            expect(stub.warnParam).toEqual("[name] test warn");
+            expect(stub.errorParam).toEqual("[name] test error");
         });
     });
 
     describe("info", () => {
 
         it("should work with no config", () => {
-            Log.info("test");
+            subject.info("test");
         });
     });
 
     describe("warn", () => {
 
         it("should work with no config", () => {
-            Log.warn("test");
+            subject.warn("test");
         });
 
     });
@@ -117,12 +120,12 @@ describe("Log", () => {
     describe("error", () => {
 
         it("should work with no config", () => {
-            Log.error("test");
+            subject.error("test");
         });
     });
 });
 
-class StubLog implements Logger {
+class StubLog implements ILogger {
     debugWasCalled: boolean;
     infoWasCalled: boolean;
     warnWasCalled: boolean;
@@ -138,20 +141,20 @@ class StubLog implements Logger {
         this.warnWasCalled = false;
         this.errorWasCalled = false;
     }
-    debug(arg: any) {
-        this.debugParam = arg;
+    debug(...args: any[]) {
+        this.debugParam = args.join(" ");
         this.debugWasCalled = true;
     }
-    info(arg: any) {
-        this.infoParam = arg;
+    info(...args: any[]) {
+        this.infoParam = args.join(" ");
         this.infoWasCalled = true;
     }
-    warn(arg: any) {
-        this.warnParam = arg;
+    warn(...args: any[]) {
+        this.warnParam = args.join(" ");
         this.warnWasCalled = true;
     }
-    error(arg: any) {
-        this.errorParam = arg;
+    error(...args: any[]) {
+        this.errorParam = args.join(" ");
         this.errorWasCalled = true;
     }
 }

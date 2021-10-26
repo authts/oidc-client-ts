@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, UrlUtils } from "./utils";
+import { Logger, UrlUtils } from "./utils";
 import { State } from "./State";
 
 export interface SignoutRequestArgs {
@@ -17,6 +17,8 @@ export interface SignoutRequestArgs {
 }
 
 export class SignoutRequest {
+    private readonly _logger: Logger;
+
     public readonly url: string
     public readonly state?: State
 
@@ -24,8 +26,10 @@ export class SignoutRequest {
         url,
         state_data, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type
     }: SignoutRequestArgs) {
+        this._logger = new Logger("SignoutRequest");
+
         if (!url) {
-            Log.error("SignoutRequest.ctor: No url passed");
+            this._logger.error("ctor: No url passed");
             throw new Error("url");
         }
 

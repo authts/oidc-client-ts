@@ -1,9 +1,9 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import { Logger } from "./utils";
 import { JsonService } from "./JsonService";
 import type { MetadataService } from "./MetadataService";
-import { Log } from "./utils";
 import type { OidcClientSettingsStore } from "./OidcClientSettings";
 
 interface ExchangeCodeArgs {
@@ -26,11 +26,13 @@ interface ExchangeRefreshTokenArgs {
 
 export class TokenClient {
     private readonly _settings: OidcClientSettingsStore;
+    private readonly _logger: Logger;
     private readonly _jsonService: JsonService;
     private readonly _metadataService: MetadataService;
 
     public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
         this._settings = settings;
+        this._logger = new Logger("TokenClient");
         this._jsonService = new JsonService();
         this._metadataService = metadataService;
     }
@@ -46,19 +48,19 @@ export class TokenClient {
         const client_authentication = this._settings.client_authentication;
 
         if (!args.client_id) {
-            Log.error("TokenClient.exchangeCode: No client_id passed");
+            this._logger.error("exchangeCode: No client_id passed");
             throw new Error("A client_id is required");
         }
         if (!args.redirect_uri) {
-            Log.error("TokenClient.exchangeCode: No redirect_uri passed");
+            this._logger.error("exchangeCode: No redirect_uri passed");
             throw new Error("A redirect_uri is required");
         }
         if (!args.code) {
-            Log.error("TokenClient.exchangeCode: No code passed");
+            this._logger.error("exchangeCode: No code passed");
             throw new Error("A code is required");
         }
         if (!args.code_verifier) {
-            Log.error("TokenClient.exchangeCode: No code_verifier passed");
+            this._logger.error("exchangeCode: No code_verifier passed");
             throw new Error("A code_verifier is required");
         }
 
@@ -66,7 +68,7 @@ export class TokenClient {
         let basicAuth: string | undefined = undefined;
         if (client_authentication == "client_secret_basic") {
             if (!args.client_secret) {
-                Log.error("TokenClient.exchangeCode: No client_secret passed");
+                this._logger.error("exchangeCode: No client_secret passed");
                 throw new Error("A client_secret is required");
             }
 
@@ -76,10 +78,10 @@ export class TokenClient {
         }
 
         const url = await this._metadataService.getTokenEndpoint(false) as string;
-        Log.debug("TokenClient.exchangeCode: Received token endpoint");
+        this._logger.debug("exchangeCode: Received token endpoint");
 
         const response = await this._jsonService.postForm(url, args, basicAuth);
-        Log.debug("TokenClient.exchangeCode: response received");
+        this._logger.debug("exchangeCode: response received");
 
         return response;
     }
@@ -94,11 +96,11 @@ export class TokenClient {
         const client_authentication = this._settings.client_authentication;
 
         if (!args.refresh_token) {
-            Log.error("TokenClient.exchangeRefreshToken: No refresh_token passed");
+            this._logger.error("exchangeRefreshToken: No refresh_token passed");
             throw new Error("A refresh_token is required");
         }
         if (!args.client_id) {
-            Log.error("TokenClient.exchangeRefreshToken: No client_id passed");
+            this._logger.error("exchangeRefreshToken: No client_id passed");
             throw new Error("A client_id is required");
         }
 
@@ -106,7 +108,7 @@ export class TokenClient {
         let basicAuth: string | undefined = undefined;
         if (client_authentication == "client_secret_basic") {
             if (!args.client_secret) {
-                Log.error("TokenClient.exchangeCode: No client_secret passed");
+                this._logger.error("exchangeCode: No client_secret passed");
                 throw new Error("A client_secret is required");
             }
 
@@ -116,10 +118,10 @@ export class TokenClient {
         }
 
         const url = await this._metadataService.getTokenEndpoint(false) as string;
-        Log.debug("TokenClient.exchangeRefreshToken: Received token endpoint");
+        this._logger.debug("exchangeRefreshToken: Received token endpoint");
 
         const response = await this._jsonService.postForm(url, args, basicAuth);
-        Log.debug("TokenClient.exchangeRefreshToken: response received");
+        this._logger.debug("exchangeRefreshToken: response received");
 
         return response;
     }

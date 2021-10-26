@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "../../src/utils";
+import { Log, Logger } from "../../src/utils";
 import { UserManager } from "../../src/UserManager";
 import { UserManagerSettings, UserManagerSettingsStore } from "../../src/UserManagerSettings";
 import { User } from "../../src/User";
@@ -12,6 +12,7 @@ import type { IWindow } from "../../src/navigators";
 
 describe("UserManager", () => {
     let settings: UserManagerSettings;
+    let logger: Logger;
     let userStoreMock: any;
     let subject: UserManager;
 
@@ -20,6 +21,7 @@ describe("UserManager", () => {
         Log.level = Log.NONE;
 
         userStoreMock = mocked(new WebStorageStateStore());
+        logger = new Logger("UserManager.test");
 
         settings = {
             authority: "http://sts/oidc",
@@ -62,7 +64,7 @@ describe("UserManager", () => {
             // lamda function is never called but complier thinks it returns Promise
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             subject.events.addUserLoaded(async (user) => {
-                Log.debug("event.load", user);
+                logger.debug("event.load", user);
                 await subject.getUser();
             });
 
@@ -93,7 +95,7 @@ describe("UserManager", () => {
             let navInstance: any = null;
 
             subject["_signin"] = async function (args: any, handle: IWindow) {
-                Log.debug("_signin", args, handle);
+                logger.debug("_signin", args, handle);
                 navInstance = handle;
                 return user;
             };
@@ -123,7 +125,7 @@ describe("UserManager", () => {
 
             let navInstance: any = null;
             subject["_signin"] = async function (args: any, handle: IWindow) {
-                Log.debug("_signin", args, handle);
+                logger.debug("_signin", args, handle);
                 navInstance = handle;
                 return user;
             };
@@ -149,7 +151,7 @@ describe("UserManager", () => {
             subject = new UserManager(settings);
 
             subject["_signin"] = async function (args: any, handle: IWindow) {
-                Log.debug("_signin", args, handle);
+                logger.debug("_signin", args, handle);
                 return user;
             };
 

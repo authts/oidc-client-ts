@@ -1,14 +1,18 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./Log";
+import { Logger } from "./Log";
 
 type Callback<EventType extends unknown[]> = (...ev: EventType) => (Promise<void> | void);
 
 export class Event<EventType extends unknown[]> {
+    protected readonly _logger: Logger;
+
     private _callbacks: Array<Callback<EventType>> = [];
 
-    public constructor(protected _name: string) {}
+    public constructor(protected _name: string) {
+        this._logger = new Logger("Event");
+    }
 
     public addHandler(cb: Callback<EventType>): void {
         this._callbacks.push(cb);
@@ -22,7 +26,7 @@ export class Event<EventType extends unknown[]> {
     }
 
     public raise(...ev: EventType): void {
-        Log.debug("Event: Raising event: " + this._name);
+        this._logger.debug("Raising event: " + this._name);
         for (let i = 0; i < this._callbacks.length; i++) {
             void this._callbacks[i](...ev);
         }

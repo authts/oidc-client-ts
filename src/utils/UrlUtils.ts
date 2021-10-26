@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./Log";
+import { Logger } from "./Log";
 
 export class UrlUtils {
     public static addQueryParam(url: string, name: string, value: string | number | boolean): string {
@@ -46,7 +46,7 @@ export class UrlUtils {
         while ((m = regex.exec(value)) !== null) {
             params[decodeURIComponent(m[1])] = decodeURIComponent(m[2].replace(/\+/g, " "));
             if (counter++ > 50) {
-                Log.error("UrlUtils.parseUrlFragment: response exceeded expected number of parameters", value);
+                Logger.error("UrlUtils", "parseUrlFragment: response exceeded expected number of parameters", value);
                 return {
                     error: "Response exceeded expected number of parameters"
                 };
