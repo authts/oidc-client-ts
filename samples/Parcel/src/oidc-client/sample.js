@@ -97,10 +97,7 @@ document.getElementById("processSignin").style.display = display;
 document.getElementById("processSignout").style.display = display;
 
 if (followLinks()) {
-    if (window.location.href.indexOf("#") >= 0) {
-        processSigninResponse();
-    }
-    else if (window.location.href.indexOf("?") >= 0) {
+    if (window.location.href.indexOf("?") >= 0) {
         processSignoutResponse();
     }
 }

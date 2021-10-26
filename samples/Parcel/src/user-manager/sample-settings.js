@@ -10,8 +10,6 @@ export const settings = {
     response_type: "code",
     scope: "openid email roles",
 
-    response_mode: "fragment",
-
     popup_redirect_uri: url + "/sample-popup-signin.html",
     popup_post_logout_redirect_uri: url + "/sample-popup-signout.html",
 

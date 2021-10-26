@@ -10,8 +10,6 @@ export const settings = {
     response_type: "code",
     scope: "openid email roles",
 
-    response_mode: "fragment",
-
     filterProtocolClaims: true
 };
 

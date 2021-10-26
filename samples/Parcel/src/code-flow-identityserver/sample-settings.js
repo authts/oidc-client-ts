@@ -9,7 +9,6 @@ export const settings = {
     redirect_uri: url + "/sample.html",
     post_logout_redirect_uri: url + "/sample.html",
     response_type: "code",
-    //response_mode: 'fragment',
     scope: "openid profile api",
     //scope: 'openid profile api offline_access',
 

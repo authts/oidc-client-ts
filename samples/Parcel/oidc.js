@@ -49,11 +49,11 @@ var claims = {
 };
 
 function addFragment(url, name, value) {
-    if (url.indexOf("#") < 0) {
-        url += "#";
+    if (url.indexOf("?") < 0) {
+        url += "?";
     }
 
-    if (url[url.length - 1] !== "#") {
+    if (url[url.length - 1] !== "?") {
         url += "&";
     }
 
