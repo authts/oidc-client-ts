@@ -38,13 +38,13 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "jsrsasign": "^10.3.0"
+    "crypto-js": "^4.1.1"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "^7.18.10",
     "@testing-library/jest-dom": "^5.5.0",
+    "@types/crypto-js": "^4.0.2",
     "@types/jest": "^27.0.2",
-    "@types/jsrsasign": "^8.0.13",
     "@typescript-eslint/eslint-plugin": "^4.31.1",
     "@typescript-eslint/parser": "^4.31.1",
     "esbuild": "^0.13.2",

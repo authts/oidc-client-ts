@@ -7,11 +7,12 @@ export const settings = {
     client_id: "js.tokenmanager",
     redirect_uri: url + "/sample.html",
     post_logout_redirect_uri: url + "/sample.html",
-    response_type: "id_token token",
+    response_type: "code",
     scope: "openid email roles",
 
-    filterProtocolClaims: true,
-    loadUserInfo: true
+    response_mode: "fragment",
+
+    filterProtocolClaims: true
 };
 
 export {

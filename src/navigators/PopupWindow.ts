@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, UrlUtility } from "../utils";
+import { Log, UrlUtils } from "../utils";
 import type { IWindow, NavigateParams, NavigateResponse } from "./IWindow";
 
 const checkForPopupClosedInterval = 500;
@@ -148,7 +148,7 @@ export class PopupWindow implements IWindow {
             url = url || window.location.href;
 
             if (url) {
-                const data = UrlUtility.parseUrlFragment(url, delimiter);
+                const data = UrlUtils.parseUrlFragment(url, delimiter);
                 window.opener?.postMessage(JSON.stringify({
                     data,
                     url,

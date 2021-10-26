@@ -26,7 +26,7 @@ The `UserManager` constructor requires a settings object as a parameter. The set
 * authority (string): The URL of the OIDC/OAuth2 provider.
 * client_id (string): Your client application's identifier as registered with the OIDC/OAuth2 provider.
 * redirect_uri (string): The redirect URI of your client application to receive a response from the OIDC/OAuth2 provider.
-* response_type (string, default: `'id_token'`): The type of response desired from the OIDC/OAuth2 provider.
+* response_type (string, default: `'code'`): The type of response desired from the OIDC/OAuth2 provider.
 * scope (string, default: `'openid'`): The scope being requested from the OIDC/OAuth2 provider.
 
 #### Provider settings if CORS not supported on OIDC/OAuth2 provider metadata endpoint
@@ -49,7 +49,7 @@ The `authority` URL setting is used to make HTTP requests to discover more infor
 * acr_values
 
 #### Other Optional Settings
-* clockSkew (number, default: `300`): The window of time (in seconds) to allow the current time to deviate when validating id_token's `iat`, `nbf`, and `exp` values.
+* clockSkew (number, default: `300`): The window of time (in seconds) to allow the current time to deviate when validating token's `iat`, `nbf`, and `exp` values.
 * loadUserInfo (boolean, default: `true`): Flag to control if additional identity data is loaded from the user info endpoint in order to populate the user's `profile`.
 * filterProtocolClaims (boolean, default: `true`): Should OIDC protocol claims be removed from `profile`.
 * post_logout_redirect_uri (string): The OIDC/OAuth2 post-logout redirect URI.
@@ -65,7 +65,6 @@ The `authority` URL setting is used to make HTTP requests to discover more infor
 * monitorSession [1.1.0]: (default: `true`): Will raise events for when user has performed a signout at the OP.
 * checkSessionInterval: (default: `2000`): Interval, in ms, to check the user's session.
 * revokeAccessTokenOnSignout [1.2.1] (default: `false`): Will invoke the revocation endpoint on signout if there is an access token for the user.
-* includeIdTokenInSilentRenew [1.4.0] (default: `true`): Flag to control if `id_token` is included as `id_token_hint` in silent renew calls.
 * staleStateAge (default: `300`): Number (in seconds) indicating the age of state entries in storage for authorize requests that are considered abandoned and thus can be cleaned up.
 * extraQueryParams: (object): An object containing additional query string parameters to be including in the authorization request. E.g, when using Azure AD to obtain an access token an additional resource parameter is required. extraQueryParams: `{resource:"some_identifier"}`
 * mergeClaims [1.11.0] (default: `false`): Indicates if objects returned from the user info endpoint as claims (e.g. `address`) are merged into the claims from the id token as a single object. Otherwise, they are added to an array as distinct objects for the claim type.
@@ -120,8 +119,7 @@ mgr.events.addAccessTokenExpiring(function(){
 
 The `User` type is returned from the `UserManager`'s `getUser` API. It contains these properties:
 
-* id_token: The id_token returned from the OIDC provider.
-* profile: The claims represented by a combination of the `id_token` and the user info endpoint.
+* profile: The claims represented by a combination of the `token` and the user info endpoint.
 * session_state: The session state value returned from the OIDC provider.
 * access_token: The access token returned from the OIDC provider.
 * scope: The scope returned from the OIDC provider.

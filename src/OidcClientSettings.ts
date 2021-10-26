@@ -53,11 +53,9 @@ export interface OidcClientSettings {
 
     /** Should OIDC protocol claims be removed from profile (default: true) */
     filterProtocolClaims?: boolean;
-    /** Flag to control if additional identity data is loaded from the user info endpoint in order to populate the user's profile (default: true) */
-    loadUserInfo?: boolean;
     /** Number (in seconds) indicating the age of state entries in storage for authorize requests that are considered abandoned and thus can be cleaned up (default: 300) */
     staleStateAgeInSeconds?: number;
-    /** The window of time (in seconds) to allow the current time to deviate when validating id_token's iat, nbf, and exp values (default: 300) */
+    /** The window of time (in seconds) to allow the current time to deviate when validating token's iat, nbf, and exp values (default: 300) */
     clockSkewInSeconds?: number;
     userInfoJwtIssuer?: "ANY" | "OP" | string;
     mergeClaims?: boolean;
@@ -97,7 +95,6 @@ export class OidcClientSettingsStore {
 
     // behavior flags
     public readonly filterProtocolClaims: boolean | undefined;
-    public readonly loadUserInfo: boolean | undefined;
     public readonly staleStateAgeInSeconds: number;
     public readonly clockSkewInSeconds: number;
     public readonly userInfoJwtIssuer: "ANY" | "OP" | string | undefined;
@@ -119,7 +116,7 @@ export class OidcClientSettingsStore {
         // optional protocol
         prompt, display, max_age, ui_locales, acr_values, resource, response_mode,
         // behavior flags
-        filterProtocolClaims = true, loadUserInfo = true,
+        filterProtocolClaims = true,
         staleStateAgeInSeconds = DefaultStaleStateAgeInSeconds,
         clockSkewInSeconds = DefaultClockSkewInSeconds,
         userInfoJwtIssuer = "OP",
@@ -154,7 +151,6 @@ export class OidcClientSettingsStore {
         this.response_mode = response_mode;
 
         this.filterProtocolClaims = !!filterProtocolClaims;
-        this.loadUserInfo = !!loadUserInfo;
         this.staleStateAgeInSeconds = staleStateAgeInSeconds;
         this.clockSkewInSeconds = clockSkewInSeconds;
         this.userInfoJwtIssuer = userInfoJwtIssuer;

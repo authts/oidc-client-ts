@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, random, Timer } from "./utils";
+import { Log, CryptoUtils, Timer } from "./utils";
 import type { StateStore } from "./StateStore";
 
 export class State {
@@ -16,7 +16,7 @@ export class State {
         created?: number;
         request_type?: string;
     }) {
-        this.id = args.id || random();
+        this.id = args.id || CryptoUtils.generateUUIDv4();
         this.data = args.data;
 
         if (args.created && args.created > 0) {

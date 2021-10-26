@@ -7,8 +7,10 @@ export const settings = {
     client_id: "js.tokenmanager",
     redirect_uri: url + "/sample.html",
     post_logout_redirect_uri: url + "/sample.html",
-    response_type: "id_token token",
+    response_type: "code",
     scope: "openid email roles",
+
+    response_mode: "fragment",
 
     popup_redirect_uri: url + "/sample-popup-signin.html",
     popup_post_logout_redirect_uri: url + "/sample-popup-signout.html",
@@ -17,8 +19,7 @@ export const settings = {
     automaticSilentRenew: true,
     //silentRequestTimeout: 10000,
 
-    filterProtocolClaims: true,
-    loadUserInfo: true
+    filterProtocolClaims: true
 };
 
 export {

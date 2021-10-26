@@ -70,7 +70,7 @@ describe("OidcClient", () => {
             // arrange
             const args = {
                 redirect_uri: "redirect",
-                response_type: "response",
+                response_type: "code",
                 scope: "scope"
             };
             jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
@@ -89,7 +89,7 @@ describe("OidcClient", () => {
             // act
             const request = await subject.createSigninRequest({
                 state: "foo",
-                response_type: "bar",
+                response_type: "code",
                 response_mode: "mode",
                 scope: "baz",
                 redirect_uri: "quux",
@@ -97,7 +97,6 @@ describe("OidcClient", () => {
                 display: "d",
                 max_age: 42,
                 ui_locales: "u",
-                id_token_hint: "ith",
                 login_hint: "lh",
                 acr_values: "av",
                 resource: "res",
@@ -109,14 +108,13 @@ describe("OidcClient", () => {
             expect(request.state.data).toEqual("foo");
             const url = request.url;
             expect(url).toContain("http://sts/authorize");
-            expect(url).toContain("response_type=bar");
+            expect(url).toContain("response_type=code");
             expect(url).toContain("scope=baz");
             expect(url).toContain("redirect_uri=quux");
             expect(url).toContain("prompt=p");
             expect(url).toContain("display=d");
             expect(url).toContain("max_age=42");
             expect(url).toContain("ui_locales=u");
-            expect(url).toContain("id_token_hint=ith");
             expect(url).toContain("login_hint=lh");
             expect(url).toContain("acr_values=av");
             expect(url).toContain("resource=res");
@@ -132,14 +130,13 @@ describe("OidcClient", () => {
             // act
             const request = await subject.createSigninRequest({
                 state: "foo",
-                response_type: "bar",
+                response_type: "code",
                 scope: "baz",
                 redirect_uri: "quux",
                 prompt: "p",
                 display: "d",
                 max_age: 42,
                 ui_locales: "u",
-                id_token_hint: "ith",
                 login_hint: "lh",
                 acr_values: "av",
                 resource: "res"
@@ -149,25 +146,24 @@ describe("OidcClient", () => {
             expect(request.state.data).toEqual("foo");
             const url = request.url;
             expect(url).toContain("http://sts/authorize");
-            expect(url).toContain("response_type=bar");
+            expect(url).toContain("response_type=code");
             expect(url).toContain("scope=baz");
             expect(url).toContain("redirect_uri=quux");
             expect(url).toContain("prompt=p");
             expect(url).toContain("display=d");
             expect(url).toContain("max_age=42");
             expect(url).toContain("ui_locales=u");
-            expect(url).toContain("id_token_hint=ith");
             expect(url).toContain("login_hint=lh");
             expect(url).toContain("acr_values=av");
             expect(url).toContain("resource=res");
         });
 
-        it("should fail if hybrid code id_token requested", async () => {
+        it("should fail if implicit flow requested", async () => {
             // arrange
             const args = {
                 redirect_uri: "redirect",
                 scope: "scope",
-                response_type: "code id_token"
+                response_type: "id_token"
             };
 
             // act
@@ -177,45 +173,7 @@ describe("OidcClient", () => {
             }
             catch (err) {
                 expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("hybrid");
-            }
-        });
-
-        it("should fail if hybrid code token requested", async () => {
-            // arrange
-            const args = {
-                redirect_uri: "redirect",
-                scope: "scope",
-                response_type: "code token"
-            };
-
-            // act
-            try {
-                await subject.createSigninRequest(args);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("hybrid");
-            }
-        });
-
-        it("should fail if hybrid code id_token token requested", async () => {
-            // arrange
-            const args = {
-                redirect_uri: "redirect",
-                scope: "scope",
-                response_type: "code id_token token"
-            };
-
-            // act
-            try {
-                await subject.createSigninRequest(args);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("hybrid");
+                expect((err as Error).message).toContain("Only the Authorization Code flow");
             }
         });
 
@@ -223,7 +181,7 @@ describe("OidcClient", () => {
             // arrange
             const args = {
                 redirect_uri: "redirect",
-                response_type: "response",
+                response_type: "code",
                 scope: "scope"
             };
             jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockRejectedValue(new Error("test"));
@@ -239,11 +197,11 @@ describe("OidcClient", () => {
             }
         });
 
-        it("should fail if seting state into store fails", async () => {
+        it("should fail if setting state into store fails", async () => {
             // arrange
             const args = {
                 redirect_uri: "redirect",
-                response_type: "response",
+                response_type: "code",
                 scope: "scope"
             };
             jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
@@ -264,7 +222,7 @@ describe("OidcClient", () => {
             // arrange
             const args = {
                 redirect_uri: "redirect",
-                response_type: "response",
+                response_type: "code",
                 scope: "scope"
             };
             jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
@@ -324,7 +282,6 @@ describe("OidcClient", () => {
             // arrange
             const item = new SigninState({
                 id: "1",
-                nonce: "2",
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "http://cb",
@@ -338,7 +295,6 @@ describe("OidcClient", () => {
 
             // assert
             expect(state.id).toEqual("1");
-            expect(state.nonce).toEqual("2");
             expect(state.authority).toEqual("authority");
             expect(state.client_id).toEqual("client");
             expect(state.request_type).toEqual("type");
@@ -391,7 +347,6 @@ describe("OidcClient", () => {
             // arrange
             const item = new SigninState({
                 id: "1",
-                nonce: "2",
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "http://cb",
@@ -445,7 +400,6 @@ describe("OidcClient", () => {
             const request = await subject.createSignoutRequest({
                 state: "foo",
                 post_logout_redirect_uri: "bar",
-                id_token_hint: "baz"
             });
 
             // assert
@@ -454,7 +408,6 @@ describe("OidcClient", () => {
             const url = request.url;
             expect(url).toContain("http://sts/signout");
             expect(url).toContain("post_logout_redirect_uri=bar");
-            expect(url).toContain("id_token_hint=baz");
         });
 
         it("should pass params to SignoutRequest", async () => {
@@ -465,7 +418,6 @@ describe("OidcClient", () => {
             const request = await subject.createSignoutRequest({
                 state: "foo",
                 post_logout_redirect_uri: "bar",
-                id_token_hint: "baz"
             });
 
             // assert
@@ -474,7 +426,6 @@ describe("OidcClient", () => {
             const url = request.url;
             expect(url).toContain("http://sts/signout");
             expect(url).toContain("post_logout_redirect_uri=bar");
-            expect(url).toContain("id_token_hint=baz");
         });
 
         it("should fail if metadata fails", async () => {
@@ -515,7 +466,6 @@ describe("OidcClient", () => {
             // act
             await subject.createSignoutRequest({
                 state: "foo",
-                id_token_hint: "hint"
             });
 
             // assert

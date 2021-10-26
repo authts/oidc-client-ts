@@ -330,45 +330,6 @@ describe("OidcClientSettings", () => {
         });
     });
 
-    describe("loadUserInfo", () => {
-
-        it("should use default value", () => {
-            // act
-            const subject = new OidcClientSettingsStore({
-                authority: "authority",
-                client_id: "client",
-                redirect_uri: "redirect"
-            });
-
-            // assert
-            expect(subject.loadUserInfo).toEqual(true);
-        });
-
-        it("should return value from initial settings", () => {
-            // act
-            let subject = new OidcClientSettingsStore({
-                authority: "authority",
-                client_id: "client",
-                redirect_uri: "redirect",
-                loadUserInfo: true
-            });
-
-            // assert
-            expect(subject.loadUserInfo).toEqual(true);
-
-            // act
-            subject = new OidcClientSettingsStore({
-                authority: "authority",
-                client_id: "client",
-                redirect_uri: "redirect",
-                loadUserInfo: false
-            });
-
-            // assert
-            expect(subject.loadUserInfo).toEqual(false);
-        });
-    });
-
     describe("staleStateAge", () => {
 
         it("should use default value", () => {

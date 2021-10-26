@@ -15,7 +15,6 @@ export interface UserProfile {
  * @public
  */
 export class User {
-    public id_token: string | undefined;
     public session_state: string | undefined;
     public access_token: string;
     public refresh_token: string | undefined;
@@ -25,11 +24,10 @@ export class User {
     public expires_at: number | undefined;
 
     public constructor(args: {
-        id_token?: string; session_state?: string;
+        session_state?: string;
         access_token: string; refresh_token?: string;
         token_type: string; scope?: string; profile: UserProfile; expires_at?: number;
     }) {
-        this.id_token = args.id_token;
         this.session_state = args.session_state;
         this.access_token = args.access_token;
         this.refresh_token = args.refresh_token;
@@ -69,7 +67,6 @@ export class User {
     public toStorageString(): string {
         Log.debug("User.toStorageString");
         return JSON.stringify({
-            id_token: this.id_token,
             session_state: this.session_state,
             access_token: this.access_token,
             refresh_token: this.refresh_token,

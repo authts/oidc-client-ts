@@ -52,7 +52,6 @@ describe("UserManager", () => {
         it("should be able to call getUser without recursion", () => {
             // arrange
             const user = new User({
-                id_token: "id_token",
                 access_token: "access_token",
                 token_type: "token_type",
                 profile: {}
@@ -76,7 +75,6 @@ describe("UserManager", () => {
         it("should pass silentRequestTimeout from settings", async () => {
             // arrange
             const user = new User({
-                id_token:"id_token",
                 access_token: "access_token",
                 token_type: "token_type",
                 profile: {}
@@ -108,7 +106,6 @@ describe("UserManager", () => {
         it("should pass silentRequestTimeout from params", async () => {
             // arrange
             const user = new User({
-                id_token:"id_token",
                 access_token: "access_token",
                 token_type: "token_type",
                 profile: {}
