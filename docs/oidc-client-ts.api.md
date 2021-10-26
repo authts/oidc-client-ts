@@ -67,8 +67,6 @@ export interface CreateSigninRequestArgs {
     // (undocumented)
     resource?: string;
     // (undocumented)
-    response_mode?: string;
-    // (undocumented)
     response_type?: string;
     // (undocumented)
     scope?: string;
@@ -176,7 +174,7 @@ export class OidcClient {
     // Warning: (ae-forgotten-export) The symbol "SigninRequest" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    createSigninRequest({ response_type, scope, redirect_uri, state, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo }: CreateSigninRequestArgs): Promise<SigninRequest>;
+    createSigninRequest({ response_type, scope, redirect_uri, state, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, request, request_uri, extraQueryParams, extraTokenParams, request_type, skipUserInfo }: CreateSigninRequestArgs): Promise<SigninRequest>;
     // Warning: (ae-forgotten-export) The symbol "SignoutRequest" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -237,8 +235,6 @@ export interface OidcClientSettings {
     redirect_uri: string;
     // (undocumented)
     resource?: string;
-    // (undocumented)
-    response_mode?: "query" | "fragment";
     response_type?: string;
     scope?: string;
     signingKeys?: SigningKey[];
@@ -577,10 +573,10 @@ export class WebStorageStateStore implements StateStore {
 
 // Warnings were encountered during analysis:
 //
-// src/OidcClient.ts:114:88 - (ae-forgotten-export) The symbol "SigninState" needs to be exported by the entry point index.d.ts
-// src/OidcClient.ts:114:108 - (ae-forgotten-export) The symbol "SigninResponse" needs to be exported by the entry point index.d.ts
-// src/OidcClient.ts:184:89 - (ae-forgotten-export) The symbol "State" needs to be exported by the entry point index.d.ts
-// src/OidcClient.ts:184:115 - (ae-forgotten-export) The symbol "SignoutResponse" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:112:88 - (ae-forgotten-export) The symbol "SigninState" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:112:108 - (ae-forgotten-export) The symbol "SigninResponse" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:178:89 - (ae-forgotten-export) The symbol "State" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:178:115 - (ae-forgotten-export) The symbol "SignoutResponse" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

@@ -90,7 +90,6 @@ describe("OidcClient", () => {
             const request = await subject.createSigninRequest({
                 state: "foo",
                 response_type: "code",
-                response_mode: "mode",
                 scope: "baz",
                 redirect_uri: "quux",
                 prompt: "p",
@@ -122,7 +121,6 @@ describe("OidcClient", () => {
             expect(url).toContain("resource=res");
             expect(url).toContain("request=req");
             expect(url).toContain("request_uri=req_uri");
-            expect(url).toContain("response_mode=mode");
         });
 
         it("should pass state in place of data to SigninRequest", async () => {

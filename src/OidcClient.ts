@@ -32,7 +32,6 @@ export interface CreateSigninRequestArgs {
     login_hint?: string;
     acr_values?: string;
     resource?: string;
-    response_mode?: string;
     request?: string;
     request_uri?: string;
     extraQueryParams?: Record<string, string | number | boolean>;
@@ -66,7 +65,7 @@ export class OidcClient {
         response_type, scope, redirect_uri,
         state,
         prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
-        resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo
+        resource, request, request_uri, extraQueryParams, extraTokenParams, request_type, skipUserInfo
     }: CreateSigninRequestArgs): Promise<SigninRequest> {
         Log.debug("OidcClient.createSigninRequest");
 
@@ -81,7 +80,6 @@ export class OidcClient {
         ui_locales = ui_locales || this.settings.ui_locales;
         acr_values = acr_values || this.settings.acr_values;
         resource = resource || this.settings.resource;
-        response_mode = response_mode || this.settings.response_mode;
         extraQueryParams = extraQueryParams || this.settings.extraQueryParams;
         extraTokenParams = extraTokenParams || this.settings.extraTokenParams;
 
@@ -101,7 +99,7 @@ export class OidcClient {
             scope,
             state_data: state,
             prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
-            resource, request, request_uri, extraQueryParams, extraTokenParams, request_type, response_mode,
+            resource, request, request_uri, extraQueryParams, extraTokenParams, request_type,
             client_secret: this.settings.client_secret,
             skipUserInfo
         });
@@ -114,11 +112,7 @@ export class OidcClient {
     public async readSigninResponseState(url?: string, removeState = false): Promise<{ state: SigninState; response: SigninResponse }> {
         Log.debug("OidcClient.readSigninResponseState");
 
-        const useQuery = this.settings.response_mode === "query" ||
-            (!this.settings.response_mode && this.settings.response_type === "code");
-        const delimiter = useQuery ? "?" : "#";
-
-        const response = new SigninResponse(url, delimiter);
+        const response = new SigninResponse(url);
         const stateKey = response.state_id;
         if (!stateKey) {
             Log.error("OidcClient.readSigninResponseState: No state in response");

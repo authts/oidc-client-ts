@@ -143,12 +143,12 @@ export class PopupWindow implements IWindow {
         }
     }
 
-    public static notifyOpener(url: string | undefined, keepOpen: boolean, delimiter: string): void {
+    public static notifyOpener(url: string | undefined, keepOpen: boolean): void {
         if (window.opener) {
             url = url || window.location.href;
 
             if (url) {
-                const data = UrlUtils.parseUrlFragment(url, delimiter);
+                const data = UrlUtils.parseUrlFragment(url);
                 window.opener?.postMessage(JSON.stringify({
                     data,
                     url,

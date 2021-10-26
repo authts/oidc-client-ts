@@ -77,7 +77,7 @@ describe("UrlUtils", () => {
 
         it("should parse past host name and hash fragment", () => {
             // act
-            const result = UrlUtils.parseUrlFragment("http://server?test1=xoxo&test2=xoxo/#a=apple&b=banana&c=carrot");
+            const result = UrlUtils.parseUrlFragment("http://server?test1=xoxo&test2=xoxo/#a=apple&b=banana&c=carrot", "#");
 
             // assert
             expect(result).toEqual({ a: "apple", b: "banana", c: "carrot" });

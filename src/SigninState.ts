@@ -17,7 +17,6 @@ export class SigninState extends State {
     public readonly client_secret: string | undefined;
     public readonly extraTokenParams: Record<string, any> | undefined;
 
-    public readonly response_mode: string | undefined;
     public readonly skipUserInfo: boolean | undefined;
 
     public constructor(args: {
@@ -33,7 +32,6 @@ export class SigninState extends State {
         scope: string;
         client_secret?: string;
         extraTokenParams?: Record<string, any>;
-        response_mode?: string;
         skipUserInfo?: boolean;
     }) {
         super(args);
@@ -56,7 +54,6 @@ export class SigninState extends State {
         this.client_secret = args.client_secret;
         this.extraTokenParams = args.extraTokenParams;
 
-        this.response_mode = args.response_mode;
         this.skipUserInfo = args.skipUserInfo;
     }
 
@@ -75,7 +72,6 @@ export class SigninState extends State {
             scope: this.scope,
             client_secret: this.client_secret,
             extraTokenParams : this.extraTokenParams,
-            response_mode: this.response_mode,
             skipUserInfo: this.skipUserInfo
         });
     }

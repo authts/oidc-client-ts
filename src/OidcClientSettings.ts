@@ -6,6 +6,7 @@ import type { OidcMetadata } from "./OidcMetadata";
 import type { StateStore } from "./StateStore";
 
 const DefaultResponseType = "code";
+const DefaultResponseMode = "query";
 const DefaultScope = "openid";
 const DefaultClientAuthentication = "client_secret_post"; // The default value must be client_secret_basic, as explained in https://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication
 const DefaultStaleStateAgeInSeconds = 60 * 15; // seconds
@@ -49,7 +50,6 @@ export interface OidcClientSettings {
     ui_locales?: string;
     acr_values?: string;
     resource?: string;
-    response_mode?: "query" | "fragment";
 
     /** Should OIDC protocol claims be removed from profile (default: true) */
     filterProtocolClaims?: boolean;
@@ -93,7 +93,6 @@ export class OidcClientSettingsStore {
     public readonly ui_locales: string | undefined;
     public readonly acr_values: string | undefined;
     public readonly resource: string | undefined;
-    public readonly response_mode: "query" | "fragment" | undefined;
 
     // behavior flags
     public readonly filterProtocolClaims: boolean;
@@ -113,11 +112,13 @@ export class OidcClientSettingsStore {
         // metadata related
         authority, metadataUrl, metadata, signingKeys, metadataSeed,
         // client related
-        client_id, client_secret, response_type = DefaultResponseType, scope = DefaultScope,
+        client_id, client_secret,
+        response_type = DefaultResponseType,
+        scope = DefaultScope,
         redirect_uri, post_logout_redirect_uri,
         client_authentication = DefaultClientAuthentication,
         // optional protocol
-        prompt, display, max_age, ui_locales, acr_values, resource, response_mode,
+        prompt, display, max_age, ui_locales, acr_values, resource,
         // behavior flags
         filterProtocolClaims = true,
         loadUserInfo = false,
@@ -152,7 +153,6 @@ export class OidcClientSettingsStore {
         this.ui_locales = ui_locales;
         this.acr_values = acr_values;
         this.resource = resource;
-        this.response_mode = response_mode;
 
         this.filterProtocolClaims = !!filterProtocolClaims;
         this.loadUserInfo = !!loadUserInfo;

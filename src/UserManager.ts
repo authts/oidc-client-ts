@@ -415,10 +415,7 @@ export class UserManager {
     }
     protected async _signinCallback(url: string | undefined, navigator: IFrameNavigator | PopupNavigator): Promise<void> {
         Log.debug("UserManager._signinCallback");
-        const useQuery = this.settings.response_mode === "query" ||
-            (!this.settings.response_mode && this.settings.response_type === "code");
-        const delimiter = useQuery ? "?" : "#";
-        await navigator.callback(url, false, delimiter);
+        await navigator.callback(url, false);
     }
 
     public async signoutRedirect(args: SignoutRedirectArgs = {}): Promise<void> {
@@ -463,8 +460,7 @@ export class UserManager {
         Log.info("UserManager.signoutPopup: successful");
     }
     public async signoutPopupCallback(url?: string, keepOpen = false): Promise<void> {
-        const delimiter = "?";
-        await this._popupNavigator.callback(url, keepOpen, delimiter);
+        await this._popupNavigator.callback(url, keepOpen);
         Log.info("UserManager.signoutPopupCallback: successful");
     }
 

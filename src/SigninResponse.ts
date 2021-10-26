@@ -31,8 +31,8 @@ export class SigninResponse {
     // set by ResponseValidator
     public profile: UserProfile;
 
-    public constructor(url?: string, delimiter = "#") {
-        const values = UrlUtils.parseUrlFragment(url, delimiter);
+    public constructor(url?: string) {
+        const values = UrlUtils.parseUrlFragment(url);
 
         this.error = values.error;
         this.error_description = values.error_description;

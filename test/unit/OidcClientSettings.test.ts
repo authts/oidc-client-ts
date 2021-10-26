@@ -217,21 +217,6 @@ describe("OidcClientSettings", () => {
         });
     });
 
-    describe("response_mode", () => {
-        it("should return value from initial settings", () => {
-            // act
-            const subject = new OidcClientSettingsStore({
-                authority: "authority",
-                client_id: "client",
-                redirect_uri: "redirect",
-                response_mode: "query"
-            });
-
-            // assert
-            expect(subject.response_mode).toEqual("query");
-        });
-    });
-
     describe("authority", () => {
         it("should return value from initial settings", () => {
             // act

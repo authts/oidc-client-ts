@@ -22,7 +22,6 @@ export interface SigninRequestArgs {
     login_hint?: string;
     acr_values?: string;
     resource?: string;
-    response_mode?: string;
     request?: string;
     request_uri?: string;
     extraQueryParams?: Record<string, string | number | boolean>;
@@ -43,7 +42,7 @@ export class SigninRequest {
         // mandatory
         url, authority, client_id, redirect_uri, response_type, scope,
         // optional
-        state_data, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, response_mode,
+        state_data, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource,
         request, request_uri, extraQueryParams, request_type, client_secret, extraTokenParams, skipUserInfo
     }: SigninRequestArgs) {
         if (!url) {
@@ -71,16 +70,11 @@ export class SigninRequest {
             throw new Error("authority");
         }
 
-        if (!response_mode) {
-            response_mode = "query";
-        }
-
         this.state = new SigninState({
             data: state_data,
             request_type,
             code_verifier: true,
             client_id, authority, redirect_uri,
-            response_mode,
             client_secret, scope, extraTokenParams,
             skipUserInfo
         });
@@ -96,7 +90,7 @@ export class SigninRequest {
             url = UrlUtils.addQueryParam(url, "code_challenge_method", "S256");
         }
 
-        const optional: Record<string, any> = { prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, request, request_uri, response_mode };
+        const optional: Record<string, any> = { prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, request, request_uri };
         for (const key in optional) {
             if (optional[key]) {
                 url = UrlUtils.addQueryParam(url, key, optional[key]);

@@ -234,17 +234,6 @@ describe("SigninRequest", () => {
             expect(subject.url).toContain("resource=foo");
         });
 
-        it("should include response_mode", () => {
-            // arrange
-            settings.response_mode = "foo";
-
-            // act
-            subject = new SigninRequest(settings);
-
-            // assert
-            expect(subject.url).toContain("response_mode=foo");
-        });
-
         it("should include request", () => {
             // arrange
             settings.request = "foo";

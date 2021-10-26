@@ -20,7 +20,7 @@ export class UrlUtils {
         return url;
     }
 
-    public static parseUrlFragment(value?: string, delimiter = "#"): Record<string, string> {
+    public static parseUrlFragment(value?: string, delimiter = "?"): Record<string, string> {
         if (!value) {
             value = location.href;
         }
