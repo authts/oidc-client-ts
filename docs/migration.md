@@ -11,6 +11,7 @@ Ported library from JavaScript to TypeScript.
 - renamed staleStateAge to staleStateAgeInSeconds
 - removed ResponseValidatorCtor and MetadataServiceCtor, if needed OidcClient/UserManager class must be extended
 - changed response_type, only code flow (PKCE) is supported
+- default of loadUserInfo changed from true to false
 
 **UserManagerSettings:**
 - renamed accessTokenExpiringNotificationTime to accessTokenExpiringNotificationTimeInSeconds

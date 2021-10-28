@@ -53,7 +53,7 @@ export interface OidcClientSettings {
 
     /** Should OIDC protocol claims be removed from profile (default: true) */
     filterProtocolClaims?: boolean;
-    /** Flag to control if additional identity data is loaded from the user info endpoint in order to populate the user's profile (default: true) */
+    /** Flag to control if additional identity data is loaded from the user info endpoint in order to populate the user's profile (default: false) */
     loadUserInfo?: boolean;
     /** Number (in seconds) indicating the age of state entries in storage for authorize requests that are considered abandoned and thus can be cleaned up (default: 300) */
     staleStateAgeInSeconds?: number;
@@ -119,7 +119,8 @@ export class OidcClientSettingsStore {
         // optional protocol
         prompt, display, max_age, ui_locales, acr_values, resource, response_mode,
         // behavior flags
-        filterProtocolClaims = true, loadUserInfo = true,
+        filterProtocolClaims = true,
+        loadUserInfo = false,
         staleStateAgeInSeconds = DefaultStaleStateAgeInSeconds,
         clockSkewInSeconds = DefaultClockSkewInSeconds,
         userInfoJwtIssuer = "OP",

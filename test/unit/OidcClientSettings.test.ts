@@ -341,7 +341,7 @@ describe("OidcClientSettings", () => {
             });
 
             // assert
-            expect(subject.loadUserInfo).toEqual(true);
+            expect(subject.loadUserInfo).toEqual(false);
         });
 
         it("should return value from initial settings", () => {
