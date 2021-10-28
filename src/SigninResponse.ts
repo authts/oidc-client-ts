@@ -20,6 +20,7 @@ export class SigninResponse {
     // updated by ResponseValidator
     public session_state: string | undefined;
     public access_token: string;
+    public refresh_token: string | undefined;
     public token_type: string;
     public scope: string | undefined;
     public expires_at: number | undefined;
@@ -39,6 +40,7 @@ export class SigninResponse {
 
         this.session_state = values.session_state;
         this.access_token = values.access_token;
+        this.refresh_token = values.refresh_token;
         this.token_type = values.token_type;
         this.scope = values.scope;
         this.expires_in = parseInt(values.expires_in);

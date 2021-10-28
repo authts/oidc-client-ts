@@ -177,6 +177,8 @@ export class ResponseValidator {
 
         response.session_state = tokenResponse.session_state || response.session_state;
         response.access_token = tokenResponse.access_token || response.access_token;
+        response.refresh_token = tokenResponse.refresh_token || response.refresh_token;
+
         response.token_type = tokenResponse.token_type || response.token_type;
         response.scope = tokenResponse.scope || response.scope;
         response.expires_in = parseInt(tokenResponse.expires_in) || response.expires_in;
