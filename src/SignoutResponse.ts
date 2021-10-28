@@ -8,7 +8,10 @@ export class SignoutResponse {
     public error_description: string | undefined;
     public error_uri: string | undefined;
 
-    public state: any | undefined;
+    // updated by ResponseValidator
+    // first state id, then
+    // custom "state", which can be used by a caller to have "data" round tripped
+    public state: string | unknown | undefined;
 
     public constructor(url?: string) {
         const values = UrlUtils.parseUrlFragment(url, "?");

@@ -75,7 +75,7 @@ export interface CreateSigninRequestArgs {
     // (undocumented)
     skipUserInfo?: boolean;
     // (undocumented)
-    state?: any;
+    state?: unknown;
     // (undocumented)
     ui_locales?: string;
 }
@@ -194,7 +194,7 @@ export class OidcClient {
     }>;
     // (undocumented)
     readSignoutResponseState(url?: string, removeState?: boolean): Promise<{
-        state: undefined | State;
+        state: State | undefined;
         response: SignoutResponse;
     }>;
     // (undocumented)
@@ -329,6 +329,7 @@ export class User {
         scope?: string;
         profile: UserProfile;
         expires_at?: number;
+        state?: unknown;
     });
     // (undocumented)
     access_token: string;
@@ -355,6 +356,8 @@ export class User {
     get scopes(): string[];
     // (undocumented)
     session_state: string | undefined;
+    // (undocumented)
+    readonly state: unknown | undefined;
     // (undocumented)
     token_type: string;
     // (undocumented)

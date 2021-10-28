@@ -6,13 +6,15 @@ import type { StateStore } from "./StateStore";
 
 export class State {
     public readonly id: string;
-    public readonly data: any;
     public readonly created: number;
     public readonly request_type: string | undefined;
 
+    // custom "state", which can be used by a caller to have "data" round tripped
+    public readonly data: unknown | undefined;
+
     public constructor(args: {
         id?: string;
-        data?: any;
+        data?: unknown;
         created?: number;
         request_type?: string;
     }) {

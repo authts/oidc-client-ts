@@ -16,8 +16,8 @@ import type { SignoutResponse } from "./SignoutResponse";
 import { ErrorResponse } from "./ErrorResponse";
 import type { MetadataService } from "./MetadataService";
 
-type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "extraQueryParams" | "extraTokenParams">
-type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQueryParams">
+type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "extraQueryParams" | "extraTokenParams" | "state">
+type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQueryParams" | "state">
 
 /**
  * @public

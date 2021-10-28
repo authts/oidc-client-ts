@@ -19,24 +19,31 @@ export class User {
     public session_state: string | undefined;
     public access_token: string;
     public refresh_token: string | undefined;
+
     public token_type: string;
     public scope: string | undefined;
     public profile: UserProfile;
     public expires_at: number | undefined;
 
+    // custom "state", which can be used by a caller to have "data" round tripped
+    public readonly state: unknown | undefined;
+
     public constructor(args: {
         id_token?: string; session_state?: string;
         access_token: string; refresh_token?: string;
         token_type: string; scope?: string; profile: UserProfile; expires_at?: number;
+        state?: unknown;
     }) {
         this.id_token = args.id_token;
         this.session_state = args.session_state;
         this.access_token = args.access_token;
         this.refresh_token = args.refresh_token;
+
         this.token_type = args.token_type;
         this.scope = args.scope;
         this.profile = args.profile;
         this.expires_at = args.expires_at;
+        this.state = args.state;
     }
 
     public get expires_in(): number | undefined {

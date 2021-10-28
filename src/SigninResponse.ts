@@ -10,7 +10,9 @@ export class SigninResponse {
     public readonly code: string;
 
     // updated by ResponseValidator
-    public state: any | undefined;
+    // first state id, then
+    // custom "state", which can be used by a caller to have "data" round tripped
+    public state: string | unknown | undefined;
 
     // updated by ResponseValidator
     public error: string | undefined;
