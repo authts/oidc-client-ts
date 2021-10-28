@@ -97,6 +97,7 @@ describe("OidcClient", () => {
                 display: "d",
                 max_age: 42,
                 ui_locales: "u",
+                id_token_hint: "ith",
                 login_hint: "lh",
                 acr_values: "av",
                 resource: "res",
@@ -115,6 +116,7 @@ describe("OidcClient", () => {
             expect(url).toContain("display=d");
             expect(url).toContain("max_age=42");
             expect(url).toContain("ui_locales=u");
+            expect(url).toContain("id_token_hint=ith");
             expect(url).toContain("login_hint=lh");
             expect(url).toContain("acr_values=av");
             expect(url).toContain("resource=res");
@@ -137,6 +139,7 @@ describe("OidcClient", () => {
                 display: "d",
                 max_age: 42,
                 ui_locales: "u",
+                id_token_hint: "ith",
                 login_hint: "lh",
                 acr_values: "av",
                 resource: "res"
@@ -153,6 +156,7 @@ describe("OidcClient", () => {
             expect(url).toContain("display=d");
             expect(url).toContain("max_age=42");
             expect(url).toContain("ui_locales=u");
+            expect(url).toContain("id_token_hint=ith");
             expect(url).toContain("login_hint=lh");
             expect(url).toContain("acr_values=av");
             expect(url).toContain("resource=res");
@@ -400,6 +404,7 @@ describe("OidcClient", () => {
             const request = await subject.createSignoutRequest({
                 state: "foo",
                 post_logout_redirect_uri: "bar",
+                id_token_hint: "baz"
             });
 
             // assert
@@ -408,6 +413,7 @@ describe("OidcClient", () => {
             const url = request.url;
             expect(url).toContain("http://sts/signout");
             expect(url).toContain("post_logout_redirect_uri=bar");
+            expect(url).toContain("id_token_hint=baz");
         });
 
         it("should pass params to SignoutRequest", async () => {
@@ -418,6 +424,7 @@ describe("OidcClient", () => {
             const request = await subject.createSignoutRequest({
                 state: "foo",
                 post_logout_redirect_uri: "bar",
+                id_token_hint: "baz"
             });
 
             // assert
@@ -426,6 +433,7 @@ describe("OidcClient", () => {
             const url = request.url;
             expect(url).toContain("http://sts/signout");
             expect(url).toContain("post_logout_redirect_uri=bar");
+            expect(url).toContain("id_token_hint=baz");
         });
 
         it("should fail if metadata fails", async () => {

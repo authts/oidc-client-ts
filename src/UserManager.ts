@@ -1,15 +1,14 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./utils";
+import { Log, JwtUtils } from "./utils";
 import { IFrameNavigator, NavigateResponse, PopupNavigator, RedirectNavigator, PopupWindowParams, IWindow, IFrameWindowParams, RedirectParams } from "./navigators";
 import { OidcClient, CreateSigninRequestArgs, CreateSignoutRequestArgs } from "./OidcClient";
 import { UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
-import { User } from "./User";
+import { User, UserProfile } from "./User";
 import { UserManagerEvents } from "./UserManagerEvents";
 import { SilentRenewService } from "./SilentRenewService";
 import { SessionMonitor } from "./SessionMonitor";
-import { SigninRequest } from "./SigninRequest";
 import { TokenRevocationClient } from "./TokenRevocationClient";
 import { TokenClient } from "./TokenClient";
 import type { SessionStatus } from "./SessionStatus";
@@ -213,6 +212,7 @@ export class UserManager {
             request_type: "si:s",
             redirect_uri: url,
             prompt: "none",
+            id_token_hint: this.settings.includeIdTokenInSilentRenew ? user?.id_token : undefined,
             ...requestArgs,
         }, handle, verifySub);
         if (user) {
@@ -241,7 +241,12 @@ export class UserManager {
             throw new Error("No access token returned from token endpoint");
         }
 
+        if (result.id_token) {
+            await this._validateIdTokenFromTokenRefreshToken(user.profile, result.id_token);
+        }
+
         Log.debug("UserManager._useRefreshToken: refresh token response success");
+        user.id_token = result.id_token || user.id_token;
         user.access_token = result.access_token || user.access_token;
         user.refresh_token = result.refresh_token || user.refresh_token;
         user.expires_in = result.expires_in;
@@ -249,6 +254,30 @@ export class UserManager {
         await this.storeUser(user);
         this._events.load(user);
         return user;
+    }
+
+    protected async _validateIdTokenFromTokenRefreshToken(profile: UserProfile, id_token: string): Promise<void> {
+        const payload = JwtUtils.decode(id_token);
+        if (!payload) {
+            Log.error("UserManager._validateIdTokenFromTokenRefreshToken: Failed to decode id_token");
+            throw new Error("Failed to decode id_token");
+        }
+        if (payload.sub !== profile.sub) {
+            Log.error("UserManager._validateIdTokenFromTokenRefreshToken: sub in id_token does not match current sub");
+            throw new Error("sub in id_token does not match current sub");
+        }
+        if (payload.auth_time && payload.auth_time !== profile.auth_time) {
+            Log.error("UserManager._validateIdTokenFromTokenRefreshToken: auth_time in id_token does not match original auth_time");
+            throw new Error("auth_time in id_token does not match original auth_time");
+        }
+        if (payload.azp && payload.azp !== profile.azp) {
+            Log.error("UserManager._validateIdTokenFromTokenRefreshToken: azp in id_token does not match original azp");
+            throw new Error("azp in id_token does not match original azp");
+        }
+        if (!payload.azp && profile.azp) {
+            Log.error("UserManager._validateIdTokenFromTokenRefreshToken: azp not in id_token, but present in original id_token");
+            throw new Error("azp not in id_token, but present in original id_token");
+        }
     }
 
     public async signinSilentCallback(url?: string): Promise<void> {
@@ -452,6 +481,12 @@ export class UserManager {
 
             if (this.settings.revokeAccessTokenOnSignout) {
                 await this._revokeInternal(user);
+            }
+
+            const id_token = args.id_token_hint || user && user.id_token;
+            if (id_token) {
+                Log.debug("UserManager._signoutStart: Setting id_token into signout request");
+                args.id_token_hint = id_token;
             }
 
             await this.removeUser();

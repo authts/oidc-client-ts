@@ -4,6 +4,7 @@
 import { Log } from "../../src/utils";
 import { ResponseValidator } from "../../src/ResponseValidator";
 import { MetadataService } from "../../src/MetadataService";
+import type { UserInfoService } from "../../src/UserInfoService";
 import { SigninState } from "../../src/SigninState";
 import type { SigninResponse } from "../../src/SigninResponse";
 import type { ErrorResponse } from "../../src/ErrorResponse";
@@ -16,6 +17,9 @@ class ResponseValidatorWrapper extends ResponseValidator {
     public async _processClaims(state: SigninState, response: SigninResponse) {
         return super._processClaims(state, response);
     }
+    public _mergeClaims(claims1: any, claims2: any) {
+        return super._mergeClaims(claims1, claims2);
+    }
     public _filterProtocolClaims(claims: any) {
         return super._filterProtocolClaims(claims);
     }
@@ -24,6 +28,9 @@ class ResponseValidatorWrapper extends ResponseValidator {
     }
     public async _processCode(state: SigninState, response: SigninResponse) {
         return super._processCode(state, response);
+    }
+    public async _validateIdTokenAttributes(state: SigninState, response: SigninResponse, id_token: string) {
+        return super._validateIdTokenAttributes(state, response, id_token);
     }
 }
 
@@ -34,6 +41,7 @@ describe("ResponseValidator", () => {
     let subject: ResponseValidatorWrapper;
 
     let metadataService: MetadataService;
+    let userInfoService: UserInfoService;
 
     beforeEach(() => {
         Log.logger = console;
@@ -59,6 +67,9 @@ describe("ResponseValidator", () => {
         jest.restoreAllMocks();
 
         subject = new ResponseValidatorWrapper(settings, metadataService);
+
+        // access private members
+        userInfoService = subject["_userInfoService"];
     });
 
     describe("validateSignoutResponse", () => {
@@ -379,6 +390,209 @@ describe("ResponseValidator", () => {
 
             // assert
             expect(_filterProtocolClaimsMock).not.toBeCalled();
+        });
+
+        it("should load and merge user info claims when loadUserInfo configured", async () => {
+            // arrange
+            const state = new SigninState({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type"
+            });
+            settings.loadUserInfo = true;
+            stubResponse.isOpenIdConnect = true;
+            stubResponse.profile = { a: "apple", b: "banana" };
+            stubResponse.access_token = "access_token";
+            const getClaimMock = jest.spyOn(userInfoService, "getClaims")
+                .mockImplementation(() => Promise.resolve({ c: "carrot" } as any));
+            const _mergeClaimsMock = jest.spyOn(subject, "_mergeClaims")
+                .mockImplementation((profile) => profile);
+
+            // act
+            await subject._processClaims(state, stubResponse);
+
+            // assert
+            expect(getClaimMock).toBeCalled();
+            expect(_mergeClaimsMock).toBeCalled();
+        });
+
+        it("should not run if request was not openid", async () => {
+            // arrange
+            const state = new SigninState({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type"
+            });
+            settings.loadUserInfo = true;
+            stubResponse.isOpenIdConnect = false;
+            stubResponse.profile = { a: "apple", b: "banana" };
+            stubResponse.access_token = "access_token";
+            const getClaimMock = jest.spyOn(userInfoService, "getClaims")
+                .mockImplementation(() => Promise.resolve({ c: "carrot" } as any));
+
+            // act
+            await subject._processClaims(state, stubResponse);
+
+            // assert
+            expect(getClaimMock).not.toBeCalled();
+        });
+
+        it("should not load and merge user info claims when loadUserInfo not configured", async () => {
+            // arrange
+            const state = new SigninState({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type"
+            });
+            settings.loadUserInfo = false;
+            stubResponse.isOpenIdConnect = true;
+            stubResponse.profile = { a: "apple", b: "banana" };
+            stubResponse.access_token = "access_token";
+            const getClaimMock = jest.spyOn(userInfoService, "getClaims")
+                .mockImplementation(() => Promise.resolve({ c: "carrot" } as any));
+
+            // act
+            await subject._processClaims(state, stubResponse);
+
+            // assert
+            expect(getClaimMock).not.toBeCalled();
+        });
+
+        it("should not load user info claims if no access token", async () => {
+            // arrange
+            const state = new SigninState({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type"
+            });
+            settings.loadUserInfo = true;
+            stubResponse.isOpenIdConnect = true;
+            stubResponse.profile = { a: "apple", b: "banana" };
+            const getClaimMock = jest.spyOn(userInfoService, "getClaims")
+                .mockImplementation(() => Promise.resolve({ c: "carrot" } as any));
+
+            // act
+            await subject._processClaims(state, stubResponse);
+
+            // assert
+            expect(getClaimMock).not.toBeCalled();
+        });
+    });
+
+    describe("_mergeClaims", () => {
+
+        it("should merge claims", () => {
+            // arrange
+            const c1 = { a: "apple", b: "banana" };
+            const c2 = { c: "carrot" };
+
+            // act
+            const result = subject._mergeClaims(c1, c2);
+
+            // assert
+            expect(result).toEqual({ a: "apple", c: "carrot", b: "banana" });
+        });
+
+        it("should not merge claims when claim types are objects", () => {
+            // arrange
+            const c1 = { custom: { "apple": "foo", "pear": "bar" } };
+            const c2 = { custom: { "apple": "foo", "orange": "peel" }, b: "banana" };
+
+            // act
+            const result = subject._mergeClaims(c1, c2);
+
+            // assert
+            expect(result).toEqual({ custom: [{ "apple": "foo", "pear": "bar" }, { "apple": "foo", "orange": "peel" }], b: "banana" });
+        });
+
+        it("should merge claims when claim types are objects when mergeClaims settings is true", () => {
+            // arrange
+            settings.mergeClaims = true;
+
+            const c1 = { custom: { "apple": "foo", "pear": "bar" } };
+            const c2 = { custom: { "apple": "foo", "orange": "peel" }, b: "banana" };
+
+            // act
+            const result = subject._mergeClaims(c1, c2);
+
+            // assert
+            expect(result).toEqual({ custom: { "apple": "foo", "pear": "bar", "orange": "peel" }, b: "banana" });
+        });
+
+        it("should merge same claim types into array", () => {
+            // arrange
+            const c1 = { a: "apple", b: "banana" };
+            const c2 = { a: "carrot" };
+
+            // act
+            const result = subject._mergeClaims(c1, c2);
+
+            // assert
+            expect(result).toEqual({ a: ["apple", "carrot"], b: "banana" });
+        });
+
+        it("should merge arrays of same claim types into array", () => {
+            // arrange
+            const c1 = { a: "apple", b: "banana" };
+            const c2 = { a: ["carrot", "durian"] };
+
+            // act
+            let result = subject._mergeClaims(c1, c2);
+
+            // assert
+            expect(result).toEqual({ a: ["apple", "carrot", "durian"], b: "banana" });
+
+            // arrange
+            const d1 = { a: ["apple", "carrot"], b: "banana" };
+            const d2 = { a: ["durian"] };
+
+            // act
+            result = subject._mergeClaims(d1, d2);
+
+            // assert
+            expect(result).toEqual({ a: ["apple", "carrot", "durian"], b: "banana" });
+
+            // arrange
+            const e1 = { a: ["apple", "carrot"], b: "banana" };
+            const e2 = { a: "durian" };
+
+            // act
+            result = subject._mergeClaims(e1, e2);
+
+            // assert
+            expect(result).toEqual({ a: ["apple", "carrot", "durian"], b: "banana" });
+        });
+
+        it("should remove duplicates when producing arrays", () => {
+            // arrange
+            const c1 = { a: "apple", b: "banana" };
+            const c2 = { a: ["apple", "durian"] };
+
+            // act
+            const result = subject._mergeClaims(c1, c2);
+
+            // assert
+            expect(result).toEqual({ a: ["apple", "durian"], b: "banana" });
+        });
+
+        it("should not add if already present in array", () => {
+            // arrange
+            const c1 = { a: ["apple", "durian"], b: "banana" };
+            const c2 = { a: "apple" };
+
+            // act
+            const result = subject._mergeClaims(c1, c2);
+
+            // assert
+            expect(result).toEqual({ a: ["apple", "durian"], b: "banana" });
         });
     });
 

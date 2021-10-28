@@ -188,6 +188,33 @@ describe("UserManagerSettings", () => {
 
     });
 
+    describe("includeIdTokenInSilentRenew", () => {
+        it("should return true value from initial settings", () => {
+            // act
+            const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                includeIdTokenInSilentRenew: true,
+            });
+
+            // assert
+            expect(subject.includeIdTokenInSilentRenew).toEqual(true);
+        });
+
+        it("should use default value", () => {
+            // act
+            const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect"
+            });
+
+            // assert
+            expect(subject.includeIdTokenInSilentRenew).toEqual(false);
+        });
+    });
+
     describe("accessTokenExpiringNotificationTime", () => {
 
         it("should return value from initial settings", () => {
