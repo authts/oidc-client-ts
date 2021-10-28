@@ -96,18 +96,18 @@ export class OidcClientSettingsStore {
     public readonly response_mode: "query" | "fragment" | undefined;
 
     // behavior flags
-    public readonly filterProtocolClaims: boolean | undefined;
-    public readonly loadUserInfo: boolean | undefined;
+    public readonly filterProtocolClaims: boolean;
+    public readonly loadUserInfo: boolean;
     public readonly staleStateAgeInSeconds: number;
     public readonly clockSkewInSeconds: number;
-    public readonly userInfoJwtIssuer: "ANY" | "OP" | string | undefined;
-    public readonly mergeClaims: boolean | undefined;
+    public readonly userInfoJwtIssuer: "ANY" | "OP" | string;
+    public readonly mergeClaims: boolean;
 
     public readonly stateStore: StateStore;
 
     // extra
-    public readonly extraQueryParams: Record<string, string | number | boolean> | undefined;
-    public readonly extraTokenParams: Record<string, any> | undefined;
+    public readonly extraQueryParams: Record<string, string | number | boolean>;
+    public readonly extraTokenParams: Record<string, any>;
 
     public constructor({
         // metadata related
