@@ -36,7 +36,7 @@ describe("SignoutResponse", () => {
             const subject = new SignoutResponse("state=foo");
 
             // assert
-            expect(subject.state).toEqual("foo");
+            expect(subject.state_id).toEqual("foo");
         });
     });
 });

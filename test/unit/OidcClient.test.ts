@@ -302,7 +302,7 @@ describe("OidcClient", () => {
             expect(state.authority).toEqual("authority");
             expect(state.client_id).toEqual("client");
             expect(state.request_type).toEqual("type");
-            expect(response.state).toEqual("1");
+            expect(response.state_id).toEqual("1");
         });
     });
 
@@ -551,7 +551,7 @@ describe("OidcClient", () => {
             expect(state).toBeDefined();
             expect(state?.id).toEqual("1");
             expect(state?.request_type).toEqual("type");
-            expect(response.state).toEqual("1");
+            expect(response.state_id).toEqual("1");
         });
 
         it("should call validator with state even if error in response", async () => {

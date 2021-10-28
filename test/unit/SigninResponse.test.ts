@@ -37,7 +37,7 @@ describe("SigninResponse", () => {
             const subject = new SigninResponse("state=foo");
 
             // assert
-            expect(subject.state).toEqual("foo");
+            expect(subject.state_id).toEqual("foo");
         });
 
         it("should read code", () => {

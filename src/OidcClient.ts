@@ -119,7 +119,8 @@ export class OidcClient {
         const delimiter = useQuery ? "?" : "#";
 
         const response = new SigninResponse(url, delimiter);
-        if (!response.state) {
+        const stateKey = response.state_id;
+        if (!stateKey) {
             Log.error("OidcClient.readSigninResponseState: No state in response");
             throw new Error("No state in response");
         }
@@ -127,7 +128,7 @@ export class OidcClient {
         const stateStore = this.settings.stateStore;
         const stateApi = removeState ? stateStore.remove.bind(stateStore) : stateStore.get.bind(stateStore);
 
-        const storedStateString = await stateApi(response.state as string);
+        const storedStateString = await stateApi(stateKey);
         if (!storedStateString) {
             Log.error("OidcClient.readSigninResponseState: No matching state found in storage");
             throw new Error("No matching state found in storage");
@@ -184,7 +185,8 @@ export class OidcClient {
         Log.debug("OidcClient.readSignoutResponseState");
 
         const response = new SignoutResponse(url);
-        if (!response.state) {
+        const stateKey = response.state_id;
+        if (!stateKey) {
             Log.debug("OidcClient.readSignoutResponseState: No state in response");
 
             if (response.error) {
@@ -195,11 +197,10 @@ export class OidcClient {
             return { state: undefined, response };
         }
 
-        const stateKey = response.state;
         const stateStore = this.settings.stateStore;
 
         const stateApi = removeState ? stateStore.remove.bind(stateStore) : stateStore.get.bind(stateStore);
-        const storedStateString = await stateApi(stateKey as string);
+        const storedStateString = await stateApi(stateKey);
         if (!storedStateString) {
             Log.error("OidcClient.readSignoutResponseState: No matching state found in storage");
             throw new Error("No matching state found in storage");
