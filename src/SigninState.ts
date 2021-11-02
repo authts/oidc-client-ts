@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, CryptoUtils } from "./utils";
+import { Logger, CryptoUtils } from "./utils";
 import { State } from "./State";
 
 export class SigninState extends State {
@@ -61,7 +61,7 @@ export class SigninState extends State {
     }
 
     public toStorageString(): string {
-        Log.debug("SigninState.toStorageString");
+        Logger.debug("SigninState", "toStorageString");
         return JSON.stringify({
             id: this.id,
             data: this.data,
@@ -81,7 +81,7 @@ export class SigninState extends State {
     }
 
     public static fromStorageString(storageString: string): SigninState {
-        Log.debug("SigninState.fromStorageString");
+        Logger.debug("SigninState", "fromStorageString");
         const data = JSON.parse(storageString);
         return new SigninState(data);
     }

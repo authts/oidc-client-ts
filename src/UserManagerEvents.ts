@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, Event } from "./utils";
+import { Logger, Event } from "./utils";
 import { AccessTokenEvents } from "./AccessTokenEvents";
 import type { UserManagerSettingsStore } from "./UserManagerSettings";
 import type { User } from "./User";
@@ -26,6 +26,8 @@ export class UserManagerEvents extends AccessTokenEvents {
 
     public constructor(settings: UserManagerSettingsStore) {
         super({ expiringNotificationTimeInSeconds: settings.accessTokenExpiringNotificationTimeInSeconds });
+        this._logger = new Logger("UserManagerEvents");
+
         this._userLoaded = new Event("User loaded");
         this._userUnloaded = new Event("User unloaded");
         this._silentRenewError = new Event("Silent renew error");
@@ -35,14 +37,14 @@ export class UserManagerEvents extends AccessTokenEvents {
     }
 
     public load(user: User, raiseEvent=true): void {
-        Log.debug("UserManagerEvents.load");
+        this._logger.debug("load");
         super.load(user);
         if (raiseEvent) {
             this._userLoaded.raise(user);
         }
     }
     public unload(): void {
-        Log.debug("UserManagerEvents.unload");
+        this._logger.debug("unload");
         super.unload();
         this._userUnloaded.raise();
     }
@@ -68,7 +70,7 @@ export class UserManagerEvents extends AccessTokenEvents {
         this._silentRenewError.removeHandler(cb);
     }
     public _raiseSilentRenewError(e: Error): void {
-        Log.debug("UserManagerEvents._raiseSilentRenewError", e.message);
+        this._logger.debug("_raiseSilentRenewError", e.message);
         this._silentRenewError.raise(e);
     }
 
@@ -79,7 +81,7 @@ export class UserManagerEvents extends AccessTokenEvents {
         this._userSignedIn.removeHandler(cb);
     }
     public _raiseUserSignedIn(): void {
-        Log.debug("UserManagerEvents._raiseUserSignedIn");
+        this._logger.debug("_raiseUserSignedIn");
         this._userSignedIn.raise();
     }
 
@@ -90,7 +92,7 @@ export class UserManagerEvents extends AccessTokenEvents {
         this._userSignedOut.removeHandler(cb);
     }
     public _raiseUserSignedOut(): void {
-        Log.debug("UserManagerEvents._raiseUserSignedOut");
+        this._logger.debug("_raiseUserSignedOut");
         this._userSignedOut.raise();
     }
 
@@ -101,7 +103,7 @@ export class UserManagerEvents extends AccessTokenEvents {
         this._userSessionChanged.removeHandler(cb);
     }
     public _raiseUserSessionChanged(): void {
-        Log.debug("UserManagerEvents._raiseUserSessionChanged");
+        this._logger.debug("_raiseUserSessionChanged");
         this._userSessionChanged.raise();
     }
 }

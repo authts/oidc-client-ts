@@ -1,12 +1,13 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./utils";
+import { Logger } from "./utils";
 
 /**
  * @public
  */
 export class CheckSessionIFrame {
+    private readonly _logger: Logger;
     private _frame_origin: string;
     private _frame: HTMLIFrameElement;
     private _timer: number | null = null
@@ -19,6 +20,8 @@ export class CheckSessionIFrame {
         private _intervalInSeconds: number,
         private _stopOnError: boolean
     ) {
+        this._logger = new Logger("CheckSessionIFrame");
+
         const idx = url.indexOf("/", url.indexOf("//") + 2);
         this._frame_origin = url.substr(0, idx);
 
@@ -50,18 +53,18 @@ export class CheckSessionIFrame {
             e.source === this._frame.contentWindow
         ) {
             if (e.data === "error") {
-                Log.error("CheckSessionIFrame: error message from check session op iframe");
+                this._logger.error("error message from check session op iframe");
                 if (this._stopOnError) {
                     this.stop();
                 }
             }
             else if (e.data === "changed") {
-                Log.debug("CheckSessionIFrame: changed message from check session op iframe");
+                this._logger.debug("changed message from check session op iframe");
                 this.stop();
                 void this._callback();
             }
             else {
-                Log.debug("CheckSessionIFrame: " + e.data + " message from check session op iframe");
+                this._logger.debug(e.data + " message from check session op iframe");
             }
         }
     }
@@ -71,7 +74,7 @@ export class CheckSessionIFrame {
             return;
         }
 
-        Log.debug("CheckSessionIFrame.start");
+        this._logger.debug("start");
 
         this.stop();
 
@@ -96,7 +99,7 @@ export class CheckSessionIFrame {
         this._session_state = null;
 
         if (this._timer) {
-            Log.debug("CheckSessionIFrame.stop");
+            this._logger.debug("stop");
 
             window.clearInterval(this._timer);
             this._timer = null;

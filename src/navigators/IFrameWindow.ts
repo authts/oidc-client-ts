@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "../utils";
+import { Logger } from "../utils";
 import type { IWindow, NavigateParams, NavigateResponse } from "./IWindow";
 
 const defaultTimeoutInSeconds = 10;
@@ -11,6 +11,8 @@ export interface IFrameWindowParams {
 }
 
 export class IFrameWindow implements IWindow {
+    private readonly _logger: Logger;
+
     private _resolve!: (value: NavigateResponse) => void;
     private _reject!: (reason?: any) => void;
     private _promise = new Promise<NavigateResponse>((resolve, reject) => {
@@ -24,6 +26,8 @@ export class IFrameWindow implements IWindow {
     public constructor({
         silentRequestTimeoutInSeconds = defaultTimeoutInSeconds
     }: IFrameWindowParams) {
+        this._logger = new Logger("IFrameWindow");
+
         this._timeoutInSeconds = silentRequestTimeoutInSeconds;
         window.addEventListener("message", this._message, false);
 
@@ -48,7 +52,7 @@ export class IFrameWindow implements IWindow {
             this._error("No _frame, already closed");
         }
         else {
-            Log.debug("IFrameWindow.navigate: Using timeout of:", this._timeoutInSeconds);
+            this._logger.debug("navigate: Using timeout of:", this._timeoutInSeconds);
             this._timer = window.setTimeout(this._timeout, this._timeoutInSeconds * 1000);
             this._frame.src = params.url;
         }
@@ -59,13 +63,13 @@ export class IFrameWindow implements IWindow {
     protected _success(data: NavigateResponse): void {
         this._cleanup();
 
-        Log.debug("IFrameWindow: Successful response from frame window");
+        this._logger.debug("Successful response from frame window");
         this._resolve(data);
     }
     protected _error(message: string): void {
         this._cleanup();
 
-        Log.error(message);
+        this._logger.error(message);
         this._reject(new Error(message));
     }
 
@@ -74,7 +78,7 @@ export class IFrameWindow implements IWindow {
     }
 
     protected _cleanup(): void {
-        Log.debug("IFrameWindow: cleanup");
+        this._logger.debug("_cleanup");
         if (this._timer != null) {
             window.clearTimeout(this._timer);
         }
@@ -88,12 +92,12 @@ export class IFrameWindow implements IWindow {
     }
 
     protected _timeout = (): void => {
-        Log.debug("IFrameWindow.timeout");
+        this._logger.debug("_timeout");
         this._error("Frame window timed out");
     }
 
     protected _message = (e: MessageEvent): void => {
-        Log.debug("IFrameWindow.message");
+        this._logger.debug("_message");
 
         const origin = location.protocol + "//" + location.host;
         if (this._timer && this._frame &&
@@ -112,10 +116,10 @@ export class IFrameWindow implements IWindow {
     }
 
     public static notifyParent(url: string | undefined): void {
-        Log.debug("IFrameWindow.notifyParent");
+        Logger.debug("IFrameWindow", "notifyParent");
         url = url || window.location.href;
         if (url) {
-            Log.debug("IFrameWindow.notifyParent: posting url message to parent");
+            Logger.debug("IFrameWindow", "notifyParent: posting url message to parent");
             window.parent.postMessage(url, location.protocol + "//" + location.host);
         }
     }

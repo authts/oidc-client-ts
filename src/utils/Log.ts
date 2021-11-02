@@ -1,14 +1,19 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-export interface Logger {
+/**
+ * Native interface
+ *
+ * @public
+ */
+export interface ILogger {
     debug(...args: any[]): void;
     info(...args: any[]): void;
     warn(...args: any[]): void;
     error(...args: any[]): void;
 }
 
-const nopLogger: Logger = {
+const nopLogger: ILogger = {
     debug: () => undefined,
     info: () => undefined,
     warn: () => undefined,
@@ -21,10 +26,9 @@ const WARN = 2;
 const INFO = 3;
 const DEBUG = 4;
 
-let logger: Logger;
-let level: number;
-
 /**
+ * Log manager
+ *
  * @public
  */
 export class Log {
@@ -34,47 +38,75 @@ export class Log {
     public static get INFO(): number {return INFO;}
     public static get DEBUG(): number {return DEBUG;}
 
+    private static _level: number;
+    private static _logger: ILogger;
+
     public static reset(): void {
-        level = INFO;
-        logger = nopLogger;
+        this._level = INFO;
+        this._logger = nopLogger;
     }
 
     public static get level(): number {
-        return level;
+        return this._level;
     }
     public static set level(value: number) {
         if (NONE > value || value > DEBUG) {
             throw new Error("Invalid log level");
         }
 
-        level = value;
+        this._level = value;
     }
 
-    public static get logger(): Logger {
-        return logger;
+    // native logger
+    public static get logger(): ILogger {
+        return this._logger;
     }
-    public static set logger(value: Logger) {
-        logger = value;
+    public static set logger(value: ILogger) {
+        this._logger = value;
+    }
+}
+
+/**
+ * Internal logger instance
+ */
+export class Logger {
+    private readonly _name: string;
+    public constructor(name: string) {
+        this._name = name;
     }
 
-    public static debug(...args: any[]): void {
-        if (level >= DEBUG) {
-            logger.debug(...args);
+    public debug(...args: any[]): void {
+        Logger.debug(this._name, ...args);
+    }
+    public info(...args: any[]): void {
+        Logger.info(this._name, ...args);
+    }
+    public warn(...args: any[]): void {
+        Logger.warn(this._name, ...args);
+    }
+    public error(...args: any[]): void {
+        Logger.error(this._name, ...args);
+    }
+
+    // helpers for static class methods
+    public static debug(name: string, ...args: any[]): void {
+        if (Log.level >= DEBUG) {
+            Log.logger.debug(`[${name}]`, ...args);
         }
     }
-    public static info(...args: any[]): void {
-        if (level >= INFO) {
-            logger.info(...args);
+    public static info(name: string, ...args: any[]): void {
+        if (Log.level >= INFO) {
+            Log.logger.info(`[${name}]`, ...args);
         }
     }
-    public static warn(...args: any[]): void {
-        if (level >= WARN) {
-            logger.warn(...args);
+    public static warn(name: string, ...args: any[]): void {
+        if (Log.level >= WARN) {
+            Log.logger.warn(`[${name}]`, ...args);
         }
     }
-    public static error(...args: any[]): void {
-        if (level >= ERROR) {
-            logger.error(...args);
+    public static error(name: string, ...args: any[]): void {
+        if (Log.level >= ERROR) {
+            Log.logger.error(`[${name}]`, ...args);
         }
     }
 }

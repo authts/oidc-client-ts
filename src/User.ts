@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, Timer } from "./utils";
+import { Logger, Timer } from "./utils";
 
 export interface UserProfile {
     sub?: string;
@@ -74,7 +74,7 @@ export class User {
     }
 
     public toStorageString(): string {
-        Log.debug("User.toStorageString");
+        Logger.debug("User", "toStorageString");
         return JSON.stringify({
             id_token: this.id_token,
             session_state: this.session_state,
@@ -88,7 +88,7 @@ export class User {
     }
 
     public static fromStorageString(storageString: string): User {
-        Log.debug("User.fromStorageString");
+        Logger.debug("User", "fromStorageString");
         return new User(JSON.parse(storageString));
     }
 }

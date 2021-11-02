@@ -1,6 +1,6 @@
 import jwt_decode from "jwt-decode";
 
-import { Log } from "./Log";
+import { Logger } from "./Log";
 
 export interface JwtPayload {
     iss?: string;
@@ -22,7 +22,7 @@ export class JwtUtils {
             return payload;
         }
         catch (err) {
-            Log.error(err);
+            Logger.error("JwtUtils", err);
             throw err;
         }
     }

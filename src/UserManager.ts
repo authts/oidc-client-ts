@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, JwtUtils } from "./utils";
+import { Logger, JwtUtils } from "./utils";
 import { IFrameNavigator, NavigateResponse, PopupNavigator, RedirectNavigator, PopupWindowParams, IWindow, IFrameWindowParams, RedirectParams } from "./navigators";
 import { OidcClient, CreateSigninRequestArgs, CreateSignoutRequestArgs } from "./OidcClient";
 import { UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
@@ -54,6 +54,7 @@ export type SignoutPopupArgs = PopupWindowParams & ExtraSignoutRequestArgs;
  */
 export class UserManager {
     public readonly settings: UserManagerSettingsStore;
+    protected readonly _logger: Logger;
 
     protected readonly _client: OidcClient;
     protected readonly _redirectNavigator: RedirectNavigator;
@@ -67,6 +68,7 @@ export class UserManager {
 
     public constructor(settings: UserManagerSettings) {
         this.settings = new UserManagerSettingsStore(settings);
+        this._logger = new Logger("UserManager");
 
         this._client = new OidcClient(settings);
 
@@ -79,13 +81,13 @@ export class UserManager {
 
         // order is important for the following properties; these services depend upon the events.
         if (this.settings.automaticSilentRenew) {
-            Log.debug("UserManager.ctor: automaticSilentRenew is configured, setting up silent renew");
+            this._logger.debug("ctor: automaticSilentRenew is configured, setting up silent renew");
             this.startSilentRenew();
         }
 
         this._sessionMonitor = null;
         if (this.settings.monitorSession) {
-            Log.debug("UserManager.ctor: monitorSession is configured, setting up session monitor");
+            this._logger.debug("ctor: monitorSession is configured, setting up session monitor");
             this._sessionMonitor = new SessionMonitor(this);
         }
 
@@ -104,18 +106,18 @@ export class UserManager {
     public async getUser(): Promise<User | null> {
         const user = await this._loadUser();
         if (user) {
-            Log.info("UserManager.getUser: user loaded");
+            this._logger.info("getUser: user loaded");
             this._events.load(user, false);
             return user;
         }
 
-        Log.info("UserManager.getUser: user not found in storage");
+        this._logger.info("getUser: user not found in storage");
         return null;
     }
 
     public async removeUser(): Promise<void> {
         await this.storeUser(null);
-        Log.info("UserManager.removeUser: user removed from storage");
+        this._logger.info("removeUser: user removed from storage");
         this._events.unload();
     }
 
@@ -129,16 +131,16 @@ export class UserManager {
             request_type: "si:r",
             ...requestArgs,
         }, handle);
-        Log.info("UserManager.signinRedirect: successful");
+        this._logger.info("signinRedirect: successful");
     }
 
     public async signinRedirectCallback(url = window.location.href): Promise<User> {
         const user = await this._signinEnd(url);
         if (user.profile && user.profile.sub) {
-            Log.info("UserManager.signinRedirectCallback: successful, signed in sub: ", user.profile.sub);
+            this._logger.info("signinRedirectCallback: successful, signed in sub: ", user.profile.sub);
         }
         else {
-            Log.info("UserManager.signinRedirectCallback: no sub");
+            this._logger.info("signinRedirectCallback: no sub");
         }
 
         return user;
@@ -152,7 +154,7 @@ export class UserManager {
         } = args;
         const url = this.settings.popup_redirect_uri || this.settings.redirect_uri;
         if (!url) {
-            Log.error("UserManager.signinPopup: No popup_redirect_uri or redirect_uri configured");
+            this._logger.error("signinPopup: No popup_redirect_uri or redirect_uri configured");
             throw new Error("No popup_redirect_uri or redirect_uri configured");
         }
 
@@ -165,10 +167,10 @@ export class UserManager {
         }, handle);
         if (user) {
             if (user.profile && user.profile.sub) {
-                Log.info("UserManager.signinPopup: signinPopup successful, signed in sub: ", user.profile.sub);
+                this._logger.info("signinPopup: signinPopup successful, signed in sub: ", user.profile.sub);
             }
             else {
-                Log.info("UserManager.signinPopup: no sub");
+                this._logger.info("signinPopup: no sub");
             }
         }
 
@@ -177,10 +179,10 @@ export class UserManager {
     public async signinPopupCallback(url?: string): Promise<void> {
         try {
             await this._signinCallback(url, this._popupNavigator);
-            Log.info("UserManager.signinPopupCallback: successful");
+            this._logger.info("signinPopupCallback: successful");
         }
         catch (err) {
-            Log.error("UserManager.signinPopupCallback error", err instanceof Error ? err.message : err);
+            this._logger.error("signinPopupCallback error", err instanceof Error ? err.message : err);
         }
     }
 
@@ -197,13 +199,13 @@ export class UserManager {
 
         const url = this.settings.silent_redirect_uri || this.settings.redirect_uri;
         if (!url) {
-            Log.error("UserManager.signinSilent: No silent_redirect_uri configured");
+            this._logger.error("signinSilent: No silent_redirect_uri configured");
             throw new Error("No silent_redirect_uri configured");
         }
 
         let verifySub: string | undefined;
         if (user && this.settings.validateSubOnSilentRenew) {
-            Log.debug("UserManager.signinSilent, subject prior to silent renew: ", user.profile.sub);
+            this._logger.debug("signinSilent, subject prior to silent renew: ", user.profile.sub);
             verifySub = user.profile.sub;
         }
 
@@ -217,10 +219,10 @@ export class UserManager {
         }, handle, verifySub);
         if (user) {
             if (user.profile && user.profile.sub) {
-                Log.info("UserManager.signinSilent: successful, signed in sub: ", user.profile.sub);
+                this._logger.info("signinSilent: successful, signed in sub: ", user.profile.sub);
             }
             else {
-                Log.info("UserManager.signinSilent: no sub");
+                this._logger.info("signinSilent: no sub");
             }
         }
 
@@ -232,12 +234,12 @@ export class UserManager {
             refresh_token: user.refresh_token || ""
         });
         if (!result) {
-            Log.error("UserManager._useRefreshToken: No response returned from token endpoint");
+            this._logger.error("_useRefreshToken: No response returned from token endpoint");
             throw new Error("No response returned from token endpoint");
         }
 
         if (!result.access_token) {
-            Log.error("UserManager._useRefreshToken: No access token returned from token endpoint");
+            this._logger.error("_useRefreshToken: No access token returned from token endpoint");
             throw new Error("No access token returned from token endpoint");
         }
 
@@ -245,7 +247,7 @@ export class UserManager {
             await this._validateIdTokenFromTokenRefreshToken(user.profile, result.id_token);
         }
 
-        Log.debug("UserManager._useRefreshToken: refresh token response success");
+        this._logger.debug("_useRefreshToken: refresh token response success");
         user.id_token = result.id_token || user.id_token;
         user.access_token = result.access_token || user.access_token;
         user.refresh_token = result.refresh_token || user.refresh_token;
@@ -259,30 +261,30 @@ export class UserManager {
     protected async _validateIdTokenFromTokenRefreshToken(profile: UserProfile, id_token: string): Promise<void> {
         const payload = JwtUtils.decode(id_token);
         if (!payload) {
-            Log.error("UserManager._validateIdTokenFromTokenRefreshToken: Failed to decode id_token");
+            this._logger.error("_validateIdTokenFromTokenRefreshToken: Failed to decode id_token");
             throw new Error("Failed to decode id_token");
         }
         if (payload.sub !== profile.sub) {
-            Log.error("UserManager._validateIdTokenFromTokenRefreshToken: sub in id_token does not match current sub");
+            this._logger.error("_validateIdTokenFromTokenRefreshToken: sub in id_token does not match current sub");
             throw new Error("sub in id_token does not match current sub");
         }
         if (payload.auth_time && payload.auth_time !== profile.auth_time) {
-            Log.error("UserManager._validateIdTokenFromTokenRefreshToken: auth_time in id_token does not match original auth_time");
+            this._logger.error("_validateIdTokenFromTokenRefreshToken: auth_time in id_token does not match original auth_time");
             throw new Error("auth_time in id_token does not match original auth_time");
         }
         if (payload.azp && payload.azp !== profile.azp) {
-            Log.error("UserManager._validateIdTokenFromTokenRefreshToken: azp in id_token does not match original azp");
+            this._logger.error("_validateIdTokenFromTokenRefreshToken: azp in id_token does not match original azp");
             throw new Error("azp in id_token does not match original azp");
         }
         if (!payload.azp && profile.azp) {
-            Log.error("UserManager._validateIdTokenFromTokenRefreshToken: azp not in id_token, but present in original id_token");
+            this._logger.error("_validateIdTokenFromTokenRefreshToken: azp not in id_token, but present in original id_token");
             throw new Error("azp not in id_token, but present in original id_token");
         }
     }
 
     public async signinSilentCallback(url?: string): Promise<void> {
         await this._signinCallback(url, this._iframeNavigator);
-        Log.info("UserManager.signinSilentCallback: successful");
+        this._logger.info("signinSilentCallback: successful");
     }
 
     public async signinCallback(url?: string): Promise<User | null> {
@@ -321,7 +323,7 @@ export class UserManager {
         } = args;
         const url = this.settings.silent_redirect_uri || this.settings.redirect_uri;
         if (!url) {
-            Log.error("UserManager.querySessionStatus: No silent_redirect_uri configured");
+            this._logger.error("querySessionStatus: No silent_redirect_uri configured");
             throw new Error("No silent_redirect_uri configured");
         }
 
@@ -337,10 +339,10 @@ export class UserManager {
         }, handle);
         try {
             const signinResponse = await this._client.processSigninResponse(navResponse.url);
-            Log.debug("UserManager.querySessionStatus: got signin response");
+            this._logger.debug("querySessionStatus: got signin response");
 
             if (signinResponse.session_state && signinResponse.profile.sub) {
-                Log.info("UserManager.querySessionStatus: querySessionStatus success for sub: ",  signinResponse.profile.sub);
+                this._logger.info("querySessionStatus: querySessionStatus success for sub: ",  signinResponse.profile.sub);
                 return {
                     session_state: signinResponse.session_state,
                     sub: signinResponse.profile.sub,
@@ -348,7 +350,7 @@ export class UserManager {
                 };
             }
 
-            Log.info("querySessionStatus successful, user not authenticated");
+            this._logger.info("querySessionStatus: successful, user not authenticated");
             return null;
         }
         catch (err) {
@@ -359,7 +361,7 @@ export class UserManager {
                     err.message == "interaction_required" ||
                     err.message == "account_selection_required"
                 ) {
-                    Log.info("UserManager.querySessionStatus: querySessionStatus success for anonymous user");
+                    this._logger.info("querySessionStatus: querySessionStatus success for anonymous user");
                     return {
                         session_state: err.session_state
                     };
@@ -375,11 +377,11 @@ export class UserManager {
         return this._signinEnd(navResponse.url, verifySub);
     }
     protected async _signinStart(args: CreateSigninRequestArgs, handle: IWindow): Promise<NavigateResponse> {
-        Log.debug("UserManager._signinStart: got navigator window handle");
+        this._logger.debug("_signinStart: got navigator window handle");
 
         try {
             const signinRequest = await this._client.createSigninRequest(args);
-            Log.debug("UserManager._signinStart: got signin request");
+            this._logger.debug("_signinStart: got signin request");
 
             return handle.navigate({
                 url: signinRequest.url,
@@ -387,34 +389,34 @@ export class UserManager {
             });
         }
         catch (err) {
-            Log.debug("UserManager._signinStart: Error after preparing navigator, closing navigator window");
+            this._logger.debug("_signinStart: Error after preparing navigator, closing navigator window");
             handle.close();
             throw err;
         }
     }
     protected async _signinEnd(url: string, verifySub?: string): Promise<User> {
         const signinResponse = await this._client.processSigninResponse(url);
-        Log.debug("UserManager._signinEnd: got signin response");
+        this._logger.debug("_signinEnd: got signin response");
 
         const user = new User(signinResponse);
         if (verifySub) {
             if (verifySub !== user.profile.sub) {
-                Log.debug("UserManager._signinEnd: current user does not match user returned from signin. sub from signin: ", user.profile.sub);
+                this._logger.debug("_signinEnd: current user does not match user returned from signin. sub from signin: ", user.profile.sub);
                 throw new Error("login_required");
             }
             else {
-                Log.debug("UserManager._signinEnd: current user matches user returned from signin");
+                this._logger.debug("_signinEnd: current user matches user returned from signin");
             }
         }
 
         await this.storeUser(user);
-        Log.debug("UserManager._signinEnd: user stored");
+        this._logger.debug("_signinEnd: user stored");
         this._events.load(user);
 
         return user;
     }
     protected async _signinCallback(url: string | undefined, navigator: IFrameNavigator | PopupNavigator): Promise<void> {
-        Log.debug("UserManager._signinCallback");
+        this._logger.debug("_signinCallback");
         const delimiter = this.settings.response_mode === "query" ? "?" : "#";
         await navigator.callback(url, false, delimiter);
     }
@@ -430,11 +432,11 @@ export class UserManager {
             post_logout_redirect_uri: this.settings.post_logout_redirect_uri,
             ...requestArgs,
         }, handle);
-        Log.info("UserManager.signoutRedirect: successful");
+        this._logger.info("signoutRedirect: successful");
     }
     public async signoutRedirectCallback(url = window.location.href): Promise<SignoutResponse> {
         const response = await this._signoutEnd(url);
-        Log.info("UserManager.signoutRedirectCallback: successful");
+        this._logger.info("signoutRedirectCallback: successful");
         return response;
     }
 
@@ -458,12 +460,12 @@ export class UserManager {
             state: url == null ? undefined : {},
             ...requestArgs,
         }, handle);
-        Log.info("UserManager.signoutPopup: successful");
+        this._logger.info("signoutPopup: successful");
     }
     public async signoutPopupCallback(url?: string, keepOpen = false): Promise<void> {
         const delimiter = "?";
         await this._popupNavigator.callback(url, keepOpen, delimiter);
-        Log.info("UserManager.signoutPopupCallback: successful");
+        this._logger.info("signoutPopupCallback: successful");
     }
 
     protected async _signout(args: CreateSignoutRequestArgs, handle: IWindow): Promise<SignoutResponse> {
@@ -471,11 +473,11 @@ export class UserManager {
         return this._signoutEnd(navResponse.url);
     }
     protected async _signoutStart(args: CreateSignoutRequestArgs = {}, handle: IWindow): Promise<NavigateResponse> {
-        Log.debug("UserManager._signoutStart: got navigator window handle");
+        this._logger.debug("_signoutStart: got navigator window handle");
 
         try {
             const user = await this._loadUser();
-            Log.debug("UserManager._signoutStart: loaded current user from storage");
+            this._logger.debug("_signoutStart: loaded current user from storage");
 
             if (this.settings.revokeAccessTokenOnSignout) {
                 await this._revokeInternal(user);
@@ -483,15 +485,15 @@ export class UserManager {
 
             const id_token = args.id_token_hint || user && user.id_token;
             if (id_token) {
-                Log.debug("UserManager._signoutStart: Setting id_token into signout request");
+                this._logger.debug("_signoutStart: Setting id_token into signout request");
                 args.id_token_hint = id_token;
             }
 
             await this.removeUser();
-            Log.debug("UserManager._signoutStart: user removed, creating signout request");
+            this._logger.debug("_signoutStart: user removed, creating signout request");
 
             const signoutRequest = await this._client.createSignoutRequest(args);
-            Log.debug("UserManager._signoutStart: got signout request");
+            this._logger.debug("_signoutStart: got signout request");
 
             return handle.navigate({
                 url: signoutRequest.url,
@@ -499,14 +501,14 @@ export class UserManager {
             });
         }
         catch (err) {
-            Log.debug("UserManager._signoutStart: Error after preparing navigator, closing navigator window");
+            this._logger.debug("_signoutStart: Error after preparing navigator, closing navigator window");
             handle.close();
             throw err;
         }
     }
     protected async _signoutEnd(url: string): Promise<SignoutResponse> {
         const signoutResponse = await this._client.processSignoutResponse(url);
-        Log.debug("UserManager._signoutEnd: got signout response");
+        this._logger.debug("_signoutEnd: got signout response");
 
         return signoutResponse;
     }
@@ -515,7 +517,7 @@ export class UserManager {
         const user = await this._loadUser();
         const success = await this._revokeInternal(user, true);
         if (success && user) {
-            Log.debug("UserManager.revokeAccessToken: removing token properties from user and re-storing");
+            this._logger.debug("revokeAccessToken: removing token properties from user and re-storing");
 
             user.access_token = "";
             user.refresh_token = "";
@@ -523,11 +525,11 @@ export class UserManager {
             user.token_type = "";
 
             await this.storeUser(user);
-            Log.debug("UserManager.revokeAccessToken: user stored");
+            this._logger.debug("revokeAccessToken: user stored");
             this._events.load(user);
         }
 
-        Log.info("UserManager.revokeAccessToken: access token revoked successfully");
+        this._logger.info("revokeAccessToken: access token revoked successfully");
     }
 
     protected async _revokeInternal(user: User | null, required = false): Promise<boolean> {
@@ -538,7 +540,7 @@ export class UserManager {
             const atSuccess = await this._revokeAccessTokenInternal(access_token, required);
             const rtSuccess = await this._revokeRefreshTokenInternal(refresh_token, required);
             if (!atSuccess && !rtSuccess) {
-                Log.debug("UserManager.revokeAccessToken: no need to revoke due to no token(s), or JWT format");
+                this._logger.debug("revokeAccessToken: no need to revoke due to no token(s), or JWT format");
             }
 
             return atSuccess || rtSuccess;
@@ -581,22 +583,22 @@ export class UserManager {
     protected async _loadUser(): Promise<User | null> {
         const storageString = await this.settings.userStore.get(this._userStoreKey);
         if (storageString) {
-            Log.debug("UserManager._loadUser: user storageString loaded");
+            this._logger.debug("_loadUser: user storageString loaded");
             return User.fromStorageString(storageString);
         }
 
-        Log.debug("UserManager._loadUser: no user storageString");
+        this._logger.debug("_loadUser: no user storageString");
         return null;
     }
 
     public async storeUser(user: User | null): Promise<void> {
         if (user) {
-            Log.debug("UserManager.storeUser: storing user");
+            this._logger.debug("storeUser: storing user");
             const storageString = user.toStorageString();
             await this.settings.userStore.set(this._userStoreKey, storageString);
         }
         else {
-            Log.debug("storeUser.storeUser: removing user");
+            this._logger.debug("storeUser: removing user");
             await this.settings.userStore.remove(this._userStoreKey);
         }
     }
