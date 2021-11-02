@@ -11,6 +11,7 @@ been archived and is no longer maintained. This version has been refactored from
 
 **Contributions and help is much appreciated!**
 
+
 ## Table of Contents
 
 -   [Documentation](#documentation)
@@ -19,9 +20,11 @@ been archived and is no longer maintained. This version has been refactored from
 -   [Contributing](#contributing)
 -   [License](#license)
 
+
 ## Documentation
 
 Some initial docs are [here](https://github.com/IdentityModel/oidc-client-js/wiki).
+
 
 ## Installation
 
@@ -30,6 +33,7 @@ Using [npm](https://npmjs.org/)
 ```console
 $ npm install oidc-client-ts
 ```
+
 
 ## Building the Source
 
@@ -48,19 +52,18 @@ $ npm run build
 $ npm run -w parcel-sample start
 ```
 
+and then browse to [http://localhost:1234](http://localhost:1234).
+
 **Angular app**
 
-```console
-$ npm run -w angular-sample start
-```
-
-and then browse to [http://localhost:1234](http://localhost:1234).
+can be found [here](https://github.com/authts/sample-angular-oidc-client-ts).
 
 ### Running the Tests
 
 ```console
 $ npm test
 ```
+
 
 ## Contributing
 
