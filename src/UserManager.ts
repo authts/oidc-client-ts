@@ -415,9 +415,7 @@ export class UserManager {
     }
     protected async _signinCallback(url: string | undefined, navigator: IFrameNavigator | PopupNavigator): Promise<void> {
         Log.debug("UserManager._signinCallback");
-        const useQuery = this.settings.response_mode === "query" ||
-            (!this.settings.response_mode && this.settings.response_type === "code");
-        const delimiter = useQuery ? "?" : "#";
+        const delimiter = this.settings.response_mode === "query" ? "?" : "#";
         await navigator.callback(url, false, delimiter);
     }
 

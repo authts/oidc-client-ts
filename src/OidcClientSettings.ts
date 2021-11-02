@@ -8,6 +8,7 @@ import type { StateStore } from "./StateStore";
 const DefaultResponseType = "code";
 const DefaultScope = "openid";
 const DefaultClientAuthentication = "client_secret_post"; // The default value must be client_secret_basic, as explained in https://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication
+const DefaultResponseMode = "query";
 const DefaultStaleStateAgeInSeconds = 60 * 15; // seconds
 const DefaultClockSkewInSeconds = 60 * 5;
 
@@ -93,7 +94,7 @@ export class OidcClientSettingsStore {
     public readonly ui_locales: string | undefined;
     public readonly acr_values: string | undefined;
     public readonly resource: string | undefined;
-    public readonly response_mode: "query" | "fragment" | undefined;
+    public readonly response_mode: "query" | "fragment";
 
     // behavior flags
     public readonly filterProtocolClaims: boolean;
@@ -117,7 +118,7 @@ export class OidcClientSettingsStore {
         redirect_uri, post_logout_redirect_uri,
         client_authentication = DefaultClientAuthentication,
         // optional protocol
-        prompt, display, max_age, ui_locales, acr_values, resource, response_mode,
+        prompt, display, max_age, ui_locales, acr_values, resource, response_mode = DefaultResponseMode,
         // behavior flags
         filterProtocolClaims = true,
         loadUserInfo = false,

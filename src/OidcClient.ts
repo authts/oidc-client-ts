@@ -114,10 +114,7 @@ export class OidcClient {
     public async readSigninResponseState(url?: string, removeState = false): Promise<{ state: SigninState; response: SigninResponse }> {
         Log.debug("OidcClient.readSigninResponseState");
 
-        const useQuery = this.settings.response_mode === "query" ||
-            (!this.settings.response_mode && this.settings.response_type === "code");
-        const delimiter = useQuery ? "?" : "#";
-
+        const delimiter = this.settings.response_mode === "query" ? "?" : "#";
         const response = new SigninResponse(url, delimiter);
         const stateKey = response.state_id;
         if (!stateKey) {
