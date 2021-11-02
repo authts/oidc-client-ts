@@ -190,6 +190,17 @@ describe("SigninRequest", () => {
             expect(subject.url).toContain("ui_locales=foo");
         });
 
+        it("should include id_token_hint", () => {
+            // arrange
+            settings.id_token_hint = "foo";
+
+            // act
+            subject = new SigninRequest(settings);
+
+            // assert
+            expect(subject.url).toContain("id_token_hint=foo");
+        });
+
         it("should include login_hint", () => {
             // arrange
             settings.login_hint = "foo";

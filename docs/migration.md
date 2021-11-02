@@ -11,7 +11,7 @@ Ported library from JavaScript to TypeScript.
 - renamed staleStateAge to staleStateAgeInSeconds
 - removed ResponseValidatorCtor and MetadataServiceCtor, if needed OidcClient/UserManager class must be extended
 - changed response_type, only code flow (PKCE) is supported
-- removed loadUserInfo
+- default of loadUserInfo changed from true to false
 
 **UserManagerSettings:**
 - renamed accessTokenExpiringNotificationTime to accessTokenExpiringNotificationTimeInSeconds
@@ -19,8 +19,8 @@ Ported library from JavaScript to TypeScript.
 - changed checkSessionInterval (milliseconds) to checkSessionIntervalInSeconds
 - default of automaticSilentRenew changed from false to true
 - default of validateSubOnSilentRenew changed from false to true
+- default of includeIdTokenInSilentRenew changed from true to false
 - default of monitorSession changed from true to false
-- removed includeIdTokenInSilentRenew
 
 **UserManager:**
 - signoutPopupCallback to pass optionally keepOpen as true, second argument must be used

@@ -18,6 +18,7 @@ export class SigninResponse {
     public error_uri: string | undefined;
 
     // updated by ResponseValidator
+    public id_token: string | undefined;
     public session_state: string | undefined;
     public access_token: string;
     public token_type: string;
@@ -37,6 +38,7 @@ export class SigninResponse {
         this.code = values.code;
         this.state = values.state;
 
+        this.id_token = values.id_token;
         this.session_state = values.session_state;
         this.access_token = values.access_token;
         this.token_type = values.token_type;
@@ -74,6 +76,6 @@ export class SigninResponse {
     }
 
     public get isOpenIdConnect(): boolean {
-        return this.scopes.indexOf(OidcScope) >= 0;
+        return this.scopes.indexOf(OidcScope) >= 0 || !!this.id_token;
     }
 }

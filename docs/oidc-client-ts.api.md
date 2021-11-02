@@ -49,6 +49,8 @@ export interface CreateSigninRequestArgs {
     // (undocumented)
     extraTokenParams?: Record<string, any>;
     // (undocumented)
+    id_token_hint?: string;
+    // (undocumented)
     login_hint?: string;
     // (undocumented)
     max_age?: number;
@@ -174,11 +176,11 @@ export class OidcClient {
     // Warning: (ae-forgotten-export) The symbol "SigninRequest" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    createSigninRequest({ response_type, scope, redirect_uri, state, prompt, display, max_age, ui_locales, login_hint, acr_values, resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo }: CreateSigninRequestArgs): Promise<SigninRequest>;
+    createSigninRequest({ response_type, scope, redirect_uri, state, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo }: CreateSigninRequestArgs): Promise<SigninRequest>;
     // Warning: (ae-forgotten-export) The symbol "SignoutRequest" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    createSignoutRequest({ state, post_logout_redirect_uri, extraQueryParams, request_type }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
+    createSignoutRequest({ state, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
     // (undocumented)
     readonly metadataService: MetadataService;
     // (undocumented)
@@ -220,6 +222,7 @@ export interface OidcClientSettings {
     // (undocumented)
     extraTokenParams?: Record<string, any>;
     filterProtocolClaims?: boolean;
+    loadUserInfo?: boolean;
     // (undocumented)
     max_age?: number;
     // (undocumented)
@@ -318,6 +321,7 @@ export class TokenRevocationClient {
 // @public (undocumented)
 export class User {
     constructor(args: {
+        id_token?: string;
         session_state?: string;
         access_token: string;
         refresh_token?: string;
@@ -337,6 +341,8 @@ export class User {
     set expires_in(value: number | undefined);
     // (undocumented)
     static fromStorageString(storageString: string): User;
+    // (undocumented)
+    id_token: string | undefined;
     // Warning: (ae-forgotten-export) The symbol "UserProfile" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -464,6 +470,8 @@ export class UserManager {
     protected _useRefreshToken(user: User): Promise<User>;
     // (undocumented)
     protected get _userStoreKey(): string;
+    // (undocumented)
+    protected _validateIdTokenFromTokenRefreshToken(profile: UserProfile, id_token: string): Promise<void>;
 }
 
 // @public (undocumented)
@@ -524,6 +532,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     accessTokenExpiringNotificationTimeInSeconds?: number;
     automaticSilentRenew?: boolean;
     checkSessionIntervalInSeconds?: number;
+    includeIdTokenInSilentRenew?: boolean;
     // (undocumented)
     monitorAnonymousSession?: boolean;
     monitorSession?: boolean;
@@ -565,10 +574,10 @@ export class WebStorageStateStore implements StateStore {
 
 // Warnings were encountered during analysis:
 //
-// src/OidcClient.ts:113:88 - (ae-forgotten-export) The symbol "SigninState" needs to be exported by the entry point index.d.ts
-// src/OidcClient.ts:113:108 - (ae-forgotten-export) The symbol "SigninResponse" needs to be exported by the entry point index.d.ts
-// src/OidcClient.ts:181:89 - (ae-forgotten-export) The symbol "State" needs to be exported by the entry point index.d.ts
-// src/OidcClient.ts:181:115 - (ae-forgotten-export) The symbol "SignoutResponse" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:114:88 - (ae-forgotten-export) The symbol "SigninState" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:114:108 - (ae-forgotten-export) The symbol "SigninResponse" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:183:89 - (ae-forgotten-export) The symbol "State" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:183:115 - (ae-forgotten-export) The symbol "SignoutResponse" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

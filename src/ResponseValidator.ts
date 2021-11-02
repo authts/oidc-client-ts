@@ -1,8 +1,9 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./utils";
+import { Log, JwtUtils } from "./utils";
 import type { MetadataService } from "./MetadataService";
+import { UserInfoService } from "./UserInfoService";
 import { TokenClient } from "./TokenClient";
 import { ErrorResponse } from "./ErrorResponse";
 import type { OidcClientSettingsStore } from "./OidcClientSettings";
@@ -17,11 +18,13 @@ const ProtocolClaims = ["at_hash", "iat", "nbf", "exp", "aud", "iss", "c_hash"];
 export class ResponseValidator {
     protected readonly _settings: OidcClientSettingsStore;
     protected readonly _metadataService: MetadataService;
+    protected readonly _userInfoService: UserInfoService;
     protected readonly _tokenClient: TokenClient;
 
     public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
         this._settings = settings;
         this._metadataService = metadataService;
+        this._userInfoService = new UserInfoService(metadataService);
         this._tokenClient = new TokenClient(this._settings, metadataService);
     }
 
@@ -119,12 +122,65 @@ export class ResponseValidator {
         if (response.isOpenIdConnect) {
             Log.debug("ResponseValidator._processClaims: response is OIDC, processing claims");
             response.profile = this._filterProtocolClaims(response.profile);
+
+            if (state.skipUserInfo !== true && this._settings.loadUserInfo && response.access_token) {
+                Log.debug("ResponseValidator._processClaims: loading user info");
+
+                const claims  = await this._userInfoService.getClaims(response.access_token);
+                Log.debug("ResponseValidator._processClaims: user info claims received from user info endpoint");
+
+                if (claims.sub !== response.profile.sub) {
+                    Log.error("ResponseValidator._processClaims: sub from user info endpoint does not match sub in id_token");
+                    throw new Error("sub from user info endpoint does not match sub in id_token");
+                }
+
+                response.profile = this._mergeClaims(response.profile, claims);
+                Log.debug("ResponseValidator._processClaims: user info claims received, updated profile:", response.profile);
+
+                return response;
+            }
+            else {
+                Log.debug("ResponseValidator._processClaims: not loading user info");
+            }
         }
         else {
             Log.debug("ResponseValidator._processClaims: response is not OIDC, not processing claims");
         }
 
         return response;
+    }
+
+    protected _mergeClaims(claims1: UserProfile, claims2: any): UserProfile {
+        const result = Object.assign({}, claims1 as Record<string, any>);
+
+        for (const name in claims2) {
+            let values = claims2[name];
+            if (!Array.isArray(values)) {
+                values = [values];
+            }
+
+            for (let i = 0; i < values.length; i++) {
+                const value = values[i];
+                if (!result[name]) {
+                    result[name] = value;
+                }
+                else if (Array.isArray(result[name])) {
+                    if (result[name].indexOf(value) < 0) {
+                        result[name].push(value);
+                    }
+                }
+                else if (result[name] !== value) {
+                    if (typeof value === "object" && this._settings.mergeClaims) {
+                        result[name] = this._mergeClaims(result[name], value);
+                    }
+                    else {
+                        result[name] = [result[name], value];
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 
     protected _filterProtocolClaims(claims: UserProfile): UserProfile {
@@ -175,13 +231,33 @@ export class ResponseValidator {
         response.error_description = tokenResponse.error_description || response.error_description;
         response.error_uri = tokenResponse.error_uri || response.error_uri;
 
+        response.id_token = tokenResponse.id_token || response.id_token;
         response.session_state = tokenResponse.session_state || response.session_state;
         response.access_token = tokenResponse.access_token || response.access_token;
         response.token_type = tokenResponse.token_type || response.token_type;
         response.scope = tokenResponse.scope || response.scope;
         response.expires_in = parseInt(tokenResponse.expires_in) || response.expires_in;
 
+        if (response.id_token) {
+            Log.debug("ResponseValidator._processCode: token response successful, processing id_token");
+            return this._validateIdTokenAttributes(state, response, response.id_token);
+        }
+
         Log.debug("ResponseValidator._processCode: token response successful, returning response");
+        return response;
+    }
+
+    protected async _validateIdTokenAttributes(state: SigninState, response: SigninResponse, id_token: string): Promise<SigninResponse> {
+        Log.debug("ResponseValidator._validateIdTokenAttributes: Decoding JWT attributes");
+
+        const payload = JwtUtils.decode(id_token);
+
+        if (!payload.sub) {
+            Log.error("ResponseValidator._validateIdTokenAttributes: No sub present in id_token");
+            throw new Error("No sub present in id_token");
+        }
+
+        response.profile = payload;
         return response;
     }
 }
