@@ -101,7 +101,7 @@ function removeUser() {
 }
 
 function startSigninMainWindow() {
-    mgr.signinRedirect().then(function() {
+    mgr.signinRedirect({ state: { some: "data" } }).then(function() {
         log("signinRedirect done");
     }).catch(function(err) {
         log(err);

@@ -4,11 +4,16 @@
 import { UrlUtils } from "./utils";
 
 export class SignoutResponse {
+    public readonly state_id: string | undefined;
+
+    // updated by ResponseValidator
     public error: string | undefined;
     public error_description: string | undefined;
     public error_uri: string | undefined;
 
-    public state: any | undefined;
+    // set by ResponseValidator
+    // custom "state", which can be used by a caller to have "data" round tripped
+    public state: unknown | undefined;
 
     public constructor(url?: string) {
         const values = UrlUtils.parseUrlFragment(url, "?");
@@ -17,6 +22,8 @@ export class SignoutResponse {
         this.error_description = values.error_description;
         this.error_uri = values.error_uri;
 
-        this.state = values.state;
+        this.state_id = values.state;
+
+        this.state = undefined;
     }
 }

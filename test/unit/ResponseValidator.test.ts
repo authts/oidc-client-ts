@@ -54,7 +54,7 @@ describe("ResponseValidator", () => {
             authority: "op"
         };
         stubResponse = {
-            state: "the_id",
+            state_id: "the_id",
             isOpenIdConnect: false
         };
         settings = {
@@ -76,7 +76,7 @@ describe("ResponseValidator", () => {
 
         it("should validate that the client state matches response state", () => {
             // arrange
-            stubResponse.state = "not_the_id";
+            stubResponse.state_id = "not_the_id";
 
             // act
             try {
@@ -277,7 +277,7 @@ describe("ResponseValidator", () => {
 
         it("should validate that the client state matches response state", () => {
             // arrange
-            stubResponse.state = "not_the_id";
+            stubResponse.state_id = "not_the_id";
 
             // act
             try {

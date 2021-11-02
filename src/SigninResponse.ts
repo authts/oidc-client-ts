@@ -8,9 +8,7 @@ const OidcScope = "openid";
 
 export class SigninResponse {
     public readonly code: string;
-
-    // updated by ResponseValidator
-    public state: any | undefined;
+    public readonly state_id: string | undefined;
 
     // updated by ResponseValidator
     public error: string | undefined;
@@ -27,6 +25,10 @@ export class SigninResponse {
     public expires_at: number | undefined;
 
     // set by ResponseValidator
+    // custom "state", which can be used by a caller to have "data" round tripped
+    public state: unknown | undefined;
+
+    // set by ResponseValidator
     public profile: UserProfile;
 
     public constructor(url?: string, delimiter = "#") {
@@ -37,7 +39,7 @@ export class SigninResponse {
         this.error_uri = values.error_uri;
 
         this.code = values.code;
-        this.state = values.state;
+        this.state_id = values.state;
 
         this.id_token = values.id_token;
         this.session_state = values.session_state;
@@ -47,6 +49,7 @@ export class SigninResponse {
         this.scope = values.scope;
         this.expires_in = parseInt(values.expires_in);
 
+        this.state = undefined;
         this.profile = {};
     }
 

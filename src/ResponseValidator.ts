@@ -44,7 +44,7 @@ export class ResponseValidator {
     }
 
     public validateSignoutResponse(state: State, response: SignoutResponse): SignoutResponse {
-        if (state.id !== response.state) {
+        if (state.id !== response.state_id) {
             Log.error("ResponseValidator.validateSignoutResponse: State does not match");
             throw new Error("State does not match");
         }
@@ -64,7 +64,7 @@ export class ResponseValidator {
     }
 
     protected _processSigninParams(state: SigninState, response: SigninResponse): SigninResponse {
-        if (state.id !== response.state) {
+        if (state.id !== response.state_id) {
             Log.error("ResponseValidator._processSigninParams: State does not match");
             throw new Error("State does not match");
         }

@@ -14,7 +14,6 @@ export interface SigninRequestArgs {
     scope: string;
 
     // optional
-    state_data?: any;
     prompt?: string;
     display?: string;
     max_age?: number;
@@ -31,6 +30,9 @@ export interface SigninRequestArgs {
     client_secret?: string;
     extraTokenParams?: Record<string, any>;
     skipUserInfo?: boolean;
+
+    // custom "state", which can be used by a caller to have "data" round tripped
+    state_data?: unknown;
 }
 
 export class SigninRequest {

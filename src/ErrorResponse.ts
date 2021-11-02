@@ -10,11 +10,13 @@ export class ErrorResponse extends Error {
     public readonly error_description: string | undefined;
     public readonly error_uri: string | undefined;
 
-    public readonly state: any;
     public readonly session_state: string | undefined;
 
+    // custom "state", which can be used by a caller to have "data" round tripped
+    public state: unknown | undefined;
+
     public constructor(args: {
-        error?: string; error_description?: string; error_uri?: string; state?: any; session_state?: string;
+        error?: string; error_description?: string; error_uri?: string; state?: unknown; session_state?: string;
     }) {
         if (!args.error) {
             Log.error("No error passed to ErrorResponse");

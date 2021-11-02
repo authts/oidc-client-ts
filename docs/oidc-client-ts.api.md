@@ -75,7 +75,7 @@ export interface CreateSigninRequestArgs {
     // (undocumented)
     skipUserInfo?: boolean;
     // (undocumented)
-    state?: any;
+    state?: unknown;
     // (undocumented)
     ui_locales?: string;
 }
@@ -194,7 +194,7 @@ export class OidcClient {
     }>;
     // (undocumented)
     readSignoutResponseState(url?: string, removeState?: boolean): Promise<{
-        state: undefined | State;
+        state: State | undefined;
         response: SignoutResponse;
     }>;
     // (undocumented)
@@ -329,6 +329,7 @@ export class User {
         scope?: string;
         profile: UserProfile;
         expires_at?: number;
+        state?: unknown;
     });
     // (undocumented)
     access_token: string;
@@ -355,6 +356,8 @@ export class User {
     get scopes(): string[];
     // (undocumented)
     session_state: string | undefined;
+    // (undocumented)
+    readonly state: unknown | undefined;
     // (undocumented)
     token_type: string;
     // (undocumented)
@@ -576,8 +579,8 @@ export class WebStorageStateStore implements StateStore {
 //
 // src/OidcClient.ts:114:88 - (ae-forgotten-export) The symbol "SigninState" needs to be exported by the entry point index.d.ts
 // src/OidcClient.ts:114:108 - (ae-forgotten-export) The symbol "SigninResponse" needs to be exported by the entry point index.d.ts
-// src/OidcClient.ts:183:89 - (ae-forgotten-export) The symbol "State" needs to be exported by the entry point index.d.ts
-// src/OidcClient.ts:183:115 - (ae-forgotten-export) The symbol "SignoutResponse" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:184:89 - (ae-forgotten-export) The symbol "State" needs to be exported by the entry point index.d.ts
+// src/OidcClient.ts:184:115 - (ae-forgotten-export) The symbol "SignoutResponse" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

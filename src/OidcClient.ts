@@ -21,8 +21,8 @@ export interface CreateSigninRequestArgs {
     response_type?: string;
     scope?: string;
 
-    // state can be used by a caller to have data round tripped
-    state?: any;
+    // custom "state", which can be used by a caller to have "data" round tripped
+    state?: unknown;
 
     prompt?: string;
     display?: string;
@@ -119,7 +119,8 @@ export class OidcClient {
         const delimiter = useQuery ? "?" : "#";
 
         const response = new SigninResponse(url, delimiter);
-        if (!response.state) {
+        const stateKey = response.state_id;
+        if (!stateKey) {
             Log.error("OidcClient.readSigninResponseState: No state in response");
             throw new Error("No state in response");
         }
@@ -127,7 +128,7 @@ export class OidcClient {
         const stateStore = this.settings.stateStore;
         const stateApi = removeState ? stateStore.remove.bind(stateStore) : stateStore.get.bind(stateStore);
 
-        const storedStateString = await stateApi(response.state);
+        const storedStateString = await stateApi(stateKey);
         if (!storedStateString) {
             Log.error("OidcClient.readSigninResponseState: No matching state found in storage");
             throw new Error("No matching state found in storage");
@@ -180,11 +181,12 @@ export class OidcClient {
         return request;
     }
 
-    public async readSignoutResponseState(url?: string, removeState = false): Promise<{ state: undefined | State; response: SignoutResponse }> {
+    public async readSignoutResponseState(url?: string, removeState = false): Promise<{ state: State | undefined; response: SignoutResponse }> {
         Log.debug("OidcClient.readSignoutResponseState");
 
         const response = new SignoutResponse(url);
-        if (!response.state) {
+        const stateKey = response.state_id;
+        if (!stateKey) {
             Log.debug("OidcClient.readSignoutResponseState: No state in response");
 
             if (response.error) {
@@ -195,7 +197,6 @@ export class OidcClient {
             return { state: undefined, response };
         }
 
-        const stateKey = response.state;
         const stateStore = this.settings.stateStore;
 
         const stateApi = removeState ? stateStore.remove.bind(stateStore) : stateStore.get.bind(stateStore);
