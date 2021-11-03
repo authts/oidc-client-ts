@@ -4,7 +4,7 @@ import { Logger } from "./Log";
 
 export interface JwtPayload {
     iss?: string;
-    aud?: string;
+    aud?: string | string[];
     azp?: string;
     iat?: number;
     nbf?: number;

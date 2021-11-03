@@ -67,7 +67,7 @@ export interface OidcClientSettings {
 
     /** An object containing additional query string parameters to be including in the authorization request */
     extraQueryParams?: Record<string, string | number | boolean>;
-    extraTokenParams?: Record<string, any>;
+    extraTokenParams?: Record<string, unknown>;
 }
 
 export class OidcClientSettingsStore {

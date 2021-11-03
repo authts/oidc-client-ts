@@ -15,14 +15,14 @@ export class SigninState extends State {
     public readonly redirect_uri: string;
     public readonly scope: string;
     public readonly client_secret: string | undefined;
-    public readonly extraTokenParams: Record<string, any> | undefined;
+    public readonly extraTokenParams: Record<string, unknown> | undefined;
 
     public readonly response_mode: string | undefined;
     public readonly skipUserInfo: boolean | undefined;
 
     public constructor(args: {
         id?: string;
-        data?: any;
+        data?: unknown;
         created?: number;
         request_type?: string;
 
@@ -32,7 +32,7 @@ export class SigninState extends State {
         redirect_uri: string;
         scope: string;
         client_secret?: string;
-        extraTokenParams?: Record<string, any>;
+        extraTokenParams?: Record<string, unknown>;
         response_mode?: string;
         skipUserInfo?: boolean;
     }) {
