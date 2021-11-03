@@ -3,7 +3,7 @@
 
 import { Logger } from "./Log";
 
-type Callback<EventType extends unknown[]> = (...ev: EventType) => (Promise<void> | void);
+export type Callback<EventType extends unknown[]> = (...ev: EventType) => (Promise<void> | void);
 
 export class Event<EventType extends unknown[]> {
     protected readonly _logger: Logger;

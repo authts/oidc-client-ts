@@ -30,14 +30,14 @@ Some initial docs are [here](https://github.com/IdentityModel/oidc-client-js/wik
 
 Using [npm](https://npmjs.org/)
 
-```console
+```sh
 $ npm install oidc-client-ts
 ```
 
 
 ## Building the Source
 
-```console
+```sh
 $ git clone https://github.com/authts/oidc-client-ts.git
 $ cd oidc-client-ts
 $ npm install
@@ -48,7 +48,7 @@ $ npm run build
 
 **Parcel project**
 
-```console
+```sh
 $ npm run -w parcel-sample start
 ```
 
@@ -60,7 +60,7 @@ can be found [here](https://github.com/authts/sample-angular-oidc-client-ts).
 
 ### Running the Tests
 
-```console
+```sh
 $ npm test
 ```
 

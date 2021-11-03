@@ -1,20 +1,35 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-export { Log } from "./utils";
+export * from "./navigators";
+export * from "./utils";
 
+export * from "./AccessTokenEvents";
+export * from "./CheckSessionIFrame";
+export * from "./ErrorResponse";
+export * from "./InMemoryWebStorage";
+export * from "./JsonService";
+export * from "./MetadataService";
 export * from "./OidcClient";
-export type { OidcClientSettings, SigningKey } from "./OidcClientSettings";
-export { WebStorageStateStore } from "./WebStorageStateStore";
-export { InMemoryWebStorage } from "./InMemoryWebStorage";
+export * from "./OidcClientSettings";
+export * from "./OidcMetadata";
+export * from "./ResponseValidator";
+export * from "./SessionMonitor";
+export * from "./SessionStatus";
+export * from "./SigninRequest";
+export * from "./SigninResponse";
+export * from "./SigninState";
+export * from "./SignoutRequest";
+export * from "./SignoutResponse";
+export * from "./SilentRenewService";
+export * from "./State";
+export * from "./StateStore";
+export * from "./TokenClient";
+export * from "./TokenRevocationClient";
+export * from "./User";
+export * from "./UserInfoService";
 export * from "./UserManager";
-export { UserManagerEvents } from "./UserManagerEvents";
-export type { UserManagerSettings } from "./UserManagerSettings";
-export { AccessTokenEvents } from "./AccessTokenEvents";
-export { MetadataService } from "./MetadataService";
-export { CheckSessionIFrame } from "./CheckSessionIFrame";
-export { TokenRevocationClient } from "./TokenRevocationClient";
-export { SessionMonitor } from "./SessionMonitor";
-export type { SessionStatus } from "./SessionStatus";
-export { User } from "./User";
-export { Version } from "./Version";
+export * from "./UserManagerEvents";
+export * from "./UserManagerSettings";
+export * from "./Version";
+export * from "./WebStorageStateStore";
