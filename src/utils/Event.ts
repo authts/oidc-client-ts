@@ -6,12 +6,14 @@ import { Logger } from "./Log";
 type Callback<EventType extends unknown[]> = (...ev: EventType) => (Promise<void> | void);
 
 export class Event<EventType extends unknown[]> {
+    protected readonly _name: string;
     protected readonly _logger: Logger;
 
     private _callbacks: Array<Callback<EventType>> = [];
 
-    public constructor(protected _name: string) {
-        this._logger = new Logger("Event");
+    public constructor(name: string) {
+        this._name = name;
+        this._logger = new Logger(`Event(${name})`);
     }
 
     public addHandler(cb: Callback<EventType>): void {
