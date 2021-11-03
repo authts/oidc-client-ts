@@ -28,7 +28,7 @@ export interface SigninRequestArgs {
     extraQueryParams?: Record<string, string | number | boolean>;
     request_type?: string;
     client_secret?: string;
-    extraTokenParams?: Record<string, any>;
+    extraTokenParams?: Record<string, unknown>;
     skipUserInfo?: boolean;
 
     // custom "state", which can be used by a caller to have "data" round tripped

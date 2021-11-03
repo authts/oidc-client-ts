@@ -9,7 +9,7 @@ export interface SignoutRequestArgs {
     url: string;
 
     // optional
-    state_data?: any;
+    state_data?: unknown;
     id_token_hint?: string;
     post_logout_redirect_uri?: string;
     extraQueryParams?: Record<string, string | number | boolean>;

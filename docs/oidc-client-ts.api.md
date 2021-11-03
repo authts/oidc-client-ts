@@ -51,7 +51,7 @@ export interface CreateSigninRequestArgs {
     // (undocumented)
     extraQueryParams?: Record<string, string | number | boolean>;
     // (undocumented)
-    extraTokenParams?: Record<string, any>;
+    extraTokenParams?: Record<string, unknown>;
     // (undocumented)
     id_token_hint?: string;
     // (undocumented)
@@ -88,7 +88,7 @@ export interface CreateSigninRequestArgs {
 //
 // @public (undocumented)
 export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url" | "state_data"> & {
-    state?: any;
+    state?: unknown;
 };
 
 // @public (undocumented)
@@ -218,7 +218,7 @@ export interface OidcClientSettings {
     display?: string;
     extraQueryParams?: Record<string, string | number | boolean>;
     // (undocumented)
-    extraTokenParams?: Record<string, any>;
+    extraTokenParams?: Record<string, unknown>;
     filterProtocolClaims?: boolean;
     loadUserInfo?: boolean;
     // (undocumented)

@@ -38,14 +38,14 @@ export interface CreateSigninRequestArgs {
     extraQueryParams?: Record<string, string | number | boolean>;
     request_type?: string;
     client_secret?: string;
-    extraTokenParams?: Record<string, any>;
+    extraTokenParams?: Record<string, unknown>;
     skipUserInfo?: boolean;
 }
 
 /**
  * @public
  */
-export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url" | "state_data"> & { state?: any };
+export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url" | "state_data"> & { state?: unknown };
 
 /**
  * @public
