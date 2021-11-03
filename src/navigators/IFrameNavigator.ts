@@ -6,6 +6,9 @@ import type { UserManagerSettingsStore } from "../UserManagerSettings";
 import { IFrameWindow, IFrameWindowParams } from "./IFrameWindow";
 import type { INavigator } from "./INavigator";
 
+/**
+ * @internal
+ */
 export class IFrameNavigator implements INavigator {
     private readonly _logger: Logger;
 

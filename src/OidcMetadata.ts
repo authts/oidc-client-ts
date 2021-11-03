@@ -1,3 +1,6 @@
+/**
+ * @public
+ */
 export interface OidcMetadata {
     issuer: string;
     authorization_endpoint: string;

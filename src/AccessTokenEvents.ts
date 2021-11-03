@@ -4,6 +4,9 @@
 import { Logger, Timer } from "./utils";
 import type { User } from "./User";
 
+/**
+ * @public
+ */
 export type AccessTokenCallback = (...ev: any[]) => void;
 
 /**

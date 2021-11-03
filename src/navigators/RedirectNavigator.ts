@@ -6,10 +6,16 @@ import type { UserManagerSettingsStore } from "../UserManagerSettings";
 import type { INavigator } from "./INavigator";
 import type { IWindow, NavigateParams, NavigateResponse } from "./IWindow";
 
+/**
+ * @public
+ */
 export interface RedirectParams {
     redirectMethod?: "replace" | "assign";
 }
 
+/**
+ * @internal
+ */
 export class RedirectNavigator implements INavigator, IWindow {
     private readonly _logger: Logger;
     private _redirectMethod: "replace" | "assign" | undefined;

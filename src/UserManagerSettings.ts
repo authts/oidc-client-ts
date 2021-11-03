@@ -51,6 +51,9 @@ export interface UserManagerSettings extends OidcClientSettings {
     userStore?: WebStorageStateStore;
 }
 
+/**
+ * @public
+ */
 export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly popup_redirect_uri: string | undefined;
     public readonly popup_post_logout_redirect_uri: string | undefined;

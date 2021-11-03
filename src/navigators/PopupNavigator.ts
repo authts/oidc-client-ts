@@ -6,6 +6,9 @@ import { PopupWindow, PopupWindowParams } from "./PopupWindow";
 import type { INavigator } from "./INavigator";
 import type { UserManagerSettingsStore } from "../UserManagerSettings";
 
+/**
+ * @internal
+ */
 export class PopupNavigator implements INavigator {
     private readonly _logger: Logger;
 

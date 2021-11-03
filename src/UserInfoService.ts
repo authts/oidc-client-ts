@@ -5,6 +5,9 @@ import { Logger, JwtUtils, JwtPayload } from "./utils";
 import { JsonService } from "./JsonService";
 import type { MetadataService } from "./MetadataService";
 
+/**
+ * @internal
+ */
 export class UserInfoService {
     protected readonly _logger: Logger;
     private _jsonService: JsonService;

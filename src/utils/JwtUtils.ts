@@ -2,6 +2,9 @@ import jwt_decode from "jwt-decode";
 
 import { Logger } from "./Log";
 
+/**
+ * @internal
+ */
 export interface JwtPayload {
     iss?: string;
     aud?: string | string[];
@@ -13,6 +16,9 @@ export interface JwtPayload {
     auth_time?: number;
 }
 
+/**
+ * @internal
+ */
 export class JwtUtils {
 
     // IMPORTANT: doesn't validate the token

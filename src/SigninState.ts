@@ -4,6 +4,9 @@
 import { Logger, CryptoUtils } from "./utils";
 import { State } from "./State";
 
+/**
+ * @public
+ */
 export class SigninState extends State {
     // isCode
     public readonly code_verifier: string | undefined;

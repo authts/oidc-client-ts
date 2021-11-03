@@ -5,6 +5,9 @@ import { Logger } from "./Log";
 
 const UUID_V4_TEMPLATE = "10000000-1000-4000-8000-100000000000";
 
+/**
+ * @internal
+ */
 export class CryptoUtils {
 
     private static _cryptoUUIDv4(): string {
@@ -30,7 +33,6 @@ export class CryptoUtils {
 
     /**
      * PKCE: Generate a code verifier
-     * @return {string}
      */
     public static generateCodeVerifier(): string {
         return CryptoUtils.generateUUIDv4() + CryptoUtils.generateUUIDv4() + CryptoUtils.generateUUIDv4();
@@ -38,7 +40,6 @@ export class CryptoUtils {
 
     /**
      * PKCE: Generate a code challenge
-     * @return {string}
      */
     public static generateCodeChallenge(code_verifier: string): string {
         try {

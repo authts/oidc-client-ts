@@ -3,8 +3,14 @@
 
 import { Logger } from "./utils";
 
+/**
+ * @internal
+ */
 export type JwtHandler = (text: string) => Promise<any>;
 
+/**
+ * @internal
+ */
 export class JsonService {
     private readonly _logger: Logger;
 

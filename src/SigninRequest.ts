@@ -4,6 +4,9 @@
 import { Logger, UrlUtils } from "./utils";
 import { SigninState } from "./SigninState";
 
+/**
+ * @public
+ */
 export interface SigninRequestArgs {
     // mandatory
     url: string;
@@ -35,6 +38,9 @@ export interface SigninRequestArgs {
     state_data?: unknown;
 }
 
+/**
+ * @public
+ */
 export class SigninRequest {
     private readonly _logger: Logger;
 

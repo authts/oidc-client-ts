@@ -9,11 +9,17 @@ const defaultPopupFeatures = "location=no,toolbar=no,width=500,height=500,left=1
 
 const defaultPopupTarget = "_blank";
 
+/**
+ * @public
+ */
 export interface PopupWindowParams {
     popupWindowFeatures?: string;
     popupWindowTarget?: string;
 }
 
+/**
+ * @internal
+ */
 export class PopupWindow implements IWindow {
     private readonly _logger: Logger;
 

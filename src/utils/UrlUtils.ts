@@ -3,6 +3,9 @@
 
 import { Logger } from "./Log";
 
+/**
+ * @internal
+ */
 export class UrlUtils {
     public static addQueryParam(url: string, name: string, value: string | number | boolean): string {
         if (url.indexOf("?") < 0) {

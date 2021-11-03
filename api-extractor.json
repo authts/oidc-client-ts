@@ -330,6 +330,12 @@
             "default": {
                 "logLevel": "warning"
                 // "addToApiReportFile": false
+            },
+
+            "ae-internal-missing-underscore": {
+                // Completely disable the "ae-extra-release-tag" validation
+                "logLevel": "none",
+                "addToApiReportFile": false
             }
 
             // "ae-extra-release-tag": {
