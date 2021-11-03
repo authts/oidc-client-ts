@@ -6,7 +6,10 @@ import { JsonService } from "./JsonService";
 import type { MetadataService } from "./MetadataService";
 import type { OidcClientSettingsStore } from "./OidcClientSettings";
 
-interface ExchangeCodeArgs {
+/**
+ * @internal
+ */
+export interface ExchangeCodeArgs {
     client_id?: string;
     client_secret?: string;
     redirect_uri?: string;
@@ -16,7 +19,10 @@ interface ExchangeCodeArgs {
     code_verifier: string;
 }
 
-interface ExchangeRefreshTokenArgs {
+/**
+ * @internal
+ */
+export interface ExchangeRefreshTokenArgs {
     client_id?: string;
     client_secret?: string;
 
@@ -24,6 +30,9 @@ interface ExchangeRefreshTokenArgs {
     refresh_token: string;
 }
 
+/**
+ * @internal
+ */
 export class TokenClient {
     private readonly _settings: OidcClientSettingsStore;
     private readonly _logger: Logger;

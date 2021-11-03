@@ -13,8 +13,14 @@ import type { State } from "./State";
 import type { SignoutResponse } from "./SignoutResponse";
 import type { UserProfile } from "./User";
 
+/**
+ * @internal
+ */
 const ProtocolClaims = ["at_hash", "iat", "nbf", "exp", "aud", "iss", "c_hash"];
 
+/**
+ * @internal
+ */
 export class ResponseValidator {
     protected readonly _settings: OidcClientSettingsStore;
     protected readonly _logger: Logger;

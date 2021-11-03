@@ -5,6 +5,9 @@ import { Logger } from "./utils";
 import type { UserManager } from "./UserManager";
 import type { AccessTokenCallback } from "./AccessTokenEvents";
 
+/**
+ * @internal
+ */
 export class SilentRenewService {
     protected _logger: Logger;
     private _isStarted = false;

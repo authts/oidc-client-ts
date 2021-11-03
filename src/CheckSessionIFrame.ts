@@ -4,7 +4,7 @@
 import { Logger } from "./utils";
 
 /**
- * @public
+ * @internal
  */
 export class CheckSessionIFrame {
     private readonly _logger: Logger;

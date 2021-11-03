@@ -70,6 +70,9 @@ export interface OidcClientSettings {
     extraTokenParams?: Record<string, unknown>;
 }
 
+/**
+ * @public
+ */
 export class OidcClientSettingsStore {
     // metadata
     public readonly authority: string;

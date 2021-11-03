@@ -3,6 +3,9 @@
 
 import { UrlUtils } from "./utils";
 
+/**
+ * @public
+ */
 export class SignoutResponse {
     public readonly state_id: string | undefined;
 

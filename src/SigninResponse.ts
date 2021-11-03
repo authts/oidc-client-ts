@@ -6,6 +6,9 @@ import type { UserProfile } from "./User";
 
 const OidcScope = "openid";
 
+/**
+ * @public
+ */
 export class SigninResponse {
     public readonly code: string;
     public readonly state_id: string | undefined;

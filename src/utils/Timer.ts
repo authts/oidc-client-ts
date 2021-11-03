@@ -5,10 +5,17 @@ import { Event } from "./Event";
 
 const DefaultTimerDurationInSeconds = 5; // seconds
 
+/**
+ * @internal
+ */
 export type IntervalTimer = {
     setInterval: (cb: () => void, duration?: number | undefined) => number;
     clearInterval: (handle: number) => void;
 };
+
+/**
+ * @internal
+ */
 export const g_timer: IntervalTimer = {
     setInterval: function (cb: () => void, duration?: number): number {
         return window.setInterval(cb, duration);
@@ -18,6 +25,9 @@ export const g_timer: IntervalTimer = {
     }
 };
 
+/**
+ * @internal
+ */
 export class Timer extends Event<[void]> {
     private _timer = g_timer;
     private _timerHandle: number | null = null;

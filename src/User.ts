@@ -3,6 +3,9 @@
 
 import { Logger, Timer } from "./utils";
 
+/**
+ * @public
+ */
 export interface UserProfile {
     sub?: string;
     sid?: string;

@@ -3,6 +3,9 @@
 
 import { Logger } from "./utils";
 
+/**
+ * @internal
+ */
 export class ErrorResponse extends Error {
     public readonly name: string;
 

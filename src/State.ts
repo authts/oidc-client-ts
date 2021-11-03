@@ -4,6 +4,9 @@
 import { Logger, CryptoUtils, Timer } from "./utils";
 import type { StateStore } from "./StateStore";
 
+/**
+ * @public
+ */
 export class State {
     public readonly id: string;
     public readonly created: number;

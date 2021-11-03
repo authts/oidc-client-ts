@@ -4,6 +4,9 @@
 import { Logger, UrlUtils } from "./utils";
 import { State } from "./State";
 
+/**
+ * @public
+ */
 export interface SignoutRequestArgs {
     // mandatory
     url: string;
@@ -16,6 +19,9 @@ export interface SignoutRequestArgs {
     request_type?: string;
 }
 
+/**
+ * @public
+ */
 export class SignoutRequest {
     private readonly _logger: Logger;
 

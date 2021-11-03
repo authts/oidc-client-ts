@@ -6,10 +6,16 @@ import type { IWindow, NavigateParams, NavigateResponse } from "./IWindow";
 
 const defaultTimeoutInSeconds = 10;
 
+/**
+ * @public
+ */
 export interface IFrameWindowParams {
     silentRequestTimeoutInSeconds?: number;
 }
 
+/**
+ * @internal
+ */
 export class IFrameWindow implements IWindow {
     private readonly _logger: Logger;
 
