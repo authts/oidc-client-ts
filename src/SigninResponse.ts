@@ -28,7 +28,7 @@ export class SigninResponse {
     public expires_at: number | undefined;
 
     // set by ResponseValidator
-    // custom "state", which can be used by a caller to have "data" round tripped
+    /** custom "state", which can be used by a caller to have "data" round tripped */
     public state: unknown | undefined;
 
     // set by ResponseValidator

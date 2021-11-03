@@ -14,8 +14,9 @@ export interface UserManagerSettings extends OidcClientSettings {
     /** The URL for the page containing the call to signinPopupCallback to handle the callback from the OIDC/OAuth2 */
     popup_redirect_uri?: string;
     popup_post_logout_redirect_uri?: string;
-    /** The features parameter to window.open for the popup signin window.
-     *  default: 'location=no,toolbar=no,width=500,height=500,left=100,top=100'
+    /**
+     * The features parameter to window.open for the popup signin window.
+     * (default: "location=no,toolbar=no,width=500,height=500,left=100,top=100;")
      */
     popupWindowFeatures?: string;
     /** The target parameter to window.open for the popup signin window (default: "_blank") */
@@ -47,7 +48,10 @@ export interface UserManagerSettings extends OidcClientSettings {
     /** The number of seconds before an access token is to expire to raise the accessTokenExpiring event (default: 60) */
     accessTokenExpiringNotificationTimeInSeconds?: number;
 
-    /** Storage object used to persist User for currently authenticated user (default: session storage) */
+    /**
+     * Storage object used to persist User for currently authenticated user (default: session storage).
+     *  E.g. `userStore: new WebStorageStateStore({ store: window.localStorage })`
+     */
     userStore?: WebStorageStateStore;
 }
 

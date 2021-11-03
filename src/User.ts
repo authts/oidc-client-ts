@@ -19,16 +19,27 @@ export interface UserProfile {
  */
 export class User {
     public id_token: string | undefined;
+
+    /** The session state value returned from the OIDC provider. */
     public session_state: string | undefined;
+
+    /** The access token returned from the OIDC provider. */
     public access_token: string;
+
     public refresh_token: string | undefined;
 
     public token_type: string;
+
+    /** The scope returned from the OIDC provider. */
     public scope: string | undefined;
+
+    /** The claims represented by a combination of the `id_token` and the user info endpoint. */
     public profile: UserProfile;
+
+    /** The expires at returned from the OIDC provider. */
     public expires_at: number | undefined;
 
-    // custom "state", which can be used by a caller to have "data" round tripped
+    /** custom "state", which can be used by a caller to have "data" round tripped */
     public readonly state: unknown | undefined;
 
     public constructor(args: {
@@ -49,6 +60,7 @@ export class User {
         this.state = args.state;
     }
 
+    /** Calculated number of seconds the access token has remaining. */
     public get expires_in(): number | undefined {
         if (this.expires_at) {
             const now = Timer.getEpochTime();
@@ -64,6 +76,7 @@ export class User {
         }
     }
 
+    /** Calculated value indicating if the access token is expired. */
     public get expired(): boolean | undefined {
         const expires_in = this.expires_in;
         if (expires_in !== undefined) {
@@ -72,6 +85,7 @@ export class User {
         return undefined;
     }
 
+    /** Array representing the parsed values from the `scope`. */
     public get scopes(): string[] {
         return (this.scope || "").split(" ");
     }

@@ -56,9 +56,13 @@ export type SignoutRedirectArgs = RedirectParams & ExtraSignoutRequestArgs;
 export type SignoutPopupArgs = PopupWindowParams & ExtraSignoutRequestArgs;
 
 /**
+ * Provides a higher level API for signing a user in, signing out, managing the user's claims returned from the OIDC provider,
+ * and managing an access token returned from the OIDC/OAuth2 provider.
+ *
  * @public
  */
 export class UserManager {
+    /** Returns the settings used to configure the `UserManager`. */
     public readonly settings: UserManagerSettingsStore;
     protected readonly _logger: Logger;
 
@@ -101,14 +105,19 @@ export class UserManager {
         this._tokenClient = new TokenClient(this.settings, this.metadataService);
     }
 
+    /** Returns an object used to register for events raised by the `UserManager`. */
     public get events(): UserManagerEvents {
         return this._events;
     }
 
+    /** Returns an object used to access the metadata configuration of the OIDC provider. */
     public get metadataService(): MetadataService {
         return this._client.metadataService;
     }
 
+    /**
+     * Returns promise to load the `User` object for the currently authenticated user.
+     */
     public async getUser(): Promise<User | null> {
         const user = await this._loadUser();
         if (user) {
@@ -121,12 +130,18 @@ export class UserManager {
         return null;
     }
 
+    /**
+     * Returns promise to remove from any storage the currently authenticated user.
+     */
     public async removeUser(): Promise<void> {
         await this.storeUser(null);
         this._logger.info("removeUser: user removed from storage");
         this._events.unload();
     }
 
+    /**
+     * Returns promise to trigger a redirect of the current window to the authorization endpoint.
+     */
     public async signinRedirect(args: SigninRedirectArgs = {}): Promise<void> {
         const {
             redirectMethod,
@@ -140,6 +155,9 @@ export class UserManager {
         this._logger.info("signinRedirect: successful");
     }
 
+    /**
+     * Returns promise to process response from the authorization endpoint. The result of the promise is the authenticated `User`.
+     */
     public async signinRedirectCallback(url = window.location.href): Promise<User> {
         const user = await this._signinEnd(url);
         if (user.profile && user.profile.sub) {
@@ -152,6 +170,9 @@ export class UserManager {
         return user;
     }
 
+    /**
+     * Returns promise to trigger a request (via a popup window) to the authorization endpoint. The result of the promise is the authenticated `User`.
+     */
     public async signinPopup(args: SigninPopupArgs = {}): Promise<User> {
         const {
             popupWindowFeatures,
@@ -182,6 +203,9 @@ export class UserManager {
 
         return user;
     }
+    /**
+     * Returns promise to notify the opening window of response from the authorization endpoint.
+     */
     public async signinPopupCallback(url?: string): Promise<void> {
         try {
             await this._signinCallback(url, this._popupNavigator);
@@ -192,6 +216,10 @@ export class UserManager {
         }
     }
 
+    /**
+     * Returns promise to trigger a silent request (via an iframe) to the authorization endpoint.
+     * The result of the promise is the authenticated `User`.
+     */
     public async signinSilent(args: SigninSilentArgs = {}): Promise<User | null> {
         const {
             silentRequestTimeoutInSeconds,
@@ -288,6 +316,9 @@ export class UserManager {
         }
     }
 
+    /**
+     * Returns promise to notify the parent window of response from the authorization endpoint.
+     */
     public async signinSilentCallback(url?: string): Promise<void> {
         await this._signinCallback(url, this._iframeNavigator);
         this._logger.info("signinSilentCallback: successful");
@@ -322,6 +353,9 @@ export class UserManager {
         }
     }
 
+    /**
+     * Returns promise to query OP for user's current signin status. Returns object with session_state and subject identifier.
+     */
     public async querySessionStatus(args: QuerySessionStatusArgs = {}): Promise<SessionStatus | null> {
         const {
             silentRequestTimeoutInSeconds,
@@ -427,6 +461,9 @@ export class UserManager {
         await navigator.callback(url, false, delimiter);
     }
 
+    /**
+     * Returns promise to trigger a redirect of the current window to the end session endpoint.
+     */
     public async signoutRedirect(args: SignoutRedirectArgs = {}): Promise<void> {
         const {
             redirectMethod,
@@ -440,12 +477,18 @@ export class UserManager {
         }, handle);
         this._logger.info("signoutRedirect: successful");
     }
+    /**
+     * Returns promise to process response from the end session endpoint.
+     */
     public async signoutRedirectCallback(url = window.location.href): Promise<SignoutResponse> {
         const response = await this._signoutEnd(url);
         this._logger.info("signoutRedirectCallback: successful");
         return response;
     }
 
+    /**
+     * Returns promise to trigger a redirect of a popup window window to the end session endpoint.
+     */
     public async signoutPopup(args: SignoutPopupArgs = {}): Promise<void> {
         const {
             popupWindowFeatures,
@@ -468,6 +511,9 @@ export class UserManager {
         }, handle);
         this._logger.info("signoutPopup: successful");
     }
+    /**
+     * Returns promise to process response from the end session endpoint from a popup window.
+     */
     public async signoutPopupCallback(url?: string, keepOpen = false): Promise<void> {
         const delimiter = "?";
         await this._popupNavigator.callback(url, keepOpen, delimiter);
@@ -574,10 +620,16 @@ export class UserManager {
         return true;
     }
 
+    /**
+     * Enables silent renew for the `UserManager`.
+     */
     public startSilentRenew(): void {
         void this._silentRenewService.start();
     }
 
+    /**
+     * Disables silent renew for the `UserManager`.
+     */
     public stopSilentRenew(): void {
         this._silentRenewService.stop();
     }
@@ -609,6 +661,9 @@ export class UserManager {
         }
     }
 
+    /**
+     * Removes stale state entries in storage for incomplete authorize requests.
+     */
     public async clearStaleState(): Promise<void> {
         await this._client.clearStaleState();
     }

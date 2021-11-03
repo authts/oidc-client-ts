@@ -12,7 +12,7 @@ export class State {
     public readonly created: number;
     public readonly request_type: string | undefined;
 
-    // custom "state", which can be used by a caller to have "data" round tripped
+    /** custom "state", which can be used by a caller to have "data" round tripped */
     public readonly data: unknown | undefined;
 
     public constructor(args: {
