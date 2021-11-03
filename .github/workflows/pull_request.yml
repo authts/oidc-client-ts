@@ -37,6 +37,7 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm pack --dry-run
+      - run: npm run typedoc
 
       # samples: Parcel
       - run: npm run -w parcel-sample build
