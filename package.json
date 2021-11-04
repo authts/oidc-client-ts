@@ -26,11 +26,7 @@
     "OpenID Connect"
   ],
   "scripts": {
-    "build": "npm run build-esm && npm run build-node && npm run build-browser && npm run build-browser-min && npm run build-types",
-    "build-esm": "esbuild src/index.ts --bundle --outfile=dist/oidc-client-ts.mjs --format=esm",
-    "build-node": "esbuild src/index.ts --bundle --outfile=dist/oidc-client-ts.cjs --platform=node",
-    "build-browser": "esbuild src/index.ts --bundle --outfile=dist/oidc-client-ts.js --platform=browser --global-name=oidc",
-    "build-browser-min": "npm run build-browser -- --minify --outfile=dist/oidc-client-ts.min.js",
+    "build": "node scripts/build.js && npm run build-types",
     "build-types": "tsc --emitDeclarationOnly && api-extractor run",
     "prepack": "npm run build",
     "test": "tsc -p test/unit/tsconfig.json && jest",
