@@ -1,7 +1,7 @@
 
 ## oidc-client v1.11.5 to oidc-client-ts v2.0.0
 
-Ported library from JavaScript to TypeScript.
+Ported library from JavaScript to TypeScript. Trying to keep the API as compatible as possible. The support for the outdated implicit flow has been removed.
 
 **OidcClientSettings:**
 - required is now authority
