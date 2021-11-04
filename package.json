@@ -31,7 +31,7 @@
     "prepack": "npm run build",
     "test": "tsc -p test/unit/tsconfig.json && jest",
     "typedoc": "typedoc",
-    "lint": "eslint --cache .",
+    "lint": "eslint --max-warnings=0 --cache .",
     "prepare": "husky install"
   },
   "dependencies": {
