@@ -15,7 +15,7 @@ export class SignoutResponse {
     public error_uri: string | undefined;
 
     // set by ResponseValidator
-    // custom "state", which can be used by a caller to have "data" round tripped
+    /** custom "state", which can be used by a caller to have "data" round tripped */
     public state: unknown | undefined;
 
     public constructor(url?: string) {

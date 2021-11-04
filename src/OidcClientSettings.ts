@@ -7,9 +7,9 @@ import type { StateStore } from "./StateStore";
 
 const DefaultResponseType = "code";
 const DefaultScope = "openid";
-const DefaultClientAuthentication = "client_secret_post"; // The default value must be client_secret_basic, as explained in https://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication
+const DefaultClientAuthentication = "client_secret_post";
 const DefaultResponseMode = "query";
-const DefaultStaleStateAgeInSeconds = 60 * 15; // seconds
+const DefaultStaleStateAgeInSeconds = 60 * 15;
 const DefaultClockSkewInSeconds = 60 * 5;
 
 /**
@@ -42,14 +42,30 @@ export interface OidcClientSettings {
     redirect_uri: string;
     /** The OIDC/OAuth2 post-logout redirect URI */
     post_logout_redirect_uri?: string;
+
+    /**
+     * Client authentication method that is used to authenticate when using the token endpoint (default: "client_secret_post")
+     * - "client_secret_basic": using the HTTP Basic authentication scheme
+     * - "client_secret_post": including the client credentials in the request body
+     *
+     * See https://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication
+     */
     client_authentication?: string;
 
+    /** optional protocol param */
     prompt?: string;
+    /** optional protocol param */
     display?: string;
+    /** optional protocol param */
     max_age?: number;
+    /** optional protocol param */
     ui_locales?: string;
+    /** optional protocol param */
     acr_values?: string;
+    /** optional protocol param */
     resource?: string;
+
+    /** optional protocol param (default: "query") */
     response_mode?: "query" | "fragment";
 
     /** Should OIDC protocol claims be removed from profile (default: true) */
@@ -61,12 +77,25 @@ export interface OidcClientSettings {
     /** The window of time (in seconds) to allow the current time to deviate when validating token's iat, nbf, and exp values (default: 300) */
     clockSkewInSeconds?: number;
     userInfoJwtIssuer?: "ANY" | "OP" | string;
+
+    /**
+     * Indicates if objects returned from the user info endpoint as claims (e.g. `address`) are merged into the claims from the id token as a single object.
+     * Otherwise, they are added to an array as distinct objects for the claim type. (default: false)
+     */
     mergeClaims?: boolean;
 
+    /**
+     * Storage object used to persist interaction state (default: local storage).
+     * E.g. `stateStore: new WebStorageStateStore({ store: window.localStorage })`
+     */
     stateStore?: StateStore;
 
-    /** An object containing additional query string parameters to be including in the authorization request */
+    /**
+     * An object containing additional query string parameters to be including in the authorization request.
+     * E.g, when using Azure AD to obtain an access token an additional resource parameter is required. extraQueryParams: `{resource:"some_identifier"}`
+     */
     extraQueryParams?: Record<string, string | number | boolean>;
+
     extraTokenParams?: Record<string, unknown>;
 }
 

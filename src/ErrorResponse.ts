@@ -15,7 +15,7 @@ export class ErrorResponse extends Error {
 
     public readonly session_state: string | undefined;
 
-    // custom "state", which can be used by a caller to have "data" round tripped
+    /** custom "state", which can be used by a caller to have "data" round tripped */
     public state: unknown | undefined;
 
     public constructor(args: {

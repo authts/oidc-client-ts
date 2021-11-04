@@ -34,7 +34,7 @@ export interface SigninRequestArgs {
     extraTokenParams?: Record<string, unknown>;
     skipUserInfo?: boolean;
 
-    // custom "state", which can be used by a caller to have "data" round tripped
+    /** custom "state", which can be used by a caller to have "data" round tripped */
     state_data?: unknown;
 }
 

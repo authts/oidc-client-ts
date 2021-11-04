@@ -67,59 +67,107 @@ export class UserManagerEvents extends AccessTokenEvents {
         this._userUnloaded.raise();
     }
 
+    /**
+     * Add callback: Raised when a user session has been established (or re-established).
+     */
     public addUserLoaded(cb: UserLoadedCallback): void {
         this._userLoaded.addHandler(cb);
     }
+    /**
+     * Remove callback: Raised when a user session has been established (or re-established).
+     */
     public removeUserLoaded(cb: UserLoadedCallback): void {
         this._userLoaded.removeHandler(cb);
     }
 
+    /**
+     * Add callback: Raised when a user session has been terminated.
+     */
     public addUserUnloaded(cb: UserUnloadedCallback): void {
         this._userUnloaded.addHandler(cb);
     }
+    /**
+     * Remove callback: Raised when a user session has been terminated.
+     */
     public removeUserUnloaded(cb: UserUnloadedCallback): void {
         this._userUnloaded.removeHandler(cb);
     }
 
+    /**
+     * Add callback: Raised when the automatic silent renew has failed.
+     */
     public addSilentRenewError(cb: SilentRenewErrorCallback): void {
         this._silentRenewError.addHandler(cb);
     }
+    /**
+     * Remove callback: Raised when the automatic silent renew has failed.
+     */
     public removeSilentRenewError(cb: SilentRenewErrorCallback): void {
         this._silentRenewError.removeHandler(cb);
     }
+    /**
+     * @internal
+     */
     public _raiseSilentRenewError(e: Error): void {
         this._logger.debug("_raiseSilentRenewError", e.message);
         this._silentRenewError.raise(e);
     }
 
+    /**
+     * Add callback: Raised when the user is signed in.
+     */
     public addUserSignedIn(cb: UserSignedInCallback): void {
         this._userSignedIn.addHandler(cb);
     }
+    /**
+     * Remove callback: Raised when the user is signed in.
+     */
     public removeUserSignedIn(cb: UserSignedInCallback): void {
         this._userSignedIn.removeHandler(cb);
     }
+    /**
+     * @internal
+     */
     public _raiseUserSignedIn(): void {
         this._logger.debug("_raiseUserSignedIn");
         this._userSignedIn.raise();
     }
 
+    /**
+     * Add callback: Raised when the user's sign-in status at the OP has changed.
+     */
     public addUserSignedOut(cb: UserSignedOutCallback): void {
         this._userSignedOut.addHandler(cb);
     }
+    /**
+     * Remove callback: Raised when the user's sign-in status at the OP has changed.
+     */
     public removeUserSignedOut(cb: UserSignedOutCallback): void {
         this._userSignedOut.removeHandler(cb);
     }
+    /**
+     * @internal
+     */
     public _raiseUserSignedOut(): void {
         this._logger.debug("_raiseUserSignedOut");
         this._userSignedOut.raise();
     }
 
+    /**
+     * Add callback: Raised when the user session changed (when `monitorSession` is set)
+     */
     public addUserSessionChanged(cb: UserSessionChangedCallback): void {
         this._userSessionChanged.addHandler(cb);
     }
+    /**
+     * Remove callback: Raised when the user session changed (when `monitorSession` is set)
+     */
     public removeUserSessionChanged(cb: UserSessionChangedCallback): void {
         this._userSessionChanged.removeHandler(cb);
     }
+    /**
+     * @internal
+     */
     public _raiseUserSessionChanged(): void {
         this._logger.debug("_raiseUserSessionChanged");
         this._userSessionChanged.raise();

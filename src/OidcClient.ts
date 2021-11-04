@@ -21,7 +21,7 @@ export interface CreateSigninRequestArgs {
     response_type?: string;
     scope?: string;
 
-    // custom "state", which can be used by a caller to have "data" round tripped
+    /** custom "state", which can be used by a caller to have "data" round tripped */
     state?: unknown;
 
     prompt?: string;
@@ -48,6 +48,11 @@ export interface CreateSigninRequestArgs {
 export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url" | "state_data"> & { state?: unknown };
 
 /**
+ * Provides the raw OIDC/OAuth2 protocol support for the authorization endpoint and the end session endpoint in the
+ * authorization server. It provides a bare-bones protocol implementation and is used by the UserManager class.
+ * Only use this class if you simply want protocol support without the additional management features of the
+ * UserManager class.
+ *
  * @public
  */
 export class OidcClient {
