@@ -68,7 +68,7 @@ export interface CreateSigninRequestArgs {
     // (undocumented)
     resource?: string;
     // (undocumented)
-    response_mode?: string;
+    response_mode?: "query" | "fragment";
     // (undocumented)
     response_type?: string;
     // (undocumented)
@@ -191,16 +191,16 @@ export class OidcClient {
     // (undocumented)
     readonly metadataService: MetadataService;
     // (undocumented)
-    processSigninResponse(url?: string): Promise<SigninResponse>;
+    processSigninResponse(url: string): Promise<SigninResponse>;
     // (undocumented)
     processSignoutResponse(url: string): Promise<SignoutResponse>;
     // (undocumented)
-    readSigninResponseState(url?: string, removeState?: boolean): Promise<{
+    readSigninResponseState(url: string, removeState?: boolean): Promise<{
         state: SigninState;
         response: SigninResponse;
     }>;
     // (undocumented)
-    readSignoutResponseState(url?: string, removeState?: boolean): Promise<{
+    readSignoutResponseState(url: string, removeState?: boolean): Promise<{
         state: State | undefined;
         response: SignoutResponse;
     }>;
@@ -427,7 +427,7 @@ export type SigninRedirectArgs = RedirectParams & ExtraSigninRequestArgs;
 
 // @public (undocumented)
 export class SigninRequest {
-    constructor({ url, authority, client_id, redirect_uri, response_type, scope, state_data, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, response_mode, request, request_uri, extraQueryParams, request_type, client_secret, extraTokenParams, skipUserInfo }: SigninRequestArgs);
+    constructor({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, skipUserInfo, extraQueryParams, extraTokenParams, ...optionalParams }: SigninRequestArgs);
     // (undocumented)
     readonly state: SigninState;
     // (undocumented)
@@ -469,7 +469,7 @@ export interface SigninRequestArgs {
     // (undocumented)
     resource?: string;
     // (undocumented)
-    response_mode?: string;
+    response_mode?: "query" | "fragment";
     // (undocumented)
     response_type: string;
     // (undocumented)
@@ -485,7 +485,7 @@ export interface SigninRequestArgs {
 
 // @public (undocumented)
 export class SigninResponse {
-    constructor(url?: string, delimiter?: string);
+    constructor(params: URLSearchParams);
     // (undocumented)
     access_token: string;
     // (undocumented)
@@ -517,7 +517,7 @@ export class SigninResponse {
     get scopes(): string[];
     // (undocumented)
     session_state: string | undefined;
-    state: unknown | undefined;
+    state: unknown;
     // (undocumented)
     readonly state_id: string | undefined;
     // (undocumented)
@@ -541,7 +541,7 @@ export class SigninState extends State {
         scope: string;
         client_secret?: string;
         extraTokenParams?: Record<string, unknown>;
-        response_mode?: string;
+        response_mode?: "query" | "fragment";
         skipUserInfo?: boolean;
     });
     // (undocumented)
@@ -561,7 +561,7 @@ export class SigninState extends State {
     // (undocumented)
     readonly redirect_uri: string;
     // (undocumented)
-    readonly response_mode: string | undefined;
+    readonly response_mode: "query" | "fragment" | undefined;
     // (undocumented)
     readonly scope: string;
     // (undocumented)
@@ -603,14 +603,14 @@ export interface SignoutRequestArgs {
 
 // @public (undocumented)
 export class SignoutResponse {
-    constructor(url?: string);
+    constructor(params: URLSearchParams);
     // (undocumented)
     error: string | undefined;
     // (undocumented)
     error_description: string | undefined;
     // (undocumented)
     error_uri: string | undefined;
-    state: unknown | undefined;
+    state: unknown;
     // (undocumented)
     readonly state_id: string | undefined;
 }
@@ -747,11 +747,9 @@ export class UserManager {
     // (undocumented)
     signinCallback(url?: string): Promise<User | null>;
     // (undocumented)
-    protected _signinCallback(url: string, navigator: IFrameNavigator | PopupNavigator): Promise<void>;
-    // (undocumented)
     protected _signinEnd(url: string, verifySub?: string): Promise<User>;
     signinPopup(args?: SigninPopupArgs): Promise<User>;
-    signinPopupCallback(url?: string): Promise<void>;
+    signinPopupCallback(url?: string, keepOpen?: boolean): Promise<void>;
     signinRedirect(args?: SigninRedirectArgs): Promise<void>;
     signinRedirectCallback(url?: string): Promise<User>;
     signinSilent(args?: SigninSilentArgs): Promise<User | null>;

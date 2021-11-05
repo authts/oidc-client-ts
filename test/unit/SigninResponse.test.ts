@@ -10,7 +10,7 @@ describe("SigninResponse", () => {
 
         it("should read error", () => {
             // act
-            const subject = new SigninResponse("error=foo");
+            const subject = new SigninResponse(new URLSearchParams("error=foo"));
 
             // assert
             expect(subject.error).toEqual("foo");
@@ -18,7 +18,7 @@ describe("SigninResponse", () => {
 
         it("should read error_description", () => {
             // act
-            const subject = new SigninResponse("error_description=foo");
+            const subject = new SigninResponse(new URLSearchParams("error_description=foo"));
 
             // assert
             expect(subject.error_description).toEqual("foo");
@@ -26,7 +26,7 @@ describe("SigninResponse", () => {
 
         it("should read error_uri", () => {
             // act
-            const subject = new SigninResponse("error_uri=foo");
+            const subject = new SigninResponse(new URLSearchParams("error_uri=foo"));
 
             // assert
             expect(subject.error_uri).toEqual("foo");
@@ -34,7 +34,7 @@ describe("SigninResponse", () => {
 
         it("should read state", () => {
             // act
-            const subject = new SigninResponse("state=foo");
+            const subject = new SigninResponse(new URLSearchParams("state=foo"));
 
             // assert
             expect(subject.state_id).toEqual("foo");
@@ -42,7 +42,7 @@ describe("SigninResponse", () => {
 
         it("should read code", () => {
             // act
-            const subject = new SigninResponse("code=foo");
+            const subject = new SigninResponse(new URLSearchParams("code=foo"));
 
             // assert
             expect(subject.code).toEqual("foo");
@@ -50,7 +50,7 @@ describe("SigninResponse", () => {
 
         it("should read id_token", () => {
             // act
-            const subject = new SigninResponse("id_token=foo");
+            const subject = new SigninResponse(new URLSearchParams("id_token=foo"));
 
             // assert
             expect(subject.id_token).toEqual("foo");
@@ -58,7 +58,7 @@ describe("SigninResponse", () => {
 
         it("should read session_state", () => {
             // act
-            const subject = new SigninResponse("session_state=foo");
+            const subject = new SigninResponse(new URLSearchParams("session_state=foo"));
 
             // assert
             expect(subject.session_state).toEqual("foo");
@@ -66,7 +66,7 @@ describe("SigninResponse", () => {
 
         it("should read access_token", () => {
             // act
-            const subject = new SigninResponse("access_token=foo");
+            const subject = new SigninResponse(new URLSearchParams("access_token=foo"));
 
             // assert
             expect(subject.access_token).toEqual("foo");
@@ -74,7 +74,7 @@ describe("SigninResponse", () => {
 
         it("should read token_type", () => {
             // act
-            const subject = new SigninResponse("token_type=foo");
+            const subject = new SigninResponse(new URLSearchParams("token_type=foo"));
 
             // assert
             expect(subject.token_type).toEqual("foo");
@@ -82,7 +82,7 @@ describe("SigninResponse", () => {
 
         it("should read scope", () => {
             // act
-            const subject = new SigninResponse("scope=foo");
+            const subject = new SigninResponse(new URLSearchParams("scope=foo"));
 
             // assert
             expect(subject.scope).toEqual("foo");
@@ -90,7 +90,7 @@ describe("SigninResponse", () => {
 
         it("should read expires_in", () => {
             // act
-            const subject = new SigninResponse("expires_in=10");
+            const subject = new SigninResponse(new URLSearchParams("expires_in=10"));
 
             // assert
             expect(subject.expires_in).toEqual(10);
@@ -98,7 +98,7 @@ describe("SigninResponse", () => {
 
         it("should calculate expires_at", () => {
             // act
-            const subject = new SigninResponse("expires_in=10");
+            const subject = new SigninResponse(new URLSearchParams("expires_in=10"));
 
             // assert
             expect(subject.expires_at).toEqual(Timer.getEpochTime() + 10);
@@ -106,14 +106,14 @@ describe("SigninResponse", () => {
 
         it("should not read invalid expires_in", () => {
             // act
-            let subject = new SigninResponse("expires_in=foo");
+            let subject = new SigninResponse(new URLSearchParams("expires_in=foo"));
 
             // assert
             expect(subject.expires_in).toBeUndefined();
             expect(subject.expires_at).toBeUndefined();
 
             // act
-            subject = new SigninResponse("expires_in=-10");
+            subject = new SigninResponse(new URLSearchParams("expires_in=-10"));
 
             // assert
             expect(subject.expires_in).toBeUndefined();
@@ -125,17 +125,17 @@ describe("SigninResponse", () => {
     describe("scopes", () => {
         it("should return list of scope", () => {
             // act
-            let subject = new SigninResponse("scope=foo");
+            let subject = new SigninResponse(new URLSearchParams("scope=foo"));
 
             // assert
             expect(subject.scopes).toEqual(["foo"]);
 
-            subject = new SigninResponse("scope=foo%20bar");
+            subject = new SigninResponse(new URLSearchParams("scope=foo%20bar"));
 
             // assert
             expect(subject.scopes).toEqual(["foo", "bar"]);
 
-            subject = new SigninResponse("scope=foo%20bar%20baz");
+            subject = new SigninResponse(new URLSearchParams("scope=foo%20bar%20baz"));
 
             // assert
             expect(subject.scopes).toEqual(["foo", "bar", "baz"]);
@@ -150,7 +150,7 @@ describe("SigninResponse", () => {
             };
 
             // act
-            const subject = new SigninResponse("expires_in=100");
+            const subject = new SigninResponse(new URLSearchParams("expires_in=100"));
 
             // assert
             expect(subject.expires_in).toEqual(100);
@@ -173,7 +173,7 @@ describe("SigninResponse", () => {
             };
 
             // act
-            const subject = new SigninResponse("expires_in=100");
+            const subject = new SigninResponse(new URLSearchParams("expires_in=100"));
 
             // assert
             expect(subject.expired).toEqual(false);
@@ -191,25 +191,25 @@ describe("SigninResponse", () => {
     describe("isOpenIdConnect", () => {
         it("should detect openid scope", () => {
             // act
-            let subject = new SigninResponse("scope=foo%20openid%20bar");
+            let subject = new SigninResponse(new URLSearchParams("scope=foo%20openid%20bar"));
 
             // assert
             expect(subject.isOpenIdConnect).toEqual(true);
 
             // act
-            subject = new SigninResponse("scope=openid%20foo%20bar");
+            subject = new SigninResponse(new URLSearchParams("scope=openid+foo+bar"));
 
             // assert
             expect(subject.isOpenIdConnect).toEqual(true);
 
             // act
-            subject = new SigninResponse("scope=foo%20bar%20openid");
+            subject = new SigninResponse(new URLSearchParams("scope=foo+bar+openid"));
 
             // assert
             expect(subject.isOpenIdConnect).toEqual(true);
 
             // act
-            subject = new SigninResponse("scope=foo%20bar");
+            subject = new SigninResponse(new URLSearchParams("scope=foo+bar"));
 
             // assert
             expect(subject.isOpenIdConnect).toEqual(false);

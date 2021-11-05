@@ -57,10 +57,10 @@ export class PopupWindow extends AbstractChildWindow {
         this._window = null;
     }
 
-    public static notifyOpener(url: string, delimiter: string, keepOpen: boolean): void {
+    public static notifyOpener(url: string, keepOpen: boolean): void {
         if (!window.opener) {
             throw new Error("No window.opener. Can't complete notification.");
         }
-        return super._notifyParent(window.opener, url, delimiter, keepOpen);
+        return super._notifyParent(window.opener, url, keepOpen);
     }
 }

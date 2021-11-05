@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Timer, UrlUtils } from "./utils";
+import { Timer } from "./utils";
 import type { UserProfile } from "./User";
 
 const OidcScope = "openid";
@@ -29,31 +29,31 @@ export class SigninResponse {
 
     // set by ResponseValidator
     /** custom "state", which can be used by a caller to have "data" round tripped */
-    public state: unknown | undefined;
+    public state: unknown;
 
     // set by ResponseValidator
-    public profile: UserProfile;
+    public profile: UserProfile = {};
 
-    public constructor(url?: string, delimiter = "#") {
-        const values = UrlUtils.parseUrlFragment(url, delimiter);
+    public constructor(params: URLSearchParams) {
+        // URLSearchParams returns `null` for missing values, reconstruct it as a map
+        const values = new Map(params);
+        this.error = values.get("error");
+        this.error_description = values.get("error_description");
+        this.error_uri = values.get("error_uri");
 
-        this.error = values.error;
-        this.error_description = values.error_description;
-        this.error_uri = values.error_uri;
+        // the default values here are for type safety only
+        // ResponseValidator should check if these are empty and throw accordingly
+        this.code = values.get("code") ?? "";
+        this.access_token = values.get("access_token") ?? "";
+        this.token_type = values.get("token_type") ?? "";
 
-        this.code = values.code;
-        this.state_id = values.state;
-
-        this.id_token = values.id_token;
-        this.session_state = values.session_state;
-        this.access_token = values.access_token;
-        this.refresh_token = values.refresh_token;
-        this.token_type = values.token_type;
-        this.scope = values.scope;
-        this.expires_in = parseInt(values.expires_in);
-
-        this.state = undefined;
-        this.profile = {};
+        this.state_id = values.get("state");
+        this.id_token = values.get("id_token");
+        this.session_state = values.get("session_state");
+        this.refresh_token = values.get("refresh_token");
+        this.scope = values.get("scope");
+        const expiresIn = values.get("expires_in");
+        this.expires_in = expiresIn ? parseInt(expiresIn) : undefined;
     }
 
     public get expires_in(): number | undefined {

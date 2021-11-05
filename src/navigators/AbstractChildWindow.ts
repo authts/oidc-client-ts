@@ -27,23 +27,28 @@ export abstract class AbstractChildWindow implements IWindow {
         this._logger.debug("navigate: Setting URL in window");
         this._window.location.replace(params.url);
 
-        const { url, keepOpen } = await new Promise<{ data: Record<string, string>; url: string; keepOpen?: boolean }>((resolve, reject) => {
+        const { url, keepOpen } = await new Promise<{ url: string; keepOpen?: boolean }>((resolve, reject) => {
             const listener = (e: MessageEvent) => {
                 if (e.origin !== window.location.origin || e.data?.source !== messageSource) {
                     // silently discard events not intended for us
                     return;
                 }
-
-                const { data } = e.data;
-                if (!data.state) {
-                    this._logger.warn("navigate: no state found in response url");
+                try {
+                    const state = UrlUtils.readParams(e.data.url, params.response_mode).get("state");
+                    if (!state) {
+                        this._logger.warn("navigate: no state found in response url");
+                    }
+                    if (e.source !== this._window && state !== params.state) {
+                        // MessageEvent source is a relatively modern feature, we can't rely on it
+                        // so we also inspect the payload for a matching state key as an alternative
+                        return;
+                    }
                 }
-
-                if (e.source === this._window || data.state === params.state) {
-                    // MessageEvent source is a relatively modern feature, we can't rely on it
-                    // so we also inspect the payload for a matching state key as an alternative
-                    resolve(e.data);
+                catch (err) {
+                    this._dispose();
+                    reject(new Error("Invalid response from window"));
                 }
+                resolve(e.data);
             };
             window.addEventListener("message", listener, false);
             this._disposeHandlers.add(() => window.removeEventListener("message", listener, false));
@@ -57,10 +62,6 @@ export abstract class AbstractChildWindow implements IWindow {
 
         if (!keepOpen) {
             this.close();
-        }
-
-        if (!url) {
-            throw new Error("Invalid response from window");
         }
 
         return { url };
@@ -77,11 +78,9 @@ export abstract class AbstractChildWindow implements IWindow {
         this._disposeHandlers.clear();
     }
 
-    protected static _notifyParent(parent: Window, url: string, delimiter: string, keepOpen = false): void {
-        const data = UrlUtils.parseUrlFragment(url, delimiter);
+    protected static _notifyParent(parent: Window, url: string, keepOpen = false): void {
         parent.postMessage({
             source: messageSource,
-            data,
             url,
             keepOpen,
         }, window.location.origin);

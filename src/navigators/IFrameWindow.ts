@@ -62,7 +62,7 @@ export class IFrameWindow extends AbstractChildWindow {
         this._window = null;
     }
 
-    public static notifyParent(url: string, delimiter: string): void {
-        return super._notifyParent(window.parent, url, delimiter);
+    public static notifyParent(url: string): void {
+        return super._notifyParent(window.parent, url);
     }
 }

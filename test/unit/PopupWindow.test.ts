@@ -1,12 +1,12 @@
 import { PopupWindow } from "../../src/navigators/PopupWindow";
 
 describe("PopupWindow", () => {
-    let popupFromWindowOpen: { location: { replace: () => void }; focus: () => void; close: () => void };
+    let popupFromWindowOpen: WindowProxy;
 
     beforeEach(() => {
         Object.defineProperty(window, "location", {
             writable: true,
-            value: { origin: "myapp.com" }
+            value: { origin: "http://app" }
         });
 
         window.open = jest.fn().mockImplementation(() => {
@@ -14,7 +14,7 @@ describe("PopupWindow", () => {
                 location: { replace: jest.fn() },
                 focus: jest.fn(),
                 close: jest.fn(),
-            };
+            } as any;
 
             return popupFromWindowOpen;
         });
@@ -33,27 +33,30 @@ describe("PopupWindow", () => {
     it("should resolve when navigate succeeds", async () => {
         const popupWindow = new PopupWindow({});
 
-        const promise = popupWindow.navigate({ url: "https://myidp.com/authorize?x=y", state: "someid" });
+        const promise = popupWindow.navigate({ url: "http://sts/authorize?x=y", state: "someid" });
 
         window.dispatchEvent(new MessageEvent("message", {
-            data: { source: "oidc-client", data: { state: "someid" }, url: "https://myapp.com" },
-            origin: "myapp.com"
+            data: { source: "oidc-client", url: "http://app/cb?state=someid" },
+            origin: "http://app"
         }));
 
-        await expect(promise).resolves.toHaveProperty("url", "https://myapp.com");
-        expect(popupFromWindowOpen.location.replace).toHaveBeenCalledWith("https://myidp.com/authorize?x=y");
+        await expect(promise).resolves.toHaveProperty("url", "http://app/cb?state=someid");
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(popupFromWindowOpen.location.replace).toHaveBeenCalledWith("http://sts/authorize?x=y");
     });
 
     it("should reject when navigate fails", async () => {
         const popupWindow = new PopupWindow({});
 
-        const promise = popupWindow.navigate({ url: "https://myidp.com/authorize?x=y", state: "someid" });
+        const promise = popupWindow.navigate({ url: "http://sts/authorize?x=y", state: "someid" });
         window.dispatchEvent(new MessageEvent("message", {
-            data: { source: "oidc-client", data: { state: "someid" }, url: "" },
-            origin: "myapp.com"
+            data: { source: "oidc-client", url: "" },
+            origin: "http://app",
+            source: popupFromWindowOpen,
         }));
 
         await expect(promise).rejects.toThrow("Invalid response from window");
-        expect(popupFromWindowOpen.location.replace).toHaveBeenCalledWith("https://myidp.com/authorize?x=y");
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(popupFromWindowOpen.location.replace).toHaveBeenCalledWith("http://sts/authorize?x=y");
     });
 });

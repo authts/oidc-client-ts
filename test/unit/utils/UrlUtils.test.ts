@@ -5,114 +5,24 @@ import { UrlUtils } from "../../../src/utils";
 
 describe("UrlUtils", () => {
 
-    describe("addQueryParam", () => {
+    describe("readUrlParams", () => {
 
-        it("should add ? if not present", () => {
+        it("should return query params by default", () => {
             // act
-            const result = UrlUtils.addQueryParam("url", "foo", "test");
+            const result = UrlUtils.readParams("http://app/?foo=test");
+            const resultObj = Object.fromEntries(result);
 
             // assert
-            expect(result).toEqual("url?foo=test");
+            expect(resultObj).toHaveProperty("foo", "test");
         });
 
-        it("should not add ? if already present", () => {
+        it("should return fragment params for response_mode=fragment", () => {
             // act
-            const result = UrlUtils.addQueryParam("url?", "foo", "test");
+            const result = UrlUtils.readParams("http://app/?foo=test#bar=test_fragment", "fragment");
+            const resultObj = Object.fromEntries(result);
 
             // assert
-            expect(result).toEqual("url?foo=test");
-        });
-
-        it("should add & if needed", () => {
-            // act
-            const result = UrlUtils.addQueryParam("url?x=1", "foo", "test");
-
-            // assert
-            expect(result).toEqual("url?x=1&foo=test");
-        });
-
-        it("should stringify boolean values", () => {
-            // act
-            let result = UrlUtils.addQueryParam("url?x=1", "foo", true);
-            result = UrlUtils.addQueryParam(result, "bar", false);
-
-            // assert
-            expect(result).toEqual("url?x=1&foo=true&bar=false");
-        });
-
-        it("should stringify numeric values", () => {
-            // act
-            const result = UrlUtils.addQueryParam("url?x=1", "foo", 1.2);
-
-            // assert
-            expect(result).toEqual("url?x=1&foo=1.2");
-        });
-
-        it("should url encode key and value", () => {
-            // act
-            const result = UrlUtils.addQueryParam("url", "#", "#");
-
-            // assert
-            expect(result).toEqual("url?%23=%23");
-        });
-    });
-
-    describe("parseUrlFragment", () => {
-
-        it("should parse key/value pairs", () => {
-            // act
-            const result = UrlUtils.parseUrlFragment("a=apple&b=banana&c=carrot");
-
-            // assert
-            expect(result).toEqual({ a: "apple", b: "banana", c: "carrot" });
-        });
-
-        it("should parse any order", () => {
-            // act
-            const result = UrlUtils.parseUrlFragment("b=banana&c=carrot&a=apple");
-
-            // assert
-            expect(result).toEqual({ a: "apple", b: "banana", c: "carrot" });
-        });
-
-        it("should parse past host name and hash fragment", () => {
-            // act
-            const result = UrlUtils.parseUrlFragment("http://server?test1=xoxo&test2=xoxo/#a=apple&b=banana&c=carrot");
-
-            // assert
-            expect(result).toEqual({ a: "apple", b: "banana", c: "carrot" });
-        });
-
-        it("should parse query string", () => {
-            // act
-            const result = UrlUtils.parseUrlFragment("http://server?test1=xoxo&test2=yoyo", "?");
-
-            // assert
-            expect(result).toEqual({ test1: "xoxo", test2: "yoyo" });
-        });
-
-        it("should parse query string up to hash", () => {
-            // act
-            const result = UrlUtils.parseUrlFragment("http://server?test1=xoxo&test2=yoyo#a=apple&b=banana&c=carrot", "?");
-
-            // assert
-            expect(result).toEqual({ test1: "xoxo", test2: "yoyo" });
-        });
-
-        it("should return error for long values", () => {
-            // act
-            const result = UrlUtils.parseUrlFragment("a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple&a=apple");
-
-            // assert
-            expect(result).toHaveProperty("error");
-        });
-
-        it("should return empty object for empty string", () => {
-            // act
-            const result = UrlUtils.parseUrlFragment("");
-
-            // assert
-            expect(result).toEqual({});
+            expect(resultObj).toHaveProperty("bar", "test_fragment");
         });
     });
 });

@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Logger, UrlUtils } from "./utils";
+import { Logger } from "./utils";
 import { State } from "./State";
 
 /**
@@ -39,24 +39,27 @@ export class SignoutRequest {
             throw new Error("url");
         }
 
+        const parsedUrl = new URL(url);
         if (id_token_hint) {
-            url = UrlUtils.addQueryParam(url, "id_token_hint", id_token_hint);
+            parsedUrl.searchParams.append("id_token_hint", id_token_hint);
         }
 
         if (post_logout_redirect_uri) {
-            url = UrlUtils.addQueryParam(url, "post_logout_redirect_uri", post_logout_redirect_uri);
+            parsedUrl.searchParams.append("post_logout_redirect_uri", post_logout_redirect_uri);
 
             if (state_data) {
                 this.state = new State({ data: state_data, request_type });
 
-                url = UrlUtils.addQueryParam(url, "state", this.state.id);
+                parsedUrl.searchParams.append("state", this.state.id);
             }
         }
 
-        for (const key in extraQueryParams) {
-            url = UrlUtils.addQueryParam(url, key, extraQueryParams[key]);
+        for (const [key, value] of Object.entries({ ...extraQueryParams })) {
+            if (value != null) {
+                parsedUrl.searchParams.append(key, value.toString());
+            }
         }
 
-        this.url = url;
+        this.url = parsedUrl.href;
     }
 }

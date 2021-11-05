@@ -9,7 +9,7 @@ describe("SignoutResponse", () => {
 
         it("should read error", () => {
             // act
-            const subject = new SignoutResponse("error=foo");
+            const subject = new SignoutResponse(new URLSearchParams("error=foo"));
 
             // assert
             expect(subject.error).toEqual("foo");
@@ -17,7 +17,7 @@ describe("SignoutResponse", () => {
 
         it("should read error_description", () => {
             // act
-            const subject = new SignoutResponse("error_description=foo");
+            const subject = new SignoutResponse(new URLSearchParams("error_description=foo"));
 
             // assert
             expect(subject.error_description).toEqual("foo");
@@ -25,7 +25,7 @@ describe("SignoutResponse", () => {
 
         it("should read error_uri", () => {
             // act
-            const subject = new SignoutResponse("error_uri=foo");
+            const subject = new SignoutResponse(new URLSearchParams("error_uri=foo"));
 
             // assert
             expect(subject.error_uri).toEqual("foo");
@@ -33,7 +33,7 @@ describe("SignoutResponse", () => {
 
         it("should read state", () => {
             // act
-            const subject = new SignoutResponse("state=foo");
+            const subject = new SignoutResponse(new URLSearchParams("state=foo"));
 
             // assert
             expect(subject.state_id).toEqual("foo");
