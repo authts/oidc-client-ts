@@ -458,7 +458,7 @@ export class UserManager {
     protected async _signinCallback(url: string, navigator: IFrameNavigator | PopupNavigator): Promise<void> {
         this._logger.debug("_signinCallback");
         const delimiter = this.settings.response_mode === "query" ? "?" : "#";
-        await navigator.callback(url, false, delimiter);
+        await navigator.callback(url, delimiter, false);
     }
 
     /**
@@ -516,7 +516,7 @@ export class UserManager {
      */
     public async signoutPopupCallback(url = window.location.href, keepOpen = false): Promise<void> {
         const delimiter = "?";
-        await this._popupNavigator.callback(url, keepOpen, delimiter);
+        await this._popupNavigator.callback(url, delimiter, keepOpen);
         this._logger.info("signoutPopupCallback: successful");
     }
 

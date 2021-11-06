@@ -21,18 +21,17 @@ export interface PopupWindowParams {
  * @internal
  */
 export class PopupWindow implements IWindow {
-    private readonly _logger: Logger;
+    private readonly _logger = new Logger("PopupWindow");
+    private readonly _close = new Event("Popup closed");
+    private readonly _disposeHandlers = new Set<() => void>();
 
     private _popup: Window | null;
     private _state: string | undefined;
-    private _close = new Event("Popup closed");
-    private _disposeHandlers = new Set<() => void>();
 
     public constructor({
         popupWindowTarget = defaultPopupTarget,
         popupWindowFeatures = defaultPopupFeatures
     }: PopupWindowParams) {
-        this._logger = new Logger("PopupWindow");
         this._popup = window.open("", popupWindowTarget, popupWindowFeatures);
 
         const popupClosedInterval = setInterval(() => {
@@ -51,11 +50,7 @@ export class PopupWindow implements IWindow {
 
         this._state = params.state;
 
-        this._logger.debug("navigate: Setting URL in popup");
-        this._popup.focus();
-        this._popup.location.replace(params.url);
-
-        const { data, url, keepOpen } = await new Promise<{ data: Record<string, string>; url: string; keepOpen: boolean }>((resolve, reject) => {
+        const promise = new Promise<{ data: Record<string, string>; url: string; keepOpen: boolean }>((resolve, reject) => {
             const listener = (e: MessageEvent) => {
                 if (e.origin !== window.location.origin || e.data?.source !== "oidc-client") {
                     // silently discard events not intended for us
@@ -71,6 +66,12 @@ export class PopupWindow implements IWindow {
             this._disposeHandlers.add(() => window.removeEventListener("message", listener, false));
             this._disposeHandlers.add(this._close.addHandler(() => reject(new Error("Popup closed without a response"))));
         });
+
+        this._logger.debug("navigate: Setting URL in popup");
+        this._popup.focus();
+        this._popup.location.replace(params.url);
+
+        const { data, url, keepOpen } = await promise;
         if (keepOpen) {
             this._dispose();
         } else {
@@ -87,6 +88,14 @@ export class PopupWindow implements IWindow {
         return { url };
     }
 
+    public close(): void {
+        if (this._popup && !this._popup.closed) {
+            this._popup.close();
+            this._close.raise();
+        }
+        this._dispose();
+    }
+
     protected _dispose(): void {
         this._logger.debug("_dispose");
 
@@ -100,15 +109,7 @@ export class PopupWindow implements IWindow {
         }
     }
 
-    public close(): void {
-        if (this._popup && !this._popup.closed) {
-            this._popup.close();
-            this._close.raise();
-        }
-        this._dispose();
-    }
-
-    public static notifyOpener(url: string, keepOpen: boolean, delimiter: string): void {
+    public static notifyOpener(url: string, delimiter: string, keepOpen: boolean): void {
         if (!window.opener) {
             throw new Error("No window.opener. Can't complete notification.");
         }
