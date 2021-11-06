@@ -206,7 +206,7 @@ export class UserManager {
     /**
      * Returns promise to notify the opening window of response from the authorization endpoint.
      */
-    public async signinPopupCallback(url?: string): Promise<void> {
+    public async signinPopupCallback(url = window.location.href): Promise<void> {
         try {
             await this._signinCallback(url, this._popupNavigator);
             this._logger.info("signinPopupCallback: successful");
@@ -319,12 +319,12 @@ export class UserManager {
     /**
      * Returns promise to notify the parent window of response from the authorization endpoint.
      */
-    public async signinSilentCallback(url?: string): Promise<void> {
+    public async signinSilentCallback(url = window.location.href): Promise<void> {
         await this._signinCallback(url, this._iframeNavigator);
         this._logger.info("signinSilentCallback: successful");
     }
 
-    public async signinCallback(url?: string): Promise<User | null> {
+    public async signinCallback(url = window.location.href): Promise<User | null> {
         const { state } = await this._client.readSigninResponseState(url);
         if (state.request_type === "si:r") {
             return this.signinRedirectCallback(url);
@@ -340,7 +340,7 @@ export class UserManager {
         throw new Error("invalid response_type in state");
     }
 
-    public async signoutCallback(url?: string, keepOpen = false): Promise<void> {
+    public async signoutCallback(url = window.location.href, keepOpen = false): Promise<void> {
         const { state } = await this._client.readSignoutResponseState(url);
         if (state) {
             if (state.request_type === "so:r") {
@@ -423,9 +423,9 @@ export class UserManager {
             const signinRequest = await this._client.createSigninRequest(args);
             this._logger.debug("_signinStart: got signin request");
 
-            return handle.navigate({
+            return await handle.navigate({
                 url: signinRequest.url,
-                id: signinRequest.state.id,
+                state: signinRequest.state.id,
             });
         }
         catch (err) {
@@ -455,7 +455,7 @@ export class UserManager {
 
         return user;
     }
-    protected async _signinCallback(url: string | undefined, navigator: IFrameNavigator | PopupNavigator): Promise<void> {
+    protected async _signinCallback(url: string, navigator: IFrameNavigator | PopupNavigator): Promise<void> {
         this._logger.debug("_signinCallback");
         const delimiter = this.settings.response_mode === "query" ? "?" : "#";
         await navigator.callback(url, false, delimiter);
@@ -514,7 +514,7 @@ export class UserManager {
     /**
      * Returns promise to process response from the end session endpoint from a popup window.
      */
-    public async signoutPopupCallback(url?: string, keepOpen = false): Promise<void> {
+    public async signoutPopupCallback(url = window.location.href, keepOpen = false): Promise<void> {
         const delimiter = "?";
         await this._popupNavigator.callback(url, keepOpen, delimiter);
         this._logger.info("signoutPopupCallback: successful");
@@ -549,7 +549,7 @@ export class UserManager {
 
             return handle.navigate({
                 url: signoutRequest.url,
-                id: signoutRequest.state?.id,
+                state: signoutRequest.state?.id,
             });
         }
         catch (err) {

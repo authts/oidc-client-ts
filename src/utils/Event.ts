@@ -22,12 +22,13 @@ export class Event<EventType extends unknown[]> {
         this._logger = new Logger(`Event(${name})`);
     }
 
-    public addHandler(cb: Callback<EventType>): void {
+    public addHandler(cb: Callback<EventType>): () => void {
         this._callbacks.push(cb);
+        return () => this.removeHandler(cb);
     }
 
     public removeHandler(cb: Callback<EventType>): void {
-        const idx = this._callbacks.findIndex(item => item === cb);
+        const idx = this._callbacks.lastIndexOf(cb);
         if (idx >= 0) {
             this._callbacks.splice(idx, 1);
         }
@@ -35,8 +36,8 @@ export class Event<EventType extends unknown[]> {
 
     public raise(...ev: EventType): void {
         this._logger.debug("Raising event: " + this._name);
-        for (let i = 0; i < this._callbacks.length; i++) {
-            void this._callbacks[i](...ev);
+        for (const cb of this._callbacks) {
+            void cb(...ev);
         }
     }
 }
