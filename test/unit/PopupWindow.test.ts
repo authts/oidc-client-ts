@@ -53,7 +53,7 @@ describe("PopupWindow", () => {
             origin: "myapp.com"
         }));
 
-        await expect(promise).rejects.toThrow("Invalid response from popup");
+        await expect(promise).rejects.toThrow("Invalid response from window");
         expect(popupFromWindowOpen.location.replace).toHaveBeenCalledWith("https://myidp.com/authorize?x=y");
     });
 });
