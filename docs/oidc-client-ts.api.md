@@ -747,7 +747,7 @@ export class UserManager {
     // (undocumented)
     signinCallback(url?: string): Promise<User | null>;
     // (undocumented)
-    protected _signinCallback(url: string | undefined, navigator: IFrameNavigator | PopupNavigator): Promise<void>;
+    protected _signinCallback(url: string, navigator: IFrameNavigator | PopupNavigator): Promise<void>;
     // (undocumented)
     protected _signinEnd(url: string, verifySub?: string): Promise<User>;
     signinPopup(args?: SigninPopupArgs): Promise<User>;
