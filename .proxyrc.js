@@ -7,10 +7,9 @@ module.exports = function (app) {
         })
     );
 
-    app.use((req, res, next) => {
+    app.use('/code-flow-identityserver', (req, res, next) => {
         res.setHeader('Cross-Origin-Opener-Policy', 'unsafe-none');
         res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
-		next();
-	});
-
+        next();
+    });
 };
