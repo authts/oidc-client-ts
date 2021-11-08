@@ -3,7 +3,7 @@
 
 export type { IFrameWindowParams, PopupWindowParams, RedirectParams } from "./navigators";
 export { Log } from "./utils";
-export type { ILogger } from "./utils";
+export type { ILogger, PopupWindowFeatures } from "./utils";
 
 export { AccessTokenEvents } from "./AccessTokenEvents";
 export type { AccessTokenCallback } from "./AccessTokenEvents";

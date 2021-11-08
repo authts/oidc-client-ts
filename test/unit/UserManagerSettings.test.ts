@@ -53,11 +53,11 @@ describe("UserManagerSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                popupWindowFeatures: "foo"
+                popupWindowFeatures: { status: true }
             });
 
             // assert
-            expect(subject.popupWindowFeatures).toEqual("foo");
+            expect(subject.popupWindowFeatures).toEqual({ status: true });
         });
 
     });

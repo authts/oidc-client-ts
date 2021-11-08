@@ -374,9 +374,33 @@ export interface OidcMetadata {
 }
 
 // @public (undocumented)
+export interface PopupWindowFeatures {
+    // (undocumented)
+    height?: number;
+    // (undocumented)
+    left?: number;
+    // (undocumented)
+    location?: boolean;
+    // (undocumented)
+    menubar?: boolean;
+    // (undocumented)
+    resizable?: boolean;
+    // (undocumented)
+    scrollbars?: boolean;
+    // (undocumented)
+    status?: boolean;
+    // (undocumented)
+    toolbar?: boolean;
+    // (undocumented)
+    top?: number;
+    // (undocumented)
+    width?: number;
+}
+
+// @public (undocumented)
 export interface PopupWindowParams {
     // (undocumented)
-    popupWindowFeatures?: string;
+    popupWindowFeatures?: PopupWindowFeatures;
     // (undocumented)
     popupWindowTarget?: string;
 }
@@ -835,7 +859,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     // (undocumented)
     popup_post_logout_redirect_uri?: string;
     popup_redirect_uri?: string;
-    popupWindowFeatures?: string;
+    popupWindowFeatures?: PopupWindowFeatures;
     popupWindowTarget?: string;
     // (undocumented)
     query_status_response_type?: string;
@@ -869,7 +893,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     // (undocumented)
     readonly popup_redirect_uri: string | undefined;
     // (undocumented)
-    readonly popupWindowFeatures: string | undefined;
+    readonly popupWindowFeatures: PopupWindowFeatures | undefined;
     // (undocumented)
     readonly popupWindowTarget: string | undefined;
     // (undocumented)
