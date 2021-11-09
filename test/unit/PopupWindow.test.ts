@@ -1,7 +1,7 @@
 import { PopupWindow } from "../../src/navigators/PopupWindow";
 
 describe("PopupWindow", () => {
-    let popupFromWindowOpen: { window: { location: { replace: () => void } }; focus: () => void; close: () => void };
+    let popupFromWindowOpen: { location: { replace: () => void }; focus: () => void; close: () => void };
 
     beforeEach(() => {
         Object.defineProperty(window, "location", {
@@ -11,7 +11,7 @@ describe("PopupWindow", () => {
 
         window.open = jest.fn().mockImplementation(() => {
             popupFromWindowOpen = {
-                window: { location: { replace: jest.fn() } },
+                location: { replace: jest.fn() },
                 focus: jest.fn(),
                 close: jest.fn(),
             };
@@ -30,35 +30,30 @@ describe("PopupWindow", () => {
         expect(window.open).toHaveBeenCalled();
     });
 
-    it("should resolve when navigate succeeds", (done) => {
+    it("should resolve when navigate succeeds", async () => {
         const popupWindow = new PopupWindow({});
 
-        popupWindow.navigate({ url: "https://myidp.com/authorize?x=y", id: "someid" }).then((data) => {
-            expect(popupFromWindowOpen.window.location.replace).toHaveBeenCalledWith("https://myidp.com/authorize?x=y");
-            expect(data.url).toBe("https://myapp.com");
-            done();
-        }).catch((err) => {
-            fail(err);
-        });
+        const promise = popupWindow.navigate({ url: "https://myidp.com/authorize?x=y", state: "someid" });
 
         window.dispatchEvent(new MessageEvent("message", {
-            data: JSON.stringify({ data: { state: "someid" }, url: "https://myapp.com" }),
+            data: { source: "oidc-client", data: { state: "someid" }, url: "https://myapp.com" },
             origin: "myapp.com"
         }));
+
+        await expect(promise).resolves.toHaveProperty("url", "https://myapp.com");
+        expect(popupFromWindowOpen.location.replace).toHaveBeenCalledWith("https://myidp.com/authorize?x=y");
     });
 
-    it("should reject when navigate fails", (done) => {
+    it("should reject when navigate fails", async () => {
         const popupWindow = new PopupWindow({});
 
-        popupWindow.navigate({ url: "https://myidp.com/authorize?x=y", id: "someid" }).catch((error: Error) => {
-            expect(popupFromWindowOpen.window.location.replace).toHaveBeenCalledWith("https://myidp.com/authorize?x=y");
-            expect(error.message).toBe("Invalid response from popup");
-            done();
-        });
-
+        const promise = popupWindow.navigate({ url: "https://myidp.com/authorize?x=y", state: "someid" });
         window.dispatchEvent(new MessageEvent("message", {
-            data: JSON.stringify({ data: { state: "someid" }, url: "" }),
+            data: { source: "oidc-client", data: { state: "someid" }, url: "" },
             origin: "myapp.com"
         }));
+
+        await expect(promise).rejects.toThrow("Invalid response from window");
+        expect(popupFromWindowOpen.location.replace).toHaveBeenCalledWith("https://myidp.com/authorize?x=y");
     });
 });

@@ -2,7 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Logger } from "../utils";
-import type { IWindow, NavigateParams, NavigateResponse } from "./IWindow";
+import type { NavigateParams, NavigateResponse } from "./IWindow";
+import { AbstractChildWindow } from "./AbstractChildWindow";
 
 const defaultTimeoutInSeconds = 10;
 
@@ -16,28 +17,19 @@ export interface IFrameWindowParams {
 /**
  * @internal
  */
-export class IFrameWindow implements IWindow {
-    private readonly _logger: Logger;
-
-    private _resolve!: (value: NavigateResponse) => void;
-    private _reject!: (reason?: any) => void;
-    private _promise = new Promise<NavigateResponse>((resolve, reject) => {
-        this._resolve = resolve;
-        this._reject = reject;
-    })
-    private _timeoutInSeconds: number;
+export class IFrameWindow extends AbstractChildWindow {
+    protected readonly _logger = new Logger("IFrameWindow");
     private _frame: HTMLIFrameElement | null;
-    private _timer: number | null = null;
+    private _timeoutInSeconds: number;
 
     public constructor({
         silentRequestTimeoutInSeconds = defaultTimeoutInSeconds
     }: IFrameWindowParams) {
-        this._logger = new Logger("IFrameWindow");
-
+        super();
         this._timeoutInSeconds = silentRequestTimeoutInSeconds;
-        window.addEventListener("message", this._message, false);
 
         this._frame = window.document.createElement("iframe");
+        this._window = this._frame.contentWindow;
 
         // shotgun approach
         this._frame.style.visibility = "hidden";
@@ -48,85 +40,29 @@ export class IFrameWindow implements IWindow {
         this._frame.height = "0";
 
         window.document.body.appendChild(this._frame);
+        this._window = this._frame.contentWindow;
     }
 
     public async navigate(params: NavigateParams): Promise<NavigateResponse> {
-        if (!params || !params.url) {
-            this._error("No url provided");
-        }
-        else if (!this._frame) {
-            this._error("No _frame, already closed");
-        }
-        else {
-            this._logger.debug("navigate: Using timeout of:", this._timeoutInSeconds);
-            this._timer = window.setTimeout(this._timeout, this._timeoutInSeconds * 1000);
-            this._frame.src = params.url;
-        }
+        this._logger.debug("navigate: Using timeout of:", this._timeoutInSeconds);
+        const timer = setTimeout(() => this._abort.raise(new Error("IFrame timed out without a response")), this._timeoutInSeconds * 1000);
+        this._disposeHandlers.add(() => clearTimeout(timer));
 
-        return await this._promise;
-    }
-
-    protected _success(data: NavigateResponse): void {
-        this._cleanup();
-
-        this._logger.debug("Successful response from frame window");
-        this._resolve(data);
-    }
-    protected _error(message: string): void {
-        this._cleanup();
-
-        this._logger.error(message);
-        this._reject(new Error(message));
+        return await super.navigate(params);
     }
 
     close(): void {
-        this._cleanup();
-    }
-
-    protected _cleanup(): void {
-        this._logger.debug("_cleanup");
-        if (this._timer != null) {
-            window.clearTimeout(this._timer);
-        }
         if (this._frame) {
-            window.removeEventListener("message", this._message, false);
-            window.document.body.removeChild(this._frame);
-        }
-
-        this._timer = null;
-        this._frame = null;
-    }
-
-    protected _timeout = (): void => {
-        this._logger.debug("_timeout");
-        this._error("Frame window timed out");
-    }
-
-    protected _message = (e: MessageEvent): void => {
-        this._logger.debug("_message");
-
-        const origin = location.protocol + "//" + location.host;
-        if (this._timer && this._frame &&
-            e.origin === origin &&
-            e.source === this._frame.contentWindow &&
-            (typeof e.data === "string" && (e.data.startsWith("http://") || e.data.startsWith("https://")))
-        ) {
-            const url = e.data;
-            if (url) {
-                this._success({ url: url });
+            if (this._frame.parentNode) {
+                this._frame.parentNode.removeChild(this._frame);
             }
-            else {
-                this._error("Invalid response from frame");
-            }
+            this._abort.raise(new Error("IFrame removed from DOM"));
+            this._frame = null;
         }
+        this._window = null;
     }
 
-    public static notifyParent(url: string | undefined): void {
-        Logger.debug("IFrameWindow", "notifyParent");
-        url = url || window.location.href;
-        if (url) {
-            Logger.debug("IFrameWindow", "notifyParent: posting url message to parent");
-            window.parent.postMessage(url, location.protocol + "//" + location.host);
-        }
+    public static notifyParent(url: string, delimiter: string): void {
+        return super._notifyParent(window.parent, url, delimiter);
     }
 }

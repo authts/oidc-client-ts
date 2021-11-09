@@ -140,8 +140,6 @@ class StubTimer extends Timer {
         this.cancelWasCalled = true;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    addHandler() {}
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    removeHandler() {}
+    addHandler = jest.fn();
+    removeHandler = jest.fn();
 }

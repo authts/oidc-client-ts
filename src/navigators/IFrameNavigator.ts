@@ -22,8 +22,8 @@ export class IFrameNavigator implements INavigator {
         return new IFrameWindow({ silentRequestTimeoutInSeconds });
     }
 
-    public async callback(url: string | undefined): Promise<void> {
+    public async callback(url: string, delimiter: string): Promise<void> {
         this._logger.debug("callback");
-        IFrameWindow.notifyParent(url);
+        IFrameWindow.notifyParent(url, delimiter);
     }
 }

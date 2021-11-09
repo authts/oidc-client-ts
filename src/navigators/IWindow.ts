@@ -5,7 +5,8 @@
  */
 export interface NavigateParams {
     url: string;
-    id?: string;
+    /** The request "state" parameter. For sign out requests, this parameter is optional. */
+    state?: string;
 }
 
 /**

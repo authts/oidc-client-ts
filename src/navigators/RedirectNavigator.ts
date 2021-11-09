@@ -4,7 +4,7 @@
 import { Logger } from "../utils";
 import type { UserManagerSettingsStore } from "../UserManagerSettings";
 import type { INavigator } from "./INavigator";
-import type { IWindow, NavigateParams, NavigateResponse } from "./IWindow";
+import type { IWindow } from "./IWindow";
 
 /**
  * @public
@@ -16,30 +16,18 @@ export interface RedirectParams {
 /**
  * @internal
  */
-export class RedirectNavigator implements INavigator, IWindow {
-    private readonly _logger: Logger;
-    private _redirectMethod: "replace" | "assign" | undefined;
+export class RedirectNavigator implements INavigator {
+    private readonly _logger = new Logger("RedirectNavigator");
 
-    constructor(private _settings: UserManagerSettingsStore) {
-        this._logger = new Logger("RedirectNavigator");
-    }
+    constructor(private _settings: UserManagerSettingsStore) {}
 
-    public async prepare({ redirectMethod }: RedirectParams): Promise<RedirectNavigator> {
-        this._redirectMethod = redirectMethod ?? this._settings.redirectMethod;
-        return this;
-    }
-
-    public async navigate(params: NavigateParams): Promise<NavigateResponse> {
-        if (!params || !params.url) {
-            this._logger.error("navigate: No url provided");
-            throw new Error("No url provided");
-        }
-
-        window.location[this._redirectMethod || "assign"](params.url);
-        return { url: window.location.href };
-    }
-
-    public close(): void {
-        this._logger.warn("cannot close the current window");
+    public async prepare({
+        redirectMethod = this._settings.redirectMethod
+    }: RedirectParams): Promise<IWindow> {
+        const redirect = window.location[redirectMethod].bind(window.location) as (url: string) => never;
+        return {
+            navigate: (params) => redirect(params.url),
+            close: () => this._logger.warn("close: cannot close the current window")
+        };
     }
 }
