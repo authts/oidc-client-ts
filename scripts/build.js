@@ -18,14 +18,14 @@ try {
     buildSync({
         ...opts,
         platform: "neutral",
-        outfile: "dist/oidc-client-ts.mjs",
+        outfile: "dist/esm/oidc-client-ts.js",
         external,
     });
     // node
     buildSync({
         ...opts,
         platform: "node",
-        outfile: "dist/oidc-client-ts.cjs",
+        outfile: "dist/umd/oidc-client-ts.js",
         external,
     });
 
@@ -33,14 +33,14 @@ try {
     buildSync({
         ...opts,
         platform: "browser",
-        outfile: "dist/oidc-client-ts.js",
+        outfile: "dist/browser/oidc-client-ts.js",
         globalName: "oidc",
     });
     // browser-min (self contained)
     buildSync({
         ...opts,
         platform: "browser",
-        outfile: "dist/oidc-client-ts.min.js",
+        outfile: "dist/browser/oidc-client-ts.min.js",
         globalName: "oidc",
         minify: true,
     });
