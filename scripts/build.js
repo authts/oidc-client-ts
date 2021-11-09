@@ -8,6 +8,7 @@ const opts = {
     entryPoints: ["src/index.ts"],
     absWorkingDir: join(__dirname, ".."),
     bundle: true,
+    sourcemap: true,
 };
 
 const external = Object.keys({ ...dependencies, ...peerDependencies });
