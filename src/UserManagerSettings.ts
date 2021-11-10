@@ -18,7 +18,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     /**
      * The features parameter to window.open for the popup signin window. By default, the popup is
      * placed centered in front of the window opener.
-     * (default: "location=no,toolbar=no,width=576,height=640")
+     * (default: \{ location: false, menubar: false, height: 640 \})
      */
     popupWindowFeatures?: PopupWindowFeatures;
     /** The target parameter to window.open for the popup signin window (default: "_blank") */

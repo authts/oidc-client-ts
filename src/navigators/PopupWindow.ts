@@ -9,7 +9,6 @@ const checkForPopupClosedInterval = 500;
 const defaultPopupWindowFeatures: PopupWindowFeatures = {
     location: false,
     toolbar: false,
-    width: 576,
     height: 640,
 };
 
@@ -36,7 +35,7 @@ export class PopupWindow extends AbstractChildWindow {
         popupWindowFeatures = {},
     }: PopupWindowParams) {
         super();
-        const centeredPopup = PopupUtils.center(Object.assign({}, defaultPopupWindowFeatures, popupWindowFeatures));
+        const centeredPopup = PopupUtils.center({ ...defaultPopupWindowFeatures, ...popupWindowFeatures });
         this._window = window.open(undefined, popupWindowTarget, PopupUtils.serialize(centeredPopup));
     }
 
