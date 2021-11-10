@@ -3,7 +3,10 @@
 *.tsbuildinfo
 /docs/api
 /lib/
-dist/
+
+**/dist/*
+/dist/esm/*
+!/dist/esm/package.json
 
 # caches
 .eslintcache

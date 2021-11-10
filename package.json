@@ -8,9 +8,15 @@
   },
   "homepage": "https://github.com/authts/oidc-client-ts#readme",
   "license": "Apache-2.0",
-  "main": "dist/oidc-client-ts.cjs",
-  "module": "dist/oidc-client-ts.mjs",
-  "types": "dist/oidc-client-ts.d.ts",
+  "main": "dist/umd/oidc-client-ts.js",
+  "types": "dist/types/oidc-client-ts.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/oidc-client-ts.js",
+      "require": "./dist/umd/oidc-client-ts.js"
+    },
+    "./package.json": "./package.json"
+  },
   "workspaces": [
     "samples/*",
     "website"
@@ -28,6 +34,7 @@
   "scripts": {
     "build": "node scripts/build.js && npm run build-types",
     "build-types": "tsc --emitDeclarationOnly && api-extractor run",
+    "clean": "git clean -fdX dist",
     "prepack": "npm run build",
     "test": "tsc -p test/unit/tsconfig.json && jest",
     "typedoc": "typedoc",
