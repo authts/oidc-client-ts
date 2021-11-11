@@ -90,7 +90,7 @@ describe("OidcClient", () => {
             const request = await subject.createSigninRequest({
                 state: "foo",
                 response_type: "code",
-                response_mode: "mode",
+                response_mode: "fragment",
                 scope: "baz",
                 redirect_uri: "quux",
                 prompt: "p",
@@ -122,7 +122,7 @@ describe("OidcClient", () => {
             expect(url).toContain("resource=res");
             expect(url).toContain("request=req");
             expect(url).toContain("request_uri=req_uri");
-            expect(url).toContain("response_mode=mode");
+            expect(url).toContain("response_mode=fragment");
         });
 
         it("should pass state in place of data to SigninRequest", async () => {
@@ -244,7 +244,7 @@ describe("OidcClient", () => {
 
         it("should return a promise", async () => {
             // act
-            const p = subject.readSigninResponseState("state=state");
+            const p = subject.readSigninResponseState("http://app/cb?state=state");
 
             // asssert
             expect(p).toBeInstanceOf(Promise);
@@ -258,7 +258,7 @@ describe("OidcClient", () => {
 
             // act
             try {
-                await subject.readSigninResponseState("");
+                await subject.readSigninResponseState("http://app/cb");
                 fail("should not come here");
             }
             catch (err) {
@@ -273,7 +273,7 @@ describe("OidcClient", () => {
 
             // act
             try {
-                await subject.readSigninResponseState("state=state");
+                await subject.readSigninResponseState("http://app/cb?state=state");
                 fail("should not come here");
             }
             catch (err) {
@@ -288,14 +288,14 @@ describe("OidcClient", () => {
                 id: "1",
                 authority: "authority",
                 client_id: "client",
-                redirect_uri: "http://cb",
+                redirect_uri: "http://app/cb",
                 scope: "scope",
                 request_type: "type"
             }).toStorageString();
             jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item));
 
             // act
-            const { state, response } = await subject.readSigninResponseState("state=1");
+            const { state, response } = await subject.readSigninResponseState("http://app/cb?state=1");
 
             // assert
             expect(state.id).toEqual("1");
@@ -309,7 +309,7 @@ describe("OidcClient", () => {
     describe("processSigninResponse", () => {
         it("should return a promise", async () => {
             // act
-            const p = subject.processSigninResponse("state=state");
+            const p = subject.processSigninResponse("http://app/cb?state=state");
 
             // assert
             expect(p).toBeInstanceOf(Promise);
@@ -323,7 +323,7 @@ describe("OidcClient", () => {
 
             // act
             try {
-                await subject.processSigninResponse("");
+                await subject.processSigninResponse("http://app/cb");
                 fail("should not come here");
             }
             catch (err) {
@@ -338,7 +338,7 @@ describe("OidcClient", () => {
 
             // act
             try {
-                await subject.processSigninResponse("state=state");
+                await subject.processSigninResponse("http://app/cb?state=state");
                 fail("should not come here");
             }
             catch (err) {
@@ -353,7 +353,7 @@ describe("OidcClient", () => {
                 id: "1",
                 authority: "authority",
                 client_id: "client",
-                redirect_uri: "http://cb",
+                redirect_uri: "http://app/cb",
                 scope: "scope",
                 request_type: "type"
             });
@@ -363,7 +363,7 @@ describe("OidcClient", () => {
                 .mockImplementation((_s, r) => Promise.resolve(r));
 
             // act
-            const response = await subject.processSigninResponse("state=1");
+            const response = await subject.processSigninResponse("http://app/cb?state=1");
 
             // assert
             expect(validateSigninResponseMock).toBeCalledWith(item, response);
@@ -496,7 +496,7 @@ describe("OidcClient", () => {
     describe("readSignoutResponseState", () => {
         it("should return a promise", async () => {
             // act
-            const p = subject.readSignoutResponseState("state=state");
+            const p = subject.readSignoutResponseState("http://app/cb?state=state");
 
             // assert
             expect(p).toBeInstanceOf(Promise);
@@ -506,7 +506,7 @@ describe("OidcClient", () => {
 
         it("should return result if no state on response", async () => {
             // act
-            const { response } = await subject.readSignoutResponseState("");
+            const { response } = await subject.readSignoutResponseState("http://app/cb");
 
             // assert
             expect(response).toBeInstanceOf(SignoutResponse);
@@ -515,7 +515,7 @@ describe("OidcClient", () => {
         it("should return error", async () => {
             // act
             try {
-                await subject.readSignoutResponseState("error=foo");
+                await subject.readSignoutResponseState("http://app/cb?error=foo");
                 fail("should not come here");
             }
             catch (err) {
@@ -530,7 +530,7 @@ describe("OidcClient", () => {
 
             // act
             try {
-                await subject.readSignoutResponseState("state=state");
+                await subject.readSignoutResponseState("http://app/cb?state=state");
                 fail("should not come here");
             }
             catch (err) {
@@ -545,7 +545,7 @@ describe("OidcClient", () => {
             jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item));
 
             // act
-            const { state, response } = await subject.readSignoutResponseState("state=1");
+            const { state, response } = await subject.readSignoutResponseState("http://app/cb?state=1");
 
             // assert
             expect(state).toBeDefined();
@@ -567,7 +567,7 @@ describe("OidcClient", () => {
                 .mockImplementation((_s, r) => r);
 
             // act
-            const response = await subject.processSignoutResponse("state=1&error=foo");
+            const response = await subject.processSignoutResponse("http://app/cb?state=1&error=foo");
 
             // assert
             expect(validateSignoutResponse).toBeCalledWith(item, response);
@@ -587,7 +587,7 @@ describe("OidcClient", () => {
 
         it("should return result if no state on response", async () => {
             // act
-            const response = await subject.processSignoutResponse("");
+            const response = await subject.processSignoutResponse("http://app/cb");
 
             // assert
             expect(response).toBeInstanceOf(SignoutResponse);
@@ -596,7 +596,7 @@ describe("OidcClient", () => {
         it("should return error", async () => {
             // act
             try {
-                await subject.processSignoutResponse("error=foo");
+                await subject.processSignoutResponse("http://app/cb?error=foo");
                 fail("should not come here");
             }
             catch (err) {
@@ -611,7 +611,7 @@ describe("OidcClient", () => {
 
             // act
             try {
-                await subject.processSignoutResponse("state=state");
+                await subject.processSignoutResponse("http://app/cb?state=state");
                 fail("should not come here");
             }
             catch (err) {
@@ -632,7 +632,7 @@ describe("OidcClient", () => {
                 .mockImplementation((_s, r) => r);
 
             // act
-            const response = await subject.processSignoutResponse("state=1");
+            const response = await subject.processSignoutResponse("http://app/cb?state=1");
 
             // assert
             expect(validateSignoutResponse).toBeCalledWith(item, response);
@@ -651,7 +651,7 @@ describe("OidcClient", () => {
                 .mockImplementation((_s, r) => r);
 
             // act
-            const response = await subject.processSignoutResponse("state=1&error=foo");
+            const response = await subject.processSignoutResponse("http://app/cb?state=1&error=foo");
 
             // assert
             expect(validateSignoutResponse).toBeCalledWith(item, response);

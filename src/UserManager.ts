@@ -206,9 +206,9 @@ export class UserManager {
     /**
      * Returns promise to notify the opening window of response from the authorization endpoint.
      */
-    public async signinPopupCallback(url = window.location.href): Promise<void> {
+    public async signinPopupCallback(url = window.location.href, keepOpen = false): Promise<void> {
         try {
-            await this._signinCallback(url, this._popupNavigator);
+            await this._popupNavigator.callback(url, keepOpen);
             this._logger.info("signinPopupCallback: successful");
         }
         catch (err) {
@@ -320,7 +320,7 @@ export class UserManager {
      * Returns promise to notify the parent window of response from the authorization endpoint.
      */
     public async signinSilentCallback(url = window.location.href): Promise<void> {
-        await this._signinCallback(url, this._iframeNavigator);
+        await this._iframeNavigator.callback(url);
         this._logger.info("signinSilentCallback: successful");
     }
 
@@ -426,6 +426,7 @@ export class UserManager {
             return await handle.navigate({
                 url: signinRequest.url,
                 state: signinRequest.state.id,
+                response_mode: signinRequest.state.response_mode,
             });
         }
         catch (err) {
@@ -455,11 +456,6 @@ export class UserManager {
 
         return user;
     }
-    protected async _signinCallback(url: string, navigator: IFrameNavigator | PopupNavigator): Promise<void> {
-        this._logger.debug("_signinCallback");
-        const delimiter = this.settings.response_mode === "query" ? "?" : "#";
-        await navigator.callback(url, delimiter, false);
-    }
 
     /**
      * Returns promise to trigger a redirect of the current window to the end session endpoint.
@@ -477,6 +473,7 @@ export class UserManager {
         }, handle);
         this._logger.info("signoutRedirect: successful");
     }
+
     /**
      * Returns promise to process response from the end session endpoint.
      */
@@ -511,12 +508,12 @@ export class UserManager {
         }, handle);
         this._logger.info("signoutPopup: successful");
     }
+
     /**
      * Returns promise to process response from the end session endpoint from a popup window.
      */
     public async signoutPopupCallback(url = window.location.href, keepOpen = false): Promise<void> {
-        const delimiter = "?";
-        await this._popupNavigator.callback(url, delimiter, keepOpen);
+        await this._popupNavigator.callback(url, keepOpen);
         this._logger.info("signoutPopupCallback: successful");
     }
 
@@ -547,7 +544,7 @@ export class UserManager {
             const signoutRequest = await this._client.createSignoutRequest(args);
             this._logger.debug("_signoutStart: got signout request");
 
-            return handle.navigate({
+            return await handle.navigate({
                 url: signoutRequest.url,
                 state: signoutRequest.state?.id,
             });

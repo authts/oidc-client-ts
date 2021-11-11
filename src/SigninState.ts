@@ -20,7 +20,7 @@ export class SigninState extends State {
     public readonly client_secret: string | undefined;
     public readonly extraTokenParams: Record<string, unknown> | undefined;
 
-    public readonly response_mode: string | undefined;
+    public readonly response_mode: "query" | "fragment" | undefined;
     public readonly skipUserInfo: boolean | undefined;
 
     public constructor(args: {
@@ -36,7 +36,7 @@ export class SigninState extends State {
         scope: string;
         client_secret?: string;
         extraTokenParams?: Record<string, unknown>;
-        response_mode?: string;
+        response_mode?: "query" | "fragment";
         skipUserInfo?: boolean;
     }) {
         super(args);

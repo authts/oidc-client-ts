@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Logger, UrlUtils } from "./utils";
+import { Logger } from "./utils";
 import { SigninState } from "./SigninState";
 
 /**
@@ -25,7 +25,7 @@ export interface SigninRequestArgs {
     login_hint?: string;
     acr_values?: string;
     resource?: string;
-    response_mode?: string;
+    response_mode?: "query" | "fragment" ;
     request?: string;
     request_uri?: string;
     extraQueryParams?: Record<string, string | number | boolean>;
@@ -51,8 +51,11 @@ export class SigninRequest {
         // mandatory
         url, authority, client_id, redirect_uri, response_type, scope,
         // optional
-        state_data, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, response_mode,
-        request, request_uri, extraQueryParams, request_type, client_secret, extraTokenParams, skipUserInfo
+        state_data, response_mode, request_type, client_secret,
+        skipUserInfo,
+        extraQueryParams,
+        extraTokenParams,
+        ...optionalParams
     }: SigninRequestArgs) {
         this._logger = new Logger("SigninRequest");
 
@@ -81,10 +84,6 @@ export class SigninRequest {
             throw new Error("authority");
         }
 
-        if (!response_mode) {
-            response_mode = "query";
-        }
-
         this.state = new SigninState({
             data: state_data,
             request_type,
@@ -95,28 +94,24 @@ export class SigninRequest {
             skipUserInfo
         });
 
-        url = UrlUtils.addQueryParam(url, "client_id", client_id);
-        url = UrlUtils.addQueryParam(url, "redirect_uri", redirect_uri);
-        url = UrlUtils.addQueryParam(url, "response_type", response_type);
-        url = UrlUtils.addQueryParam(url, "scope", scope);
+        const parsedUrl = new URL(url);
+        parsedUrl.searchParams.append("client_id", client_id);
+        parsedUrl.searchParams.append("redirect_uri", redirect_uri);
+        parsedUrl.searchParams.append("response_type", response_type);
+        parsedUrl.searchParams.append("scope", scope);
 
-        url = UrlUtils.addQueryParam(url, "state", this.state.id);
+        parsedUrl.searchParams.append("state", this.state.id);
         if (this.state.code_challenge) {
-            url = UrlUtils.addQueryParam(url, "code_challenge", this.state.code_challenge);
-            url = UrlUtils.addQueryParam(url, "code_challenge_method", "S256");
+            parsedUrl.searchParams.append("code_challenge", this.state.code_challenge);
+            parsedUrl.searchParams.append("code_challenge_method", "S256");
         }
 
-        const optional: Record<string, any> = { prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, request, request_uri, response_mode };
-        for (const key in optional) {
-            if (optional[key]) {
-                url = UrlUtils.addQueryParam(url, key, optional[key]);
+        for (const [key, value] of Object.entries({ response_mode, ...optionalParams, ...extraQueryParams })) {
+            if (value != null) {
+                parsedUrl.searchParams.append(key, value.toString());
             }
         }
 
-        for (const key in extraQueryParams) {
-            url = UrlUtils.addQueryParam(url, key, extraQueryParams[key]);
-        }
-
-        this.url = url;
+        this.url = parsedUrl.href;
     }
 }

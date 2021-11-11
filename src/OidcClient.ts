@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Logger } from "./utils";
+import { Logger, UrlUtils } from "./utils";
 import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 import { ResponseValidator } from "./ResponseValidator";
 import { MetadataService } from "./MetadataService";
@@ -32,7 +32,7 @@ export interface CreateSigninRequestArgs {
     login_hint?: string;
     acr_values?: string;
     resource?: string;
-    response_mode?: string;
+    response_mode?: "query" | "fragment";
     request?: string;
     request_uri?: string;
     extraQueryParams?: Record<string, string | number | boolean>;
@@ -119,11 +119,10 @@ export class OidcClient {
         return signinRequest;
     }
 
-    public async readSigninResponseState(url?: string, removeState = false): Promise<{ state: SigninState; response: SigninResponse }> {
+    public async readSigninResponseState(url: string, removeState = false): Promise<{ state: SigninState; response: SigninResponse }> {
         this._logger.debug("readSigninResponseState");
 
-        const delimiter = this.settings.response_mode === "query" ? "?" : "#";
-        const response = new SigninResponse(url, delimiter);
+        const response = new SigninResponse(UrlUtils.readParams(url, this.settings.response_mode));
         const stateKey = response.state_id;
         if (!stateKey) {
             this._logger.error("readSigninResponseState: No state in response");
@@ -143,7 +142,7 @@ export class OidcClient {
         return { state, response };
     }
 
-    public async processSigninResponse(url?: string): Promise<SigninResponse> {
+    public async processSigninResponse(url: string): Promise<SigninResponse> {
         this._logger.debug("processSigninResponse");
 
         const { state, response } = await this.readSigninResponseState(url, true);
@@ -186,10 +185,10 @@ export class OidcClient {
         return request;
     }
 
-    public async readSignoutResponseState(url?: string, removeState = false): Promise<{ state: State | undefined; response: SignoutResponse }> {
+    public async readSignoutResponseState(url: string, removeState = false): Promise<{ state: State | undefined; response: SignoutResponse }> {
         this._logger.debug("readSignoutResponseState");
 
-        const response = new SignoutResponse(url);
+        const response = new SignoutResponse(UrlUtils.readParams(url, this.settings.response_mode));
         const stateKey = response.state_id;
         if (!stateKey) {
             this._logger.debug("readSignoutResponseState: No state in response");
