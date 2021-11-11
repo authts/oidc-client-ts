@@ -376,21 +376,23 @@ export interface OidcMetadata {
 // @public (undocumented)
 export interface PopupWindowFeatures {
     // (undocumented)
+    [k: string]: boolean | string | number | undefined;
+    // (undocumented)
     height?: number;
     // (undocumented)
     left?: number;
     // (undocumented)
-    location?: boolean;
+    location?: boolean | string;
     // (undocumented)
-    menubar?: boolean;
+    menubar?: boolean | string;
     // (undocumented)
-    resizable?: boolean;
+    resizable?: boolean | string;
     // (undocumented)
-    scrollbars?: boolean;
+    scrollbars?: boolean | string;
     // (undocumented)
-    status?: boolean;
+    status?: boolean | string;
     // (undocumented)
-    toolbar?: boolean;
+    toolbar?: boolean | string;
     // (undocumented)
     top?: number;
     // (undocumented)

@@ -9,12 +9,14 @@ export interface PopupWindowFeatures {
     top?: number;
     width?: number;
     height?: number;
-    menubar?: boolean;
-    toolbar?: boolean;
-    location?: boolean;
-    status?: boolean;
-    resizable?: boolean;
-    scrollbars?: boolean;
+    menubar?: boolean | string;
+    toolbar?: boolean | string;
+    location?: boolean | string;
+    status?: boolean | string;
+    resizable?: boolean | string;
+    scrollbars?: boolean | string;
+
+    [k: string]: boolean | string | number | undefined;
 }
 
 export class PopupUtils {
@@ -35,7 +37,7 @@ export class PopupUtils {
     static serialize(features: PopupWindowFeatures): string {
         return Object.entries(features)
             .filter(([, value]) => value != null)
-            .map(([key, value]) => `${key}=${typeof value === "number" ? value : value ? "yes" : "no"}`)
+            .map(([key, value]) => `${key}=${typeof value !== "boolean" ? value as string : value ? "yes" : "no"}`)
             .join(",");
     }
 }

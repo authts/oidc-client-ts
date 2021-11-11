@@ -1,4 +1,4 @@
-import { PopupUtils, PopupWindowFeatures } from "../../../src/utils";
+import { PopupUtils } from "../../../src/utils";
 
 describe("PopupUtils", () => {
     describe("center", () => {
@@ -37,21 +37,21 @@ describe("PopupUtils", () => {
 
     describe("serialize", () => {
         it("should encode boolean values as yes/no", () => {
-            const result = PopupUtils.serialize({ foo: true, bar: false } as PopupWindowFeatures);
+            const result = PopupUtils.serialize({ foo: true, bar: false });
 
             expect(result).toEqual("foo=yes,bar=no");
         });
 
         it("should omit undefined properties", () => {
-            const result = PopupUtils.serialize({ foo: true, bar: undefined } as PopupWindowFeatures);
+            const result = PopupUtils.serialize({ foo: true, bar: undefined });
 
             expect(result).toEqual("foo=yes");
         });
 
-        it("should preserve numerical values", () => {
-            const result = PopupUtils.serialize({ foo: true, bar: 0, baz: 20 } as PopupWindowFeatures);
+        it("should preserve numerical and string values", () => {
+            const result = PopupUtils.serialize({ foo: "yes", bar: 0, baz: 20, quux: "" });
 
-            expect(result).toEqual("foo=yes,bar=0,baz=20");
+            expect(result).toEqual("foo=yes,bar=0,baz=20,quux=");
         });
     });
 });
