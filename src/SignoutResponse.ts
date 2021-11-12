@@ -8,8 +8,11 @@ export class SignoutResponse {
     public readonly state_id: string | undefined;
 
     // updated by ResponseValidator
+    /** @see {@link ErrorResponse.error} */
     public error: string | undefined;
+    /** @see {@link ErrorResponse.error_description} */
     public error_description: string | undefined;
+    /** @see {@link ErrorResponse.error_uri} */
     public error_uri: string | undefined;
 
     // set by ResponseValidator

@@ -18,6 +18,8 @@ const DefaultClockSkewInSeconds = 60 * 5;
 export type SigningKey = Record<string, string | string[]>;
 
 /**
+ * The settings used to configure the {@link OidcClient}.
+ *
  * @public
  */
 export interface OidcClientSettings {
@@ -100,6 +102,9 @@ export interface OidcClientSettings {
 }
 
 /**
+ * The settings with defaults applied of the {@link OidcClient}.
+ * @see {@link OidcClientSettings}
+ *
  * @public
  */
 export class OidcClientSettingsStore {

@@ -9,18 +9,27 @@ import { State } from "./State";
  */
 export class SigninState extends State {
     // isCode
+    /** The same code_verifier that was used to obtain the authorization_code via PKCE. */
     public readonly code_verifier: string | undefined;
+    /** Used to secure authorization code grants via Proof Key for Code Exchange (PKCE). */
     public readonly code_challenge: string | undefined;
 
     // to ensure state still matches settings
+    /** @see {@link OidcClientSettings.authority} */
     public readonly authority: string;
+    /** @see {@link OidcClientSettings.client_id} */
     public readonly client_id: string;
+    /** @see {@link OidcClientSettings.redirect_uri} */
     public readonly redirect_uri: string;
+    /** @see {@link OidcClientSettings.scope} */
     public readonly scope: string;
+    /** @see {@link OidcClientSettings.client_secret} */
     public readonly client_secret: string | undefined;
+    /** @see {@link OidcClientSettings.extraTokenParams} */
     public readonly extraTokenParams: Record<string, unknown> | undefined;
-
+    /** @see {@link OidcClientSettings.response_mode} */
     public readonly response_mode: "query" | "fragment" | undefined;
+
     public readonly skipUserInfo: boolean | undefined;
 
     public constructor(args: {

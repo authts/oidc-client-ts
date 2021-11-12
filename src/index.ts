@@ -8,6 +8,7 @@ export type { ILogger } from "./utils";
 export { AccessTokenEvents } from "./AccessTokenEvents";
 export type { AccessTokenCallback } from "./AccessTokenEvents";
 export { CheckSessionIFrame } from "./CheckSessionIFrame";
+export { ErrorResponse } from "./ErrorResponse";
 export { InMemoryWebStorage } from "./InMemoryWebStorage";
 export { MetadataService } from "./MetadataService";
 export * from "./OidcClient";

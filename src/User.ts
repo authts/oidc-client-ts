@@ -18,19 +18,32 @@ export interface UserProfile {
  * @public
  */
 export class User {
+    /**
+     * A JSON Web Token (JWT). Only provided if `openid` scope was requested.
+     * The application can access the data decoded by using the `profile` property.
+     */
     public id_token: string | undefined;
 
     /** The session state value returned from the OIDC provider. */
     public session_state: string | undefined;
 
-    /** The access token returned from the OIDC provider. */
+    /**
+     * The requested access token returned from the OIDC provider. The application can use this token to
+     * authenticate itself to the secured resource.
+     */
     public access_token: string;
 
+    /**
+     * An OAuth 2.0 refresh token. The app can use this token to acquire additional access tokens after the
+     * current access token expires. Refresh tokens are long-lived and can be used to maintain access to resources
+     * for extended periods of time.
+     */
     public refresh_token: string | undefined;
 
+    /** Typically "Bearer" */
     public token_type: string;
 
-    /** The scope returned from the OIDC provider. */
+    /** The scopes that the requested access token is valid for. */
     public scope: string | undefined;
 
     /** The claims represented by a combination of the `id_token` and the user info endpoint. */
