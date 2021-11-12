@@ -14,17 +14,27 @@ export class SigninResponse {
     public readonly state_id: string | undefined;
 
     // updated by ResponseValidator
+    /** @see {@link ErrorResponse.error} */
     public error: string | undefined;
+    /** @see {@link ErrorResponse.error_description} */
     public error_description: string | undefined;
+    /** @see {@link ErrorResponse.error_uri} */
     public error_uri: string | undefined;
 
     // updated by ResponseValidator
+    /** @see {@link User.id_token} */
     public id_token: string | undefined;
+    /** @see {@link User.session_state} */
     public session_state: string | undefined;
+    /** @see {@link User.access_token} */
     public access_token: string;
+    /** @see {@link User.refresh_token} */
     public refresh_token: string | undefined;
+    /** @see {@link User.token_type} */
     public token_type: string;
+    /** @see {@link User.scope} */
     public scope: string | undefined;
+    /** @see {@link User.expires_at} */
     public expires_at: number | undefined;
 
     // set by ResponseValidator
@@ -32,6 +42,7 @@ export class SigninResponse {
     public state: unknown;
 
     // set by ResponseValidator
+    /** @see {@link User.profile} */
     public profile: UserProfile = {};
 
     public constructor(params: URLSearchParams) {

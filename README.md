@@ -11,19 +11,18 @@ been archived and is no longer maintained. This version has been refactored from
 
 **Contributions and help is much appreciated!**
 
+Implements the following OAuth 2.0 protocols and supports [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html):
+- [Authorization Code Grant](https://oauth.net/2/grant-types/authorization-code/) with [PKCE](https://oauth.net/2/pkce/)
+- [Refresh Token Grant](https://oauth.net/2/grant-types/refresh-token/)
+
 
 ## Table of Contents
 
--   [Documentation](#documentation)
--   [Installation](#installation)
--   [Building the Source](#building-the-source)
--   [Contributing](#contributing)
--   [License](#license)
-
-
-## Documentation
-
-Additional documentation can be found [here](https://authts.github.io/oidc-client-ts/).
+- [Documentation](https://authts.github.io/oidc-client-ts/)
+- [Installation](#installation)
+- [Building the Source](#building-the-source)
+- [Contributing](#contributing)
+- [License](#license)
 
 
 ## Installation
@@ -68,6 +67,7 @@ $ npm test
 ## Contributing
 
 We appreciate feedback and contribution to this repo!
+
 
 ## License
 

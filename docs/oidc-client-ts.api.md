@@ -85,6 +85,24 @@ export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url" | "state_d
     state?: unknown;
 };
 
+// @public
+export class ErrorResponse extends Error {
+    constructor(args: {
+        error?: string;
+        error_description?: string;
+        error_uri?: string;
+        state?: unknown;
+        session_state?: string;
+    });
+    readonly error: string;
+    readonly error_description: string | undefined;
+    readonly error_uri: string | undefined;
+    readonly name: string;
+    // (undocumented)
+    readonly session_state: string | undefined;
+    state: unknown | undefined;
+}
+
 // @public (undocumented)
 export type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "extraQueryParams" | "extraTokenParams" | "state">;
 
@@ -212,7 +230,7 @@ export class OidcClient {
     protected readonly _validator: ResponseValidator;
 }
 
-// @public (undocumented)
+// @public
 export interface OidcClientSettings {
     acr_values?: string;
     authority: string;
@@ -248,7 +266,7 @@ export interface OidcClientSettings {
     userInfoJwtIssuer?: "ANY" | "OP" | string;
 }
 
-// @public (undocumented)
+// @public
 export class OidcClientSettingsStore {
     constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, clockSkewInSeconds, userInfoJwtIssuer, mergeClaims, stateStore, extraQueryParams, extraTokenParams }: OidcClientSettings);
     // (undocumented)
@@ -550,9 +568,7 @@ export class SigninState extends State {
     readonly client_id: string;
     // (undocumented)
     readonly client_secret: string | undefined;
-    // (undocumented)
     readonly code_challenge: string | undefined;
-    // (undocumented)
     readonly code_verifier: string | undefined;
     // (undocumented)
     readonly extraTokenParams: Record<string, unknown> | undefined;
@@ -682,16 +698,13 @@ export class User {
     set expires_in(value: number | undefined);
     // (undocumented)
     static fromStorageString(storageString: string): User;
-    // (undocumented)
     id_token: string | undefined;
     profile: UserProfile;
-    // (undocumented)
     refresh_token: string | undefined;
     scope: string | undefined;
     get scopes(): string[];
     session_state: string | undefined;
     readonly state: unknown | undefined;
-    // (undocumented)
     token_type: string;
     // (undocumented)
     toStorageString(): string;
@@ -821,7 +834,7 @@ export class UserManagerEvents extends AccessTokenEvents {
     unload(): void;
 }
 
-// @public (undocumented)
+// @public
 export interface UserManagerSettings extends OidcClientSettings {
     accessTokenExpiringNotificationTimeInSeconds?: number;
     automaticSilentRenew?: boolean;
@@ -847,7 +860,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     validateSubOnSilentRenew?: boolean;
 }
 
-// @public (undocumented)
+// @public
 export class UserManagerSettingsStore extends OidcClientSettingsStore {
     constructor(args: UserManagerSettings);
     // (undocumented)

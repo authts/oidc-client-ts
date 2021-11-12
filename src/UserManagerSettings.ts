@@ -8,6 +8,8 @@ const DefaultAccessTokenExpiringNotificationTimeInSeconds = 60;
 const DefaultCheckSessionIntervalInSeconds = 2;
 
 /**
+ * The settings used to configure the {@link UserManager}.
+ *
  * @public
  */
 export interface UserManagerSettings extends OidcClientSettings {
@@ -56,6 +58,9 @@ export interface UserManagerSettings extends OidcClientSettings {
 }
 
 /**
+ * The settings with defaults applied of the {@link UserManager}.
+ * @see {@link UserManagerSettings}
+ *
  * @public
  */
 export class UserManagerSettingsStore extends OidcClientSettingsStore {
