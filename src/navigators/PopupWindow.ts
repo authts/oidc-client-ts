@@ -1,12 +1,16 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Logger } from "../utils";
+import { Logger, PopupUtils, PopupWindowFeatures } from "../utils";
 import { AbstractChildWindow } from "./AbstractChildWindow";
 import type { NavigateParams, NavigateResponse } from "./IWindow";
 
 const checkForPopupClosedInterval = 500;
-const defaultPopupFeatures = "location=no,toolbar=no,width=500,height=500,left=100,top=100";
+const defaultPopupWindowFeatures: PopupWindowFeatures = {
+    location: false,
+    toolbar: false,
+    height: 640,
+};
 
 const defaultPopupTarget = "_blank";
 
@@ -14,7 +18,7 @@ const defaultPopupTarget = "_blank";
  * @public
  */
 export interface PopupWindowParams {
-    popupWindowFeatures?: string;
+    popupWindowFeatures?: PopupWindowFeatures;
     popupWindowTarget?: string;
 }
 
@@ -28,10 +32,11 @@ export class PopupWindow extends AbstractChildWindow {
 
     public constructor({
         popupWindowTarget = defaultPopupTarget,
-        popupWindowFeatures = defaultPopupFeatures
+        popupWindowFeatures = {},
     }: PopupWindowParams) {
         super();
-        this._window = window.open(undefined, popupWindowTarget, popupWindowFeatures);
+        const centeredPopup = PopupUtils.center({ ...defaultPopupWindowFeatures, ...popupWindowFeatures });
+        this._window = window.open(undefined, popupWindowTarget, PopupUtils.serialize(centeredPopup));
     }
 
     public async navigate(params: NavigateParams): Promise<NavigateResponse> {

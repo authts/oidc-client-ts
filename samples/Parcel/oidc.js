@@ -48,22 +48,6 @@ var claims = {
     "role": ["Admin", "Geek"]
 };
 
-function addFragment(url, name, value) {
-    if (url.indexOf("#") < 0) {
-        url += "#";
-    }
-
-    if (url[url.length - 1] !== "#") {
-        url += "&";
-    }
-
-    url += encodeURIComponent(name);
-    url += "=";
-    url += encodeURIComponent(value);
-
-    return url;
-}
-
 module.exports = function(baseUrl, app) {
     prependBaseUrlToMetadata(baseUrl);
 
@@ -77,20 +61,36 @@ module.exports = function(baseUrl, app) {
     });
 
     app.get(authorizationPath, function(req, res) {
-        //res.send("<h1>waiting...</h1>"); return;
-
-        var url = req.query.redirect_uri;
+        var url = new URL(req.query.redirect_uri);
+        const paramsKey = req.query.response_mode === "fragment" ? "hash" : "query";
+        const params = new URLSearchParams(url[paramsKey].slice(1));
         var state = req.query.state;
         if (state) {
-            url = addFragment(url, "state", state);
-            if (req.url.indexOf("code_challenge") !== -1) {
-                url = addFragment(url, "code", "foo");
+            params.append('state', state);
+            if (req.query.code_challenge) {
+                params.append("code", "foo");
             }
         }
+        //params.append("error", "bad_stuff");
+        url[paramsKey] = params.toString();
 
-        //url = addFragment(url, "error", "bad_stuff"); res.redirect(url); return;
+        if (req.query.display === 'popup') {
+            res.status(200);
+            res.type('text/html')
+            res.send(`
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="refresh" content="3;url=${url.href}" />
+    </head>
+    <body>
+        <h1>Redirecting in 3 seconds...</h1>
+    </body>
+</html>`)
+        } else {
+            res.redirect(url.href);
+        }
 
-        res.redirect(url);
     });
 
     app.get(userInfoPath, function(req, res) {

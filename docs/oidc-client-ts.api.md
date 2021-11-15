@@ -392,9 +392,35 @@ export interface OidcMetadata {
 }
 
 // @public (undocumented)
+export interface PopupWindowFeatures {
+    // (undocumented)
+    [k: string]: boolean | string | number | undefined;
+    // (undocumented)
+    height?: number;
+    // (undocumented)
+    left?: number;
+    // (undocumented)
+    location?: boolean | string;
+    // (undocumented)
+    menubar?: boolean | string;
+    // (undocumented)
+    resizable?: boolean | string;
+    // (undocumented)
+    scrollbars?: boolean | string;
+    // (undocumented)
+    status?: boolean | string;
+    // (undocumented)
+    toolbar?: boolean | string;
+    // (undocumented)
+    top?: number;
+    // (undocumented)
+    width?: number;
+}
+
+// @public (undocumented)
 export interface PopupWindowParams {
     // (undocumented)
-    popupWindowFeatures?: string;
+    popupWindowFeatures?: PopupWindowFeatures;
     // (undocumented)
     popupWindowTarget?: string;
 }
@@ -846,7 +872,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     // (undocumented)
     popup_post_logout_redirect_uri?: string;
     popup_redirect_uri?: string;
-    popupWindowFeatures?: string;
+    popupWindowFeatures?: PopupWindowFeatures;
     popupWindowTarget?: string;
     // (undocumented)
     query_status_response_type?: string;
@@ -880,7 +906,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     // (undocumented)
     readonly popup_redirect_uri: string | undefined;
     // (undocumented)
-    readonly popupWindowFeatures: string | undefined;
+    readonly popupWindowFeatures: PopupWindowFeatures | undefined;
     // (undocumented)
     readonly popupWindowTarget: string | undefined;
     // (undocumented)

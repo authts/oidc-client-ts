@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
+import type { PopupWindowFeatures } from "./utils";
 import { WebStorageStateStore } from "./WebStorageStateStore";
 
 const DefaultAccessTokenExpiringNotificationTimeInSeconds = 60;
@@ -17,10 +18,11 @@ export interface UserManagerSettings extends OidcClientSettings {
     popup_redirect_uri?: string;
     popup_post_logout_redirect_uri?: string;
     /**
-     * The features parameter to window.open for the popup signin window.
-     * (default: "location=no,toolbar=no,width=500,height=500,left=100,top=100;")
+     * The features parameter to window.open for the popup signin window. By default, the popup is
+     * placed centered in front of the window opener.
+     * (default: \{ location: false, menubar: false, height: 640 \})
      */
-    popupWindowFeatures?: string;
+    popupWindowFeatures?: PopupWindowFeatures;
     /** The target parameter to window.open for the popup signin window (default: "_blank") */
     popupWindowTarget?: string;
     /** The methods window.location method used to redirect (default: "assign") */
@@ -66,7 +68,7 @@ export interface UserManagerSettings extends OidcClientSettings {
 export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly popup_redirect_uri: string | undefined;
     public readonly popup_post_logout_redirect_uri: string | undefined;
-    public readonly popupWindowFeatures: string | undefined;
+    public readonly popupWindowFeatures: PopupWindowFeatures | undefined;
     public readonly popupWindowTarget: string | undefined;
     public readonly redirectMethod: "replace" | "assign";
 
