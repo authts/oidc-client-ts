@@ -1,4 +1,4 @@
-import { PopupUtils } from "../../../src/utils";
+import { PopupUtils } from "./PopupUtils";
 
 describe("PopupUtils", () => {
     describe("center", () => {

@@ -5,7 +5,7 @@ const collectCoverage = yn(process.env.CI);
 export default {
     preset: "ts-jest",
     clearMocks: true,
-    testMatch: ["**/test/unit/**/*.test.ts"],
+    testMatch: ["**/{src,test}/**/*.test.ts"],
     testEnvironment: "jsdom",
     collectCoverage,
     coverageReporters: collectCoverage ? ["lcov"] : ["lcov", "text"],

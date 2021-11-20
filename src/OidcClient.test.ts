@@ -1,15 +1,15 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "../../src/utils";
-import { OidcClient } from "../../src/OidcClient";
-import { OidcClientSettings, OidcClientSettingsStore } from "../../src/OidcClientSettings";
-import { SigninState } from "../../src/SigninState";
-import { State } from "../../src/State";
-import { SigninRequest } from "../../src/SigninRequest";
-import { SignoutRequest } from "../../src/SignoutRequest";
-import { SignoutResponse } from "../../src/SignoutResponse";
-import type { ErrorResponse } from "../../src/ErrorResponse";
+import { Log } from "./utils";
+import { OidcClient } from "./OidcClient";
+import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
+import { SigninState } from "./SigninState";
+import { State } from "./State";
+import { SigninRequest } from "./SigninRequest";
+import { SignoutRequest } from "./SignoutRequest";
+import { SignoutResponse } from "./SignoutResponse";
+import type { ErrorResponse } from "./ErrorResponse";
 
 describe("OidcClient", () => {
     let subject: OidcClient;

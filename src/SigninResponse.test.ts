@@ -1,8 +1,8 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { SigninResponse } from "../../src/SigninResponse";
-import { Timer } from "../../src/utils";
+import { SigninResponse } from "./SigninResponse";
+import { Timer } from "./utils";
 
 describe("SigninResponse", () => {
     describe("constructor", () => {

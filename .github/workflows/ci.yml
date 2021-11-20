@@ -21,7 +21,7 @@ jobs:
         with:
           path: |
             lib/
-            tsconfig.tsbuildinfo
+            tsconfig.build.tsbuildinfo
           key: build-${{ github.head_ref }}-${{ github.sha }}
           restore-keys: |
             build-${{ github.head_ref }}-
@@ -47,7 +47,7 @@ jobs:
         with:
           path: |
             .eslintcache
-            test/unit/tsconfig.tsbuildinfo
+            tsconfig.tsbuildinfo
           key: test-${{ github.head_ref }}-${{ github.sha }}
           restore-keys: |
             test-${{ github.head_ref }}-
