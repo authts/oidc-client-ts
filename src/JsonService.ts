@@ -144,7 +144,7 @@ export class JsonService {
                         const json = await response.json();
                         if (json && json.error) {
                             this._logger.error("postForm: Error from server:", json.error);
-                            throw new Error(payload.error);
+                            throw new Error(json.error);
                         }
 
                         return json;
