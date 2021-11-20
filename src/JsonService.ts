@@ -1,6 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import { ErrorResponse } from "./ErrorResponse";
 import { Logger } from "./utils";
 
 /**
@@ -144,7 +145,7 @@ export class JsonService {
                         const json = await response.json();
                         if (json && json.error) {
                             this._logger.error("postForm: Error from server:", json.error);
-                            throw new Error(json.error);
+                            throw new ErrorResponse(json);
                         }
 
                         return json;
