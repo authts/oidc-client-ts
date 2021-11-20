@@ -5,9 +5,7 @@ import { SigninResponse } from "../../src/SigninResponse";
 import { Timer } from "../../src/utils";
 
 describe("SigninResponse", () => {
-
     describe("constructor", () => {
-
         it("should read error", () => {
             // act
             const subject = new SigninResponse(new URLSearchParams("error=foo"));
@@ -104,22 +102,18 @@ describe("SigninResponse", () => {
             expect(subject.expires_at).toEqual(Timer.getEpochTime() + 10);
         });
 
-        it("should not read invalid expires_in", () => {
+        it.each<[string]> ([
+            ["expires_in=foo"],
+            ["expires_in=-10"],
+        ])("should not read invalid expires_in", (params) => {
             // act
-            let subject = new SigninResponse(new URLSearchParams("expires_in=foo"));
+            const subject = new SigninResponse(new URLSearchParams(params));
 
             // assert
             expect(subject.expires_in).toBeUndefined();
             expect(subject.expires_at).toBeUndefined();
-
-            // act
-            subject = new SigninResponse(new URLSearchParams("expires_in=-10"));
-
-            // assert
-            expect(subject.expires_in).toBeUndefined();
-            expect(subject.expires_at).toBeUndefined();
+            expect(subject.expired).toBeUndefined();
         });
-
     });
 
     describe("scopes", () => {
