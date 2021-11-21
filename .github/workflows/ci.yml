@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+          cache: npm
+
+      - name: Cache incremental builds
+        uses: actions/cache@v2
+        with:
+          path: |
+            lib/
+            tsconfig.tsbuildinfo
+          key: build-${{ github.head_ref }}-${{ github.sha }}
+          restore-keys: |
+            build-${{ github.head_ref }}-
+            build-refs/heads/main-
+
+      - run: npm ci
+      - run: npm pack --dry-run
+      - run: npm run typedoc
+      - run: npm run -w parcel-sample build
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+          cache: npm
+
+      - name: Cache incremental builds
+        uses: actions/cache@v2
+        with:
+          path: |
+            .eslintcache
+            test/unit/tsconfig.tsbuildinfo
+          key: test-${{ github.head_ref }}-${{ github.sha }}
+          restore-keys: |
+            test-${{ github.head_ref }}-
+            test-refs/heads/main-
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+
+      - uses: codecov/codecov-action@v2
+        with:
+          files: ./coverage/lcov.info
+          flags: unittests

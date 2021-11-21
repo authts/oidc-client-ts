@@ -1,8 +1,9 @@
 
 # build artifacts
 *.tsbuildinfo
-/docs/api
 /lib/
+/coverage/
+/docs/pages/
 
 **/dist/*
 /dist/esm/*
@@ -20,5 +21,3 @@ node_modules/
 .DS_Store
 .vscode/
 temp/
-
-docs/pages
