@@ -67,7 +67,6 @@ describe("SignoutRequest", () => {
         it("should include state if post_logout_redirect_uri provided", () => {
             // assert
             expect(subject.state).toBeDefined();
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             expect(subject.url).toContain("state=" + subject.state!.id);
         });
 
@@ -89,7 +88,6 @@ describe("SignoutRequest", () => {
             expect(url).toContain("id_token_hint=hint");
             expect(url).toContain("post_logout_redirect_uri=loggedout");
             expect(subject.state).toBeDefined();
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             expect(url).toContain("state=" + subject.state!.id);
         });
 

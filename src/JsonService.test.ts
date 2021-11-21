@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Log } from "./utils";
+import { ErrorResponse } from "./ErrorResponse";
 import { JsonService } from "./JsonService";
 import { mocked } from "ts-jest/utils";
 
@@ -306,7 +307,7 @@ describe("JsonService", () => {
             // act
             await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy")))
                 // assert
-                .rejects.toThrow(json.error);
+                .rejects.toThrow(ErrorResponse);
         });
 
         it("should reject promise when http response is 400 and json has no error field", async () => {
