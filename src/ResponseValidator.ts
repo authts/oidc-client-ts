@@ -233,21 +233,10 @@ export class ResponseValidator {
             Object.assign(request, state.extraTokenParams);
         }
 
-        const tokenResponse = await this._tokenClient.exchangeCode(request);
         // merge
-        response.error = tokenResponse.error || response.error;
-        response.error_description = tokenResponse.error_description || response.error_description;
-        response.error_uri = tokenResponse.error_uri || response.error_uri;
-
-        response.id_token = tokenResponse.id_token || response.id_token;
-        response.session_state = tokenResponse.session_state || response.session_state;
-        response.access_token = tokenResponse.access_token || response.access_token;
-        response.refresh_token = tokenResponse.refresh_token || response.refresh_token;
-
-        response.token_type = tokenResponse.token_type || response.token_type;
-        response.scope = tokenResponse.scope || response.scope;
-        response.expires_in = parseInt(tokenResponse.expires_in) || response.expires_in;
-
+        const { expires_in, ...tokenResponse } = await this._tokenClient.exchangeCode(request);
+        Object.assign(response, tokenResponse);
+        if (expires_in) response.expires_in = Number(expires_in);
         if (response.id_token) {
             this._logger.debug("_processCode: token response successful, processing id_token");
             return this._validateIdTokenAttributes(state, response, response.id_token);

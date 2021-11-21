@@ -52,7 +52,7 @@ export interface OidcClientSettings {
      *
      * See https://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication
      */
-    client_authentication?: string;
+    client_authentication?: "client_secret_basic" | "client_secret_post";
 
     /** optional protocol param */
     prompt?: string;
@@ -122,7 +122,7 @@ export class OidcClientSettingsStore {
     public readonly scope: string;
     public readonly redirect_uri: string;
     public readonly post_logout_redirect_uri: string | undefined;
-    public readonly client_authentication: string | undefined;
+    public readonly client_authentication: "client_secret_basic" | "client_secret_post";
 
     // optional protocol params
     public readonly prompt: string | undefined;

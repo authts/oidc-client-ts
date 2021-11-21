@@ -1,6 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import { ErrorResponse } from "./ErrorResponse";
 import { Logger } from "./utils";
 
 /**
@@ -14,31 +15,24 @@ export type JwtHandler = (text: string) => Promise<any>;
 export class JsonService {
     private readonly _logger: Logger;
 
-    private _contentTypes: string[];
-    private _jwtHandler: JwtHandler | null;
+    private _contentTypes: string[] = [];
 
     public constructor(
         additionalContentTypes: string[] = [],
-        jwtHandler: JwtHandler | null = null
+        private _jwtHandler: JwtHandler | null = null
     ) {
         this._logger = new Logger("JsonService");
 
-        this._contentTypes = additionalContentTypes.slice();
-        this._contentTypes.push("application/json");
-        if (jwtHandler) {
+        this._contentTypes.push(...additionalContentTypes, "application/json");
+        if (_jwtHandler) {
             this._contentTypes.push("application/jwt");
         }
-
-        this._jwtHandler = jwtHandler;
     }
 
-    public async getJson(url: string, token?: string): Promise<any> {
-        if (!url) {
-            this._logger.error("getJson: No url passed");
-            throw new Error("url");
-        }
-
-        const headers: HeadersInit = {};
+    public async getJson(url: string, token?: string): Promise<Record<string, unknown>> {
+        const headers: HeadersInit = {
+            "Accept": this._contentTypes.join(", "),
+        };
         if (token) {
             this._logger.debug("getJson: token passed, setting Authorization header");
             headers["Authorization"] = "Bearer " + token;
@@ -55,53 +49,39 @@ export class JsonService {
         }
 
         this._logger.debug("getJson: HTTP response received, status", response.status);
-        if (response.status === 200) {
-            const contentType = response.headers.get("Content-Type");
-            if (contentType) {
-                const found = this._contentTypes.find(item => contentType.startsWith(item));
-                if (found === "application/jwt" && this._jwtHandler) {
-                    const text = await response.text();
-                    return await this._jwtHandler(text);
-                }
-
-                if (found) {
-                    try {
-                        const json = await response.json();
-                        return json;
-                    }
-                    catch (err) {
-                        this._logger.error("getJson: Error parsing JSON response", err instanceof Error ? err.message : err);
-                        throw err;
-                    }
-                }
-            }
-
-            throw new Error("Invalid response Content-Type: " + (contentType ?? "undefined") + ", from URL: " + url);
+        const contentType = response.headers.get("Content-Type");
+        if (contentType && !this._contentTypes.find(item => contentType.startsWith(item))) {
+            throw new Error(`Invalid response Content-Type: ${(contentType ?? "undefined")}, from URL: ${url}`);
         }
-
-        throw new Error(response.statusText + " (" + response.status.toString() + ")");
+        if (response.ok && this._jwtHandler && contentType?.startsWith("application/jwt")) {
+            return await this._jwtHandler(await response.text());
+        }
+        let json: Record<string, unknown>;
+        try {
+            json = await response.json();
+        }
+        catch (err) {
+            this._logger.error("getJson: Error parsing JSON response", err);
+            if (response.ok) throw err;
+            throw new Error(`${response.statusText} (${response.status})`);
+        }
+        if (!response.ok) {
+            this._logger.error("getJson: Error from server:", json);
+            if (json.error) {
+                throw new ErrorResponse(json);
+            }
+            throw new Error(`${response.statusText} (${response.status}): ${JSON.stringify(json)}`);
+        }
+        return json;
     }
 
-    public async postForm(url: string, payload: any, basicAuth?: string): Promise<any> {
-        if (!url) {
-            this._logger.error("postForm: No url passed");
-            throw new Error("url");
-        }
-
+    public async postForm(url: string, body: URLSearchParams, basicAuth?: string): Promise<any> {
         const headers: HeadersInit = {
+            "Accept": this._contentTypes.join(", "),
             "Content-Type": "application/x-www-form-urlencoded",
         };
         if (basicAuth !== undefined) {
-            headers["Authorization"] = "Basic " + btoa(basicAuth);
-        }
-
-        const body = new URLSearchParams();
-        for (const key in payload) {
-            const value = payload[key];
-
-            if (value) {
-                body.set(key, value);
-            }
+            headers["Authorization"] = "Basic " + basicAuth;
         }
 
         let response: Response;
@@ -114,51 +94,27 @@ export class JsonService {
             throw new Error("Network Error");
         }
 
-        const allowedContentTypes = this._contentTypes;
-
         this._logger.debug("postForm: HTTP response received, status", response.status);
-        if (response.status === 200) {
-            const contentType = response.headers.get("Content-Type");
-            if (contentType) {
-                const found = allowedContentTypes.find(item => contentType.startsWith(item));
-                if (found) {
-                    try {
-                        const json = await response.json();
-                        return json;
-                    }
-                    catch (err) {
-                        this._logger.error("postForm: Error parsing JSON response", err instanceof Error ? err.message : err);
-                        throw err;
-                    }
-                }
-            }
-
-            throw new Error("Invalid response Content-Type: " +  (contentType ?? "undefined") + ", from URL: " + url);
+        const contentType = response.headers.get("Content-Type");
+        if (contentType && !this._contentTypes.find(item => contentType.startsWith(item))) {
+            throw new Error(`Invalid response Content-Type: ${(contentType ?? "undefined")}, from URL: ${url}`);
         }
-        else if (response.status === 400) {
-            const contentType = response.headers.get("Content-Type");
-            if (contentType) {
-                const found = allowedContentTypes.find(item => contentType.startsWith(item));
-                if (found) {
-                    try {
-                        const json = await response.json();
-                        if (json && json.error) {
-                            this._logger.error("postForm: Error from server:", json.error);
-                            throw new Error(json.error);
-                        }
-
-                        return json;
-                    }
-                    catch (err) {
-                        this._logger.error("postForm: Error parsing JSON response", err instanceof Error ? err.message : err);
-                        throw err;
-                    }
-                }
-            }
-
-            throw new Error("Invalid response Content-Type: " +  (contentType ?? "undefined") + ", from URL: " + url);
+        let json: Record<string, unknown>;
+        try {
+            json = await response.json();
         }
-
-        throw new Error(response.statusText + " (" + response.status.toString() + ")");
+        catch (err) {
+            this._logger.error("postForm: Error parsing JSON response", err);
+            if (response.ok) throw err;
+            throw new Error(`${response.statusText} (${response.status})`);
+        }
+        if (!response.ok) {
+            this._logger.error("postForm: Error from server:", json);
+            if (json.error) {
+                throw new ErrorResponse(json);
+            }
+            throw new Error(`${response.statusText} (${response.status}): ${JSON.stringify(json)}`);
+        }
+        return json;
     }
 }

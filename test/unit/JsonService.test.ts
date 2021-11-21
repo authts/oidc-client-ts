@@ -3,36 +3,27 @@
 
 import { Log } from "../../src/utils";
 import { JsonService } from "../../src/JsonService";
+import { mocked } from "ts-jest/utils";
 
 describe("JsonService", () => {
     let subject: JsonService;
-    let fetchMock: jest.Mock<any, any>;
 
     beforeEach(() =>{
         Log.logger = console;
         Log.level = Log.NONE;
 
-        fetchMock = jest.fn();
-        global.fetch = fetchMock;
-
+        globalThis.fetch = jest.fn();
         subject = new JsonService();
     });
 
     describe("getJson", () => {
-        it("should reject promise when no url is passed", async () => {
-            // act
-            await expect(subject.getJson(""))
-                // assert
-                .rejects.toThrow("url");
-        });
-
         it("should make GET request to url", async () => {
             // act
             await expect(subject.getJson("http://test")).rejects.toThrow();
 
             // assert
-            expect(fetchMock).toBeCalledWith("http://test", {
-                headers: {},
+            expect(fetch).toBeCalledWith("http://test", {
+                headers: { Accept: "application/json" },
                 method: "GET"
             });
         });
@@ -42,8 +33,8 @@ describe("JsonService", () => {
             await expect(subject.getJson("http://test", "token")).rejects.toThrow();
 
             // assert
-            expect(fetchMock).toBeCalledWith("http://test", {
-                headers: { Authorization: "Bearer token" },
+            expect(fetch).toBeCalledWith("http://test", {
+                headers: { Accept: "application/json", Authorization: "Bearer token" },
                 method: "GET"
             });
         });
@@ -51,13 +42,14 @@ describe("JsonService", () => {
         it("should fulfill promise when http response is 200", async () => {
             // arrange
             const json = { foo: 1, bar: "test" };
-            fetchMock.mockResolvedValue({
+            mocked(fetch).mockResolvedValue({
                 status: 200,
+                ok: true,
                 headers: new Headers({
                     "Content-Type": "application/json"
                 }),
                 json: () => Promise.resolve(json)
-            });
+            } as Response);
 
             // act
             const result = await subject.getJson("http://test");
@@ -69,13 +61,14 @@ describe("JsonService", () => {
         it("should reject promise when http response is 200 and json is not able to parse", async () => {
             // arrange
             const error = new SyntaxError("Unexpected token a in JSON");
-            fetchMock.mockResolvedValue({
+            mocked(fetch).mockResolvedValue({
                 status: 200,
+                ok: true,
                 headers: new Headers({
                     "Content-Type": "application/json"
                 }),
                 json: () => Promise.reject(error)
-            });
+            } as Response);
 
             // act
             await expect(subject.getJson("http://test"))
@@ -85,10 +78,13 @@ describe("JsonService", () => {
 
         it("should reject promise when http response is not 200", async () => {
             // arrange
-            fetchMock.mockResolvedValue({
+            mocked(fetch).mockResolvedValue({
                 status: 500,
-                statusText: "server error"
-            });
+                statusText: "server error",
+                ok: false,
+                headers: new Headers(),
+                json: () => Promise.reject(new SyntaxError())
+            } as Response);
 
             // act
             await expect(subject.getJson("http://test"))
@@ -98,7 +94,7 @@ describe("JsonService", () => {
 
         it("should reject promise when http response is error", async () => {
             // arrange
-            fetchMock.mockRejectedValue({});
+            mocked(fetch).mockRejectedValue({ ok: false });
 
             // act
             await expect(subject.getJson("http://test"))
@@ -109,13 +105,14 @@ describe("JsonService", () => {
         it("should reject promise when http response content type is not json", async () => {
             // arrange
             const json = { foo: 1, bar: "test" };
-            fetchMock.mockResolvedValue({
+            mocked(fetch).mockResolvedValue({
                 status: 200,
+                ok: true,
                 headers: new Headers({
                     "Content-Type": "text/html"
                 }),
                 json: () => Promise.resolve(json)
-            });
+            } as Response);
 
             // act
             await expect(subject.getJson("http://test"))
@@ -127,13 +124,14 @@ describe("JsonService", () => {
             // arrange
             subject = new JsonService(["foo/bar"]);
             const json = { foo: 1, bar: "test" };
-            fetchMock.mockResolvedValue({
+            mocked(fetch).mockResolvedValue({
                 status: 200,
+                ok: true,
                 headers: new Headers({
                     "Content-Type": "foo/bar"
                 }),
                 json: () => Promise.resolve(json)
-            });
+            } as Response);
 
             // act
             const result = await subject.getJson("http://test");
@@ -147,13 +145,15 @@ describe("JsonService", () => {
             const jwtHandler = jest.fn();
             subject = new JsonService([], jwtHandler);
             const text = "text";
-            fetchMock.mockResolvedValue({
+            mocked(fetch).mockResolvedValue({
                 status: 200,
+                ok: true,
                 headers: new Headers({
+                    Accept: "application/json",
                     "Content-Type": "application/jwt"
                 }),
                 text: () => Promise.resolve(text)
-            });
+            } as Response);
 
             // act
             await subject.getJson("http://test");
@@ -164,22 +164,16 @@ describe("JsonService", () => {
     });
 
     describe("postForm", () => {
-        it("should reject promise when no url is passed", async () => {
-            // act
-            await expect(subject.postForm("", { "a": "b" }))
-                // assert
-                .rejects.toThrow("url");
-        });
-
         it("should make POST request to url", async () => {
             // act
-            await expect(subject.postForm("http://test", { "a": "b" })).rejects.toThrow();
+            await expect(subject.postForm("http://test", new URLSearchParams("a=b"))).rejects.toThrow();
 
             // assert
-            expect(fetchMock).toBeCalledWith(
+            expect(fetch).toBeCalledWith(
                 "http://test",
                 expect.objectContaining({
                     headers: {
+                        Accept: "application/json",
                         "Content-Type": "application/x-www-form-urlencoded"
                     },
                     method: "POST",
@@ -190,14 +184,15 @@ describe("JsonService", () => {
 
         it("should set basicAuth as authorization header", async () => {
             // act
-            await expect(subject.postForm("http://test", { "payload": "dummy" }, "basicAuth")).rejects.toThrow();
+            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy"), "basicAuth")).rejects.toThrow();
 
             // assert
-            expect(fetchMock).toBeCalledWith(
+            expect(fetch).toBeCalledWith(
                 "http://test",
                 expect.objectContaining({
                     headers: {
-                        Authorization: "Basic " + btoa("basicAuth"),
+                        Accept: "application/json",
+                        Authorization: "Basic basicAuth",
                         "Content-Type": "application/x-www-form-urlencoded",
                     },
                     method: "POST",
@@ -208,16 +203,17 @@ describe("JsonService", () => {
 
         it("should set payload as body", async () => {
             // act
-            await expect(subject.postForm("http://test", { "payload": "dummy" })).rejects.toThrow();
+            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy"))).rejects.toThrow();
 
             // assert
             const body = new URLSearchParams();
             body.set("payload", "dummy");
 
-            expect(fetchMock).toBeCalledWith(
+            expect(fetch).toBeCalledWith(
                 "http://test",
                 expect.objectContaining({
                     headers: {
+                        Accept: "application/json",
                         "Content-Type": "application/x-www-form-urlencoded"
                     },
                     method: "POST",
@@ -229,16 +225,18 @@ describe("JsonService", () => {
         it("should fulfill promise when http response is 200", async () => {
             // arrange
             const json = { foo: 1, bar: "test" };
-            fetchMock.mockResolvedValue({
+            mocked(fetch).mockResolvedValue({
                 status: 200,
+                ok: true,
                 headers: new Headers({
+                    Accept: "application/json",
                     "Content-Type": "application/json"
                 }),
                 json: () => Promise.resolve(json)
-            });
+            } as Response);
 
             // act
-            const result = await subject.postForm("http://test", { "payload": "dummy" });
+            const result = await subject.postForm("http://test", new URLSearchParams("payload=dummy"));
 
             // assert
             expect(result).toEqual(json);
@@ -246,10 +244,10 @@ describe("JsonService", () => {
 
         it("should reject promise when http response is error", async () => {
             // arrange
-            fetchMock.mockRejectedValue({});
+            mocked(fetch).mockRejectedValue({});
 
             // act
-            await expect(subject.postForm("http://test", { "payload": "dummy" }))
+            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy")))
                 // assert
                 .rejects.toThrow("Network Error");
         });
@@ -257,16 +255,18 @@ describe("JsonService", () => {
         it("should reject promise when http response is 200 and json is not able to parse", async () => {
             // arrange
             const error = new SyntaxError("Unexpected token a in JSON");
-            fetchMock.mockResolvedValue({
+            mocked(fetch).mockResolvedValue({
                 status: 200,
+                ok: true,
                 headers: new Headers({
+                    Accept: "application/json",
                     "Content-Type": "application/json"
                 }),
                 json: () => Promise.reject(error)
-            });
+            } as Response);
 
             // act
-            await expect(subject.postForm("http://test", { "payload": "dummy" }))
+            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy")))
                 // assert
                 .rejects.toThrow(error);
         });
@@ -274,16 +274,18 @@ describe("JsonService", () => {
         it("should reject promise when http response is 200 and content type is not json", async () => {
             // arrange
             const json = { foo: 1, bar: "test" };
-            fetchMock.mockResolvedValue({
+            mocked(fetch).mockResolvedValue({
                 status: 200,
+                ok: true,
                 headers: new Headers({
+                    Accept: "application/json",
                     "Content-Type": "text/html"
                 }),
                 json: () => Promise.resolve(json)
-            });
+            } as Response);
 
             // act
-            await expect(subject.postForm("http://test", { "payload": "dummy" }))
+            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy")))
                 // assert
                 .rejects.toThrow("Invalid response Content-Type: text/html");
         });
@@ -291,81 +293,90 @@ describe("JsonService", () => {
         it("should reject promise when http response is 400 and json has error field", async () => {
             // arrange
             const json = { error: "error" };
-            fetchMock.mockResolvedValue({
+            mocked(fetch).mockResolvedValue({
                 status: 400,
+                ok: false,
                 headers: new Headers({
+                    Accept: "application/json",
                     "Content-Type": "application/json"
                 }),
                 json: () => Promise.resolve(json)
-            });
+            } as Response);
 
             // act
-            await expect(subject.postForm("http://test", { "payload": "dummy" }))
+            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy")))
                 // assert
                 .rejects.toThrow(json.error);
         });
 
-        it("should fulfill promise when http response is 400 and json has no error field", async () => {
+        it("should reject promise when http response is 400 and json has no error field", async () => {
             // arrange
             const json = { foo: 1, bar: "test" };
-            fetchMock.mockResolvedValue({
+            mocked(fetch).mockResolvedValue({
                 status: 400,
+                ok: false,
                 headers: new Headers({
+                    Accept: "application/json",
                     "Content-Type": "application/json"
                 }),
                 json: () => Promise.resolve(json)
-            });
+            } as Response);
 
             // act
-            const result = await subject.postForm("http://test", { "payload": "dummy" });
-
-            // assert
-            expect(result).toEqual(json);
+            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy")))
+                // assert
+                .rejects.toThrow(JSON.stringify(json));
         });
 
         it("should reject promise when http response is 400 and json is not able to parse", async () => {
             // arrange
-            const error = new SyntaxError("Unexpected token a in JSON");
-            fetchMock.mockResolvedValue({
+            mocked(fetch).mockResolvedValue({
                 status: 400,
+                statusText: "bad request",
+                ok: false,
                 headers: new Headers({
+                    Accept: "application/json",
                     "Content-Type": "application/json"
                 }),
-                json: () => Promise.reject(error)
-            });
+                json: () => Promise.reject(new SyntaxError("Unexpected token a in JSON"))
+            } as Response);
 
             // act
-            await expect(subject.postForm("http://test", { "payload": "dummy" }))
+            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy")))
                 // assert
-                .rejects.toThrow(error);
+                .rejects.toThrow(/bad request.+400/);
         });
 
         it("should reject promise when http response is 400 and content type is not json", async () => {
             // arrange
             const json = { foo: 1, bar: "test" };
-            fetchMock.mockResolvedValue({
+            mocked(fetch).mockResolvedValue({
                 status: 400,
+                ok: false,
                 headers: new Headers({
+                    Accept: "application/json",
                     "Content-Type": "text/html"
                 }),
                 json: () => Promise.resolve(json)
-            });
+            } as Response);
 
             // act
-            await expect(subject.postForm("http://test", { "payload": "dummy" }))
+            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy")))
                 // assert
                 .rejects.toThrow("Invalid response Content-Type: text/html");
         });
 
         it("should reject promise when http response is not 200", async () => {
             // arrange
-            fetchMock.mockResolvedValue({
+            mocked(fetch).mockResolvedValue({
                 status: 500,
                 statusText: "server error",
-            });
+                ok: false,
+                headers: new Headers(),
+            } as Response);
 
             // act
-            await expect(subject.postForm("http://test", { "payload": "dummy" }))
+            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy")))
                 // assert
                 .rejects.toThrow(/server error.+500/);
         });
@@ -374,16 +385,18 @@ describe("JsonService", () => {
             // arrange
             subject = new JsonService(["foo/bar"]);
             const json = { foo: 1, bar: "test" };
-            fetchMock.mockResolvedValue({
+            mocked(fetch).mockResolvedValue({
                 status: 200,
+                ok: true,
                 headers: new Headers({
+                    Accept: "application/json",
                     "Content-Type": "foo/bar"
                 }),
                 json: () => Promise.resolve(json)
-            });
+            } as Response);
 
             // act
-            const result = await subject.postForm("http://test", { "payload": "dummy" });
+            const result = await subject.postForm("http://test", new URLSearchParams("payload=dummy"));
 
             // assert
             expect(result).toEqual(json);

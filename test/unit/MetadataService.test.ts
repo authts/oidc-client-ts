@@ -56,7 +56,7 @@ describe("MetadataService", () => {
             // arrange
             const jsonService = subject["_jsonService"]; // access private member
             const getJsonMock = jest.spyOn(jsonService, "getJson")
-                .mockImplementation(() => Promise.resolve("test"));
+                .mockResolvedValue({ foo: "bar" });
 
             // act
             await subject.getMetadata();
@@ -91,7 +91,7 @@ describe("MetadataService", () => {
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
             const getJsonMock = jest.spyOn(jsonService, "getJson")
-                .mockImplementation(() => Promise.resolve("test"));
+                .mockResolvedValue({ foo: "bar" });
 
             // act
             await subject.getMetadata();
