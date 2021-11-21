@@ -86,7 +86,9 @@ export class MetadataService {
         return this._getMetadataProperty("userinfo_endpoint") as Promise<string>;
     }
 
-    public getTokenEndpoint(optional=true): Promise<string | undefined> {
+    public getTokenEndpoint(optional?: true): Promise<string | undefined>
+    public getTokenEndpoint(optional: false): Promise<string>
+    public getTokenEndpoint(optional = true): Promise<string | undefined> {
         return this._getMetadataProperty("token_endpoint", optional) as Promise<string | undefined>;
     }
 
@@ -102,7 +104,9 @@ export class MetadataService {
         return this._getMetadataProperty("revocation_endpoint", true) as Promise<string | undefined>;
     }
 
-    public getKeysEndpoint(optional=true): Promise<string | undefined> {
+    public getKeysEndpoint(optional?: true): Promise<string | undefined>
+    public getKeysEndpoint(optional: false): Promise<string>
+    public getKeysEndpoint(optional = true): Promise<string | undefined> {
         return this._getMetadataProperty("jwks_uri", optional) as Promise<string | undefined>;
     }
 
@@ -131,13 +135,13 @@ export class MetadataService {
             return this._signingKeys;
         }
 
-        const jwks_uri = await this.getKeysEndpoint(false) as string;
+        const jwks_uri = await this.getKeysEndpoint(false);
         this._logger.debug("getSigningKeys: jwks_uri received", jwks_uri);
 
         const keySet = await this._jsonService.getJson(jwks_uri);
         this._logger.debug("getSigningKeys: key set received", keySet);
 
-        if (!keySet.keys) {
+        if (!Array.isArray(keySet.keys)) {
             this._logger.error("getSigningKeys: Missing keys on keyset");
             throw new Error("Missing keys on keyset");
         }

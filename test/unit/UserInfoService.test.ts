@@ -53,7 +53,7 @@ describe("UserInfoService", () => {
             // arrange
             jest.spyOn(metadataService, "getUserInfoEndpoint").mockImplementation(() => Promise.resolve("http://sts/userinfo"));
             const getJsonMock = jest.spyOn(jsonService, "getJson")
-                .mockImplementation(() => Promise.resolve("test"));
+                .mockResolvedValue({ foo: "bar" });
 
             // act
             await subject.getClaims("token");

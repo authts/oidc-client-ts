@@ -1,5 +1,6 @@
 import sha256 from "crypto-js/sha256.js";
 import Base64 from "crypto-js/enc-base64.js";
+import Utf8 from "crypto-js/enc-utf8.js";
 
 import { Logger } from "./Log";
 
@@ -16,7 +17,7 @@ export class CryptoUtils {
         );
     }
 
-    private static  _UUIDv4(): string {
+    private static _UUIDv4(): string {
         return UUID_V4_TEMPLATE.replace(/[018]/g, c =>
             (+c ^ Math.random() * 16 >> +c / 4).toString(16)
         );
@@ -25,7 +26,7 @@ export class CryptoUtils {
     /**
      * Generates RFC4122 version 4 guid
      */
-    public static  generateUUIDv4(): string {
+    public static generateUUIDv4(): string {
         const hasRandomValues = window.crypto && Object.prototype.hasOwnProperty.call(window.crypto, "getRandomValues");
         const uuid = hasRandomValues ? CryptoUtils._cryptoUUIDv4() : CryptoUtils._UUIDv4();
         return uuid.replace(/-/g, "");
@@ -50,5 +51,13 @@ export class CryptoUtils {
             Logger.error("CryptoUtils", err instanceof Error ? err.message : err);
             throw err;
         }
+    }
+
+    /**
+     * Generates a base64-encoded string for a basic auth header
+     */
+    public static generateBasicAuth(client_id: string, client_secret: string): string {
+        const basicAuth = Utf8.parse([client_id, client_secret].join(":"));
+        return Base64.stringify(basicAuth);
     }
 }

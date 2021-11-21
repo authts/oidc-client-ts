@@ -178,7 +178,9 @@ export class MetadataService {
     // (undocumented)
     getIssuer(): Promise<string>;
     // (undocumented)
-    getKeysEndpoint(optional?: boolean): Promise<string | undefined>;
+    getKeysEndpoint(optional?: true): Promise<string | undefined>;
+    // (undocumented)
+    getKeysEndpoint(optional: false): Promise<string>;
     // (undocumented)
     getMetadata(): Promise<Partial<OidcMetadata>>;
     // (undocumented)
@@ -188,7 +190,9 @@ export class MetadataService {
     // (undocumented)
     getSigningKeys(): Promise<SigningKey[] | null>;
     // (undocumented)
-    getTokenEndpoint(optional?: boolean): Promise<string | undefined>;
+    getTokenEndpoint(optional?: true): Promise<string | undefined>;
+    // (undocumented)
+    getTokenEndpoint(optional: false): Promise<string>;
     // (undocumented)
     getUserInfoEndpoint(): Promise<string>;
     // (undocumented)
@@ -234,7 +238,7 @@ export class OidcClient {
 export interface OidcClientSettings {
     acr_values?: string;
     authority: string;
-    client_authentication?: string;
+    client_authentication?: "client_secret_basic" | "client_secret_post";
     client_id: string;
     // (undocumented)
     client_secret?: string;
@@ -274,7 +278,7 @@ export class OidcClientSettingsStore {
     // (undocumented)
     readonly authority: string;
     // (undocumented)
-    readonly client_authentication: string | undefined;
+    readonly client_authentication: "client_secret_basic" | "client_secret_post";
     // (undocumented)
     readonly client_id: string;
     // (undocumented)
