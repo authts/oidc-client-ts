@@ -88,7 +88,6 @@ describe("UserManager", () => {
     describe("signinRedirect", () => {
         it("should redirect the browser to the authorize url", async () => {
             await subject.signinRedirect();
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             expect(window.location.assign).toHaveBeenCalledWith(expect.stringContaining(settings.metadata!.authorization_endpoint!));
             const [location] = mocked(window.location.assign).mock.calls[0];
             const state = new URL(location).searchParams.get("state");
