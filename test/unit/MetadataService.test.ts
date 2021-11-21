@@ -21,17 +21,20 @@ describe("MetadataService", () => {
         subject = new MetadataService(new OidcClientSettingsStore(settings));
     });
 
-    describe("getMetadata", () => {
-        it("should return a promise", async () => {
+    describe("resetSigningKeys", () => {
+        it("should reset signing keys", () => {
+            // arrange
+            subject["_signingKeys"] = [{ a: "b" }];
+
             // act
-            const p = subject.getMetadata();
+            subject.resetSigningKeys();
 
             // assert
-            expect(p).toBeInstanceOf(Promise);
-            // eslint-disable-next-line no-empty
-            try { await p; } catch {}
+            expect(subject["_signingKeys"]).toBeNull();
         });
+    });
 
+    describe("getMetadata", () => {
         it("should use metadata on settings", async () => {
             // arrange
             settings = {
@@ -60,6 +63,21 @@ describe("MetadataService", () => {
 
             // assert
             expect(getJsonMock).toBeCalledWith("authority/.well-known/openid-configuration");
+        });
+
+        it("should fail when no authority or metadataUrl configured", async () => {
+            // arrange
+            settings = {
+                authority: "",
+                client_id: "client",
+                redirect_uri: "redirect"
+            };
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
+
+            // act
+            await expect(subject.getMetadata())
+                // assert
+                .rejects.toThrow(/No authority or metadataUrl/);
         });
 
         it("should use metadataUrl to make json call", async () => {
@@ -154,32 +172,18 @@ describe("MetadataService", () => {
                 metadataUrl: "http://sts/metadata"
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
+            const error = new Error("test");
             const jsonService = subject["_jsonService"]; // access private member
-            jest.spyOn(jsonService, "getJson").mockRejectedValue(new Error("test"));
+            jest.spyOn(jsonService, "getJson").mockRejectedValue(error);
 
             // act
-            try {
-                await subject.getMetadata();
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("test");
-            }
+            await expect(subject.getMetadata())
+                // assert
+                .rejects.toThrow(error);
         });
     });
 
     describe("getIssuer", () => {
-        it("should return a promise", async () => {
-            // act
-            const p = subject.getIssuer();
-
-            // assert
-            expect(p).toBeInstanceOf(Promise);
-            // eslint-disable-next-line no-empty
-            try { await p; } catch {}
-        });
-
         it("should use metadata on settings", async () => {
             // arrange
             settings = {
@@ -211,14 +215,9 @@ describe("MetadataService", () => {
             subject = new MetadataService(new OidcClientSettingsStore(settings));
 
             // act
-            try {
-                await subject.getIssuer();
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("issuer");
-            }
+            await expect(subject.getIssuer())
+                // assert
+                .rejects.toThrow(/issuer/);
         });
 
         it("should fail if json call to load metadata fails", async () => {
@@ -230,18 +229,14 @@ describe("MetadataService", () => {
                 metadataUrl: "http://sts/metadata"
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
+            const error = new Error("test");
             const jsonService = subject["_jsonService"]; // access private member
-            jest.spyOn(jsonService, "getJson").mockRejectedValue(new Error("test"));
+            jest.spyOn(jsonService, "getJson").mockRejectedValue(error);
 
             // act
-            try {
-                await subject.getIssuer();
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("test");
-            }
+            await expect(subject.getIssuer())
+                // assert
+                .rejects.toThrow(error);
         });
 
         it("should return value from", async () => {
@@ -262,11 +257,9 @@ describe("MetadataService", () => {
             // assert
             expect(result).toEqual("http://sts");
         });
-
     });
 
     describe("getAuthorizationEndpoint", () => {
-
         it("should return value from metadata", async () => {
             // arrange
             settings = {
@@ -285,11 +278,9 @@ describe("MetadataService", () => {
             // assert
             expect(result).toEqual("http://sts/authorize");
         });
-
     });
 
     describe("getUserInfoEndpoint", () => {
-
         it("should return value from", async () => {
             // arrange
             settings = {
@@ -308,11 +299,9 @@ describe("MetadataService", () => {
             // assert
             expect(result).toEqual("http://sts/userinfo");
         });
-
     });
 
-    describe("getEndSessionEndpoint", () => {
-
+    describe("getTokenEndpoint", () => {
         it("should return value from", async () => {
             // arrange
             settings = {
@@ -320,40 +309,20 @@ describe("MetadataService", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 metadata: {
-                    end_session_endpoint: "http://sts/signout"
+                    token_endpoint: "http://sts/tokeninfo"
                 }
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
 
             // act
-            const result = await subject.getEndSessionEndpoint();
+            const result = await subject.getTokenEndpoint();
 
             // assert
-            expect(result).toEqual("http://sts/signout");
+            expect(result).toEqual("http://sts/tokeninfo");
         });
-
-        it("should support optional value", async () => {
-            // arrange
-            settings = {
-                authority: "authority",
-                client_id: "client",
-                redirect_uri: "redirect",
-                metadata: {
-                }
-            };
-            subject = new MetadataService(new OidcClientSettingsStore(settings));
-
-            // act
-            const result = await subject.getEndSessionEndpoint();
-
-            // assert
-            expect(result).toBeUndefined();
-        });
-
     });
 
     describe("getCheckSessionIframe", () => {
-
         it("should return value from", async () => {
             // arrange
             settings = {
@@ -390,21 +359,87 @@ describe("MetadataService", () => {
             // assert
             expect(result).toBeUndefined();
         });
+    });
 
+    describe("getEndSessionEndpoint", () => {
+        it("should return value from", async () => {
+            // arrange
+            settings = {
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                metadata: {
+                    end_session_endpoint: "http://sts/signout"
+                }
+            };
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
+
+            // act
+            const result = await subject.getEndSessionEndpoint();
+
+            // assert
+            expect(result).toEqual("http://sts/signout");
+        });
+
+        it("should support optional value", async () => {
+            // arrange
+            settings = {
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                metadata: {
+                }
+            };
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
+
+            // act
+            const result = await subject.getEndSessionEndpoint();
+
+            // assert
+            expect(result).toBeUndefined();
+        });
+    });
+
+    describe("getRevocationEndpoint", () => {
+        it("should return value from", async () => {
+            // arrange
+            settings = {
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                metadata: {
+                    revocation_endpoint: "http://sts/revocation"
+                }
+            };
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
+
+            // act
+            const result = await subject.getRevocationEndpoint();
+
+            // assert
+            expect(result).toEqual("http://sts/revocation");
+        });
+
+        it("should support optional value", async () => {
+            // arrange
+            settings = {
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                metadata: {
+                }
+            };
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
+
+            // act
+            const result = await subject.getRevocationEndpoint();
+
+            // assert
+            expect(result).toBeUndefined();
+        });
     });
 
     describe("getSigningKeys", () => {
-
-        it("should return a promise", async () => {
-            // act
-            const p = subject.getSigningKeys();
-
-            // assert
-            expect(p).toBeInstanceOf(Promise);
-            // eslint-disable-next-line no-empty
-            try { await p; } catch {}
-        });
-
         it("should use signingKeys on settings", async () => {
             // arrange
             settings = {
@@ -433,14 +468,9 @@ describe("MetadataService", () => {
             subject = new MetadataService(new OidcClientSettingsStore(settings));
 
             // act
-            try {
-                await subject.getSigningKeys();
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("jwks_uri");
-            }
+            await expect(subject.getSigningKeys())
+                // assert
+                .rejects.toThrow(/jwks_uri/);
         });
 
         it("should fail if keys missing on keyset from jwks_uri", async () => {
@@ -458,14 +488,9 @@ describe("MetadataService", () => {
             jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({}));
 
             // act
-            try {
-                await subject.getSigningKeys();
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("keyset");
-            }
+            await expect(subject.getSigningKeys())
+                // assert
+                .rejects.toThrow(/keyset/);
         });
 
         it("should make json call to jwks_uri", async () => {
