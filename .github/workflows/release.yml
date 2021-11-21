@@ -1,39 +1,30 @@
 name: Release
 on:
-  push:
-    branches:
-      - main
+  release:
+    types: [created]
 
 jobs:
-  release:
+  publish:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [16.x]
 
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+      # Setup .npmrc file to publish to npm
+      - uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 16.x
           cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - run: npm ci
+      - run: npm publish
         env:
-          CI: true
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Cache incremental builds
-        uses: actions/cache@v2
+      - run: npm run typedoc
+
+      - name: Deploy pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          path: |
-            .eslintcache
-            lib/
-            **/*.tsbuildinfo
-            **/node_modules/.cache
-          key: build-${{ github.ref }}-${{ github.sha }}
-          restore-keys: |
-            build-${{ github.ref }}-
-            build-refs/heads/main-
-
-      - run: npm install
-      - run: npm run build
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/pages
