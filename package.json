@@ -33,10 +33,10 @@
   ],
   "scripts": {
     "build": "node scripts/build.js && npm run build-types",
-    "build-types": "tsc --emitDeclarationOnly && api-extractor run",
-    "clean": "git clean -fdX dist",
+    "build-types": "tsc -p tsconfig.build.json && api-extractor run",
+    "clean": "git clean -fdX dist lib *.tsbuildinfo",
     "prepack": "npm run build",
-    "test": "tsc -p test/unit/tsconfig.json && jest",
+    "test": "tsc && jest",
     "typedoc": "typedoc",
     "lint": "eslint --max-warnings=0 --cache .",
     "prepare": "husky install"

@@ -1,14 +1,14 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "../../src/utils";
-import { ResponseValidator } from "../../src/ResponseValidator";
-import { MetadataService } from "../../src/MetadataService";
-import type { UserInfoService } from "../../src/UserInfoService";
-import { SigninState } from "../../src/SigninState";
-import type { SigninResponse } from "../../src/SigninResponse";
-import type { ErrorResponse } from "../../src/ErrorResponse";
-import type { UserProfile } from "../../src/User";
+import { Log } from "./utils";
+import { ResponseValidator } from "./ResponseValidator";
+import { MetadataService } from "./MetadataService";
+import type { UserInfoService } from "./UserInfoService";
+import { SigninState } from "./SigninState";
+import type { SigninResponse } from "./SigninResponse";
+import type { ErrorResponse } from "./ErrorResponse";
+import type { UserProfile } from "./User";
 
 // access private methods
 class ResponseValidatorWrapper extends ResponseValidator {

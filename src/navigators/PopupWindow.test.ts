@@ -1,4 +1,4 @@
-import { PopupWindow } from "../../src/navigators/PopupWindow";
+import { PopupWindow } from "./PopupWindow";
 
 describe("PopupWindow", () => {
     let popupFromWindowOpen: WindowProxy;
@@ -41,7 +41,6 @@ describe("PopupWindow", () => {
         }));
 
         await expect(promise).resolves.toHaveProperty("url", "http://app/cb?state=someid");
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(popupFromWindowOpen.location.replace).toHaveBeenCalledWith("http://sts/authorize?x=y");
     });
 
@@ -56,7 +55,6 @@ describe("PopupWindow", () => {
         }));
 
         await expect(promise).rejects.toThrow("Invalid response from window");
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(popupFromWindowOpen.location.replace).toHaveBeenCalledWith("http://sts/authorize?x=y");
     });
 });

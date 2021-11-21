@@ -1,9 +1,9 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Timer } from "../../src/utils";
-import { AccessTokenEvents } from "../../src/AccessTokenEvents";
-import type { User } from "../../src/User";
+import { Timer } from "./utils";
+import { AccessTokenEvents } from "./AccessTokenEvents";
+import type { User } from "./User";
 
 describe("AccessTokenEvents", () => {
 

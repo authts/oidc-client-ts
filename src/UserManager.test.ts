@@ -1,14 +1,14 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, Logger } from "../../src/utils";
-import { UserManager } from "../../src/UserManager";
-import { UserManagerSettings, UserManagerSettingsStore } from "../../src/UserManagerSettings";
-import { User } from "../../src/User";
-import { WebStorageStateStore } from "../../src/WebStorageStateStore";
+import { Log, Logger } from "./utils";
+import { UserManager } from "./UserManager";
+import { UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
+import { User } from "./User";
+import { WebStorageStateStore } from "./WebStorageStateStore";
 
 import { mocked } from "ts-jest/utils";
-import type { IWindow } from "../../src/navigators";
+import type { IWindow } from "./navigators";
 
 describe("UserManager", () => {
     let settings: UserManagerSettings;

@@ -1,9 +1,9 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "../../src/utils";
-import { MetadataService } from "../../src/MetadataService";
-import { OidcClientSettings, OidcClientSettingsStore } from "../../src/OidcClientSettings";
+import { Log } from "./utils";
+import { MetadataService } from "./MetadataService";
+import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 
 describe("MetadataService", () => {
     let settings: OidcClientSettings;

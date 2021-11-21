@@ -56,6 +56,9 @@ overrides:
   - files: src/**/*
     env:
       node: false
-  - files: test/**/*
+  - files: [src/**/*.test.*, test/**/*]
     env:
       jest: true
+    rules:
+      "@typescript-eslint/unbound-method": "off"
+
