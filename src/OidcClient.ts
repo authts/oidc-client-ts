@@ -147,7 +147,7 @@ export class OidcClient {
 
         const { state, response } = await this.readSigninResponseState(url, true);
         this._logger.debug("processSigninResponse: Received state from storage; validating response");
-        return this._validator.validateSigninResponse(state, response);
+        return await this._validator.validateSigninResponse(state, response);
     }
 
     public async createSignoutRequest({
