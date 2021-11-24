@@ -1,14 +1,15 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./utils";
+import { JwtUtils, Log } from "./utils";
 import { ResponseValidator } from "./ResponseValidator";
 import { MetadataService } from "./MetadataService";
 import type { UserInfoService } from "./UserInfoService";
 import { SigninState } from "./SigninState";
 import type { SigninResponse } from "./SigninResponse";
-import type { ErrorResponse } from "./ErrorResponse";
+import { ErrorResponse } from "./ErrorResponse";
 import type { UserProfile } from "./User";
+import type { TokenClient } from "./TokenClient";
 
 // access private methods
 class ResponseValidatorWrapper extends ResponseValidator {
@@ -30,8 +31,8 @@ class ResponseValidatorWrapper extends ResponseValidator {
     public async _processCode(state: SigninState, response: SigninResponse) {
         return super._processCode(state, response);
     }
-    public async _validateIdTokenAttributes(state: SigninState, response: SigninResponse, id_token: string) {
-        return super._validateIdTokenAttributes(state, response, id_token);
+    public _validateIdTokenAttributes(response: SigninResponse, id_token: string) {
+        return super._validateIdTokenAttributes(response, id_token);
     }
 }
 
@@ -43,6 +44,7 @@ describe("ResponseValidator", () => {
 
     let metadataService: MetadataService;
     let userInfoService: UserInfoService;
+    let tokenClient: TokenClient;
 
     beforeEach(() => {
         Log.logger = console;
@@ -71,23 +73,18 @@ describe("ResponseValidator", () => {
 
         // access private members
         userInfoService = subject["_userInfoService"];
+        tokenClient = subject["_tokenClient"];
     });
 
     describe("validateSignoutResponse", () => {
-
         it("should validate that the client state matches response state", () => {
             // arrange
             stubResponse.state_id = "not_the_id";
 
             // act
-            try {
-                subject.validateSignoutResponse(stubState, stubResponse);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("match");
-            }
+            expect(() => subject.validateSignoutResponse(stubState, stubResponse))
+                // assert
+                .toThrow("State does not match");
         });
 
         it("should fail on error response", () => {
@@ -95,29 +92,9 @@ describe("ResponseValidator", () => {
             stubResponse.error = "some_error";
 
             // act
-            try {
-                subject.validateSignoutResponse(stubState, stubResponse);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as ErrorResponse).error).toEqual("some_error");
-            }
-        });
-
-        it("should return data for error responses", () => {
-            // arrange
-            stubResponse.error = "some_error";
-
-            // act
-            try {
-                subject.validateSignoutResponse(stubState, stubResponse);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as ErrorResponse).state).toEqual({ some: "data" });
-            }
+            expect(() => subject.validateSignoutResponse(stubState, stubResponse))
+                // assert
+                .toThrow(ErrorResponse);
         });
 
         it("should return data for successful responses", () => {
@@ -130,7 +107,6 @@ describe("ResponseValidator", () => {
     });
 
     describe("validateSigninResponse", () => {
-
         it("should process signin params", async () => {
             // arrange
             const _processSigninParamsMock = jest.spyOn(subject, "_processSigninParams")
@@ -167,14 +143,10 @@ describe("ResponseValidator", () => {
                 .mockImplementation(() => Promise.resolve(stubResponse));
 
             // act
-            try {
-                await subject.validateSigninResponse(stubState, stubResponse);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect(_validateTokensMock).not.toBeCalled();
-            }
+            await expect(subject.validateSigninResponse(stubState, stubResponse))
+                // assert
+                .rejects.toThrow(Error);
+            expect(_validateTokensMock).not.toBeCalled();
         });
 
         it("should process claims", async () => {
@@ -203,32 +175,22 @@ describe("ResponseValidator", () => {
                 .mockImplementation(() => Promise.resolve(stubResponse));
 
             // act
-            try {
-                await subject.validateSigninResponse(stubState, stubResponse);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect(_processClaimsMock).not.toBeCalled();
-            }
+            await expect(subject.validateSigninResponse(stubState, stubResponse))
+                // assert
+                .rejects.toThrow(Error);
+            expect(_processClaimsMock).not.toBeCalled();
         });
     });
 
     describe("_processSigninParams", () => {
-
-        it("should fail if no authority on state", () => {
+        it("should validate that the client state matches response state", () => {
             // arrange
-            delete stubState.authority;
+            stubResponse.state_id = "not_the_id";
 
             // act
-            try {
-                subject._processSigninParams(stubState, stubResponse);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("authority");
-            }
+            expect(() => subject._processSigninParams(stubState, stubResponse))
+                // assert
+                .toThrow("State does not match");
         });
 
         it("should fail if no client_id on state", () => {
@@ -236,14 +198,19 @@ describe("ResponseValidator", () => {
             delete stubState.client_id;
 
             // act
-            try {
-                subject._processSigninParams(stubState, stubResponse);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("client_id");
-            }
+            expect(() => subject._processSigninParams(stubState, stubResponse))
+                // assert
+                .toThrow("No client_id on state");
+        });
+
+        it("should fail if no authority on state", () => {
+            // arrange
+            delete stubState.authority;
+
+            // act
+            expect(() => subject._processSigninParams(stubState, stubResponse))
+                // assert
+                .toThrow("No authority on state");
         });
 
         it("should fail if the authority on the state is not the same as the settings", () => {
@@ -251,14 +218,9 @@ describe("ResponseValidator", () => {
             stubState.authority = "something different";
 
             // act
-            try {
-                subject._processSigninParams(stubState, stubResponse);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("authority mismatch");
-            }
+            expect(() => subject._processSigninParams(stubState, stubResponse))
+                // assert
+                .toThrow(/authority mismatch/);
         });
 
         it("should fail if the client_id on the state is not the same as the settings", () => {
@@ -266,44 +228,9 @@ describe("ResponseValidator", () => {
             stubState.client_id = "something different";
 
             // act
-            try {
-                subject._processSigninParams(stubState, stubResponse);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("client_id mismatch");
-            }
-        });
-
-        it("should validate that the client state matches response state", () => {
-            // arrange
-            stubResponse.state_id = "not_the_id";
-
-            // act
-            try {
-                subject._processSigninParams(stubState, stubResponse);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("match");
-            }
-        });
-
-        it("should fail on error response", () => {
-            // arrange
-            stubResponse.error = "some_error";
-
-            // act
-            try {
-                subject._processSigninParams(stubState, stubResponse);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as ErrorResponse).error).toEqual("some_error");
-            }
+            expect(() => subject._processSigninParams(stubState, stubResponse))
+                // assert
+                .toThrow(/client_id mismatch/);
         });
 
         it("should return data for error responses", () => {
@@ -311,14 +238,9 @@ describe("ResponseValidator", () => {
             stubResponse.error = "some_error";
 
             // act
-            try {
-                subject._processSigninParams(stubState, stubResponse);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as ErrorResponse).state).toEqual({ some: "data" });
-            }
+            expect(() => subject._processSigninParams(stubState, stubResponse))
+                // assert
+                .toThrow(ErrorResponse);
         });
 
         it("should fail if request was code flow but no code in response", () => {
@@ -327,14 +249,20 @@ describe("ResponseValidator", () => {
             delete stubResponse.code;
 
             // act
-            try {
-                subject._processSigninParams(stubState, stubResponse);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("code");
-            }
+            expect(() => subject._processSigninParams(stubState, stubResponse))
+                // assert
+                .toThrow(/No code/);
+        });
+
+        it("should fail if request was not code flow but code in response", () => {
+            // arrange
+            delete stubState.code_verifier;
+            stubResponse.code = "code";
+
+            // act
+            expect(() => subject._processSigninParams(stubState, stubResponse))
+                // assert
+                .toThrow(/Unexpected code/);
         });
 
         it("should return data for successful responses", () => {
@@ -351,7 +279,6 @@ describe("ResponseValidator", () => {
     });
 
     describe("_processClaims", () => {
-
         it("should filter protocol claims if OIDC", async () => {
             // arrange
             const state = new SigninState({
@@ -391,6 +318,28 @@ describe("ResponseValidator", () => {
 
             // assert
             expect(_filterProtocolClaimsMock).not.toBeCalled();
+        });
+
+        it("should fail if sub from user info endpoint does not match sub in id_token", async () => {
+            // arrange
+            const state = new SigninState({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type"
+            });
+            settings.loadUserInfo = true;
+            stubResponse.isOpenIdConnect = true;
+            stubResponse.profile = { sub: "sub" };
+            stubResponse.access_token = "access_token";
+            jest.spyOn(userInfoService, "getClaims")
+                .mockImplementation(() => Promise.resolve({ sub: "sub different" } as any));
+
+            // act
+            await expect(subject._processClaims(state, stubResponse))
+                // assert
+                .rejects.toThrow(Error);
         });
 
         it("should load and merge user info claims when loadUserInfo configured", async () => {
@@ -489,7 +438,6 @@ describe("ResponseValidator", () => {
     });
 
     describe("_mergeClaims", () => {
-
         it("should merge claims", () => {
             // arrange
             const c1 = { a: "apple", b: "banana" } as UserProfile;
@@ -598,7 +546,6 @@ describe("ResponseValidator", () => {
     });
 
     describe("_filterProtocolClaims", () => {
-
         it("should filter protocol claims if enabled on settings", () => {
             // arrange
             settings.filterProtocolClaims = true;
@@ -646,6 +593,168 @@ describe("ResponseValidator", () => {
                 at_hash: "athash",
                 iat: 5, nbf: 10, exp: 20
             });
+        });
+    });
+
+    describe("_validateTokens", () => {
+        it("should process code if response has code", async () => {
+            // arrange
+            stubResponse.code = "code";
+            const processCodeMock = jest.spyOn(subject, "_processCode")
+                .mockImplementation(() => Promise.resolve(stubResponse));
+
+            // act
+            await subject._validateTokens(stubState, stubResponse);
+
+            // assert
+            expect(processCodeMock).toBeCalled();
+        });
+
+        it("should not process code if response has no code", async () => {
+            // arrange
+            delete stubResponse.code;
+            const processCodeMock = jest.spyOn(subject, "_processCode")
+                .mockImplementation(() => Promise.resolve(stubResponse));
+
+            // act
+            await subject._validateTokens(stubState, stubResponse);
+
+            // assert
+            expect(processCodeMock).not.toBeCalled();
+        });
+    });
+
+    describe("_processCode", () => {
+        it("should date from state to exchange code request", async () => {
+            // arrange
+            stubState.client_secret = "client_secret";
+            stubState.redirect_uri = "redirect_uri";
+            stubState.code_verifier = "code_verifier";
+            stubState.extraTokenParams = { a: "a" };
+            const exchangeCodeMock = jest.spyOn(tokenClient, "exchangeCode")
+                .mockImplementation(() => Promise.resolve({}));
+
+            // act
+            await subject._processCode(stubState, stubResponse);
+
+            // assert
+            expect(exchangeCodeMock).toBeCalledWith(
+                expect.objectContaining({
+                    client_id: stubState.client_id,
+                    client_secret: stubState.client_secret,
+                    redirect_uri: stubState.redirect_uri,
+                    code_verifier: stubState.code_verifier,
+                    ...stubState.extraTokenParams
+                })
+            );
+        });
+
+        it("should add code response to exchange code request", async () => {
+            // arrange
+            stubResponse.code = "code";
+            const exchangeCodeMock = jest.spyOn(tokenClient, "exchangeCode")
+                .mockImplementation(() => Promise.resolve({}));
+
+            // act
+            await subject._processCode(stubState, stubResponse);
+
+            // assert
+            expect(exchangeCodeMock).toBeCalledWith(
+                expect.objectContaining({
+                    code: stubResponse.code
+                })
+            );
+        });
+
+        it("should map token response data to response", async () => {
+            // arrange
+            const tokenResponse = {
+                error: "error",
+                error_description: "error_description",
+                error_uri: "error_uri",
+                id_token: "id_token",
+                session_state: "session_state",
+                access_token: "access_token",
+                refresh_token: "refresh_token",
+                token_type: "token_type",
+                scope: "scope",
+                expires_at: "expires_at"
+            };
+            jest.spyOn(tokenClient, "exchangeCode")
+                .mockImplementation(() => Promise.resolve(tokenResponse));
+            jest.spyOn(subject, "_validateIdTokenAttributes")
+                .mockImplementation((response) => response);
+
+            // act
+            const result = await subject._processCode(stubState, stubResponse);
+
+            // assert
+            expect(result).toEqual(expect.objectContaining(tokenResponse));
+        });
+
+        it("should map token response expires_in to response", async () => {
+            // arrange
+            const tokenResponse = {
+                expires_in: "42"
+            };
+            jest.spyOn(tokenClient, "exchangeCode")
+                .mockImplementation(() => Promise.resolve(tokenResponse));
+            jest.spyOn(subject, "_validateIdTokenAttributes")
+                .mockImplementation((response) => response);
+
+            // act
+            const result = await subject._processCode(stubState, stubResponse);
+
+            // assert
+            expect(result).toEqual(expect.objectContaining({ expires_in: 42 }));
+        });
+
+        it("should validate id_token if token response has id_token", async () => {
+            // arrange
+            const tokenResponse = {
+                id_token: "id_token"
+            };
+            jest.spyOn(tokenClient, "exchangeCode")
+                .mockImplementation(() => Promise.resolve(tokenResponse));
+            const validateIdTokenAttributesMock = jest.spyOn(subject, "_validateIdTokenAttributes")
+                .mockImplementation((response) => response);
+
+            // act
+            await subject._processCode(stubState, stubResponse);
+
+            // assert
+            expect(validateIdTokenAttributesMock).toBeCalled();
+        });
+    });
+
+    describe("_validateIdTokenAttributes", () => {
+        it("should decode id_token and set profile", () => {
+            // arrange
+            const profile = { sub: "sub" };
+            const id_token = "id_token";
+            stubResponse.id_token = id_token;
+            jest.spyOn(JwtUtils, "decode")
+                .mockImplementation(() => profile);
+
+            // act
+            const result = subject._validateIdTokenAttributes(stubResponse, id_token);
+
+            // assert
+            expect(result.profile).toEqual(profile);
+        });
+
+        it("should fail if id_token does not contain sub", () => {
+            // arrange
+            const profile = { a: "a" };
+            const id_token = "id_token";
+            stubResponse.id_token = id_token;
+            jest.spyOn(JwtUtils, "decode")
+                .mockImplementation(() => profile as any);
+
+            // act
+            expect(() => subject._validateIdTokenAttributes(stubResponse, id_token))
+                // assert
+                .toThrow(Error);
         });
     });
 });

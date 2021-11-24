@@ -239,14 +239,14 @@ export class ResponseValidator {
         if (expires_in) response.expires_in = Number(expires_in);
         if (response.id_token) {
             this._logger.debug("_processCode: token response successful, processing id_token");
-            return this._validateIdTokenAttributes(state, response, response.id_token);
+            return this._validateIdTokenAttributes(response, response.id_token);
         }
 
         this._logger.debug("_processCode: token response successful, returning response");
         return response;
     }
 
-    protected async _validateIdTokenAttributes(state: SigninState, response: SigninResponse, id_token: string): Promise<SigninResponse> {
+    protected _validateIdTokenAttributes(response: SigninResponse, id_token: string): SigninResponse {
         this._logger.debug("_validateIdTokenAttributes: Decoding JWT attributes");
 
         const payload = JwtUtils.decode(id_token);
