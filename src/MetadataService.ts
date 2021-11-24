@@ -100,8 +100,8 @@ export class MetadataService {
         return this._getMetadataProperty("end_session_endpoint", true) as Promise<string | undefined>;
     }
 
-    public getRevocationEndpoint(): Promise<string | undefined> {
-        return this._getMetadataProperty("revocation_endpoint", true) as Promise<string | undefined>;
+    public getRevocationEndpoint(optional = true): Promise<string | undefined> {
+        return this._getMetadataProperty("revocation_endpoint", optional) as Promise<string | undefined>;
     }
 
     public getKeysEndpoint(optional?: true): Promise<string | undefined>

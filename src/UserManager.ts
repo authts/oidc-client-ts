@@ -9,7 +9,6 @@ import { User, UserProfile } from "./User";
 import { UserManagerEvents } from "./UserManagerEvents";
 import { SilentRenewService } from "./SilentRenewService";
 import { SessionMonitor } from "./SessionMonitor";
-import { TokenRevocationClient } from "./TokenRevocationClient";
 import { TokenClient } from "./TokenClient";
 import type { SessionStatus } from "./SessionStatus";
 import type { SignoutResponse } from "./SignoutResponse";
@@ -73,7 +72,6 @@ export class UserManager {
     protected readonly _events: UserManagerEvents;
     protected readonly _silentRenewService: SilentRenewService;
     protected readonly _sessionMonitor: SessionMonitor | null;
-    protected readonly _tokenRevocationClient: TokenRevocationClient;
     protected readonly _tokenClient: TokenClient;
 
     public constructor(settings: UserManagerSettings) {
@@ -101,7 +99,6 @@ export class UserManager {
             this._sessionMonitor = new SessionMonitor(this);
         }
 
-        this._tokenRevocationClient = new TokenRevocationClient(this.settings, this.metadataService);
         this._tokenClient = new TokenClient(this.settings, this.metadataService);
     }
 
@@ -529,7 +526,7 @@ export class UserManager {
             this._logger.debug("_signoutStart: loaded current user from storage");
 
             if (this.settings.revokeAccessTokenOnSignout) {
-                await this._revokeInternal(user);
+                await this._revokeInternal(user, true);
             }
 
             const id_token = args.id_token_hint || user && user.id_token;
@@ -564,7 +561,7 @@ export class UserManager {
 
     public async revokeAccessToken(): Promise<void> {
         const user = await this._loadUser();
-        const success = await this._revokeInternal(user, true);
+        const success = await this._revokeInternal(user, false);
         if (success && user) {
             this._logger.debug("revokeAccessToken: removing token properties from user and re-storing");
 
@@ -581,39 +578,30 @@ export class UserManager {
         this._logger.info("revokeAccessToken: access token revoked successfully");
     }
 
-    protected async _revokeInternal(user: User | null, required = false): Promise<boolean> {
-        if (user) {
-            const access_token = user.access_token;
-            const refresh_token = user.refresh_token;
-
-            const atSuccess = await this._revokeAccessTokenInternal(access_token, required);
-            const rtSuccess = await this._revokeRefreshTokenInternal(refresh_token, required);
-            if (!atSuccess && !rtSuccess) {
-                this._logger.debug("revokeAccessToken: no need to revoke due to no token(s), or JWT format");
-            }
-
-            return atSuccess || rtSuccess;
+    protected async _revokeInternal(user: User | null, optional: boolean): Promise<boolean> {
+        if (!user) {
+            return false;
         }
-
-        return false;
-    }
-
-    protected async _revokeAccessTokenInternal(access_token: string, required: boolean): Promise<boolean> {
-        // check for JWT vs. reference token
-        if (!access_token || access_token.includes(".")) {
+        if (!user.access_token && !user.refresh_token) {
+            this._logger.debug("revokeAccessToken: no need to revoke due to no token(s)");
             return false;
         }
 
-        await this._tokenRevocationClient.revoke(access_token, required);
-        return true;
-    }
-
-    protected async _revokeRefreshTokenInternal(refresh_token: string | undefined, required: boolean): Promise<boolean> {
-        if (!refresh_token) {
-            return false;
+        if (user.access_token) {
+            await this._tokenClient.revoke({
+                token: user.access_token,
+                token_type_hint: "access_token",
+                optional
+            });
+        }
+        if (user.refresh_token) {
+            await this._tokenClient.revoke({
+                token: user.refresh_token,
+                token_type_hint: "refresh_token",
+                optional
+            });
         }
 
-        await this._tokenRevocationClient.revoke(refresh_token, required, "refresh_token");
         return true;
     }
 

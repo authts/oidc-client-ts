@@ -24,7 +24,6 @@ export type { SignoutRequest, SignoutRequestArgs } from "./SignoutRequest";
 export { SignoutResponse } from "./SignoutResponse";
 export { State } from "./State";
 export type { StateStore } from "./StateStore";
-export { TokenRevocationClient } from "./TokenRevocationClient";
 export { User } from "./User";
 export type { UserProfile } from "./User";
 export * from "./UserManager";
