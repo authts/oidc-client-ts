@@ -10,6 +10,7 @@ document.getElementById("clearState").addEventListener("click", clearState, fals
 document.getElementById("getUser").addEventListener("click", getUser, false);
 document.getElementById("removeUser").addEventListener("click", removeUser, false);
 document.getElementById("querySessionStatus").addEventListener("click", querySessionStatus, false);
+document.getElementById("revokeAccessToken").addEventListener("click", revokeAccessToken, false);
 
 document.getElementById("startSigninMainWindow").addEventListener("click", startSigninMainWindow, false);
 document.getElementById("endSigninMainWindow").addEventListener("click", endSigninMainWindow, false);
@@ -114,6 +115,22 @@ function removeUser() {
     });
 }
 
+function querySessionStatus() {
+    mgr.querySessionStatus().then(function(status) {
+        log("user's session status", status);
+    }).catch(function(err) {
+        log(err);
+    });
+}
+
+function revokeAccessToken() {
+    mgr.revokeAccessToken().then(function() {
+        log("access token revoked");
+    }).catch(function(err) {
+        log(err);
+    });
+}
+
 function startSigninMainWindow() {
     mgr.signinRedirect(/*{useReplaceToNavigate:true}*/).then(function() {
         log("signinRedirect done");
@@ -153,14 +170,6 @@ function popupSignout() {
 function iframeSignin() {
     mgr.signinSilent().then(function(user) {
         log("signed in", user);
-    }).catch(function(err) {
-        log(err);
-    });
-}
-
-function querySessionStatus() {
-    mgr.querySessionStatus().then(function(status) {
-        log("user's session status", status);
     }).catch(function(err) {
         log(err);
     });

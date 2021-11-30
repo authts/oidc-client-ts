@@ -186,7 +186,7 @@ export class MetadataService {
     // (undocumented)
     protected _getMetadataProperty(name: keyof OidcMetadata, optional?: boolean): Promise<string | boolean | string[] | undefined>;
     // (undocumented)
-    getRevocationEndpoint(): Promise<string | undefined>;
+    getRevocationEndpoint(optional?: boolean): Promise<string | undefined>;
     // (undocumented)
     getSigningKeys(): Promise<SigningKey[] | null>;
     // (undocumented)
@@ -700,15 +700,6 @@ export interface StateStore {
 }
 
 // @public (undocumented)
-export class TokenRevocationClient {
-    constructor(settings: OidcClientSettingsStore, metadataService: MetadataService);
-    // (undocumented)
-    revoke(token: string, required: boolean, type?: string): Promise<void>;
-    // (undocumented)
-    protected _revoke(url: string, client_id: string, client_secret: string | undefined, token: string, type: string): Promise<void>;
-}
-
-// @public (undocumented)
 export class User {
     constructor(args: {
         id_token?: string;
@@ -775,11 +766,7 @@ export class UserManager {
     // (undocumented)
     revokeAccessToken(): Promise<void>;
     // (undocumented)
-    protected _revokeAccessTokenInternal(access_token: string, required: boolean): Promise<boolean>;
-    // (undocumented)
-    protected _revokeInternal(user: User | null, required?: boolean): Promise<boolean>;
-    // (undocumented)
-    protected _revokeRefreshTokenInternal(refresh_token: string | undefined, required: boolean): Promise<boolean>;
+    protected _revokeInternal(user: User | null, optional: boolean): Promise<boolean>;
     // (undocumented)
     protected readonly _sessionMonitor: SessionMonitor | null;
     readonly settings: UserManagerSettingsStore;
@@ -825,8 +812,6 @@ export class UserManager {
     //
     // (undocumented)
     protected readonly _tokenClient: TokenClient;
-    // (undocumented)
-    protected readonly _tokenRevocationClient: TokenRevocationClient;
     // (undocumented)
     protected _useRefreshToken(user: User): Promise<User>;
     // (undocumented)

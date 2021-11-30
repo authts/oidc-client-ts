@@ -233,7 +233,7 @@ describe("JsonService", () => {
                     Accept: "application/json",
                     "Content-Type": "application/json"
                 }),
-                json: () => Promise.resolve(json)
+                text: () => Promise.resolve(JSON.stringify(json))
             } as Response);
 
             // act
@@ -263,7 +263,7 @@ describe("JsonService", () => {
                     Accept: "application/json",
                     "Content-Type": "application/json"
                 }),
-                json: () => Promise.reject(error)
+                text: () => Promise.reject(error)
             } as Response);
 
             // act
@@ -282,7 +282,7 @@ describe("JsonService", () => {
                     Accept: "application/json",
                     "Content-Type": "text/html"
                 }),
-                json: () => Promise.resolve(json)
+                text: () => Promise.resolve(JSON.stringify(json))
             } as Response);
 
             // act
@@ -301,7 +301,7 @@ describe("JsonService", () => {
                     Accept: "application/json",
                     "Content-Type": "application/json"
                 }),
-                json: () => Promise.resolve(json)
+                text: () => Promise.resolve(JSON.stringify(json))
             } as Response);
 
             // act
@@ -320,7 +320,7 @@ describe("JsonService", () => {
                     Accept: "application/json",
                     "Content-Type": "application/json"
                 }),
-                json: () => Promise.resolve(json)
+                text: () => Promise.resolve(JSON.stringify(json))
             } as Response);
 
             // act
@@ -339,7 +339,7 @@ describe("JsonService", () => {
                     Accept: "application/json",
                     "Content-Type": "application/json"
                 }),
-                json: () => Promise.reject(new SyntaxError("Unexpected token a in JSON"))
+                text: () => Promise.resolve("not_json_data")
             } as Response);
 
             // act
@@ -358,7 +358,7 @@ describe("JsonService", () => {
                     Accept: "application/json",
                     "Content-Type": "text/html"
                 }),
-                json: () => Promise.resolve(json)
+                text: () => Promise.resolve(JSON.stringify(json))
             } as Response);
 
             // act
@@ -369,11 +369,13 @@ describe("JsonService", () => {
 
         it("should reject promise when http response is not 200", async () => {
             // arrange
+            const json = {};
             mocked(fetch).mockResolvedValue({
                 status: 500,
                 statusText: "server error",
                 ok: false,
                 headers: new Headers(),
+                text: () => Promise.resolve(JSON.stringify(json))
             } as Response);
 
             // act
@@ -393,7 +395,7 @@ describe("JsonService", () => {
                     Accept: "application/json",
                     "Content-Type": "foo/bar"
                 }),
-                json: () => Promise.resolve(json)
+                text: () => Promise.resolve(JSON.stringify(json))
             } as Response);
 
             // act

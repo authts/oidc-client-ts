@@ -99,15 +99,19 @@ export class JsonService {
         if (contentType && !this._contentTypes.find(item => contentType.startsWith(item))) {
             throw new Error(`Invalid response Content-Type: ${(contentType ?? "undefined")}, from URL: ${url}`);
         }
-        let json: Record<string, unknown>;
+
+        const responseText = await response.text();
+
+        let json: Record<string, unknown> = {};
         try {
-            json = await response.json();
+            json = JSON.parse(responseText);
         }
         catch (err) {
             this._logger.error("postForm: Error parsing JSON response", err);
             if (response.ok) throw err;
             throw new Error(`${response.statusText} (${response.status})`);
         }
+
         if (!response.ok) {
             this._logger.error("postForm: Error from server:", json);
             if (json.error) {
@@ -115,6 +119,7 @@ export class JsonService {
             }
             throw new Error(`${response.statusText} (${response.status}): ${JSON.stringify(json)}`);
         }
+
         return json;
     }
 }

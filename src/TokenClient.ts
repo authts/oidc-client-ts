@@ -33,6 +33,16 @@ export interface ExchangeRefreshTokenArgs {
 /**
  * @internal
  */
+export interface RevokeArgs {
+    token: string;
+    token_type_hint: "access_token" | "refresh_token";
+
+    optional?: boolean;
+}
+
+/**
+ * @internal
+ */
 export class TokenClient {
     private readonly _settings: OidcClientSettingsStore;
     private readonly _logger: Logger;
@@ -147,5 +157,37 @@ export class TokenClient {
         this._logger.debug("exchangeRefreshToken: response received");
 
         return response;
+    }
+
+    public async revoke({
+        optional = false,
+        ...args
+    }: RevokeArgs): Promise<void> {
+        if (!args.token) {
+            this._logger.error("revoke: No token passed");
+            throw new Error("A token is required");
+        }
+
+        const url = await this._metadataService.getRevocationEndpoint(optional);
+        if (!url) {
+            // not required, so don't error and just return
+            return;
+        }
+
+        this._logger.debug("revoke: Received revocation endpoint, revoking " + args.token_type_hint);
+
+        const params = new URLSearchParams();
+        for (const [key, value] of Object.entries(args)) {
+            if (value != null) {
+                params.set(key, value);
+            }
+        }
+        params.set("client_id", this._settings.client_id);
+        if (this._settings.client_secret) {
+            params.set("client_secret", this._settings.client_secret);
+        }
+
+        await this._jsonService.postForm(url, params);
+        this._logger.debug("revoke: response received");
     }
 }
