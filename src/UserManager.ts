@@ -321,32 +321,35 @@ export class UserManager {
         this._logger.info("signinSilentCallback: successful");
     }
 
-    public async signinCallback(url = window.location.href): Promise<User | null> {
+    public async signinCallback(url = window.location.href): Promise<User | void> {
         const { state } = await this._client.readSigninResponseState(url);
-        if (state.request_type === "si:r") {
-            return this.signinRedirectCallback(url);
+        switch (state.request_type) {
+            case "si:r":
+                return this.signinRedirectCallback(url);
+            case "si:p":
+                return await this.signinPopupCallback(url);
+            case "si:s":
+                return await this.signinSilentCallback(url);
+            default:
+                throw new Error("invalid response_type in state");
         }
-        if (state.request_type === "si:p") {
-            await this.signinPopupCallback(url);
-            return null;
-        }
-        if (state.request_type === "si:s") {
-            await this.signinSilentCallback(url);
-            return null;
-        }
-        throw new Error("invalid response_type in state");
     }
 
     public async signoutCallback(url = window.location.href, keepOpen = false): Promise<void> {
         const { state } = await this._client.readSignoutResponseState(url);
-        if (state) {
-            if (state.request_type === "so:r") {
+        if (!state) {
+            return;
+        }
+
+        switch (state.request_type) {
+            case "so:r":
                 await this.signoutRedirectCallback(url);
-            }
-            if (state.request_type === "so:p") {
+                break;
+            case "so:p":
                 await this.signoutPopupCallback(url, keepOpen);
-            }
-            throw new Error("invalid response_type in state");
+                break;
+            default:
+                throw new Error("invalid response_type in state");
         }
     }
 
