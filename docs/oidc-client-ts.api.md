@@ -919,15 +919,53 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 // @public (undocumented)
 export interface UserProfile {
     // (undocumented)
+    address?: Record<string, unknown>;
+    // (undocumented)
     at_hash?: string;
     // (undocumented)
     auth_time?: number;
     // (undocumented)
     azp?: string;
     // (undocumented)
+    birthdate?: string;
+    // (undocumented)
+    email?: string;
+    // (undocumented)
+    email_verified?: boolean;
+    // (undocumented)
+    family_name?: string;
+    // (undocumented)
+    gender?: string;
+    // (undocumented)
+    given_name?: string;
+    // (undocumented)
+    locale?: string;
+    // (undocumented)
+    middle_name?: string;
+    // (undocumented)
+    name?: string;
+    // (undocumented)
+    nickname?: string;
+    // (undocumented)
+    phone_number?: string;
+    // (undocumented)
+    phone_number_verified?: boolean;
+    // (undocumented)
+    picture?: string;
+    // (undocumented)
+    preferred_username?: string;
+    // (undocumented)
+    profile?: string;
+    // (undocumented)
     sid?: string;
     // (undocumented)
     sub?: string;
+    // (undocumented)
+    updated_at?: number;
+    // (undocumented)
+    website?: string;
+    // (undocumented)
+    zoneinfo?: string;
 }
 
 // @public (undocumented)

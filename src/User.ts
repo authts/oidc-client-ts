@@ -12,6 +12,27 @@ export interface UserProfile {
     azp?: string;
     at_hash?: string;
     auth_time?: number;
+
+    // Other standard claims - https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
+    name?: string;
+    given_name?: string;
+    family_name?: string;
+    middle_name?: string;
+    nickname?: string;
+    preferred_username?: string;
+    profile?: string;
+    picture?: string;
+    website?: string;
+    email?: string;
+    email_verified?: boolean;
+    gender?: string;
+    birthdate?: string;
+    zoneinfo?: string;
+    locale?: string;
+    phone_number?: string;
+    phone_number_verified?: boolean;
+    address?: Record<string, unknown>; // https://openid.net/specs/openid-connect-core-1_0.html#AddressClaim
+    updated_at?: number;
 }
 
 /**
