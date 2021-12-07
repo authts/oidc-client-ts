@@ -775,7 +775,7 @@ export class UserManager {
     // (undocumented)
     protected _signin(args: CreateSigninRequestArgs, handle: IWindow, verifySub?: string): Promise<User>;
     // (undocumented)
-    signinCallback(url?: string): Promise<User | null>;
+    signinCallback(url?: string): Promise<User | void>;
     // (undocumented)
     protected _signinEnd(url: string, verifySub?: string): Promise<User>;
     signinPopup(args?: SigninPopupArgs): Promise<User>;
