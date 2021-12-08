@@ -29,7 +29,6 @@ overrides:
     parserOptions:
       project:
         - ./tsconfig.json
-        - ./test/unit/tsconfig.json
     extends:
       - plugin:@typescript-eslint/recommended
       - plugin:@typescript-eslint/recommended-requiring-type-checking
