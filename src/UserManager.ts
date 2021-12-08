@@ -225,7 +225,7 @@ export class UserManager {
         // first determine if we have a refresh token, or need to use iframe
         let user = await this._loadUser();
         if (user && user.refresh_token) {
-            return this._useRefreshToken(user);
+            return await this._useRefreshToken(user);
         }
 
         const url = this.settings.silent_redirect_uri || this.settings.redirect_uri;
@@ -325,7 +325,7 @@ export class UserManager {
         const { state } = await this._client.readSigninResponseState(url);
         switch (state.request_type) {
             case "si:r":
-                return this.signinRedirectCallback(url);
+                return await this.signinRedirectCallback(url);
             case "si:p":
                 return await this.signinPopupCallback(url);
             case "si:s":
@@ -414,7 +414,7 @@ export class UserManager {
 
     protected async _signin(args: CreateSigninRequestArgs, handle: IWindow, verifySub?: string): Promise<User> {
         const navResponse = await this._signinStart(args, handle);
-        return this._signinEnd(navResponse.url, verifySub);
+        return await this._signinEnd(navResponse.url, verifySub);
     }
     protected async _signinStart(args: CreateSigninRequestArgs, handle: IWindow): Promise<NavigateResponse> {
         this._logger.debug("_signinStart: got navigator window handle");
@@ -519,7 +519,7 @@ export class UserManager {
 
     protected async _signout(args: CreateSignoutRequestArgs, handle: IWindow): Promise<SignoutResponse> {
         const navResponse = await this._signoutStart(args, handle);
-        return this._signoutEnd(navResponse.url);
+        return await this._signoutEnd(navResponse.url);
     }
     protected async _signoutStart(args: CreateSignoutRequestArgs = {}, handle: IWindow): Promise<NavigateResponse> {
         this._logger.debug("_signoutStart: got navigator window handle");

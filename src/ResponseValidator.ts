@@ -213,7 +213,7 @@ export class ResponseValidator {
     protected async _validateTokens(state: SigninState, response: SigninResponse): Promise<SigninResponse> {
         if (response.code) {
             this._logger.debug("_validateTokens: Validating code");
-            return this._processCode(state, response);
+            return await this._processCode(state, response);
         }
 
         this._logger.debug("_validateTokens: No code to process");

@@ -17,7 +17,7 @@ class ResponseValidatorWrapper extends ResponseValidator {
         return super._processSigninParams(state, response);
     }
     public async _processClaims(state: SigninState, response: SigninResponse) {
-        return super._processClaims(state, response);
+        return await super._processClaims(state, response);
     }
     public _mergeClaims(claims1: UserProfile, claims2: any) {
         return super._mergeClaims(claims1, claims2);
@@ -29,7 +29,7 @@ class ResponseValidatorWrapper extends ResponseValidator {
         return super._validateTokens(state, response);
     }
     public async _processCode(state: SigninState, response: SigninResponse) {
-        return super._processCode(state, response);
+        return await super._processCode(state, response);
     }
     public _validateIdTokenAttributes(response: SigninResponse, id_token: string) {
         return super._validateIdTokenAttributes(response, id_token);

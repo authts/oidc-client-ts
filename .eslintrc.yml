@@ -35,6 +35,7 @@ overrides:
       - plugin:@typescript-eslint/recommended-requiring-type-checking
     rules:
       indent: "off"
+      no-return-await: "off"
       "@typescript-eslint/indent":
         - error
         - 4
@@ -44,6 +45,9 @@ overrides:
         - error
         - allowArgumentsExplicitlyTypedAsAny: true
       "@typescript-eslint/object-curly-spacing":
+        - error
+        - always
+      "@typescript-eslint/return-await":
         - error
         - always
       # custom rules to fix code style
