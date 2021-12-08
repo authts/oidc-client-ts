@@ -91,7 +91,7 @@ export class SigninRequest {
             client_id, authority, redirect_uri,
             response_mode,
             client_secret, scope, extraTokenParams,
-            skipUserInfo
+            skipUserInfo,
         });
 
         const parsedUrl = new URL(url);

@@ -7,10 +7,10 @@
  * @public
  */
 export interface ILogger {
-    debug(...args: any[]): void;
-    info(...args: any[]): void;
-    warn(...args: any[]): void;
-    error(...args: any[]): void;
+    debug(...args: unknown[]): void;
+    info(...args: unknown[]): void;
+    warn(...args: unknown[]): void;
+    error(...args: unknown[]): void;
 }
 
 const nopLogger: ILogger = {
@@ -76,36 +76,36 @@ export class Logger {
         this._name = name;
     }
 
-    public debug(...args: any[]): void {
+    public debug(...args: unknown[]): void {
         Logger.debug(this._name, ...args);
     }
-    public info(...args: any[]): void {
+    public info(...args: unknown[]): void {
         Logger.info(this._name, ...args);
     }
-    public warn(...args: any[]): void {
+    public warn(...args: unknown[]): void {
         Logger.warn(this._name, ...args);
     }
-    public error(...args: any[]): void {
+    public error(...args: unknown[]): void {
         Logger.error(this._name, ...args);
     }
 
     // helpers for static class methods
-    public static debug(name: string, ...args: any[]): void {
+    public static debug(name: string, ...args: unknown[]): void {
         if (Log.level >= DEBUG) {
             Log.logger.debug(`[${name}]`, ...args);
         }
     }
-    public static info(name: string, ...args: any[]): void {
+    public static info(name: string, ...args: unknown[]): void {
         if (Log.level >= INFO) {
             Log.logger.info(`[${name}]`, ...args);
         }
     }
-    public static warn(name: string, ...args: any[]): void {
+    public static warn(name: string, ...args: unknown[]): void {
         if (Log.level >= WARN) {
             Log.logger.warn(`[${name}]`, ...args);
         }
     }
-    public static error(name: string, ...args: any[]): void {
+    public static error(name: string, ...args: unknown[]): void {
         if (Log.level >= ERROR) {
             Log.logger.error(`[${name}]`, ...args);
         }

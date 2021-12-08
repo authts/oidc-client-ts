@@ -1,27 +1,26 @@
-/* eslint-disable @typescript-eslint/unbound-method */
+import { mocked } from "ts-jest/utils";
 import { PopupWindow } from "./PopupWindow";
 
-describe("PopupWindow", () => {
-    let popupFromWindowOpen: WindowProxy;
+function firstSuccessfulResult<T>(fn: () => T): T {
+    expect(fn).toHaveReturned();
+    return mocked(fn).mock.results[0].value as T;
+}
 
+describe("PopupWindow", () => {
     beforeEach(() => {
         Object.defineProperty(window, "location", {
             writable: true,
-            value: { origin: "http://app" }
+            value: { origin: "http://app" },
         });
 
         window.opener = {
             postMessage: jest.fn(),
         };
-        window.open = jest.fn().mockImplementation(() => {
-            popupFromWindowOpen = {
-                location: { replace: jest.fn() },
-                focus: jest.fn(),
-                close: jest.fn(),
-            } as any;
-
-            return popupFromWindowOpen;
-        });
+        window.open = jest.fn(() => ({
+            location: { replace: jest.fn() },
+            focus: jest.fn(),
+            close: jest.fn(),
+        } as unknown as WindowProxy));
     });
 
     afterEach(() => {
@@ -41,10 +40,11 @@ describe("PopupWindow", () => {
 
         window.dispatchEvent(new MessageEvent("message", {
             data: { source: "oidc-client", url: "http://app/cb?state=someid" },
-            origin: "http://app"
+            origin: "http://app",
         }));
 
         await expect(promise).resolves.toHaveProperty("url", "http://app/cb?state=someid");
+        const popupFromWindowOpen = firstSuccessfulResult(window.open)!;
         expect(popupFromWindowOpen.location.replace).toHaveBeenCalledWith("http://sts/authorize?x=y");
         expect(popupFromWindowOpen.focus).toHaveBeenCalled();
         expect(popupFromWindowOpen.close).toHaveBeenCalled();
@@ -57,10 +57,11 @@ describe("PopupWindow", () => {
 
         window.dispatchEvent(new MessageEvent("message", {
             data: { source: "oidc-client", url: "http://app/cb?state=someid", keepOpen: true },
-            origin: "http://app"
+            origin: "http://app",
         }));
 
         await expect(promise).resolves.toHaveProperty("url", "http://app/cb?state=someid");
+        const popupFromWindowOpen = firstSuccessfulResult(window.open)!;
         expect(popupFromWindowOpen.location.replace).toHaveBeenCalledWith("http://sts/authorize?x=y");
         expect(popupFromWindowOpen.close).not.toHaveBeenCalled();
     });
@@ -72,19 +73,20 @@ describe("PopupWindow", () => {
 
         window.dispatchEvent(new MessageEvent("message", {
             data: { source: "oidc-client", url: "http://app/cb?state=someid&code=foreign-origin" },
-            origin: "http://foreign-origin"
+            origin: "http://foreign-origin",
         }));
         window.dispatchEvent(new MessageEvent("message", {
             data: { source: "foreign-lib", url: "http://app/cb?state=someid&code=foreign-lib" },
             origin: "http://app",
-            source: {} as MessageEventSource
+            source: {} as MessageEventSource,
         }));
         window.dispatchEvent(new MessageEvent("message", {
             data: { source: "oidc-client", url: "http://app/cb?state=someid&code=code" },
-            origin: "http://app"
+            origin: "http://app",
         }));
 
         await expect(promise).resolves.toHaveProperty("url", "http://app/cb?state=someid&code=code");
+        const popupFromWindowOpen = firstSuccessfulResult(window.open)!;
         expect(popupFromWindowOpen.focus).toHaveBeenCalled();
         expect(popupFromWindowOpen.close).toHaveBeenCalled();
     });
@@ -93,6 +95,7 @@ describe("PopupWindow", () => {
         const popupWindow = new PopupWindow({});
 
         const promise = popupWindow.navigate({ url: "http://sts/authorize?x=y", state: "someid" });
+        const popupFromWindowOpen = firstSuccessfulResult(window.open)!;
         window.dispatchEvent(new MessageEvent("message", {
             data: { source: "oidc-client", url: "" },
             origin: "http://app",
@@ -107,6 +110,7 @@ describe("PopupWindow", () => {
         const popupWindow = new PopupWindow({});
 
         const promise = popupWindow.navigate({ url: "http://sts/authorize?x=y", state: "someid" });
+        const popupFromWindowOpen = firstSuccessfulResult(window.open);
         Object.defineProperty(popupFromWindowOpen, "closed", {
             enumerable: true,
             value: true,
@@ -126,7 +130,7 @@ describe("PopupWindow", () => {
 
     it("should notify the parent window", async () => {
         PopupWindow.notifyOpener("http://sts/authorize?x=y", false);
-        expect(window.opener.postMessage).toHaveBeenCalledWith({
+        expect((window.opener as WindowProxy).postMessage).toHaveBeenCalledWith({
             source: "oidc-client",
             url: "http://sts/authorize?x=y",
             keepOpen: false,

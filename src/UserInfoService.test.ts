@@ -15,7 +15,7 @@ describe("UserInfoService", () => {
         const settings = new OidcClientSettingsStore({
             authority: "authority",
             client_id: "client",
-            redirect_uri: "redirect"
+            redirect_uri: "redirect",
         });
         metadataService = new MetadataService(settings);
 
@@ -86,7 +86,7 @@ describe("UserInfoService", () => {
                 sub:"123", email:"foo@gmail.com",
                 role:["admin", "dev"],
                 nonce:"nonce", at_hash:"athash",
-                iat:5, nbf:10, exp:20
+                iat:5, nbf:10, exp:20,
             };
             jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(expectedClaims));
 

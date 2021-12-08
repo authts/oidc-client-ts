@@ -5,7 +5,7 @@
 ```ts
 
 // @public (undocumented)
-export type AccessTokenCallback = (...ev: any[]) => void;
+export type AccessTokenCallback = (...ev: unknown[]) => void;
 
 // @public (undocumented)
 export class AccessTokenEvents {
@@ -118,13 +118,13 @@ export interface IFrameWindowParams {
 // @public
 export interface ILogger {
     // (undocumented)
-    debug(...args: any[]): void;
+    debug(...args: unknown[]): void;
     // (undocumented)
-    error(...args: any[]): void;
+    error(...args: unknown[]): void;
     // (undocumented)
-    info(...args: any[]): void;
+    info(...args: unknown[]): void;
     // (undocumented)
-    warn(...args: any[]): void;
+    warn(...args: unknown[]): void;
 }
 
 // @public (undocumented)
@@ -205,9 +205,9 @@ export class OidcClient {
     // (undocumented)
     clearStaleState(): Promise<void>;
     // (undocumented)
-    createSigninRequest({ response_type, scope, redirect_uri, state, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo }: CreateSigninRequestArgs): Promise<SigninRequest>;
+    createSigninRequest({ response_type, scope, redirect_uri, state, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo, }: CreateSigninRequestArgs): Promise<SigninRequest>;
     // (undocumented)
-    createSignoutRequest({ state, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
+    createSignoutRequest({ state, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type, }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
     // (undocumented)
     protected readonly _logger: Logger;
     // (undocumented)
@@ -272,7 +272,7 @@ export interface OidcClientSettings {
 
 // @public
 export class OidcClientSettingsStore {
-    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, clockSkewInSeconds, userInfoJwtIssuer, mergeClaims, stateStore, extraQueryParams, extraTokenParams }: OidcClientSettings);
+    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, clockSkewInSeconds, userInfoJwtIssuer, mergeClaims, stateStore, extraQueryParams, extraTokenParams, }: OidcClientSettings);
     // (undocumented)
     readonly acr_values: string | undefined;
     // (undocumented)
@@ -290,7 +290,7 @@ export class OidcClientSettingsStore {
     // (undocumented)
     readonly extraQueryParams: Record<string, string | number | boolean>;
     // (undocumented)
-    readonly extraTokenParams: Record<string, any>;
+    readonly extraTokenParams: Record<string, unknown>;
     // (undocumented)
     readonly filterProtocolClaims: boolean;
     // (undocumented)
@@ -624,7 +624,7 @@ export type SignoutRedirectArgs = RedirectParams & ExtraSignoutRequestArgs;
 
 // @public (undocumented)
 export class SignoutRequest {
-    constructor({ url, state_data, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type }: SignoutRequestArgs);
+    constructor({ url, state_data, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type, }: SignoutRequestArgs);
     // (undocumented)
     readonly state?: State;
     // (undocumented)
@@ -918,6 +918,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
 // @public
 export interface UserProfile {
+    // (undocumented)
+    [claim: string]: unknown;
     address?: Record<string, unknown>;
     // (undocumented)
     at_hash?: string;

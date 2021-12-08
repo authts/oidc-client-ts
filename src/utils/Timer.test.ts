@@ -4,7 +4,7 @@
 import { IntervalTimer, Timer } from "./Timer";
 
 class IntervalTimerMock implements IntervalTimer {
-    callback: ((...args: any[]) => void);
+    callback: ((...args: unknown[]) => void);
     duration?: number;
 
     clearTimeoutWasCalled: boolean;
@@ -18,7 +18,7 @@ class IntervalTimerMock implements IntervalTimer {
         this.clearHandle = null;
     }
 
-    setInterval(cb: (...args: any[]) => void, duration?: number) {
+    setInterval(cb: (...args: unknown[]) => void, duration?: number) {
         this.callback = cb;
         this.duration = duration;
         return 5;

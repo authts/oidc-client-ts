@@ -14,6 +14,7 @@ import type { SessionStatus } from "./SessionStatus";
 import type { SignoutResponse } from "./SignoutResponse";
 import { ErrorResponse } from "./ErrorResponse";
 import type { MetadataService } from "./MetadataService";
+import type { SigninResponse } from "./SigninResponse";
 
 /**
  * @public
@@ -225,7 +226,7 @@ export class UserManager {
         // first determine if we have a refresh token, or need to use iframe
         let user = await this._loadUser();
         if (user && user.refresh_token) {
-            return this._useRefreshToken(user);
+            return await this._useRefreshToken(user);
         }
 
         const url = this.settings.silent_redirect_uri || this.settings.redirect_uri;
@@ -260,15 +261,15 @@ export class UserManager {
         return user;
     }
 
+    // TODO: move this into OidcClient and construct a validated SigninResponse from the refresh token response
     protected async _useRefreshToken(user: User): Promise<User> {
         const result = await this._tokenClient.exchangeRefreshToken({
-            refresh_token: user.refresh_token || ""
-        });
+            refresh_token: user.refresh_token || "",
+        }) as Partial<SigninResponse>;
         if (!result) {
             this._logger.error("_useRefreshToken: No response returned from token endpoint");
             throw new Error("No response returned from token endpoint");
         }
-
         if (!result.access_token) {
             this._logger.error("_useRefreshToken: No access token returned from token endpoint");
             throw new Error("No access token returned from token endpoint");
@@ -325,7 +326,7 @@ export class UserManager {
         const { state } = await this._client.readSigninResponseState(url);
         switch (state.request_type) {
             case "si:r":
-                return this.signinRedirectCallback(url);
+                return await this.signinRedirectCallback(url);
             case "si:p":
                 return await this.signinPopupCallback(url);
             case "si:s":
@@ -382,11 +383,11 @@ export class UserManager {
             this._logger.debug("querySessionStatus: got signin response");
 
             if (signinResponse.session_state && signinResponse.profile.sub) {
-                this._logger.info("querySessionStatus: querySessionStatus success for sub: ",  signinResponse.profile.sub);
+                this._logger.info("querySessionStatus: querySessionStatus success for sub: ", signinResponse.profile.sub);
                 return {
                     session_state: signinResponse.session_state,
                     sub: signinResponse.profile.sub,
-                    sid: signinResponse.profile.sid
+                    sid: signinResponse.profile.sid,
                 };
             }
 
@@ -403,7 +404,7 @@ export class UserManager {
                 ) {
                     this._logger.info("querySessionStatus: querySessionStatus success for anonymous user");
                     return {
-                        session_state: err.session_state
+                        session_state: err.session_state,
                     };
                 }
             }
@@ -414,7 +415,7 @@ export class UserManager {
 
     protected async _signin(args: CreateSigninRequestArgs, handle: IWindow, verifySub?: string): Promise<User> {
         const navResponse = await this._signinStart(args, handle);
-        return this._signinEnd(navResponse.url, verifySub);
+        return await this._signinEnd(navResponse.url, verifySub);
     }
     protected async _signinStart(args: CreateSigninRequestArgs, handle: IWindow): Promise<NavigateResponse> {
         this._logger.debug("_signinStart: got navigator window handle");
@@ -519,7 +520,7 @@ export class UserManager {
 
     protected async _signout(args: CreateSignoutRequestArgs, handle: IWindow): Promise<SignoutResponse> {
         const navResponse = await this._signoutStart(args, handle);
-        return this._signoutEnd(navResponse.url);
+        return await this._signoutEnd(navResponse.url);
     }
     protected async _signoutStart(args: CreateSignoutRequestArgs = {}, handle: IWindow): Promise<NavigateResponse> {
         this._logger.debug("_signoutStart: got navigator window handle");
@@ -594,14 +595,14 @@ export class UserManager {
             await this._tokenClient.revoke({
                 token: user.access_token,
                 token_type_hint: "access_token",
-                optional
+                optional,
             });
         }
         if (user.refresh_token) {
             await this._tokenClient.revoke({
                 token: user.refresh_token,
                 token_type_hint: "refresh_token",
-                optional
+                optional,
             });
         }
 

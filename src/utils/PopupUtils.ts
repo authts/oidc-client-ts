@@ -1,4 +1,3 @@
-
 /**
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/open#window_features
  *

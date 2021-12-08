@@ -25,7 +25,7 @@ describe("JsonService", () => {
             // assert
             expect(fetch).toBeCalledWith("http://test", {
                 headers: { Accept: "application/json" },
-                method: "GET"
+                method: "GET",
             });
         });
 
@@ -36,7 +36,7 @@ describe("JsonService", () => {
             // assert
             expect(fetch).toBeCalledWith("http://test", {
                 headers: { Accept: "application/json", Authorization: "Bearer token" },
-                method: "GET"
+                method: "GET",
             });
         });
 
@@ -47,9 +47,9 @@ describe("JsonService", () => {
                 status: 200,
                 ok: true,
                 headers: new Headers({
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 }),
-                json: () => Promise.resolve(json)
+                json: () => Promise.resolve(json),
             } as Response);
 
             // act
@@ -66,9 +66,9 @@ describe("JsonService", () => {
                 status: 200,
                 ok: true,
                 headers: new Headers({
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 }),
-                json: () => Promise.reject(error)
+                json: () => Promise.reject(error),
             } as Response);
 
             // act
@@ -84,7 +84,7 @@ describe("JsonService", () => {
                 statusText: "server error",
                 ok: false,
                 headers: new Headers(),
-                json: () => Promise.reject(new SyntaxError())
+                json: () => Promise.reject(new SyntaxError()),
             } as Response);
 
             // act
@@ -110,9 +110,9 @@ describe("JsonService", () => {
                 status: 200,
                 ok: true,
                 headers: new Headers({
-                    "Content-Type": "text/html"
+                    "Content-Type": "text/html",
                 }),
-                json: () => Promise.resolve(json)
+                json: () => Promise.resolve(json),
             } as Response);
 
             // act
@@ -129,9 +129,9 @@ describe("JsonService", () => {
                 status: 200,
                 ok: true,
                 headers: new Headers({
-                    "Content-Type": "foo/bar"
+                    "Content-Type": "foo/bar",
                 }),
-                json: () => Promise.resolve(json)
+                json: () => Promise.resolve(json),
             } as Response);
 
             // act
@@ -151,9 +151,9 @@ describe("JsonService", () => {
                 ok: true,
                 headers: new Headers({
                     Accept: "application/json",
-                    "Content-Type": "application/jwt"
+                    "Content-Type": "application/jwt",
                 }),
-                text: () => Promise.resolve(text)
+                text: () => Promise.resolve(text),
             } as Response);
 
             // act
@@ -175,11 +175,11 @@ describe("JsonService", () => {
                 expect.objectContaining({
                     headers: {
                         Accept: "application/json",
-                        "Content-Type": "application/x-www-form-urlencoded"
+                        "Content-Type": "application/x-www-form-urlencoded",
                     },
                     method: "POST",
-                    body: new URLSearchParams()
-                })
+                    body: new URLSearchParams(),
+                }),
             );
         });
 
@@ -197,8 +197,8 @@ describe("JsonService", () => {
                         "Content-Type": "application/x-www-form-urlencoded",
                     },
                     method: "POST",
-                    body: new URLSearchParams()
-                })
+                    body: new URLSearchParams(),
+                }),
             );
         });
 
@@ -215,11 +215,11 @@ describe("JsonService", () => {
                 expect.objectContaining({
                     headers: {
                         Accept: "application/json",
-                        "Content-Type": "application/x-www-form-urlencoded"
+                        "Content-Type": "application/x-www-form-urlencoded",
                     },
                     method: "POST",
-                    body
-                })
+                    body,
+                }),
             );
         });
 
@@ -231,9 +231,9 @@ describe("JsonService", () => {
                 ok: true,
                 headers: new Headers({
                     Accept: "application/json",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 }),
-                text: () => Promise.resolve(JSON.stringify(json))
+                text: () => Promise.resolve(JSON.stringify(json)),
             } as Response);
 
             // act
@@ -261,9 +261,9 @@ describe("JsonService", () => {
                 ok: true,
                 headers: new Headers({
                     Accept: "application/json",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 }),
-                text: () => Promise.reject(error)
+                text: () => Promise.reject(error),
             } as Response);
 
             // act
@@ -280,9 +280,9 @@ describe("JsonService", () => {
                 ok: true,
                 headers: new Headers({
                     Accept: "application/json",
-                    "Content-Type": "text/html"
+                    "Content-Type": "text/html",
                 }),
-                text: () => Promise.resolve(JSON.stringify(json))
+                text: () => Promise.resolve(JSON.stringify(json)),
             } as Response);
 
             // act
@@ -299,9 +299,9 @@ describe("JsonService", () => {
                 ok: false,
                 headers: new Headers({
                     Accept: "application/json",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 }),
-                text: () => Promise.resolve(JSON.stringify(json))
+                text: () => Promise.resolve(JSON.stringify(json)),
             } as Response);
 
             // act
@@ -318,9 +318,9 @@ describe("JsonService", () => {
                 ok: false,
                 headers: new Headers({
                     Accept: "application/json",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 }),
-                text: () => Promise.resolve(JSON.stringify(json))
+                text: () => Promise.resolve(JSON.stringify(json)),
             } as Response);
 
             // act
@@ -337,9 +337,9 @@ describe("JsonService", () => {
                 ok: false,
                 headers: new Headers({
                     Accept: "application/json",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 }),
-                text: () => Promise.resolve("not_json_data")
+                text: () => Promise.resolve("not_json_data"),
             } as Response);
 
             // act
@@ -356,9 +356,9 @@ describe("JsonService", () => {
                 ok: false,
                 headers: new Headers({
                     Accept: "application/json",
-                    "Content-Type": "text/html"
+                    "Content-Type": "text/html",
                 }),
-                text: () => Promise.resolve(JSON.stringify(json))
+                text: () => Promise.resolve(JSON.stringify(json)),
             } as Response);
 
             // act
@@ -375,7 +375,7 @@ describe("JsonService", () => {
                 statusText: "server error",
                 ok: false,
                 headers: new Headers(),
-                text: () => Promise.resolve(JSON.stringify(json))
+                text: () => Promise.resolve(JSON.stringify(json)),
             } as Response);
 
             // act
@@ -393,9 +393,9 @@ describe("JsonService", () => {
                 ok: true,
                 headers: new Headers({
                     Accept: "application/json",
-                    "Content-Type": "foo/bar"
+                    "Content-Type": "foo/bar",
                 }),
-                text: () => Promise.resolve(JSON.stringify(json))
+                text: () => Promise.resolve(JSON.stringify(json)),
             } as Response);
 
             // act

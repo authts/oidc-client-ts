@@ -11,6 +11,9 @@ extends:
   - eslint:recommended
   - plugin:testing-library/dom
 rules:
+  comma-dangle:
+    - error
+    - always-multiline
   consistent-return: error
   indent:
     - error
@@ -23,36 +26,34 @@ rules:
   no-multiple-empty-lines:
     - error
     - max: 1
+      maxBOF: 0
       maxEOF: 0
+  no-multi-spaces: error
 overrides:
   - files: ["*.ts", "*.tsx"]
     parserOptions:
       project:
         - ./tsconfig.json
-        - ./test/unit/tsconfig.json
     extends:
       - plugin:@typescript-eslint/recommended
       - plugin:@typescript-eslint/recommended-requiring-type-checking
     rules:
       indent: "off"
+      no-return-await: "off"
       "@typescript-eslint/indent":
         - error
         - 4
         - SwitchCase: 1
       "@typescript-eslint/member-delimiter-style": error
-      "@typescript-eslint/explicit-module-boundary-types":
-        - error
-        - allowArgumentsExplicitlyTypedAsAny: true
       "@typescript-eslint/object-curly-spacing":
+        - error
+        - always
+      "@typescript-eslint/return-await":
         - error
         - always
       # custom rules to fix code style
       "@typescript-eslint/require-await": "off"
       "@typescript-eslint/no-unsafe-assignment": "off"
-      "@typescript-eslint/no-unsafe-call": "off"
-      "@typescript-eslint/no-unsafe-member-access": "off"
-      "@typescript-eslint/no-explicit-any": "off"
-      "@typescript-eslint/no-unsafe-return": "off"
   - files: src/**/*
     env:
       node: false

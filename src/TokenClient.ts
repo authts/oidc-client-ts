@@ -117,7 +117,7 @@ export class TokenClient {
         client_id = this._settings.client_id,
         client_secret = this._settings.client_secret,
         ...args
-    }: ExchangeRefreshTokenArgs): Promise<any> {
+    }: ExchangeRefreshTokenArgs): Promise<Record<string, unknown>> {
         if (!client_id) {
             this._logger.error("exchangeRefreshToken: No client_id passed");
             throw new Error("A client_id is required");

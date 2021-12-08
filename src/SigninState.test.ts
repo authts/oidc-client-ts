@@ -24,7 +24,7 @@ describe("SigninState", () => {
                 client_id: "client",
                 redirect_uri: "http://cb",
                 request_type: "type",
-                scope: "scope"
+                scope: "scope",
             });
 
             // assert
@@ -40,7 +40,7 @@ describe("SigninState", () => {
                 client_id: "client",
                 scope: "scope",
                 request_type: "type",
-                redirect_uri: "http://cb"
+                redirect_uri: "http://cb",
             });
 
             // assert
@@ -55,7 +55,7 @@ describe("SigninState", () => {
                 redirect_uri: "http://cb",
                 scope: "scope",
                 request_type: "type",
-                code_verifier: "5"
+                code_verifier: "5",
             });
 
             // assert
@@ -70,7 +70,7 @@ describe("SigninState", () => {
                 redirect_uri: "http://cb",
                 scope: "scope",
                 request_type: "type",
-                code_verifier: true
+                code_verifier: true,
             });
 
             // assert
@@ -87,7 +87,7 @@ describe("SigninState", () => {
                 redirect_uri: "http://cb",
                 scope: "scope",
                 request_type: "type",
-                code_verifier: true
+                code_verifier: true,
             });
 
             // assert
@@ -101,7 +101,7 @@ describe("SigninState", () => {
                 redirect_uri: "http://cb",
                 scope: "scope",
                 request_type: "type",
-                client_id: "client"
+                client_id: "client",
             });
 
             // assert
@@ -115,7 +115,7 @@ describe("SigninState", () => {
                 redirect_uri: "http://cb",
                 scope: "scope",
                 request_type: "type",
-                authority: "test"
+                authority: "test",
             });
 
             // assert
@@ -129,7 +129,7 @@ describe("SigninState", () => {
                 client_id: "client",
                 redirect_uri: "http://cb",
                 scope: "scope",
-                request_type: "xoxo"
+                request_type: "xoxo",
             });
 
             // assert
@@ -145,8 +145,8 @@ describe("SigninState", () => {
                 scope: "scope",
                 request_type: "type",
                 extraTokenParams: {
-                    "resourceServer" : "abc"
-                }
+                    "resourceServer" : "abc",
+                },
             });
 
             // assert
@@ -164,7 +164,7 @@ describe("SigninState", () => {
             client_id: "client",
             redirect_uri: "http://cb",
             scope: "scope",
-            request_type: "type"
+            request_type: "type",
         });
 
         // act

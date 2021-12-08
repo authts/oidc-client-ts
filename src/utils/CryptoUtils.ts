@@ -13,13 +13,13 @@ export class CryptoUtils {
 
     private static _cryptoUUIDv4(): string {
         return UUID_V4_TEMPLATE.replace(/[018]/g, c =>
-            (+c ^ window.crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
+            (+c ^ window.crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16),
         );
     }
 
     private static _UUIDv4(): string {
         return UUID_V4_TEMPLATE.replace(/[018]/g, c =>
-            (+c ^ Math.random() * 16 >> +c / 4).toString(16)
+            (+c ^ Math.random() * 16 >> +c / 4).toString(16),
         );
     }
 

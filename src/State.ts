@@ -30,7 +30,7 @@ export class State {
         else {
             this.created = Timer.getEpochTime();
         }
-        this.request_type =  args.request_type;
+        this.request_type = args.request_type;
     }
 
     public toStorageString(): string {
@@ -39,7 +39,7 @@ export class State {
             id: this.id,
             data: this.data,
             created: this.created,
-            request_type: this.request_type
+            request_type: this.request_type,
         });
     }
 

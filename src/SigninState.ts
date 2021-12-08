@@ -88,7 +88,7 @@ export class SigninState extends State {
             client_secret: this.client_secret,
             extraTokenParams : this.extraTokenParams,
             response_mode: this.response_mode,
-            skipUserInfo: this.skipUserInfo
+            skipUserInfo: this.skipUserInfo,
         });
     }
 

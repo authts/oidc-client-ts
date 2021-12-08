@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Logger, JwtUtils } from "./utils";
+import { Logger, JwtUtils, JwtPayload } from "./utils";
 import type { MetadataService } from "./MetadataService";
 import { UserInfoService } from "./UserInfoService";
 import { TokenClient } from "./TokenClient";
@@ -134,7 +134,7 @@ export class ResponseValidator {
             if (state.skipUserInfo !== true && this._settings.loadUserInfo && response.access_token) {
                 this._logger.debug("_processClaims: loading user info");
 
-                const claims  = await this._userInfoService.getClaims(response.access_token);
+                const claims = await this._userInfoService.getClaims(response.access_token);
                 this._logger.debug("_processClaims: user info claims received from user info endpoint");
 
                 if (claims.sub !== response.profile.sub) {
@@ -158,31 +158,26 @@ export class ResponseValidator {
         return response;
     }
 
-    protected _mergeClaims(claims1: UserProfile, claims2: any): UserProfile {
-        const result = Object.assign({}, claims1 as Record<string, any>);
+    protected _mergeClaims(claims1: UserProfile, claims2: JwtPayload): UserProfile {
+        const result = { ...claims1 };
 
-        for (const name in claims2) {
-            let values = claims2[name];
-            if (!Array.isArray(values)) {
-                values = [values];
-            }
-
-            for (let i = 0; i < values.length; i++) {
-                const value = values[i];
-                if (!result[name]) {
-                    result[name] = value;
+        for (const [claim, values] of Object.entries(claims2)) {
+            for (const value of Array.isArray(values) ? values : [values]) {
+                const previousValue = result[claim];
+                if (!previousValue) {
+                    result[claim] = value;
                 }
-                else if (Array.isArray(result[name])) {
-                    if (result[name].indexOf(value) < 0) {
-                        result[name].push(value);
+                else if (Array.isArray(previousValue)) {
+                    if (!previousValue.includes(value)) {
+                        previousValue.push(value);
                     }
                 }
-                else if (result[name] !== value) {
+                else if (result[claim] !== value) {
                     if (typeof value === "object" && this._settings.mergeClaims) {
-                        result[name] = this._mergeClaims(result[name], value);
+                        result[claim] = this._mergeClaims(previousValue as UserProfile, value);
                     }
                     else {
-                        result[name] = [result[name], value];
+                        result[claim] = [previousValue, value];
                     }
                 }
             }
@@ -194,7 +189,7 @@ export class ResponseValidator {
     protected _filterProtocolClaims(claims: UserProfile): UserProfile {
         this._logger.debug("_filterProtocolClaims, incoming claims:", claims);
 
-        const result = Object.assign({}, claims as Record<string, any>);
+        const result = { ...claims };
 
         if (this._settings.filterProtocolClaims) {
             ProtocolClaims.forEach(type => {
@@ -213,7 +208,7 @@ export class ResponseValidator {
     protected async _validateTokens(state: SigninState, response: SigninResponse): Promise<SigninResponse> {
         if (response.code) {
             this._logger.debug("_validateTokens: Validating code");
-            return this._processCode(state, response);
+            return await this._processCode(state, response);
         }
 
         this._logger.debug("_validateTokens: No code to process");
@@ -226,7 +221,7 @@ export class ResponseValidator {
             client_secret: state.client_secret,
             code : response.code,
             redirect_uri: state.redirect_uri,
-            code_verifier: state.code_verifier || ""
+            code_verifier: state.code_verifier || "",
         };
 
         if (state.extraTokenParams && typeof(state.extraTokenParams) === "object") {

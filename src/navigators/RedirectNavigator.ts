@@ -22,12 +22,12 @@ export class RedirectNavigator implements INavigator {
     constructor(private _settings: UserManagerSettingsStore) {}
 
     public async prepare({
-        redirectMethod = this._settings.redirectMethod
+        redirectMethod = this._settings.redirectMethod,
     }: RedirectParams): Promise<IWindow> {
         const redirect = window.location[redirectMethod].bind(window.location) as (url: string) => never;
         return {
             navigate: (params) => redirect(params.url),
-            close: () => this._logger.warn("close: cannot close the current window")
+            close: () => this._logger.warn("close: cannot close the current window"),
         };
     }
 }

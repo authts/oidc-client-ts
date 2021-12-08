@@ -30,7 +30,7 @@ export class SignoutRequest {
 
     public constructor({
         url,
-        state_data, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type
+        state_data, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type,
     }: SignoutRequestArgs) {
         this._logger = new Logger("SignoutRequest");
 

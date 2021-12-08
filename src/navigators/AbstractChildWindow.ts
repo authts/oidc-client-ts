@@ -6,6 +6,12 @@ import type { IWindow, NavigateParams, NavigateResponse } from "./IWindow";
 
 const messageSource = "oidc-client";
 
+interface MessageData {
+    source: string;
+    url: string;
+    keepOpen: boolean;
+}
+
 /**
  * Window implementation which resolves via communication from a child window
  * via the `Window.postMessage()` interface.
@@ -27,14 +33,15 @@ export abstract class AbstractChildWindow implements IWindow {
         this._logger.debug("navigate: Setting URL in window");
         this._window.location.replace(params.url);
 
-        const { url, keepOpen } = await new Promise<{ url: string; keepOpen?: boolean }>((resolve, reject) => {
+        const { url, keepOpen } = await new Promise<MessageData>((resolve, reject) => {
             const listener = (e: MessageEvent) => {
-                if (e.origin !== window.location.origin || e.data?.source !== messageSource) {
+                const data: MessageData | undefined = e.data;
+                if (e.origin !== window.location.origin || data?.source !== messageSource) {
                     // silently discard events not intended for us
                     return;
                 }
                 try {
-                    const state = UrlUtils.readParams(e.data.url, params.response_mode).get("state");
+                    const state = UrlUtils.readParams(data.url, params.response_mode).get("state");
                     if (!state) {
                         this._logger.warn("navigate: no state found in response url");
                     }
@@ -48,7 +55,7 @@ export abstract class AbstractChildWindow implements IWindow {
                     this._dispose();
                     reject(new Error("Invalid response from window"));
                 }
-                resolve(e.data);
+                resolve(data);
             };
             window.addEventListener("message", listener, false);
             this._disposeHandlers.add(() => window.removeEventListener("message", listener, false));
@@ -83,6 +90,6 @@ export abstract class AbstractChildWindow implements IWindow {
             source: messageSource,
             url,
             keepOpen,
-        }, window.location.origin);
+        } as MessageData, window.location.origin);
     }
 }

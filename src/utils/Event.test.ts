@@ -5,7 +5,7 @@ import { Event } from "./Event";
 
 describe("Event", () => {
 
-    let subject: Event<any>;
+    let subject: Event<unknown[]>;
 
     beforeEach(() => {
         subject = new Event("test name");
@@ -80,6 +80,7 @@ describe("Event", () => {
 
         it("should pass params", () => {
             // arrange
+            const typedSubject = subject as Event<[number, number, number]>;
             let a = 10;
             let b = 11;
             let c = 12;
@@ -88,35 +89,15 @@ describe("Event", () => {
                 b = arg_b;
                 c = arg_c;
             };
-            subject.addHandler(cb);
+            typedSubject.addHandler(cb);
 
             // act
-            subject.raise(1, 2, 3);
+            typedSubject.raise(1, 2, 3);
 
             // assert
             expect(a).toEqual(1);
             expect(b).toEqual(2);
             expect(c).toEqual(3);
-        });
-
-        it("should allow passing no params", () => {
-            // arrange
-            let a = 10;
-            let b = 11;
-            let c = 12;
-            const cb = function (arg_a: number, arg_b: number, arg_c: number) {
-                a = arg_a;
-                b = arg_b;
-                c = arg_c;
-            };
-            subject.addHandler(cb);
-
-            subject.raise();
-
-            // assert
-            expect(a).toEqual(undefined);
-            expect(b).toEqual(undefined);
-            expect(c).toEqual(undefined);
         });
     });
 });

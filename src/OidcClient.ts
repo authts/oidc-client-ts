@@ -74,7 +74,7 @@ export class OidcClient {
         response_type, scope, redirect_uri,
         state,
         prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
-        resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo
+        resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo,
     }: CreateSigninRequestArgs): Promise<SigninRequest> {
         this._logger.debug("createSigninRequest");
 
@@ -111,7 +111,7 @@ export class OidcClient {
             prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
             resource, request, request_uri, extraQueryParams, extraTokenParams, request_type, response_mode,
             client_secret: this.settings.client_secret,
-            skipUserInfo
+            skipUserInfo,
         });
 
         const signinState = signinRequest.state;
@@ -152,7 +152,7 @@ export class OidcClient {
 
     public async createSignoutRequest({
         state,
-        id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type
+        id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type,
     }: CreateSignoutRequestArgs = {}): Promise<SignoutRequest> {
         this._logger.debug("createSignoutRequest");
 
@@ -173,7 +173,7 @@ export class OidcClient {
             post_logout_redirect_uri,
             state_data: state,
             extraQueryParams,
-            request_type
+            request_type,
         });
 
         const signoutState = request.state;

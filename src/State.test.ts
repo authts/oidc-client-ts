@@ -19,7 +19,7 @@ describe("State", () => {
         it("should generate id", () => {
             // act
             const subject = new State({
-                request_type: "type"
+                request_type: "type",
             });
 
             // assert
@@ -30,7 +30,7 @@ describe("State", () => {
             // act
             const subject = new State({
                 request_type: "type",
-                id: "5"
+                id: "5",
             });
 
             // assert
@@ -41,7 +41,7 @@ describe("State", () => {
             // act
             const subject = new State({
                 request_type: "type",
-                data: "test"
+                data: "test",
             });
 
             // assert
@@ -52,7 +52,7 @@ describe("State", () => {
             // act
             const subject = new State({
                 request_type: "type",
-                data: { foo: "test" }
+                data: { foo: "test" },
             });
 
             // assert
@@ -63,7 +63,7 @@ describe("State", () => {
             // act
             const subject = new State({
                 request_type: "type",
-                created: 1000
+                created: 1000,
             });
 
             // assert
@@ -79,7 +79,7 @@ describe("State", () => {
 
             // act
             const subject = new State({
-                request_type: "type"
+                request_type: "type",
             });
 
             // assert
@@ -90,7 +90,7 @@ describe("State", () => {
         it("should accept request_type", () => {
             // act
             const subject = new State({
-                request_type: "xoxo"
+                request_type: "xoxo",
             });
 
             // assert
@@ -101,7 +101,7 @@ describe("State", () => {
     it("can serialize and then deserialize", () => {
         // arrange
         const subject1 = new State({
-            data: { foo: "test" }, created: 1000, request_type:"type"
+            data: { foo: "test" }, created: 1000, request_type:"type",
         });
 
         // act

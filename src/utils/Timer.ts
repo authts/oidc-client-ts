@@ -22,7 +22,7 @@ export const g_timer: IntervalTimer = {
     },
     clearInterval: function (handle: number): void {
         return window.clearInterval(handle);
-    }
+    },
 };
 
 /**
