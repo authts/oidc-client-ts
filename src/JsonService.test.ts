@@ -4,7 +4,7 @@
 import { Log } from "./utils";
 import { ErrorResponse } from "./ErrorResponse";
 import { JsonService } from "./JsonService";
-import { mocked } from "ts-jest/utils";
+import { mocked } from "jest-mock";
 
 describe("JsonService", () => {
     let subject: JsonService;

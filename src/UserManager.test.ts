@@ -12,7 +12,7 @@ import { WebStorageStateStore } from "./WebStorageStateStore";
 import type { SigninState } from "./SigninState";
 import type { State } from "./State";
 
-import { mocked } from "ts-jest/utils";
+import { mocked } from "jest-mock";
 
 describe("UserManager", () => {
     let settings: UserManagerSettings;
