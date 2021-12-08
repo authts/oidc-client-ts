@@ -112,7 +112,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             revokeAccessTokenOnSignout = false,
             accessTokenExpiringNotificationTimeInSeconds = DefaultAccessTokenExpiringNotificationTimeInSeconds,
 
-            userStore = new WebStorageStateStore({ store: sessionStorage })
+            userStore = new WebStorageStateStore({ store: sessionStorage }),
         } = args;
 
         super(args);

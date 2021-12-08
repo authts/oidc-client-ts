@@ -12,7 +12,7 @@ describe("UserManagerEvents", () => {
         const settings = new UserManagerSettingsStore({
             authority: "authority",
             client_id: "client",
-            redirect_uri: "redirect"
+            redirect_uri: "redirect",
         });
         subject = new UserManagerEvents(settings);
     });

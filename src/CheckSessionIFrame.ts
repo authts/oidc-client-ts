@@ -18,7 +18,7 @@ export class CheckSessionIFrame {
         private _client_id: string,
         url: string,
         private _intervalInSeconds: number,
-        private _stopOnError: boolean
+        private _stopOnError: boolean,
     ) {
         this._logger = new Logger("CheckSessionIFrame");
 

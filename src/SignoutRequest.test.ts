@@ -13,7 +13,7 @@ describe("SignoutRequest", () => {
             url: "http://sts/signout",
             id_token_hint: "hint",
             post_logout_redirect_uri: "loggedout",
-            state_data: { data: "test" }
+            state_data: { data: "test" },
         };
         subject = new SignoutRequest(settings);
     });
@@ -95,7 +95,7 @@ describe("SignoutRequest", () => {
             // arrange
             settings.extraQueryParams = {
                 "TargetResource": "logouturl.com",
-                "InErrorResource": "errorurl.com"
+                "InErrorResource": "errorurl.com",
             };
 
             // act

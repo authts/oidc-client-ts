@@ -45,7 +45,7 @@ describe("AccessTokenEvents", () => {
             // act
             subject.load({
                 access_token:"token",
-                expires_in : 70
+                expires_in : 70,
             } as User);
 
             // assert
@@ -57,7 +57,7 @@ describe("AccessTokenEvents", () => {
             // act
             subject.load({
                 access_token:"token",
-                expires_in : 10
+                expires_in : 10,
             } as User);
 
             // assert
@@ -68,7 +68,7 @@ describe("AccessTokenEvents", () => {
             // act
             subject.load({
                 access_token:"token",
-                expires_in : 0
+                expires_in : 0,
             } as User);
 
             // assert
@@ -79,7 +79,7 @@ describe("AccessTokenEvents", () => {
             // act
             subject.load({
                 access_token:"token",
-                expires_in : 0
+                expires_in : 0,
             } as User);
 
             // assert
@@ -89,7 +89,7 @@ describe("AccessTokenEvents", () => {
         it("should not initialize timers if no access token", () => {
             // act
             subject.load({
-                expires_in : 70
+                expires_in : 70,
             } as User);
 
             // assert
@@ -100,7 +100,7 @@ describe("AccessTokenEvents", () => {
         it("should not initialize timers if no expiration on access token", () => {
             // act
             subject.load({
-                access_token:"token"
+                access_token:"token",
             } as User);
 
             // assert

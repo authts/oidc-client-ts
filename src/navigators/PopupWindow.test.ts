@@ -10,7 +10,7 @@ describe("PopupWindow", () => {
     beforeEach(() => {
         Object.defineProperty(window, "location", {
             writable: true,
-            value: { origin: "http://app" }
+            value: { origin: "http://app" },
         });
 
         window.opener = {
@@ -40,7 +40,7 @@ describe("PopupWindow", () => {
 
         window.dispatchEvent(new MessageEvent("message", {
             data: { source: "oidc-client", url: "http://app/cb?state=someid" },
-            origin: "http://app"
+            origin: "http://app",
         }));
 
         await expect(promise).resolves.toHaveProperty("url", "http://app/cb?state=someid");
@@ -57,7 +57,7 @@ describe("PopupWindow", () => {
 
         window.dispatchEvent(new MessageEvent("message", {
             data: { source: "oidc-client", url: "http://app/cb?state=someid", keepOpen: true },
-            origin: "http://app"
+            origin: "http://app",
         }));
 
         await expect(promise).resolves.toHaveProperty("url", "http://app/cb?state=someid");
@@ -73,16 +73,16 @@ describe("PopupWindow", () => {
 
         window.dispatchEvent(new MessageEvent("message", {
             data: { source: "oidc-client", url: "http://app/cb?state=someid&code=foreign-origin" },
-            origin: "http://foreign-origin"
+            origin: "http://foreign-origin",
         }));
         window.dispatchEvent(new MessageEvent("message", {
             data: { source: "foreign-lib", url: "http://app/cb?state=someid&code=foreign-lib" },
             origin: "http://app",
-            source: {} as MessageEventSource
+            source: {} as MessageEventSource,
         }));
         window.dispatchEvent(new MessageEvent("message", {
             data: { source: "oidc-client", url: "http://app/cb?state=someid&code=code" },
-            origin: "http://app"
+            origin: "http://app",
         }));
 
         await expect(promise).resolves.toHaveProperty("url", "http://app/cb?state=someid&code=code");

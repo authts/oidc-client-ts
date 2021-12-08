@@ -19,7 +19,7 @@ export class JsonService {
 
     public constructor(
         additionalContentTypes: string[] = [],
-        private _jwtHandler: JwtHandler | null = null
+        private _jwtHandler: JwtHandler | null = null,
     ) {
         this._logger = new Logger("JsonService");
 

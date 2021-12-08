@@ -16,7 +16,7 @@ describe("SigninRequest", () => {
             response_type: "code",
             scope: "openid",
             authority : "op",
-            state_data: { data: "test" }
+            state_data: { data: "test" },
         };
         subject = new SigninRequest(settings);
     });
@@ -190,7 +190,7 @@ describe("SigninRequest", () => {
             // arrange
             settings.extraQueryParams = {
                 "hd": "domain.com",
-                "foo": "bar"
+                "foo": "bar",
             };
 
             // act
@@ -211,7 +211,7 @@ describe("SigninRequest", () => {
 
             // assert
             expect(subject.state.extraTokenParams).toEqual({
-                "resourceServer": "abc"
+                "resourceServer": "abc",
             });
         });
 

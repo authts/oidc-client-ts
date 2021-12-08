@@ -11,6 +11,9 @@ extends:
   - eslint:recommended
   - plugin:testing-library/dom
 rules:
+  comma-dangle:
+    - error
+    - always-multiline
   consistent-return: error
   indent:
     - error
@@ -23,7 +26,9 @@ rules:
   no-multiple-empty-lines:
     - error
     - max: 1
+      maxBOF: 0
       maxEOF: 0
+  no-multi-spaces: error
 overrides:
   - files: ["*.ts", "*.tsx"]
     parserOptions:

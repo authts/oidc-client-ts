@@ -53,8 +53,8 @@ export class SessionMonitor {
                     session_state: session.session_state,
                     profile: session.sub && session.sid ? {
                         sub: session.sub,
-                        sid: session.sid
-                    } : null
+                        sid: session.sid,
+                    } : null,
                 };
                 void this._start(tmpUser);
             }
@@ -65,7 +65,7 @@ export class SessionMonitor {
         user: User | {
             session_state: string;
             profile: { sub: string; sid: string } | null;
-        }
+        },
     ): Promise<void> => {
         const session_state = user.session_state;
         if (!session_state) {
@@ -135,8 +135,8 @@ export class SessionMonitor {
                             session_state: session.session_state,
                             profile: session.sub && session.sid ? {
                                 sub: session.sub,
-                                sid: session.sid
-                            } : null
+                                sid: session.sid,
+                            } : null,
                         };
                         void this._start(tmpUser);
                     }

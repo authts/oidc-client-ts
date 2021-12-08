@@ -383,7 +383,7 @@ export class UserManager {
             this._logger.debug("querySessionStatus: got signin response");
 
             if (signinResponse.session_state && signinResponse.profile.sub) {
-                this._logger.info("querySessionStatus: querySessionStatus success for sub: ",  signinResponse.profile.sub);
+                this._logger.info("querySessionStatus: querySessionStatus success for sub: ", signinResponse.profile.sub);
                 return {
                     session_state: signinResponse.session_state,
                     sub: signinResponse.profile.sub,

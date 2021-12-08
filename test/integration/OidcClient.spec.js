@@ -47,12 +47,12 @@ describe("OidcClient", function () {
                     },
                     function (e) {
                         fail(e);
-                    }
+                    },
                 );
             },
             function (e) {
                 fail(e);
-            }
+            },
         );
     });
 
@@ -71,12 +71,12 @@ describe("OidcClient", function () {
                     },
                     function (e) {
                         fail(e);
-                    }
+                    },
                 );
             },
             function (e) {
                 fail(e);
-            }
+            },
         );
     });
 });

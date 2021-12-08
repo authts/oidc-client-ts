@@ -167,7 +167,7 @@ export class OidcClientSettingsStore {
         stateStore = new WebStorageStateStore(),
         // extra query params
         extraQueryParams = {},
-        extraTokenParams = {}
+        extraTokenParams = {},
     }: OidcClientSettings) {
 
         this.authority = authority;

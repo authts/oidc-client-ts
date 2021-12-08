@@ -15,7 +15,7 @@ describe("TokenClient", () => {
         settings = {
             authority: "authority",
             client_id: "client_id",
-            redirect_uri: "redirect_uri"
+            redirect_uri: "redirect_uri",
         };
         const settingsStore = new OidcClientSettingsStore(settings);
         metadataService = new MetadataService(settingsStore);
@@ -90,7 +90,7 @@ describe("TokenClient", () => {
             expect(postFormMock).toBeCalledWith(
                 "http://sts/token_endpoint",
                 expect.anything(),
-                expect.anything()
+                expect.anything(),
             );
         });
 
@@ -109,7 +109,7 @@ describe("TokenClient", () => {
             expect(postFormMock).toBeCalledWith(
                 "http://sts/token_endpoint",
                 expect.anything(),
-                undefined
+                undefined,
             );
         });
     });
@@ -174,7 +174,7 @@ describe("TokenClient", () => {
             expect(postFormMock).toBeCalledWith(
                 "http://sts/token_endpoint",
                 expect.anything(),
-                expect.anything()
+                expect.anything(),
             );
         });
 
@@ -193,7 +193,7 @@ describe("TokenClient", () => {
             expect(postFormMock).toBeCalledWith(
                 "http://sts/token_endpoint",
                 expect.anything(),
-                undefined
+                undefined,
             );
         });
     });
@@ -231,13 +231,13 @@ describe("TokenClient", () => {
                 .mockResolvedValue({});
 
             // act
-            await subject.revoke({ token: "token", token_type_hint: "access_token"  });
+            await subject.revoke({ token: "token", token_type_hint: "access_token" });
 
             // assert
             expect(getTokenEndpointMock).toBeCalledWith(false);
             expect(postFormMock).toBeCalledWith(
                 "http://sts/revoke_endpoint",
-                expect.anything()
+                expect.anything(),
             );
         });
     });

@@ -25,7 +25,7 @@ describe("OidcClient", () => {
             authority: "authority",
             client_id: "client",
             redirect_uri: "redirect",
-            post_logout_redirect_uri: "http://app"
+            post_logout_redirect_uri: "http://app",
         };
         subject = new OidcClient(settings);
     });
@@ -53,7 +53,7 @@ describe("OidcClient", () => {
             const args = {
                 redirect_uri: "redirect",
                 response_type: "response",
-                scope: "scope"
+                scope: "scope",
             };
             jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
 
@@ -71,7 +71,7 @@ describe("OidcClient", () => {
             const args = {
                 redirect_uri: "redirect",
                 response_type: "code",
-                scope: "scope"
+                scope: "scope",
             };
             jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
 
@@ -102,7 +102,7 @@ describe("OidcClient", () => {
                 acr_values: "av",
                 resource: "res",
                 request: "req",
-                request_uri: "req_uri"
+                request_uri: "req_uri",
             });
 
             // assert
@@ -142,7 +142,7 @@ describe("OidcClient", () => {
                 id_token_hint: "ith",
                 login_hint: "lh",
                 acr_values: "av",
-                resource: "res"
+                resource: "res",
             });
 
             // assert
@@ -167,7 +167,7 @@ describe("OidcClient", () => {
             const args = {
                 redirect_uri: "redirect",
                 scope: "scope",
-                response_type: "id_token"
+                response_type: "id_token",
             };
 
             // act
@@ -186,7 +186,7 @@ describe("OidcClient", () => {
             const args = {
                 redirect_uri: "redirect",
                 response_type: "code",
-                scope: "scope"
+                scope: "scope",
             };
             jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockRejectedValue(new Error("test"));
 
@@ -206,7 +206,7 @@ describe("OidcClient", () => {
             const args = {
                 redirect_uri: "redirect",
                 response_type: "code",
-                scope: "scope"
+                scope: "scope",
             };
             jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
             jest.spyOn(subject.settings.stateStore, "set").mockRejectedValue(new Error("foo"));
@@ -227,7 +227,7 @@ describe("OidcClient", () => {
             const args = {
                 redirect_uri: "redirect",
                 response_type: "code",
-                scope: "scope"
+                scope: "scope",
             };
             jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
             const setMock = jest.spyOn(subject.settings.stateStore, "set").mockImplementation(() => Promise.resolve());
@@ -290,7 +290,7 @@ describe("OidcClient", () => {
                 client_id: "client",
                 redirect_uri: "http://app/cb",
                 scope: "scope",
-                request_type: "type"
+                request_type: "type",
             }).toStorageString();
             jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item));
 
@@ -355,7 +355,7 @@ describe("OidcClient", () => {
                 client_id: "client",
                 redirect_uri: "http://app/cb",
                 scope: "scope",
-                request_type: "type"
+                request_type: "type",
             });
             jest.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(() => Promise.resolve(item.toStorageString()));
@@ -404,7 +404,7 @@ describe("OidcClient", () => {
             const request = await subject.createSignoutRequest({
                 state: "foo",
                 post_logout_redirect_uri: "bar",
-                id_token_hint: "baz"
+                id_token_hint: "baz",
             });
 
             // assert
@@ -424,7 +424,7 @@ describe("OidcClient", () => {
             const request = await subject.createSignoutRequest({
                 state: "foo",
                 post_logout_redirect_uri: "bar",
-                id_token_hint: "baz"
+                id_token_hint: "baz",
             });
 
             // assert
@@ -559,7 +559,7 @@ describe("OidcClient", () => {
             const item = new State({
                 id: "1",
                 data: "bar",
-                request_type: "type"
+                request_type: "type",
             });
             jest.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(() => Promise.resolve(item.toStorageString()));
@@ -624,7 +624,7 @@ describe("OidcClient", () => {
             // arrange
             const item = new State({
                 id: "1",
-                request_type: "type"
+                request_type: "type",
             });
             jest.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(() => Promise.resolve(item.toStorageString()));
@@ -643,7 +643,7 @@ describe("OidcClient", () => {
             const item = new State({
                 id: "1",
                 data: "bar",
-                request_type: "type"
+                request_type: "type",
             });
             jest.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(() => Promise.resolve(item.toStorageString()));

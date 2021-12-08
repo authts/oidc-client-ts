@@ -23,7 +23,7 @@ export class IFrameWindow extends AbstractChildWindow {
     private _timeoutInSeconds: number;
 
     public constructor({
-        silentRequestTimeoutInSeconds = defaultTimeoutInSeconds
+        silentRequestTimeoutInSeconds = defaultTimeoutInSeconds,
     }: IFrameWindowParams) {
         super();
         this._timeoutInSeconds = silentRequestTimeoutInSeconds;

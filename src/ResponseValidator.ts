@@ -134,7 +134,7 @@ export class ResponseValidator {
             if (state.skipUserInfo !== true && this._settings.loadUserInfo && response.access_token) {
                 this._logger.debug("_processClaims: loading user info");
 
-                const claims  = await this._userInfoService.getClaims(response.access_token);
+                const claims = await this._userInfoService.getClaims(response.access_token);
                 this._logger.debug("_processClaims: user info claims received from user info endpoint");
 
                 if (claims.sub !== response.profile.sub) {
@@ -221,7 +221,7 @@ export class ResponseValidator {
             client_secret: state.client_secret,
             code : response.code,
             redirect_uri: state.redirect_uri,
-            code_verifier: state.code_verifier || ""
+            code_verifier: state.code_verifier || "",
         };
 
         if (state.extraTokenParams && typeof(state.extraTokenParams) === "object") {

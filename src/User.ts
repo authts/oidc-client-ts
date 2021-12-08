@@ -161,7 +161,7 @@ export class User {
             token_type: this.token_type,
             scope: this.scope,
             profile: this.profile,
-            expires_at: this.expires_at
+            expires_at: this.expires_at,
         });
     }
 

@@ -55,15 +55,15 @@ describe("ResponseValidator", () => {
             id: "the_id",
             data: { some: "data" },
             client_id: "client",
-            authority: "op"
+            authority: "op",
         } as SigninState;
         stubResponse = {
             state_id: "the_id",
-            isOpenIdConnect: false
+            isOpenIdConnect: false,
         } as SigninResponse;
         settings = {
             authority: "op",
-            client_id: "client"
+            client_id: "client",
         } as OidcClientSettingsStore;
         metadataService = new MetadataService(settings);
 
@@ -287,11 +287,11 @@ describe("ResponseValidator", () => {
                 client_id: "client",
                 redirect_uri: "http://cb",
                 scope: "scope",
-                request_type: "type"
+                request_type: "type",
             });
             Object.assign(stubResponse, {
                 isOpenIdConnect: true,
-                profile: { a: "apple", b: "banana" }
+                profile: { a: "apple", b: "banana" },
             });
             const _filterProtocolClaimsMock = jest.spyOn(subject, "_filterProtocolClaims")
                 .mockImplementation((profile) => profile);
@@ -310,7 +310,7 @@ describe("ResponseValidator", () => {
                 client_id: "client",
                 redirect_uri: "http://cb",
                 scope: "scope",
-                request_type: "type"
+                request_type: "type",
             });
             Object.assign(stubResponse, { isOpenIdConnect: false });
             const _filterProtocolClaimsMock = jest.spyOn(subject, "_filterProtocolClaims")
@@ -330,7 +330,7 @@ describe("ResponseValidator", () => {
                 client_id: "client",
                 redirect_uri: "http://cb",
                 scope: "scope",
-                request_type: "type"
+                request_type: "type",
             });
             Object.assign(settings, { loadUserInfo: true });
             Object.assign(stubResponse, {
@@ -354,7 +354,7 @@ describe("ResponseValidator", () => {
                 client_id: "client",
                 redirect_uri: "http://cb",
                 scope: "scope",
-                request_type: "type"
+                request_type: "type",
             });
             Object.assign(settings, { loadUserInfo: true });
             Object.assign(stubResponse, {
@@ -382,7 +382,7 @@ describe("ResponseValidator", () => {
                 client_id: "client",
                 redirect_uri: "http://cb",
                 scope: "scope",
-                request_type: "type"
+                request_type: "type",
             });
             Object.assign(settings, { loadUserInfo: true });
             Object.assign(stubResponse, {
@@ -407,7 +407,7 @@ describe("ResponseValidator", () => {
                 client_id: "client",
                 redirect_uri: "http://cb",
                 scope: "scope",
-                request_type: "type"
+                request_type: "type",
             });
             Object.assign(settings, { loadUserInfo: false });
             Object.assign(stubResponse, {
@@ -432,7 +432,7 @@ describe("ResponseValidator", () => {
                 client_id: "client",
                 redirect_uri: "http://cb",
                 scope: "scope",
-                request_type: "type"
+                request_type: "type",
             });
             Object.assign(settings, { loadUserInfo: true });
             Object.assign(stubResponse, {
@@ -568,7 +568,7 @@ describe("ResponseValidator", () => {
                 sub: "123", email: "foo@gmail.com",
                 role: ["admin", "dev"],
                 at_hash: "athash",
-                iat: 5, nbf: 10, exp: 20
+                iat: 5, nbf: 10, exp: 20,
             };
 
             // act
@@ -578,7 +578,7 @@ describe("ResponseValidator", () => {
             expect(result).toEqual({
                 foo: 1, bar: "test",
                 sub: "123", email: "foo@gmail.com",
-                role: ["admin", "dev"]
+                role: ["admin", "dev"],
             });
         });
 
@@ -591,7 +591,7 @@ describe("ResponseValidator", () => {
                 sub: "123", email: "foo@gmail.com",
                 role: ["admin", "dev"],
                 at_hash: "athash",
-                iat: 5, nbf: 10, exp: 20
+                iat: 5, nbf: 10, exp: 20,
             };
 
             // act
@@ -604,7 +604,7 @@ describe("ResponseValidator", () => {
                 sub: "123", email: "foo@gmail.com",
                 role: ["admin", "dev"],
                 at_hash: "athash",
-                iat: 5, nbf: 10, exp: 20
+                iat: 5, nbf: 10, exp: 20,
             });
         });
     });
@@ -644,7 +644,7 @@ describe("ResponseValidator", () => {
                 client_secret: "client_secret",
                 redirect_uri: "redirect_uri",
                 code_verifier: "code_verifier",
-                extraTokenParams: { a: "a" }
+                extraTokenParams: { a: "a" },
             });
             const exchangeCodeMock = jest.spyOn(tokenClient, "exchangeCode")
                 .mockImplementation(() => Promise.resolve({}));
@@ -659,8 +659,8 @@ describe("ResponseValidator", () => {
                     client_secret: stubState.client_secret,
                     redirect_uri: stubState.redirect_uri,
                     code_verifier: stubState.code_verifier,
-                    ...stubState.extraTokenParams
-                })
+                    ...stubState.extraTokenParams,
+                }),
             );
         });
 
@@ -676,8 +676,8 @@ describe("ResponseValidator", () => {
             // assert
             expect(exchangeCodeMock).toBeCalledWith(
                 expect.objectContaining({
-                    code: stubResponse.code
-                })
+                    code: stubResponse.code,
+                }),
             );
         });
 
@@ -693,7 +693,7 @@ describe("ResponseValidator", () => {
                 refresh_token: "refresh_token",
                 token_type: "token_type",
                 scope: "scope",
-                expires_at: "expires_at"
+                expires_at: "expires_at",
             };
             jest.spyOn(tokenClient, "exchangeCode")
                 .mockImplementation(() => Promise.resolve(tokenResponse));
@@ -710,7 +710,7 @@ describe("ResponseValidator", () => {
         it("should map token response expires_in to response", async () => {
             // arrange
             const tokenResponse = {
-                expires_in: "42"
+                expires_in: "42",
             };
             jest.spyOn(tokenClient, "exchangeCode")
                 .mockImplementation(() => Promise.resolve(tokenResponse));
@@ -727,7 +727,7 @@ describe("ResponseValidator", () => {
         it("should validate id_token if token response has id_token", async () => {
             // arrange
             const tokenResponse = {
-                id_token: "id_token"
+                id_token: "id_token",
             };
             jest.spyOn(tokenClient, "exchangeCode")
                 .mockImplementation(() => Promise.resolve(tokenResponse));

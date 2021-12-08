@@ -35,8 +35,8 @@ describe("JwtUtils", () => {
                 "auth_time": 1459129898,
                 "idp": "idsrv",
                 "amr": [
-                    "password"
-                ]
+                    "password",
+                ],
             });
         });
 

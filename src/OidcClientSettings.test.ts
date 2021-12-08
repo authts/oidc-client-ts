@@ -18,7 +18,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
-                redirect_uri: "redirect"
+                redirect_uri: "redirect",
             });
 
             // assert
@@ -33,7 +33,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                client_secret: "secret"
+                client_secret: "secret",
             });
 
             // assert
@@ -48,7 +48,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                response_type: "foo"
+                response_type: "foo",
             });
 
             // assert
@@ -60,7 +60,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
-                redirect_uri: "redirect"
+                redirect_uri: "redirect",
             });
 
             // assert
@@ -76,7 +76,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                scope: "foo"
+                scope: "foo",
             });
 
             // assert
@@ -88,7 +88,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
-                redirect_uri: "redirect"
+                redirect_uri: "redirect",
             });
 
             // assert
@@ -103,7 +103,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
-                redirect_uri: "http://app"
+                redirect_uri: "http://app",
             });
 
             // assert
@@ -119,7 +119,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                post_logout_redirect_uri: "http://app/loggedout"
+                post_logout_redirect_uri: "http://app/loggedout",
             });
 
             // assert
@@ -134,7 +134,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                prompt: "foo"
+                prompt: "foo",
             });
 
             // assert
@@ -149,7 +149,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                display: "foo"
+                display: "foo",
             });
 
             // assert
@@ -164,7 +164,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                max_age: 22
+                max_age: 22,
             });
 
             // assert
@@ -179,7 +179,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                ui_locales: "foo"
+                ui_locales: "foo",
             });
 
             // assert
@@ -194,7 +194,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                acr_values: "foo"
+                acr_values: "foo",
             });
 
             // assert
@@ -209,7 +209,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                resource: "foo"
+                resource: "foo",
             });
 
             // assert
@@ -224,7 +224,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                response_mode: "query"
+                response_mode: "query",
             });
 
             // assert
@@ -238,7 +238,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 client_id: "client",
                 redirect_uri: "redirect",
-                authority: "http://sts"
+                authority: "http://sts",
             });
 
             // assert
@@ -253,7 +253,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                metadataUrl: "http://sts/metadata"
+                metadataUrl: "http://sts/metadata",
             });
 
             // assert
@@ -268,7 +268,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                metadata: { issuer: "test" }
+                metadata: { issuer: "test" },
             });
 
             // assert
@@ -283,7 +283,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                signingKeys: [{ kid: "test" }]
+                signingKeys: [{ kid: "test" }],
             });
 
             // assert
@@ -311,7 +311,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                filterProtocolClaims: true
+                filterProtocolClaims: true,
             });
 
             // assert
@@ -322,7 +322,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                filterProtocolClaims: false
+                filterProtocolClaims: false,
             });
 
             // assert
@@ -337,7 +337,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
-                redirect_uri: "redirect"
+                redirect_uri: "redirect",
             });
 
             // assert
@@ -350,7 +350,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                loadUserInfo: true
+                loadUserInfo: true,
             });
 
             // assert
@@ -361,7 +361,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                loadUserInfo: false
+                loadUserInfo: false,
             });
 
             // assert
@@ -376,7 +376,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
-                redirect_uri: "redirect"
+                redirect_uri: "redirect",
             });
 
             // assert
@@ -389,7 +389,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                staleStateAgeInSeconds: 100
+                staleStateAgeInSeconds: 100,
             });
 
             // assert
@@ -404,7 +404,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
-                redirect_uri: "redirect"
+                redirect_uri: "redirect",
             });
 
             // assert
@@ -417,7 +417,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                clockSkewInSeconds: 10
+                clockSkewInSeconds: 10,
             });
 
             // assert
@@ -436,7 +436,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                stateStore: temp
+                stateStore: temp,
             });
 
             // assert
@@ -455,7 +455,7 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                stateStore: temp
+                stateStore: temp,
             });
 
             // assert
@@ -470,7 +470,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
-                redirect_uri: "redirect"
+                redirect_uri: "redirect",
             });
 
             // assert
@@ -484,8 +484,8 @@ describe("OidcClientSettings", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 extraQueryParams: {
-                    "hd": "domain.com"
-                }
+                    "hd": "domain.com",
+                },
             });
 
             // assert
@@ -500,7 +500,7 @@ describe("OidcClientSettings", () => {
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
-                redirect_uri: "redirect"
+                redirect_uri: "redirect",
             });
 
             // assert
@@ -514,8 +514,8 @@ describe("OidcClientSettings", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 extraTokenParams: {
-                    "resourceServer": "abc"
-                }
+                    "resourceServer": "abc",
+                },
             });
 
             // assert

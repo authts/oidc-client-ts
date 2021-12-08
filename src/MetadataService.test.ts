@@ -16,7 +16,7 @@ describe("MetadataService", () => {
         settings = {
             authority: "authority",
             client_id: "client",
-            redirect_uri: "redirect"
+            redirect_uri: "redirect",
         };
         subject = new MetadataService(new OidcClientSettingsStore(settings));
     });
@@ -70,7 +70,7 @@ describe("MetadataService", () => {
             settings = {
                 authority: "",
                 client_id: "client",
-                redirect_uri: "redirect"
+                redirect_uri: "redirect",
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
 
@@ -86,7 +86,7 @@ describe("MetadataService", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                metadataUrl: "http://sts/metadata"
+                metadataUrl: "http://sts/metadata",
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
@@ -106,7 +106,7 @@ describe("MetadataService", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                metadataUrl: "http://sts/metadata"
+                metadataUrl: "http://sts/metadata",
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
@@ -126,7 +126,7 @@ describe("MetadataService", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                metadataUrl: "http://sts/metadata"
+                metadataUrl: "http://sts/metadata",
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
@@ -148,7 +148,7 @@ describe("MetadataService", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 metadataUrl: "http://sts/metadata",
-                metadataSeed: { issuer: "one" }
+                metadataSeed: { issuer: "one" },
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
@@ -169,7 +169,7 @@ describe("MetadataService", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                metadataUrl: "http://sts/metadata"
+                metadataUrl: "http://sts/metadata",
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const error = new Error("test");
@@ -191,7 +191,7 @@ describe("MetadataService", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 metadata: {
-                    issuer: "test"
+                    issuer: "test",
                 },
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
@@ -210,7 +210,7 @@ describe("MetadataService", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 metadata: {
-                }
+                },
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
 
@@ -226,7 +226,7 @@ describe("MetadataService", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                metadataUrl: "http://sts/metadata"
+                metadataUrl: "http://sts/metadata",
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const error = new Error("test");
@@ -246,8 +246,8 @@ describe("MetadataService", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 metadata: {
-                    issuer: "http://sts"
-                }
+                    issuer: "http://sts",
+                },
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
 
@@ -267,8 +267,8 @@ describe("MetadataService", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 metadata: {
-                    authorization_endpoint: "http://sts/authorize"
-                }
+                    authorization_endpoint: "http://sts/authorize",
+                },
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
 
@@ -288,8 +288,8 @@ describe("MetadataService", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 metadata: {
-                    userinfo_endpoint: "http://sts/userinfo"
-                }
+                    userinfo_endpoint: "http://sts/userinfo",
+                },
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
 
@@ -309,8 +309,8 @@ describe("MetadataService", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 metadata: {
-                    token_endpoint: "http://sts/tokeninfo"
-                }
+                    token_endpoint: "http://sts/tokeninfo",
+                },
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
 
@@ -330,8 +330,8 @@ describe("MetadataService", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 metadata: {
-                    check_session_iframe: "http://sts/check_session"
-                }
+                    check_session_iframe: "http://sts/check_session",
+                },
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
 
@@ -349,7 +349,7 @@ describe("MetadataService", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 metadata: {
-                }
+                },
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
 
@@ -369,8 +369,8 @@ describe("MetadataService", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 metadata: {
-                    end_session_endpoint: "http://sts/signout"
-                }
+                    end_session_endpoint: "http://sts/signout",
+                },
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
 
@@ -388,7 +388,7 @@ describe("MetadataService", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 metadata: {
-                }
+                },
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
 
@@ -408,8 +408,8 @@ describe("MetadataService", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 metadata: {
-                    revocation_endpoint: "http://sts/revocation"
-                }
+                    revocation_endpoint: "http://sts/revocation",
+                },
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
 
@@ -427,7 +427,7 @@ describe("MetadataService", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 metadata: {
-                }
+                },
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
 
@@ -446,7 +446,7 @@ describe("MetadataService", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                signingKeys: [{ kid: "test" }]
+                signingKeys: [{ kid: "test" }],
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
 
@@ -463,7 +463,7 @@ describe("MetadataService", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                metadata: { issuer: "test" }
+                metadata: { issuer: "test" },
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
 
@@ -480,8 +480,8 @@ describe("MetadataService", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 metadata: {
-                    jwks_uri: "http://sts/metadata/keys"
-                }
+                    jwks_uri: "http://sts/metadata/keys",
+                },
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
@@ -500,16 +500,16 @@ describe("MetadataService", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 metadata: {
-                    jwks_uri: "http://sts/metadata/keys"
-                }
+                    jwks_uri: "http://sts/metadata/keys",
+                },
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
             const json = {
                 keys: [{
                     use:"sig",
-                    kid:"test"
-                }]
+                    kid:"test",
+                }],
             };
             const getJsonMock = jest.spyOn(jsonService, "getJson")
                 .mockImplementation(() => Promise.resolve(json));
@@ -528,17 +528,17 @@ describe("MetadataService", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 metadata: {
-                    jwks_uri: "http://sts/metadata/keys"
-                }
+                    jwks_uri: "http://sts/metadata/keys",
+                },
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
             const expectedKeys = [{
                 use:"sig",
-                kid:"test"
+                kid:"test",
             }];
             const json = {
-                keys: expectedKeys
+                keys: expectedKeys,
             };
             jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
 
@@ -556,17 +556,17 @@ describe("MetadataService", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 metadata: {
-                    jwks_uri: "http://sts/metadata/keys"
-                }
+                    jwks_uri: "http://sts/metadata/keys",
+                },
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
             const expectedKeys = [{
                 use:"sig",
-                kid:"test"
+                kid:"test",
             }];
             const json = {
-                keys: expectedKeys
+                keys: expectedKeys,
             };
             jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
 
