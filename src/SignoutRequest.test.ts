@@ -22,7 +22,7 @@ describe("SignoutRequest", () => {
 
         it("should require a url param", () => {
             // arrange
-            delete (settings as any).url;
+            Object.assign(settings, { url: undefined });
 
             // act
             try {

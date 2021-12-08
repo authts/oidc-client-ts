@@ -5,7 +5,7 @@
 ```ts
 
 // @public (undocumented)
-export type AccessTokenCallback = (...ev: any[]) => void;
+export type AccessTokenCallback = (...ev: unknown[]) => void;
 
 // @public (undocumented)
 export class AccessTokenEvents {
@@ -118,13 +118,13 @@ export interface IFrameWindowParams {
 // @public
 export interface ILogger {
     // (undocumented)
-    debug(...args: any[]): void;
+    debug(...args: unknown[]): void;
     // (undocumented)
-    error(...args: any[]): void;
+    error(...args: unknown[]): void;
     // (undocumented)
-    info(...args: any[]): void;
+    info(...args: unknown[]): void;
     // (undocumented)
-    warn(...args: any[]): void;
+    warn(...args: unknown[]): void;
 }
 
 // @public (undocumented)
@@ -290,7 +290,7 @@ export class OidcClientSettingsStore {
     // (undocumented)
     readonly extraQueryParams: Record<string, string | number | boolean>;
     // (undocumented)
-    readonly extraTokenParams: Record<string, any>;
+    readonly extraTokenParams: Record<string, unknown>;
     // (undocumented)
     readonly filterProtocolClaims: boolean;
     // (undocumented)
@@ -918,6 +918,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
 // @public
 export interface UserProfile {
+    // (undocumented)
+    [claim: string]: unknown;
     address?: Record<string, unknown>;
     // (undocumented)
     at_hash?: string;

@@ -41,9 +41,6 @@ overrides:
         - 4
         - SwitchCase: 1
       "@typescript-eslint/member-delimiter-style": error
-      "@typescript-eslint/explicit-module-boundary-types":
-        - error
-        - allowArgumentsExplicitlyTypedAsAny: true
       "@typescript-eslint/object-curly-spacing":
         - error
         - always
@@ -53,10 +50,6 @@ overrides:
       # custom rules to fix code style
       "@typescript-eslint/require-await": "off"
       "@typescript-eslint/no-unsafe-assignment": "off"
-      "@typescript-eslint/no-unsafe-call": "off"
-      "@typescript-eslint/no-unsafe-member-access": "off"
-      "@typescript-eslint/no-explicit-any": "off"
-      "@typescript-eslint/no-unsafe-return": "off"
   - files: src/**/*
     env:
       node: false

@@ -10,6 +10,7 @@ import type { SigninResponse } from "./SigninResponse";
 import { ErrorResponse } from "./ErrorResponse";
 import type { UserProfile } from "./User";
 import type { TokenClient } from "./TokenClient";
+import type { OidcClientSettingsStore } from "./OidcClientSettings";
 
 // access private methods
 class ResponseValidatorWrapper extends ResponseValidator {
@@ -19,7 +20,7 @@ class ResponseValidatorWrapper extends ResponseValidator {
     public async _processClaims(state: SigninState, response: SigninResponse) {
         return await super._processClaims(state, response);
     }
-    public _mergeClaims(claims1: UserProfile, claims2: any) {
+    public _mergeClaims(claims1: UserProfile, claims2: Record<string, unknown>) {
         return super._mergeClaims(claims1, claims2);
     }
     public _filterProtocolClaims(claims: UserProfile) {
@@ -37,9 +38,9 @@ class ResponseValidatorWrapper extends ResponseValidator {
 }
 
 describe("ResponseValidator", () => {
-    let stubState: any;
-    let stubResponse: any;
-    let settings: any;
+    let stubState: SigninState;
+    let stubResponse: SigninResponse;
+    let settings: OidcClientSettingsStore;
     let subject: ResponseValidatorWrapper;
 
     let metadataService: MetadataService;
@@ -55,15 +56,15 @@ describe("ResponseValidator", () => {
             data: { some: "data" },
             client_id: "client",
             authority: "op"
-        };
+        } as SigninState;
         stubResponse = {
             state_id: "the_id",
             isOpenIdConnect: false
-        };
+        } as SigninResponse;
         settings = {
             authority: "op",
             client_id: "client"
-        };
+        } as OidcClientSettingsStore;
         metadataService = new MetadataService(settings);
 
         // restore spyOn
@@ -79,7 +80,7 @@ describe("ResponseValidator", () => {
     describe("validateSignoutResponse", () => {
         it("should validate that the client state matches response state", () => {
             // arrange
-            stubResponse.state_id = "not_the_id";
+            Object.assign(stubResponse, { state_id: "not_the_id" });
 
             // act
             expect(() => subject.validateSignoutResponse(stubState, stubResponse))
@@ -185,7 +186,7 @@ describe("ResponseValidator", () => {
     describe("_processSigninParams", () => {
         it("should validate that the client state matches response state", () => {
             // arrange
-            stubResponse.state_id = "not_the_id";
+            Object.assign(stubResponse, { state_id: "not_the_id" });
 
             // act
             expect(() => subject._processSigninParams(stubState, stubResponse))
@@ -195,7 +196,7 @@ describe("ResponseValidator", () => {
 
         it("should fail if no client_id on state", () => {
             // arrange
-            delete stubState.client_id;
+            Object.assign(stubState, { client_id: undefined });
 
             // act
             expect(() => subject._processSigninParams(stubState, stubResponse))
@@ -205,7 +206,7 @@ describe("ResponseValidator", () => {
 
         it("should fail if no authority on state", () => {
             // arrange
-            delete stubState.authority;
+            Object.assign(stubState, { authority: undefined });
 
             // act
             expect(() => subject._processSigninParams(stubState, stubResponse))
@@ -215,7 +216,7 @@ describe("ResponseValidator", () => {
 
         it("should fail if the authority on the state is not the same as the settings", () => {
             // arrange
-            stubState.authority = "something different";
+            Object.assign(stubState, { authority: "something different" });
 
             // act
             expect(() => subject._processSigninParams(stubState, stubResponse))
@@ -225,7 +226,7 @@ describe("ResponseValidator", () => {
 
         it("should fail if the client_id on the state is not the same as the settings", () => {
             // arrange
-            stubState.client_id = "something different";
+            Object.assign(stubState, { client_id: "something different" });
 
             // act
             expect(() => subject._processSigninParams(stubState, stubResponse))
@@ -245,8 +246,8 @@ describe("ResponseValidator", () => {
 
         it("should fail if request was code flow but no code in response", () => {
             // arrange
-            stubState.code_verifier = "secret";
-            delete stubResponse.code;
+            Object.assign(stubState, { code_verifier: "secret" });
+            Object.assign(stubResponse, { code: undefined });
 
             // act
             expect(() => subject._processSigninParams(stubState, stubResponse))
@@ -256,8 +257,8 @@ describe("ResponseValidator", () => {
 
         it("should fail if request was not code flow but code in response", () => {
             // arrange
-            delete stubState.code_verifier;
-            stubResponse.code = "code";
+            Object.assign(stubState, { code_verifier: undefined });
+            Object.assign(stubResponse, { code: "code" });
 
             // act
             expect(() => subject._processSigninParams(stubState, stubResponse))
@@ -267,8 +268,8 @@ describe("ResponseValidator", () => {
 
         it("should return data for successful responses", () => {
             // arrange
-            stubState.code_verifier = "secret";
-            stubResponse.code = "code";
+            Object.assign(stubState, { code_verifier: "secret" });
+            Object.assign(stubResponse, { code: "code" });
 
             // act
             const response = subject._processSigninParams(stubState, stubResponse);
@@ -288,8 +289,10 @@ describe("ResponseValidator", () => {
                 scope: "scope",
                 request_type: "type"
             });
-            stubResponse.isOpenIdConnect = true;
-            stubResponse.profile = { a: "apple", b: "banana" };
+            Object.assign(stubResponse, {
+                isOpenIdConnect: true,
+                profile: { a: "apple", b: "banana" }
+            });
             const _filterProtocolClaimsMock = jest.spyOn(subject, "_filterProtocolClaims")
                 .mockImplementation((profile) => profile);
 
@@ -309,7 +312,7 @@ describe("ResponseValidator", () => {
                 scope: "scope",
                 request_type: "type"
             });
-            stubResponse.isOpenIdConnect = false;
+            Object.assign(stubResponse, { isOpenIdConnect: false });
             const _filterProtocolClaimsMock = jest.spyOn(subject, "_filterProtocolClaims")
                 .mockImplementation((profile) => profile);
 
@@ -329,12 +332,14 @@ describe("ResponseValidator", () => {
                 scope: "scope",
                 request_type: "type"
             });
-            settings.loadUserInfo = true;
-            stubResponse.isOpenIdConnect = true;
-            stubResponse.profile = { sub: "sub" };
-            stubResponse.access_token = "access_token";
+            Object.assign(settings, { loadUserInfo: true });
+            Object.assign(stubResponse, {
+                isOpenIdConnect: true,
+                profile: { sub: "sub" },
+                access_token: "access_token",
+            });
             jest.spyOn(userInfoService, "getClaims")
-                .mockImplementation(() => Promise.resolve({ sub: "sub different" } as any));
+                .mockImplementation(() => Promise.resolve({ sub: "sub different" }));
 
             // act
             await expect(subject._processClaims(state, stubResponse))
@@ -351,12 +356,14 @@ describe("ResponseValidator", () => {
                 scope: "scope",
                 request_type: "type"
             });
-            settings.loadUserInfo = true;
-            stubResponse.isOpenIdConnect = true;
-            stubResponse.profile = { a: "apple", b: "banana" };
-            stubResponse.access_token = "access_token";
+            Object.assign(settings, { loadUserInfo: true });
+            Object.assign(stubResponse, {
+                isOpenIdConnect: true,
+                profile: { a: "apple", b: "banana" },
+                access_token: "access_token",
+            });
             const getClaimMock = jest.spyOn(userInfoService, "getClaims")
-                .mockImplementation(() => Promise.resolve({ c: "carrot" } as any));
+                .mockImplementation(() => Promise.resolve({ c: "carrot" }));
             const _mergeClaimsMock = jest.spyOn(subject, "_mergeClaims")
                 .mockImplementation((profile) => profile);
 
@@ -377,12 +384,14 @@ describe("ResponseValidator", () => {
                 scope: "scope",
                 request_type: "type"
             });
-            settings.loadUserInfo = true;
-            stubResponse.isOpenIdConnect = false;
-            stubResponse.profile = { a: "apple", b: "banana" };
-            stubResponse.access_token = "access_token";
+            Object.assign(settings, { loadUserInfo: true });
+            Object.assign(stubResponse, {
+                isOpenIdConnect: false,
+                profile: { a: "apple", b: "banana" },
+                access_token: "access_token",
+            });
             const getClaimMock = jest.spyOn(userInfoService, "getClaims")
-                .mockImplementation(() => Promise.resolve({ c: "carrot" } as any));
+                .mockImplementation(() => Promise.resolve({ c: "carrot" }));
 
             // act
             await subject._processClaims(state, stubResponse);
@@ -400,12 +409,14 @@ describe("ResponseValidator", () => {
                 scope: "scope",
                 request_type: "type"
             });
-            settings.loadUserInfo = false;
-            stubResponse.isOpenIdConnect = true;
-            stubResponse.profile = { a: "apple", b: "banana" };
-            stubResponse.access_token = "access_token";
+            Object.assign(settings, { loadUserInfo: false });
+            Object.assign(stubResponse, {
+                isOpenIdConnect: true,
+                profile: { a: "apple", b: "banana" },
+                access_token: "access_token",
+            });
             const getClaimMock = jest.spyOn(userInfoService, "getClaims")
-                .mockImplementation(() => Promise.resolve({ c: "carrot" } as any));
+                .mockImplementation(() => Promise.resolve({ c: "carrot" }));
 
             // act
             await subject._processClaims(state, stubResponse);
@@ -423,11 +434,13 @@ describe("ResponseValidator", () => {
                 scope: "scope",
                 request_type: "type"
             });
-            settings.loadUserInfo = true;
-            stubResponse.isOpenIdConnect = true;
-            stubResponse.profile = { a: "apple", b: "banana" };
+            Object.assign(settings, { loadUserInfo: true });
+            Object.assign(stubResponse, {
+                isOpenIdConnect: true,
+                profile: { a: "apple", b: "banana" },
+            });
             const getClaimMock = jest.spyOn(userInfoService, "getClaims")
-                .mockImplementation(() => Promise.resolve({ c: "carrot" } as any));
+                .mockImplementation(() => Promise.resolve({ c: "carrot" }));
 
             // act
             await subject._processClaims(state, stubResponse);
@@ -464,7 +477,7 @@ describe("ResponseValidator", () => {
 
         it("should merge claims when claim types are objects when mergeClaims settings is true", () => {
             // arrange
-            settings.mergeClaims = true;
+            Object.assign(settings, { mergeClaims: true });
 
             const c1 = { custom: { "apple": "foo", "pear": "bar" } } as UserProfile;
             const c2 = { custom: { "apple": "foo", "orange": "peel" }, b: "banana" };
@@ -548,7 +561,7 @@ describe("ResponseValidator", () => {
     describe("_filterProtocolClaims", () => {
         it("should filter protocol claims if enabled on settings", () => {
             // arrange
-            settings.filterProtocolClaims = true;
+            Object.assign(settings, { filterProtocolClaims: true });
             const claims = {
                 foo: 1, bar: "test",
                 aud: "some_aud", iss: "issuer",
@@ -571,7 +584,7 @@ describe("ResponseValidator", () => {
 
         it("should not filter protocol claims if not enabled on settings", () => {
             // arrange
-            settings.filterProtocolClaims = false;
+            Object.assign(settings, { filterProtocolClaims: false });
             const claims = {
                 foo: 1, bar: "test",
                 aud: "some_aud", iss: "issuer",
@@ -599,7 +612,7 @@ describe("ResponseValidator", () => {
     describe("_validateTokens", () => {
         it("should process code if response has code", async () => {
             // arrange
-            stubResponse.code = "code";
+            Object.assign(stubResponse, { code: "code" });
             const processCodeMock = jest.spyOn(subject, "_processCode")
                 .mockImplementation(() => Promise.resolve(stubResponse));
 
@@ -612,7 +625,7 @@ describe("ResponseValidator", () => {
 
         it("should not process code if response has no code", async () => {
             // arrange
-            delete stubResponse.code;
+            Object.assign(stubResponse, { code: undefined });
             const processCodeMock = jest.spyOn(subject, "_processCode")
                 .mockImplementation(() => Promise.resolve(stubResponse));
 
@@ -627,10 +640,12 @@ describe("ResponseValidator", () => {
     describe("_processCode", () => {
         it("should date from state to exchange code request", async () => {
             // arrange
-            stubState.client_secret = "client_secret";
-            stubState.redirect_uri = "redirect_uri";
-            stubState.code_verifier = "code_verifier";
-            stubState.extraTokenParams = { a: "a" };
+            Object.assign(stubState, {
+                client_secret: "client_secret",
+                redirect_uri: "redirect_uri",
+                code_verifier: "code_verifier",
+                extraTokenParams: { a: "a" }
+            });
             const exchangeCodeMock = jest.spyOn(tokenClient, "exchangeCode")
                 .mockImplementation(() => Promise.resolve({}));
 
@@ -651,7 +666,7 @@ describe("ResponseValidator", () => {
 
         it("should add code response to exchange code request", async () => {
             // arrange
-            stubResponse.code = "code";
+            Object.assign(stubState, { code: "code" });
             const exchangeCodeMock = jest.spyOn(tokenClient, "exchangeCode")
                 .mockImplementation(() => Promise.resolve({}));
 
@@ -749,7 +764,7 @@ describe("ResponseValidator", () => {
             const id_token = "id_token";
             stubResponse.id_token = id_token;
             jest.spyOn(JwtUtils, "decode")
-                .mockImplementation(() => profile as any);
+                .mockImplementation(() => profile);
 
             // act
             expect(() => subject._validateIdTokenAttributes(stubResponse, id_token))

@@ -1,12 +1,12 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { SigninRequest } from "./SigninRequest";
+import { SigninRequest, SigninRequestArgs } from "./SigninRequest";
 
 describe("SigninRequest", () => {
 
     let subject: SigninRequest;
-    let settings: any;
+    let settings: SigninRequestArgs;
 
     beforeEach(() => {
         settings = {
@@ -16,101 +16,20 @@ describe("SigninRequest", () => {
             response_type: "code",
             scope: "openid",
             authority : "op",
-            data: { data: "test" }
+            state_data: { data: "test" }
         };
         subject = new SigninRequest(settings);
     });
 
     describe("constructor", () => {
-
-        it("should require a url param", () => {
+        it.each(["url", "client_id", "redirect_uri", "response_type", "scope", "authority"])("should require a %s param", (param) => {
             // arrange
-            delete settings.url;
+            Object.assign(settings, { [param]: undefined });
 
             // act
-            try {
-                new SigninRequest(settings);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("url");
-            }
-        });
-
-        it("should require a client_id param", () => {
-            // arrange
-            delete settings.client_id;
-
-            // act
-            try {
-                new SigninRequest(settings);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("client_id");
-            }
-        });
-
-        it("should require a redirect_uri param", () => {
-            // arrange
-            delete settings.redirect_uri;
-
-            // act
-            try {
-                new SigninRequest(settings);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("redirect_uri");
-            }
-        });
-
-        it("should require a response_type param", () => {
-            // arrange
-            delete settings.response_type;
-
-            // act
-            try {
-                new SigninRequest(settings);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("response_type");
-            }
-        });
-
-        it("should require a scope param", () => {
-            // arrange
-            delete settings.scope;
-
-            // act
-            try {
-                new SigninRequest(settings);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("scope");
-            }
-        });
-
-        it("should require a authority param", () => {
-            // arrange
-            delete settings.authority;
-
-            // act
-            try {
-                new SigninRequest(settings);
-                fail("should not come here");
-            }
-            catch (err) {
-                expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("authority");
-            }
+            expect(() => new SigninRequest(settings))
+                // assert
+                .toThrow(param);
         });
     });
 
@@ -236,13 +155,13 @@ describe("SigninRequest", () => {
 
         it("should include response_mode", () => {
             // arrange
-            settings.response_mode = "foo";
+            settings.response_mode = "fragment";
 
             // act
             subject = new SigninRequest(settings);
 
             // assert
-            expect(subject.url).toContain("response_mode=foo");
+            expect(subject.url).toContain("response_mode=fragment");
         });
 
         it("should include request", () => {

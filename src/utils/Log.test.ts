@@ -130,10 +130,10 @@ class StubLog implements ILogger {
     infoWasCalled: boolean;
     warnWasCalled: boolean;
     errorWasCalled: boolean;
-    debugParam: any;
-    infoParam: any;
-    warnParam: any;
-    errorParam: any;
+    debugParam: string | undefined;
+    infoParam: string | undefined;
+    warnParam: string | undefined;
+    errorParam: string | undefined;
 
     constructor() {
         this.debugWasCalled = false;
@@ -141,19 +141,19 @@ class StubLog implements ILogger {
         this.warnWasCalled = false;
         this.errorWasCalled = false;
     }
-    debug(...args: any[]) {
+    debug(...args: unknown[]) {
         this.debugParam = args.join(" ");
         this.debugWasCalled = true;
     }
-    info(...args: any[]) {
+    info(...args: unknown[]) {
         this.infoParam = args.join(" ");
         this.infoWasCalled = true;
     }
-    warn(...args: any[]) {
+    warn(...args: unknown[]) {
         this.warnParam = args.join(" ");
         this.warnWasCalled = true;
     }
-    error(...args: any[]) {
+    error(...args: unknown[]) {
         this.errorParam = args.join(" ");
         this.errorWasCalled = true;
     }

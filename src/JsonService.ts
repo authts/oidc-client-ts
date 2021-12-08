@@ -7,7 +7,7 @@ import { Logger } from "./utils";
 /**
  * @internal
  */
-export type JwtHandler = (text: string) => Promise<any>;
+export type JwtHandler = (text: string) => Promise<Record<string, unknown>>;
 
 /**
  * @internal
@@ -75,7 +75,7 @@ export class JsonService {
         return json;
     }
 
-    public async postForm(url: string, body: URLSearchParams, basicAuth?: string): Promise<any> {
+    public async postForm(url: string, body: URLSearchParams, basicAuth?: string): Promise<Record<string, unknown>> {
         const headers: HeadersInit = {
             "Accept": this._contentTypes.join(", "),
             "Content-Type": "application/x-www-form-urlencoded",

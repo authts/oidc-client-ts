@@ -145,7 +145,7 @@ export class OidcClientSettingsStore {
 
     // extra
     public readonly extraQueryParams: Record<string, string | number | boolean>;
-    public readonly extraTokenParams: Record<string, any>;
+    public readonly extraTokenParams: Record<string, unknown>;
 
     public constructor({
         // metadata related

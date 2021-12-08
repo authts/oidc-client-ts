@@ -14,6 +14,8 @@ export interface JwtPayload {
     exp?: number;
     sub?: string;
     auth_time?: number;
+
+    [claim: string]: unknown;
 }
 
 /**

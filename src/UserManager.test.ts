@@ -165,7 +165,7 @@ describe("UserManager", () => {
         it("should pass extra args to _signinStart", async () => {
             // arrange
             jest.spyOn(subject["_redirectNavigator"], "prepare");
-            const signinStartMock = jest.spyOn(subject as any, "_signinStart");
+            subject["_signinStart"] = jest.fn();
             const extraArgs: SigninRedirectArgs = {
                 extraQueryParams: { q : "q" },
                 extraTokenParams: { t: "t" },
@@ -176,7 +176,7 @@ describe("UserManager", () => {
             await subject.signinRedirect(extraArgs);
 
             // assert
-            expect(signinStartMock).toBeCalledWith(
+            expect(subject["_signinStart"]).toBeCalledWith(
                 {
                     request_type: "si:r",
                     ...extraArgs
@@ -242,8 +242,7 @@ describe("UserManager", () => {
             const handle = { } as PopupWindow;
             jest.spyOn(subject["_popupNavigator"], "prepare")
                 .mockImplementation(() => Promise.resolve(handle));
-            const signinMock = jest.spyOn(subject as any, "_signin")
-                .mockImplementation(() => Promise.resolve(user));
+            subject["_signin"] = jest.fn().mockResolvedValue(user);
             const extraArgs: SigninPopupArgs = {
                 extraQueryParams: { q : "q" },
                 extraTokenParams: { t: "t" },
@@ -254,7 +253,7 @@ describe("UserManager", () => {
             await subject.signinPopup(extraArgs);
 
             // assert
-            expect(signinMock).toBeCalledWith(
+            expect(subject["_signin"]).toBeCalledWith(
                 {
                     request_type: "si:p",
                     redirect_uri: subject.settings.redirect_uri,
@@ -330,8 +329,7 @@ describe("UserManager", () => {
                 profile: {}
             });
             jest.spyOn(subject["_popupNavigator"], "prepare");
-            const signinMock = jest.spyOn(subject as any, "_signin")
-                .mockImplementation(() => Promise.resolve(user));
+            subject["_signin"] = jest.fn().mockResolvedValue(user);
             const extraArgs: SigninSilentArgs = {
                 extraQueryParams: { q : "q" },
                 extraTokenParams: { t: "t" },
@@ -342,7 +340,7 @@ describe("UserManager", () => {
             await subject.signinSilent(extraArgs);
 
             // assert
-            expect(signinMock).toBeCalledWith(
+            expect(subject["_signin"]).toBeCalledWith(
                 {
                     request_type: "si:s",
                     redirect_uri: subject.settings.redirect_uri,

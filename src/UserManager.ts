@@ -14,6 +14,7 @@ import type { SessionStatus } from "./SessionStatus";
 import type { SignoutResponse } from "./SignoutResponse";
 import { ErrorResponse } from "./ErrorResponse";
 import type { MetadataService } from "./MetadataService";
+import type { SigninResponse } from "./SigninResponse";
 
 /**
  * @public
@@ -260,15 +261,15 @@ export class UserManager {
         return user;
     }
 
+    // TODO: move this into OidcClient and construct a validated SigninResponse from the refresh token response
     protected async _useRefreshToken(user: User): Promise<User> {
         const result = await this._tokenClient.exchangeRefreshToken({
-            refresh_token: user.refresh_token || ""
-        });
+            refresh_token: user.refresh_token || "",
+        }) as Partial<SigninResponse>;
         if (!result) {
             this._logger.error("_useRefreshToken: No response returned from token endpoint");
             throw new Error("No response returned from token endpoint");
         }
-
         if (!result.access_token) {
             this._logger.error("_useRefreshToken: No access token returned from token endpoint");
             throw new Error("No access token returned from token endpoint");
@@ -386,7 +387,7 @@ export class UserManager {
                 return {
                     session_state: signinResponse.session_state,
                     sub: signinResponse.profile.sub,
-                    sid: signinResponse.profile.sid
+                    sid: signinResponse.profile.sid,
                 };
             }
 
@@ -403,7 +404,7 @@ export class UserManager {
                 ) {
                     this._logger.info("querySessionStatus: querySessionStatus success for anonymous user");
                     return {
-                        session_state: err.session_state
+                        session_state: err.session_state,
                     };
                 }
             }
@@ -594,14 +595,14 @@ export class UserManager {
             await this._tokenClient.revoke({
                 token: user.access_token,
                 token_type_hint: "access_token",
-                optional
+                optional,
             });
         }
         if (user.refresh_token) {
             await this._tokenClient.revoke({
                 token: user.refresh_token,
                 token_type_hint: "refresh_token",
-                optional
+                optional,
             });
         }
 
