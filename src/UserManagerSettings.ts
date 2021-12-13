@@ -4,6 +4,7 @@
 import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 import type { PopupWindowFeatures } from "./utils";
 import { WebStorageStateStore } from "./WebStorageStateStore";
+import { InMemoryWebStorage } from "./InMemoryWebStorage";
 
 const DefaultAccessTokenExpiringNotificationTimeInSeconds = 60;
 const DefaultCheckSessionIntervalInSeconds = 2;
@@ -53,7 +54,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     accessTokenExpiringNotificationTimeInSeconds?: number;
 
     /**
-     * Storage object used to persist User for currently authenticated user (default: session storage).
+     * Storage object used to persist User for currently authenticated user (default: window.sessionStorage, InMemoryWebStorage iff no window).
      *  E.g. `userStore: new WebStorageStateStore({ store: window.localStorage })`
      */
     userStore?: WebStorageStateStore;
@@ -112,7 +113,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             revokeAccessTokenOnSignout = false,
             accessTokenExpiringNotificationTimeInSeconds = DefaultAccessTokenExpiringNotificationTimeInSeconds,
 
-            userStore = new WebStorageStateStore({ store: sessionStorage }),
+            userStore,
         } = args;
 
         super(args);
@@ -143,6 +144,12 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         this.revokeAccessTokenOnSignout = revokeAccessTokenOnSignout;
         this.accessTokenExpiringNotificationTimeInSeconds = accessTokenExpiringNotificationTimeInSeconds;
 
-        this.userStore = userStore;
+        if (userStore) {
+            this.userStore = userStore;
+        }
+        else {
+            const store = typeof window !== "undefined" ? window.sessionStorage : new InMemoryWebStorage();
+            this.userStore = new WebStorageStateStore({ store });
+        }
     }
 }

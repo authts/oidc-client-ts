@@ -4,6 +4,7 @@
 import { WebStorageStateStore } from "./WebStorageStateStore";
 import type { OidcMetadata } from "./OidcMetadata";
 import type { StateStore } from "./StateStore";
+import { InMemoryWebStorage } from "./InMemoryWebStorage";
 
 const DefaultResponseType = "code";
 const DefaultScope = "openid";
@@ -87,7 +88,7 @@ export interface OidcClientSettings {
     mergeClaims?: boolean;
 
     /**
-     * Storage object used to persist interaction state (default: local storage).
+     * Storage object used to persist interaction state (default: window.localStorage, InMemoryWebStorage iff no window).
      * E.g. `stateStore: new WebStorageStateStore({ store: window.localStorage })`
      */
     stateStore?: StateStore;
@@ -164,7 +165,7 @@ export class OidcClientSettingsStore {
         userInfoJwtIssuer = "OP",
         mergeClaims = false,
         // other behavior
-        stateStore = new WebStorageStateStore(),
+        stateStore,
         // extra query params
         extraQueryParams = {},
         extraTokenParams = {},
@@ -199,7 +200,13 @@ export class OidcClientSettingsStore {
         this.userInfoJwtIssuer = userInfoJwtIssuer;
         this.mergeClaims = !!mergeClaims;
 
-        this.stateStore = stateStore;
+        if (stateStore) {
+            this.stateStore = stateStore;
+        }
+        else {
+            const store = typeof window !== "undefined" ? window.localStorage : new InMemoryWebStorage();
+            this.stateStore = new WebStorageStateStore({ store });
+        }
 
         this.extraQueryParams = extraQueryParams;
         this.extraTokenParams = extraTokenParams;
