@@ -137,7 +137,7 @@ function revokeAccessToken() {
 }
 
 function startSigninMainWindow() {
-    mgr.signinRedirect(/*{useReplaceToNavigate:true}*/).then(function() {
+    mgr.signinRedirect({ state: { foo: "bar" } /*, useReplaceToNavigate: true*/ }).then(function() {
         log("signinRedirect done");
     }).catch(function(err) {
         console.error(err);
@@ -148,10 +148,9 @@ function startSigninMainWindow() {
 function endSigninMainWindow() {
     mgr.signinCallback().then(function(user) {
         log("signed in", user);
-        // this is how you get the state after the login:
-        var theState = user.state;
-        var theMessage = theState.message;
-        console.log("here's our post-login state", theMessage);
+        // this is how you get the custom state after the login:
+        var customState = user.state;
+        console.log("here's our post-login custom state", customState);
     }).catch(function(err) {
         console.error(err);
         log(err);
