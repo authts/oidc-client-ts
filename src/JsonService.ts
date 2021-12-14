@@ -103,13 +103,15 @@ export class JsonService {
         const responseText = await response.text();
 
         let json: Record<string, unknown> = {};
-        try {
-            json = JSON.parse(responseText);
-        }
-        catch (err) {
-            this._logger.error("postForm: Error parsing JSON response", err);
-            if (response.ok) throw err;
-            throw new Error(`${response.statusText} (${response.status})`);
+        if (responseText) {
+            try {
+                json = JSON.parse(responseText);
+            }
+            catch (err) {
+                this._logger.error("postForm: Error parsing JSON response", err);
+                if (response.ok) throw err;
+                throw new Error(`${response.statusText} (${response.status})`);
+            }
         }
 
         if (!response.ok) {
