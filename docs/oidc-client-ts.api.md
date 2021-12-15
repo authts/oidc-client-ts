@@ -12,8 +12,8 @@ export class AccessTokenEvents {
     constructor({ expiringNotificationTimeInSeconds }: {
         expiringNotificationTimeInSeconds: number;
     });
-    addAccessTokenExpired(cb: AccessTokenCallback): void;
-    addAccessTokenExpiring(cb: AccessTokenCallback): void;
+    addAccessTokenExpired(cb: AccessTokenCallback): () => void;
+    addAccessTokenExpiring(cb: AccessTokenCallback): () => void;
     // (undocumented)
     load(container: User): void;
     // Warning: (ae-forgotten-export) The symbol "Logger" needs to be exported by the entry point index.d.ts
@@ -823,12 +823,12 @@ export class UserManager {
 // @public (undocumented)
 export class UserManagerEvents extends AccessTokenEvents {
     constructor(settings: UserManagerSettingsStore);
-    addSilentRenewError(cb: SilentRenewErrorCallback): void;
-    addUserLoaded(cb: UserLoadedCallback): void;
-    addUserSessionChanged(cb: UserSessionChangedCallback): void;
-    addUserSignedIn(cb: UserSignedInCallback): void;
-    addUserSignedOut(cb: UserSignedOutCallback): void;
-    addUserUnloaded(cb: UserUnloadedCallback): void;
+    addSilentRenewError(cb: SilentRenewErrorCallback): () => void;
+    addUserLoaded(cb: UserLoadedCallback): () => void;
+    addUserSessionChanged(cb: UserSessionChangedCallback): () => void;
+    addUserSignedIn(cb: UserSignedInCallback): () => void;
+    addUserSignedOut(cb: UserSignedOutCallback): () => void;
+    addUserUnloaded(cb: UserUnloadedCallback): () => void;
     // (undocumented)
     load(user: User, raiseEvent?: boolean): void;
     // @internal (undocumented)

@@ -70,40 +70,40 @@ export class UserManagerEvents extends AccessTokenEvents {
     /**
      * Add callback: Raised when a user session has been established (or re-established).
      */
-    public addUserLoaded(cb: UserLoadedCallback): void {
-        this._userLoaded.addHandler(cb);
+    public addUserLoaded(cb: UserLoadedCallback): () => void {
+        return this._userLoaded.addHandler(cb);
     }
     /**
      * Remove callback: Raised when a user session has been established (or re-established).
      */
     public removeUserLoaded(cb: UserLoadedCallback): void {
-        this._userLoaded.removeHandler(cb);
+        return this._userLoaded.removeHandler(cb);
     }
 
     /**
      * Add callback: Raised when a user session has been terminated.
      */
-    public addUserUnloaded(cb: UserUnloadedCallback): void {
-        this._userUnloaded.addHandler(cb);
+    public addUserUnloaded(cb: UserUnloadedCallback): () => void {
+        return this._userUnloaded.addHandler(cb);
     }
     /**
      * Remove callback: Raised when a user session has been terminated.
      */
     public removeUserUnloaded(cb: UserUnloadedCallback): void {
-        this._userUnloaded.removeHandler(cb);
+        return this._userUnloaded.removeHandler(cb);
     }
 
     /**
      * Add callback: Raised when the automatic silent renew has failed.
      */
-    public addSilentRenewError(cb: SilentRenewErrorCallback): void {
-        this._silentRenewError.addHandler(cb);
+    public addSilentRenewError(cb: SilentRenewErrorCallback): () => void {
+        return this._silentRenewError.addHandler(cb);
     }
     /**
      * Remove callback: Raised when the automatic silent renew has failed.
      */
     public removeSilentRenewError(cb: SilentRenewErrorCallback): void {
-        this._silentRenewError.removeHandler(cb);
+        return this._silentRenewError.removeHandler(cb);
     }
     /**
      * @internal
@@ -116,8 +116,8 @@ export class UserManagerEvents extends AccessTokenEvents {
     /**
      * Add callback: Raised when the user is signed in.
      */
-    public addUserSignedIn(cb: UserSignedInCallback): void {
-        this._userSignedIn.addHandler(cb);
+    public addUserSignedIn(cb: UserSignedInCallback): () => void {
+        return this._userSignedIn.addHandler(cb);
     }
     /**
      * Remove callback: Raised when the user is signed in.
@@ -136,8 +136,8 @@ export class UserManagerEvents extends AccessTokenEvents {
     /**
      * Add callback: Raised when the user's sign-in status at the OP has changed.
      */
-    public addUserSignedOut(cb: UserSignedOutCallback): void {
-        this._userSignedOut.addHandler(cb);
+    public addUserSignedOut(cb: UserSignedOutCallback): () => void {
+        return this._userSignedOut.addHandler(cb);
     }
     /**
      * Remove callback: Raised when the user's sign-in status at the OP has changed.
@@ -156,8 +156,8 @@ export class UserManagerEvents extends AccessTokenEvents {
     /**
      * Add callback: Raised when the user session changed (when `monitorSession` is set)
      */
-    public addUserSessionChanged(cb: UserSessionChangedCallback): void {
-        this._userSessionChanged.addHandler(cb);
+    public addUserSessionChanged(cb: UserSessionChangedCallback): () => void {
+        return this._userSessionChanged.addHandler(cb);
     }
     /**
      * Remove callback: Raised when the user session changed (when `monitorSession` is set)
