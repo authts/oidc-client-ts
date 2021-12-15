@@ -1,3 +1,4 @@
+import CryptoJS from "crypto-js/core.js";
 import sha256 from "crypto-js/sha256.js";
 import Base64 from "crypto-js/enc-base64.js";
 import Utf8 from "crypto-js/enc-utf8.js";
@@ -10,26 +11,17 @@ const UUID_V4_TEMPLATE = "10000000-1000-4000-8000-100000000000";
  * @internal
  */
 export class CryptoUtils {
-
-    private static _cryptoUUIDv4(): string {
-        return UUID_V4_TEMPLATE.replace(/[018]/g, c =>
-            (+c ^ window.crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16),
-        );
-    }
-
-    private static _UUIDv4(): string {
-        return UUID_V4_TEMPLATE.replace(/[018]/g, c =>
-            (+c ^ Math.random() * 16 >> +c / 4).toString(16),
-        );
+    private static _randomWord(): number {
+        return CryptoJS.lib.WordArray.random(1).words[0];
     }
 
     /**
      * Generates RFC4122 version 4 guid
      */
     public static generateUUIDv4(): string {
-        const hasRandomValues = typeof window !== "undefined" && window.crypto &&
-            Object.prototype.hasOwnProperty.call(window.crypto, "getRandomValues");
-        const uuid = hasRandomValues ? CryptoUtils._cryptoUUIDv4() : CryptoUtils._UUIDv4();
+        const uuid = UUID_V4_TEMPLATE.replace(/[018]/g, c =>
+            (+c ^ CryptoUtils._randomWord() & 15 >> +c / 4).toString(16),
+        );
         return uuid.replace(/-/g, "");
     }
 
@@ -49,7 +41,7 @@ export class CryptoUtils {
             return Base64.stringify(hashed).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
         }
         catch (err) {
-            Logger.error("CryptoUtils", err instanceof Error ? err.message : err);
+            Logger.error("CryptoUtils", err);
             throw err;
         }
     }
