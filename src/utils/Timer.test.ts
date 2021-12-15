@@ -1,46 +1,24 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { IntervalTimer, Timer } from "./Timer";
-
-class IntervalTimerMock implements IntervalTimer {
-    callback: ((...args: unknown[]) => void);
-    duration?: number;
-
-    clearTimeoutWasCalled: boolean;
-    clearHandle: number | null;
-
-    constructor() {
-        this.callback = () => { fail("should not come here"); };
-        this.duration = undefined;
-
-        this.clearTimeoutWasCalled = false;
-        this.clearHandle = null;
-    }
-
-    setInterval(cb: (...args: unknown[]) => void, duration?: number) {
-        this.callback = cb;
-        this.duration = duration;
-        return 5;
-    }
-
-    clearInterval(handle: number) {
-        this.clearTimeoutWasCalled = true;
-        this.clearHandle = handle;
-    }
-}
+import { Timer } from "./Timer";
 
 describe("Timer", () => {
 
     let subject: Timer;
-    let intervalTimerMock: IntervalTimerMock;
     let now = 1;
 
     beforeEach(() => {
-        intervalTimerMock = new IntervalTimerMock();
         subject = new Timer("test name");
         jest.spyOn(Timer, "getEpochTime").mockImplementation(() => now);
-        subject["_timer"] = intervalTimerMock;
+        jest.useFakeTimers();
+        jest.spyOn(globalThis, "clearInterval");
+        jest.spyOn(globalThis, "setInterval");
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+        jest.clearAllTimers();
     });
 
     describe("init", () => {
@@ -50,7 +28,7 @@ describe("Timer", () => {
             subject.init(10);
 
             // assert
-            expect(intervalTimerMock.callback).not.toBeNull();
+            expect(setInterval).toHaveBeenCalledWith(expect.any(Function), expect.any(Number));
         });
 
         it("should use 1 second if duration is too low", () => {
@@ -58,19 +36,18 @@ describe("Timer", () => {
             subject.init(0);
 
             // assert
-            expect(intervalTimerMock.duration).toEqual(1000);
+            expect(setInterval).toHaveBeenLastCalledWith(expect.any(Function), 1000);
 
             // act
             subject.init(-1);
-
             // assert
-            expect(intervalTimerMock.duration).toEqual(1000);
+            expect(setInterval).toHaveBeenLastCalledWith(expect.any(Function), 1000);
 
             // act
             subject.init(-5);
 
             // assert
-            expect(intervalTimerMock.duration).toEqual(1000);
+            expect(setInterval).toHaveBeenLastCalledWith(expect.any(Function), 1000);
         });
 
         it("should use duration if less than default", () => {
@@ -78,13 +55,7 @@ describe("Timer", () => {
             subject.init(2);
 
             // assert
-            expect(intervalTimerMock.duration).toEqual(2000);
-
-            // act
-            subject.init(3);
-
-            // assert
-            expect(intervalTimerMock.duration).toEqual(3000);
+            expect(setInterval).toHaveBeenCalledWith(expect.any(Function), 2000);
         });
 
         it("should cancel previous timer if new time is not the same", () => {
@@ -92,14 +63,14 @@ describe("Timer", () => {
             subject.init(10);
 
             // assert
-            expect(intervalTimerMock.clearTimeoutWasCalled).toEqual(false);
+            expect(clearInterval).not.toHaveBeenCalled();
 
             // act
-            now = now + 1;
+            now += 1;
             subject.init(10);
 
             // assert
-            expect(intervalTimerMock.clearTimeoutWasCalled).toEqual(true);
+            expect(clearInterval).toHaveBeenCalled();
         });
 
         it("should not cancel previous timer if new time is same", () => {
@@ -107,13 +78,13 @@ describe("Timer", () => {
             subject.init(10);
 
             // assert
-            expect(intervalTimerMock.clearTimeoutWasCalled).toEqual(false);
+            expect(clearInterval).not.toHaveBeenCalled();
 
             // act
             subject.init(10);
 
             // assert
-            expect(intervalTimerMock.clearTimeoutWasCalled).toEqual(false);
+            expect(clearInterval).not.toHaveBeenCalled();
         });
     });
 
@@ -124,22 +95,21 @@ describe("Timer", () => {
             const cb = jest.fn();
             subject.addHandler(cb);
 
-            now = 100;
             subject.init(10);
 
             // assert
-            expect(intervalTimerMock.callback).not.toBeNull();
+            expect(setInterval).toHaveBeenCalledWith(expect.any(Function), expect.any(Number));
 
             // act
-            now = 109;
-            intervalTimerMock.callback();
+            now += 9;
+            jest.runOnlyPendingTimers();
 
             // assert
             expect(cb).toBeCalledTimes(0);
 
             // act
-            now = 110;
-            intervalTimerMock.callback();
+            now += 1;
+            jest.runOnlyPendingTimers();
 
             // assert
             expect(cb).toBeCalledTimes(1);
@@ -150,20 +120,19 @@ describe("Timer", () => {
             const cb = jest.fn();
             subject.addHandler(cb);
 
-            now = 100;
             subject.init(10);
 
             // assert
-            expect(intervalTimerMock.callback).not.toBeNull();
+            expect(setInterval).toHaveBeenCalledWith(expect.any(Function), expect.any(Number));
 
-            now = 109;
-            intervalTimerMock.callback();
+            now += 9;
+            jest.runOnlyPendingTimers();
 
             // assert
             expect(cb).toBeCalledTimes(0);
 
-            now = 111;
-            intervalTimerMock.callback();
+            now += 2;
+            jest.runOnlyPendingTimers();
 
             // assert
             expect(cb).toBeCalledTimes(1);
@@ -171,17 +140,16 @@ describe("Timer", () => {
 
         it("should cancel window timer", () => {
             // arrange
-            now = 100;
             subject.init(10);
 
             // assert
-            expect(intervalTimerMock.callback).not.toBeNull();
+            expect(setInterval).toHaveBeenCalledWith(expect.any(Function), expect.any(Number));
 
-            now = 110;
-            intervalTimerMock.callback();
+            now += 10;
+            jest.runOnlyPendingTimers();
 
             // assert
-            expect(intervalTimerMock.clearTimeoutWasCalled).toEqual(true);
+            expect(clearInterval).toHaveBeenCalled();
         });
     });
 
@@ -192,13 +160,13 @@ describe("Timer", () => {
             subject.init(10);
 
             // assert
-            expect(intervalTimerMock.clearTimeoutWasCalled).toEqual(false);
+            expect(clearInterval).not.toHaveBeenCalled();
 
             // act
             subject.cancel();
 
             // assert
-            expect(intervalTimerMock.clearTimeoutWasCalled).toEqual(true);
+            expect(clearInterval).toHaveBeenCalled();
         });
 
         it("should do nothing if no existing timer", () => {
@@ -206,7 +174,7 @@ describe("Timer", () => {
             subject.cancel();
 
             // assert
-            expect(intervalTimerMock.clearTimeoutWasCalled).toEqual(false);
+            expect(clearInterval).not.toHaveBeenCalled();
         });
     });
 
@@ -218,10 +186,9 @@ describe("Timer", () => {
 
             // act
             subject.addHandler(cb);
-            now = 100;
             subject.init(10);
-            now = 110;
-            intervalTimerMock.callback();
+            now += 10;
+            jest.runOnlyPendingTimers();
 
             // assert
             expect(cb).toBeCalled();
@@ -236,10 +203,9 @@ describe("Timer", () => {
             subject.addHandler(cb);
             subject.addHandler(cb);
             subject.addHandler(cb);
-            now = 100;
             subject.init(10);
-            now = 110;
-            intervalTimerMock.callback();
+            now += 10;
+            jest.runOnlyPendingTimers();
 
             // assert
             expect(cb).toBeCalledTimes(4);
@@ -251,14 +217,13 @@ describe("Timer", () => {
         it("should remove callback from being invoked", () => {
             // arrange
             const cb = jest.fn();
-            now = 100;
             subject.addHandler(cb);
             subject.init(10);
 
             // act
             subject.removeHandler(cb);
-            now = 110;
-            intervalTimerMock.callback();
+            now += 10;
+            jest.runOnlyPendingTimers();
 
             // assert
             expect(cb).toBeCalledTimes(0);
@@ -273,12 +238,11 @@ describe("Timer", () => {
             subject.addHandler(cb1);
 
             // act
-            now = 100;
             subject.init(10);
             subject.removeHandler(cb1);
             subject.removeHandler(cb1);
-            now = 110;
-            intervalTimerMock.callback();
+            now += 10;
+            jest.runOnlyPendingTimers();
 
             // assert
             expect(cb1).toBeCalledTimes(0);
