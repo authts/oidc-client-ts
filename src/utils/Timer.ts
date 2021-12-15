@@ -8,29 +8,8 @@ const DefaultTimerDurationInSeconds = 5; // seconds
 /**
  * @internal
  */
-export type IntervalTimer = {
-    setInterval: (cb: () => void, duration?: number | undefined) => number;
-    clearInterval: (handle: number) => void;
-};
-
-/**
- * @internal
- */
-export const g_timer: IntervalTimer = {
-    setInterval: function (cb: () => void, duration?: number): number {
-        return setInterval(cb, duration);
-    },
-    clearInterval: function (handle: number): void {
-        return clearInterval(handle);
-    },
-};
-
-/**
- * @internal
- */
 export class Timer extends Event<[void]> {
-    private _timer = g_timer;
-    private _timerHandle: number | null = null;
+    private _timerHandle: ReturnType<typeof setInterval> | null = null;
     private _expiration = 0;
 
     // get the time
@@ -63,7 +42,7 @@ export class Timer extends Event<[void]> {
         if (durationInSeconds < timerDurationInSeconds) {
             timerDurationInSeconds = durationInSeconds;
         }
-        this._timerHandle = this._timer.setInterval(this._callback, timerDurationInSeconds * 1000);
+        this._timerHandle = setInterval(this._callback, timerDurationInSeconds * 1000);
     }
 
     public get expiration(): number {
@@ -73,7 +52,7 @@ export class Timer extends Event<[void]> {
     public cancel(): void {
         if (this._timerHandle) {
             this._logger.debug("cancel: ", this._name);
-            this._timer.clearInterval(this._timerHandle);
+            clearInterval(this._timerHandle);
             this._timerHandle = null;
         }
     }

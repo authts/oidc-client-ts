@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Logger, IntervalTimer, g_timer } from "./utils";
+import { Logger } from "./utils";
 import { CheckSessionIFrame } from "./CheckSessionIFrame";
 import type { UserManager } from "./UserManager";
 import type { User } from "./User";
@@ -13,7 +13,6 @@ export class SessionMonitor {
     private readonly _logger: Logger;
 
     private readonly _userManager: UserManager;
-    private readonly _timer: IntervalTimer;
     private _sub: string | undefined;
     private _sid: string | undefined;
     private _checkSessionIFrame?: CheckSessionIFrame;
@@ -27,7 +26,6 @@ export class SessionMonitor {
         }
 
         this._userManager = userManager;
-        this._timer = g_timer;
 
         this._userManager.events.addUserLoaded(this._start);
         this._userManager.events.addUserUnloaded(this._stop);
@@ -125,8 +123,8 @@ export class SessionMonitor {
             // using a timer to delay re-initialization to avoid race conditions during signout
             // TODO rewrite to use promise correctly
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            const timerHandle = this._timer.setInterval(async () => {
-                this._timer.clearInterval(timerHandle);
+            const timerHandle = setInterval(async () => {
+                clearInterval(timerHandle);
 
                 try {
                     const session = await this._userManager.querySessionStatus();

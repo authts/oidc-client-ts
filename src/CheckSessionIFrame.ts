@@ -10,7 +10,7 @@ export class CheckSessionIFrame {
     private readonly _logger: Logger;
     private _frame_origin: string;
     private _frame: HTMLIFrameElement;
-    private _timer: number | null = null
+    private _timer: ReturnType<typeof setInterval> | null = null
     private _session_state: string | null = null;
 
     public constructor(
@@ -92,7 +92,7 @@ export class CheckSessionIFrame {
         send();
 
         // and setup timer
-        this._timer = window.setInterval(send, this._intervalInSeconds * 1000);
+        this._timer = setInterval(send, this._intervalInSeconds * 1000);
     }
 
     public stop(): void {
@@ -101,7 +101,7 @@ export class CheckSessionIFrame {
         if (this._timer) {
             this._logger.debug("stop");
 
-            window.clearInterval(this._timer);
+            clearInterval(this._timer);
             this._timer = null;
         }
     }
