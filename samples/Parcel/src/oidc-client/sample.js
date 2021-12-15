@@ -44,6 +44,7 @@ function signin() {
             window.location = req.url;
         }
     }).catch(function(err) {
+        console.error(err);
         log(err);
     });
 }
@@ -54,6 +55,7 @@ function processSigninResponse() {
         signinResponse = response;
         log("signin response", signinResponse);
     }).catch(function(err) {
+        console.error(err);
         log(err);
     });
 }
@@ -72,6 +74,7 @@ function processSignoutResponse() {
         signinResponse = null;
         log("signout response", response);
     }).catch(function(err) {
+        console.error(err);
         log(err);
     });
 }
@@ -104,3 +107,7 @@ if (followLinks()) {
         processSignoutResponse();
     }
 }
+
+export {
+    log
+};

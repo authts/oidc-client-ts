@@ -94,8 +94,9 @@ mgr.events.addUserSignedOut(function (e) {
 function clearState() {
     mgr.clearStaleState().then(function() {
         log("clearStateState success");
-    }).catch(function(e) {
-        log("clearStateState error", e.message);
+    }).catch(function(err) {
+        console.error(err);
+        log(err);
     });
 }
 
@@ -103,6 +104,7 @@ function getUser() {
     mgr.getUser().then(function(user) {
         log("got user", user);
     }).catch(function(err) {
+        console.error(err);
         log(err);
     });
 }
@@ -111,6 +113,7 @@ function removeUser() {
     mgr.removeUser().then(function() {
         log("user removed");
     }).catch(function(err) {
+        console.error(err);
         log(err);
     });
 }
@@ -119,6 +122,7 @@ function querySessionStatus() {
     mgr.querySessionStatus().then(function(status) {
         log("user's session status", status);
     }).catch(function(err) {
+        console.error(err);
         log(err);
     });
 }
@@ -127,14 +131,16 @@ function revokeAccessToken() {
     mgr.revokeAccessToken().then(function() {
         log("access token revoked");
     }).catch(function(err) {
+        console.error(err);
         log(err);
     });
 }
 
 function startSigninMainWindow() {
-    mgr.signinRedirect(/*{useReplaceToNavigate:true}*/).then(function() {
+    mgr.signinRedirect({ state: { foo: "bar" } /*, useReplaceToNavigate: true*/ }).then(function() {
         log("signinRedirect done");
     }).catch(function(err) {
+        console.error(err);
         log(err);
     });
 }
@@ -142,11 +148,11 @@ function startSigninMainWindow() {
 function endSigninMainWindow() {
     mgr.signinCallback().then(function(user) {
         log("signed in", user);
-        // this is how you get the state after the login:
-        var theState = user.state;
-        var theMessage = theState.message;
-        console.log("here's our post-login state", theMessage);
+        // this is how you get the custom state after the login:
+        var customState = user.state;
+        console.log("here's our post-login custom state", customState);
     }).catch(function(err) {
+        console.error(err);
         log(err);
     });
 }
@@ -155,6 +161,7 @@ function popupSignin() {
     mgr.signinPopup().then(function(user) {
         log("signed in", user);
     }).catch(function(err) {
+        console.error(err);
         log(err);
     });
 }
@@ -163,14 +170,16 @@ function popupSignout() {
     mgr.signoutPopup().then(function() {
         log("signed out");
     }).catch(function(err) {
+        console.error(err);
         log(err);
     });
 }
 
 function iframeSignin() {
     mgr.signinSilent().then(function(user) {
-        log("signed in", user);
+        log("signed in silent", user);
     }).catch(function(err) {
+        console.error(err);
         log(err);
     });
 }
@@ -179,6 +188,7 @@ function startSignoutMainWindow() {
     mgr.signoutRedirect().then(function(resp) {
         log("signed out", resp);
     }).catch(function(err) {
+        console.error(err);
         log(err);
     });
 }
@@ -187,6 +197,11 @@ function endSignoutMainWindow() {
     mgr.signoutCallback().then(function(resp) {
         log("signed out", resp);
     }).catch(function(err) {
+        console.error(err);
         log(err);
     });
 }
+
+export {
+    log
+};

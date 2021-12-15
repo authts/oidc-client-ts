@@ -27,7 +27,8 @@ export class CryptoUtils {
      * Generates RFC4122 version 4 guid
      */
     public static generateUUIDv4(): string {
-        const hasRandomValues = window.crypto && Object.prototype.hasOwnProperty.call(window.crypto, "getRandomValues");
+        const hasRandomValues = typeof window !== "undefined" && window.crypto &&
+            Object.prototype.hasOwnProperty.call(window.crypto, "getRandomValues");
         const uuid = hasRandomValues ? CryptoUtils._cryptoUUIDv4() : CryptoUtils._UUIDv4();
         return uuid.replace(/-/g, "");
     }
