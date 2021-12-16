@@ -206,20 +206,6 @@ describe("TokenClient", () => {
                 .rejects.toThrow(Error);
         });
 
-        it("should gracefully handle optional", async () => {
-            // arrange
-            jest.spyOn(subject["_metadataService"], "getRevocationEndpoint")
-                .mockResolvedValue(undefined);
-            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
-                .mockResolvedValue({});
-
-            // act
-            await subject.revoke({ token: "token", token_type_hint: "access_token" });
-
-            // assert
-            expect(postFormMock).not.toBeCalled();
-        });
-
         it("should call postForm", async () => {
             // arrange
             settings.client_secret = "client_secret";
