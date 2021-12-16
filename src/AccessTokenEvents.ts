@@ -68,8 +68,8 @@ export class AccessTokenEvents {
     /**
      * Add callback: Raised prior to the access token expiring.
      */
-    public addAccessTokenExpiring(cb: AccessTokenCallback): void {
-        this._expiringTimer.addHandler(cb);
+    public addAccessTokenExpiring(cb: AccessTokenCallback): () => void {
+        return this._expiringTimer.addHandler(cb);
     }
     /**
      * Remove callback: Raised prior to the access token expiring.
@@ -81,8 +81,8 @@ export class AccessTokenEvents {
     /**
      * Add callback: Raised after the access token has expired.
      */
-    public addAccessTokenExpired(cb: AccessTokenCallback): void {
-        this._expiredTimer.addHandler(cb);
+    public addAccessTokenExpired(cb: AccessTokenCallback): () => void {
+        return this._expiredTimer.addHandler(cb);
     }
     /**
      * Remove callback: Raised after the access token has expired.
