@@ -93,10 +93,12 @@ export class ErrorResponse extends Error {
         error_uri?: string;
         state?: unknown;
         session_state?: string;
-    });
+    },
+    form?: URLSearchParams | undefined);
     readonly error: string;
     readonly error_description: string | undefined;
     readonly error_uri: string | undefined;
+    readonly form?: URLSearchParams | undefined;
     readonly name: string;
     // (undocumented)
     readonly session_state: string | undefined;
