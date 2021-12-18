@@ -21,6 +21,7 @@ describe("PopupWindow", () => {
             focus: jest.fn(),
             close: jest.fn(),
         } as unknown as WindowProxy));
+        jest.useFakeTimers();
     });
 
     afterEach(() => {
@@ -48,6 +49,8 @@ describe("PopupWindow", () => {
         expect(popupFromWindowOpen.location.replace).toHaveBeenCalledWith("http://sts/authorize?x=y");
         expect(popupFromWindowOpen.focus).toHaveBeenCalled();
         expect(popupFromWindowOpen.close).toHaveBeenCalled();
+        // assert that timers are cleaned up
+        jest.runAllTimers();
     });
 
     it("should keep the window open after navigate succeeds", async () => {
@@ -64,6 +67,7 @@ describe("PopupWindow", () => {
         const popupFromWindowOpen = firstSuccessfulResult(window.open)!;
         expect(popupFromWindowOpen.location.replace).toHaveBeenCalledWith("http://sts/authorize?x=y");
         expect(popupFromWindowOpen.close).not.toHaveBeenCalled();
+        jest.runAllTimers();
     });
 
     it("should ignore messages from foreign origins", async () => {
@@ -104,6 +108,7 @@ describe("PopupWindow", () => {
 
         await expect(promise).rejects.toThrow("Invalid response from window");
         expect(popupFromWindowOpen.location.replace).toHaveBeenCalledWith("http://sts/authorize?x=y");
+        jest.runAllTimers();
     });
 
     it("should reject when the window is closed by user", async () => {
@@ -116,7 +121,9 @@ describe("PopupWindow", () => {
             value: true,
         });
 
+        jest.runOnlyPendingTimers();
         await expect(promise).rejects.toThrow("Popup closed by user");
+        jest.runAllTimers();
     });
 
     it("should reject when the window is closed programmatically", async () => {
@@ -126,6 +133,7 @@ describe("PopupWindow", () => {
         popupWindow.close();
 
         await expect(promise).rejects.toThrow("Popup closed");
+        jest.runAllTimers();
     });
 
     it("should notify the parent window", async () => {
