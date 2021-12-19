@@ -1,9 +1,10 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Logger, JwtUtils, JwtPayload } from "./utils";
+import { Logger, JwtUtils } from "./utils";
 import { JsonService } from "./JsonService";
 import type { MetadataService } from "./MetadataService";
+import type { JwtClaims } from "./Claims";
 
 /**
  * @internal
@@ -19,7 +20,7 @@ export class UserInfoService {
         this._metadataService = metadataService;
     }
 
-    public async getClaims(token: string): Promise<JwtPayload> {
+    public async getClaims(token: string): Promise<JwtClaims> {
         if (!token) {
             this._logger.error("getClaims: No token passed");
             throw new Error("A token is required");
@@ -34,7 +35,7 @@ export class UserInfoService {
         return claims;
     }
 
-    protected _getClaimsFromJwt = async (responseText: string): Promise<JwtPayload> => {
+    protected _getClaimsFromJwt = async (responseText: string): Promise<JwtClaims> => {
         try {
             const payload = JwtUtils.decode(responseText);
             this._logger.debug("_getClaimsFromJwt: JWT decoding successful");
@@ -45,5 +46,5 @@ export class UserInfoService {
             this._logger.error("_getClaimsFromJwt: Error parsing JWT response", err instanceof Error ? err.message : err);
             throw err;
         }
-    }
+    };
 }

@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Logger, JwtUtils, JwtPayload } from "./utils";
+import { Logger, JwtUtils } from "./utils";
 import type { MetadataService } from "./MetadataService";
 import { UserInfoService } from "./UserInfoService";
 import { TokenClient } from "./TokenClient";
@@ -12,6 +12,7 @@ import type { SigninResponse } from "./SigninResponse";
 import type { State } from "./State";
 import type { SignoutResponse } from "./SignoutResponse";
 import type { UserProfile } from "./User";
+import type { JwtClaims } from "./Claims";
 
 /**
  * @internal
@@ -158,7 +159,7 @@ export class ResponseValidator {
         return response;
     }
 
-    protected _mergeClaims(claims1: UserProfile, claims2: JwtPayload): UserProfile {
+    protected _mergeClaims(claims1: UserProfile, claims2: JwtClaims): UserProfile {
         const result = { ...claims1 };
 
         for (const [claim, values] of Object.entries(claims2)) {
@@ -219,12 +220,12 @@ export class ResponseValidator {
         const request = {
             client_id: state.client_id,
             client_secret: state.client_secret,
-            code : response.code,
+            code: response.code,
             redirect_uri: state.redirect_uri,
             code_verifier: state.code_verifier || "",
         };
 
-        if (state.extraTokenParams && typeof(state.extraTokenParams) === "object") {
+        if (state.extraTokenParams && typeof (state.extraTokenParams) === "object") {
             Object.assign(request, state.extraTokenParams);
         }
 
