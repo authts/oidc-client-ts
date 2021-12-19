@@ -71,27 +71,27 @@ export class OidcClient {
     }
 
     public async createSigninRequest({
-        response_type, scope, redirect_uri,
         state,
-        prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
-        resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo,
+        request,
+        request_uri,
+        request_type,
+        id_token_hint,
+        login_hint,
+        skipUserInfo,
+        response_type = this.settings.response_type,
+        scope = this.settings.scope,
+        redirect_uri = this.settings.redirect_uri,
+        prompt = this.settings.prompt,
+        display = this.settings.display,
+        max_age = this.settings.max_age,
+        ui_locales = this.settings.ui_locales,
+        acr_values = this.settings.acr_values,
+        resource = this.settings.resource,
+        response_mode = this.settings.response_mode,
+        extraQueryParams = this.settings.extraQueryParams,
+        extraTokenParams = this.settings.extraTokenParams,
     }: CreateSigninRequestArgs): Promise<SigninRequest> {
         this._logger.debug("createSigninRequest");
-
-        response_type = response_type || this.settings.response_type;
-        scope = scope || this.settings.scope;
-        redirect_uri = redirect_uri || this.settings.redirect_uri;
-
-        // id_token_hint, login_hint aren't allowed on _settings
-        prompt = prompt || this.settings.prompt;
-        display = display || this.settings.display;
-        max_age = max_age || this.settings.max_age;
-        ui_locales = ui_locales || this.settings.ui_locales;
-        acr_values = acr_values || this.settings.acr_values;
-        resource = resource || this.settings.resource;
-        response_mode = response_mode || this.settings.response_mode;
-        extraQueryParams = extraQueryParams || this.settings.extraQueryParams;
-        extraTokenParams = extraTokenParams || this.settings.extraTokenParams;
 
         if (response_type !== "code") {
             throw new Error("Only the Authorization Code flow (with PKCE) is supported");
@@ -152,12 +152,12 @@ export class OidcClient {
 
     public async createSignoutRequest({
         state,
-        id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type,
+        id_token_hint,
+        request_type,
+        post_logout_redirect_uri = this.settings.post_logout_redirect_uri,
+        extraQueryParams = this.settings.extraQueryParams,
     }: CreateSignoutRequestArgs = {}): Promise<SignoutRequest> {
         this._logger.debug("createSignoutRequest");
-
-        post_logout_redirect_uri = post_logout_redirect_uri || this.settings.post_logout_redirect_uri;
-        extraQueryParams = extraQueryParams || this.settings.extraQueryParams;
 
         const url = await this.metadataService.getEndSessionEndpoint();
         if (!url) {
