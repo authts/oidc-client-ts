@@ -268,11 +268,11 @@ describe("UserManagerSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                revokeAccessTokenOnSignout : true,
+                revokeTokensOnSignout : true,
             });
 
             // assert
-            expect(subject.revokeAccessTokenOnSignout).toEqual(true);
+            expect(subject.revokeTokensOnSignout).toEqual(true);
         });
     });
 

@@ -86,8 +86,8 @@ export class MetadataService {
         return this._getMetadataProperty("userinfo_endpoint") as Promise<string>;
     }
 
-    public getTokenEndpoint(optional?: true): Promise<string | undefined>
     public getTokenEndpoint(optional: false): Promise<string>
+    public getTokenEndpoint(optional?: true): Promise<string | undefined>
     public getTokenEndpoint(optional = true): Promise<string | undefined> {
         return this._getMetadataProperty("token_endpoint", optional) as Promise<string | undefined>;
     }
@@ -100,12 +100,14 @@ export class MetadataService {
         return this._getMetadataProperty("end_session_endpoint", true) as Promise<string | undefined>;
     }
 
+    public getRevocationEndpoint(optional: false): Promise<string>
+    public getRevocationEndpoint(optional?: true): Promise<string | undefined>
     public getRevocationEndpoint(optional = true): Promise<string | undefined> {
         return this._getMetadataProperty("revocation_endpoint", optional) as Promise<string | undefined>;
     }
 
-    public getKeysEndpoint(optional?: true): Promise<string | undefined>
     public getKeysEndpoint(optional: false): Promise<string>
+    public getKeysEndpoint(optional?: true): Promise<string | undefined>
     public getKeysEndpoint(optional = true): Promise<string | undefined> {
         return this._getMetadataProperty("jwks_uri", optional) as Promise<string | undefined>;
     }

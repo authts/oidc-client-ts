@@ -93,10 +93,12 @@ export class ErrorResponse extends Error {
         error_uri?: string;
         state?: unknown;
         session_state?: string;
-    });
+    },
+    form?: URLSearchParams | undefined);
     readonly error: string;
     readonly error_description: string | undefined;
     readonly error_uri: string | undefined;
+    readonly form?: URLSearchParams | undefined;
     readonly name: string;
     // (undocumented)
     readonly session_state: string | undefined;
@@ -178,21 +180,23 @@ export class MetadataService {
     // (undocumented)
     getIssuer(): Promise<string>;
     // (undocumented)
-    getKeysEndpoint(optional?: true): Promise<string | undefined>;
-    // (undocumented)
     getKeysEndpoint(optional: false): Promise<string>;
+    // (undocumented)
+    getKeysEndpoint(optional?: true): Promise<string | undefined>;
     // (undocumented)
     getMetadata(): Promise<Partial<OidcMetadata>>;
     // (undocumented)
     protected _getMetadataProperty(name: keyof OidcMetadata, optional?: boolean): Promise<string | boolean | string[] | undefined>;
     // (undocumented)
-    getRevocationEndpoint(optional?: boolean): Promise<string | undefined>;
+    getRevocationEndpoint(optional: false): Promise<string>;
+    // (undocumented)
+    getRevocationEndpoint(optional?: true): Promise<string | undefined>;
     // (undocumented)
     getSigningKeys(): Promise<SigningKey[] | null>;
     // (undocumented)
-    getTokenEndpoint(optional?: true): Promise<string | undefined>;
-    // (undocumented)
     getTokenEndpoint(optional: false): Promise<string>;
+    // (undocumented)
+    getTokenEndpoint(optional?: true): Promise<string | undefined>;
     // (undocumented)
     getUserInfoEndpoint(): Promise<string>;
     // (undocumented)
@@ -437,6 +441,9 @@ export interface RedirectParams {
     // (undocumented)
     redirectMethod?: "replace" | "assign";
 }
+
+// @public (undocumented)
+export type RevokeTokensTypes = UserManagerSettings["revokeTokenTypes"];
 
 // @public (undocumented)
 export class SessionMonitor {
@@ -764,9 +771,9 @@ export class UserManager {
     protected readonly _redirectNavigator: RedirectNavigator;
     removeUser(): Promise<void>;
     // (undocumented)
-    revokeAccessToken(): Promise<void>;
+    protected _revokeInternal(user: User | null, types?: ("access_token" | "refresh_token")[]): Promise<void>;
     // (undocumented)
-    protected _revokeInternal(user: User | null, optional: boolean): Promise<boolean>;
+    revokeTokens(types?: RevokeTokensTypes): Promise<void>;
     // (undocumented)
     protected readonly _sessionMonitor: SessionMonitor | null;
     readonly settings: UserManagerSettingsStore;
@@ -866,7 +873,8 @@ export interface UserManagerSettings extends OidcClientSettings {
     // (undocumented)
     query_status_response_type?: string;
     redirectMethod?: "replace" | "assign";
-    revokeAccessTokenOnSignout?: boolean;
+    revokeTokensOnSignout?: boolean;
+    revokeTokenTypes?: ("access_token" | "refresh_token")[];
     silent_redirect_uri?: string;
     silentRequestTimeoutInSeconds?: number;
     // (undocumented)
@@ -903,7 +911,9 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     // (undocumented)
     readonly redirectMethod: "replace" | "assign";
     // (undocumented)
-    readonly revokeAccessTokenOnSignout: boolean;
+    readonly revokeTokensOnSignout: boolean;
+    // (undocumented)
+    readonly revokeTokenTypes: ("access_token" | "refresh_token")[];
     // (undocumented)
     readonly silent_redirect_uri: string | undefined;
     // (undocumented)
