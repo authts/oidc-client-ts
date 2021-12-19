@@ -117,7 +117,7 @@ export class JsonService {
         if (!response.ok) {
             this._logger.error("postForm: Error from server:", json);
             if (json.error) {
-                throw new ErrorResponse(json);
+                throw new ErrorResponse(json, body);
             }
             throw new Error(`${response.statusText} (${response.status}): ${JSON.stringify(json)}`);
         }

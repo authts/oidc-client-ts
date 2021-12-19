@@ -12,7 +12,7 @@ import { Logger } from "./utils";
  */
 export class ErrorResponse extends Error {
     /** Marker to detect class: "ErrorResponse" */
-    public readonly name: string;
+    public readonly name: string = "ErrorResponse";
 
     /** An error code string that can be used to classify the types of errors that occur and to respond to errors. */
     public readonly error: string;
@@ -29,18 +29,20 @@ export class ErrorResponse extends Error {
 
     public readonly session_state: string | undefined;
 
-    public constructor(args: {
-        error?: string; error_description?: string; error_uri?: string;
-        state?: unknown; session_state?: string;
-    }) {
+    public constructor(
+        args: {
+            error?: string; error_description?: string; error_uri?: string;
+            state?: unknown; session_state?: string;
+        },
+        /** The x-www-form-urlencoded request body sent to the authority server */
+        public readonly form?: URLSearchParams,
+    ) {
         super(args.error_description || args.error);
 
         if (!args.error) {
             Logger.error("ErrorResponse", "No error passed");
             throw new Error("No error passed");
         }
-
-        this.name = "ErrorResponse";
 
         this.error = args.error;
         this.error_description = args.error_description;

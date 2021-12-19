@@ -48,8 +48,14 @@ export interface UserManagerSettings extends OidcClientSettings {
     query_status_response_type?: string;
     stopCheckSessionOnError?: boolean;
 
+    /**
+     * The `token_type_hint`s to pass to the authority server by default (default: ["access_token", "refresh_token"])
+     *
+     * Token types will be revoked in the same order as they are given here.
+     */
+    revokeTokenTypes?: ("access_token" | "refresh_token")[];
     /** Will invoke the revocation endpoint on signout if there is an access token for the user (default: false) */
-    revokeAccessTokenOnSignout?: boolean;
+    revokeTokensOnSignout?: boolean;
     /** The number of seconds before an access token is to expire to raise the accessTokenExpiring event (default: 60) */
     accessTokenExpiringNotificationTimeInSeconds?: number;
 
@@ -85,7 +91,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly query_status_response_type: string | undefined;
     public readonly stopCheckSessionOnError: boolean;
 
-    public readonly revokeAccessTokenOnSignout: boolean;
+    public readonly revokeTokenTypes: ("access_token" | "refresh_token")[];
+    public readonly revokeTokensOnSignout: boolean;
     public readonly accessTokenExpiringNotificationTimeInSeconds: number;
 
     public readonly userStore: WebStorageStateStore;
@@ -110,7 +117,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             query_status_response_type,
             stopCheckSessionOnError = true,
 
-            revokeAccessTokenOnSignout = false,
+            revokeTokenTypes = ["access_token", "refresh_token"],
+            revokeTokensOnSignout = false,
             accessTokenExpiringNotificationTimeInSeconds = DefaultAccessTokenExpiringNotificationTimeInSeconds,
 
             userStore,
@@ -141,7 +149,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             this.query_status_response_type = "code";
         }
 
-        this.revokeAccessTokenOnSignout = revokeAccessTokenOnSignout;
+        this.revokeTokenTypes = revokeTokenTypes;
+        this.revokeTokensOnSignout = revokeTokensOnSignout;
         this.accessTokenExpiringNotificationTimeInSeconds = accessTokenExpiringNotificationTimeInSeconds;
 
         if (userStore) {

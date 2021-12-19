@@ -38,6 +38,7 @@ describe("UserManager", () => {
             metadata: {
                 authorization_endpoint: "http://sts/oidc/authorize",
                 token_endpoint: "http://sts/oidc/token",
+                revocation_endpoint: "http://sts/oidc/revoke",
             },
         };
         subject = new UserManager(settings);
@@ -129,6 +130,62 @@ describe("UserManager", () => {
             // assert
             expect(storeUserMock).toBeCalledWith(null);
             expect(unloadMock).toBeCalled();
+        });
+    });
+
+    describe("revokeTokens", () => {
+        it("should revoke the token types specified", async () => {
+            // arrange
+            const user = {
+                access_token: "foo",
+                refresh_token: "bar",
+            };
+            subject["_loadUser"] = jest.fn().mockReturnValue(user);
+            const revokeSpy = jest.spyOn(subject["_tokenClient"], "revoke").mockResolvedValue(undefined);
+            const storeUserSpy = jest.spyOn(subject, "storeUser").mockResolvedValue(undefined);
+
+            // act
+            await subject.revokeTokens(["access_token", "refresh_token"]);
+
+            // assert
+            expect(revokeSpy).toHaveBeenNthCalledWith(1, expect.objectContaining({
+                token_type_hint: "access_token",
+                token: "foo",
+            }));
+            expect(revokeSpy).toHaveBeenNthCalledWith(2, expect.objectContaining({
+                token_type_hint: "refresh_token",
+                token: "bar",
+            }));
+            expect(user).toMatchObject({
+                access_token: "foo",
+                refresh_token: null,
+            });
+            expect(storeUserSpy).toHaveBeenCalled();
+        });
+
+        it("should skip revoking absent token types", async () => {
+            // arrange
+            subject["_loadUser"] = jest.fn().mockReturnValue({
+                access_token: "foo",
+            });
+            const revokeSpy = jest.spyOn(subject["_tokenClient"], "revoke").mockResolvedValue(undefined);
+            jest.spyOn(subject, "storeUser").mockResolvedValue(undefined);
+
+            // act
+            await subject.revokeTokens(["access_token", "refresh_token"]);
+
+            // assert
+            expect(revokeSpy).toHaveBeenCalledTimes(1);
+            expect(revokeSpy).not.toHaveBeenCalledWith(expect.objectContaining({
+                token_type_hint: "refresh_token",
+            }));
+        });
+
+        it("should succeed with no user session", async () => {
+            // act
+            await expect(subject.revokeTokens())
+                // assert
+                .resolves.toBe(undefined);
         });
     });
 

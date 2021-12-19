@@ -28,6 +28,11 @@ export type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQuery
 /**
  * @public
  */
+export type RevokeTokensTypes = UserManagerSettings["revokeTokenTypes"]
+
+/**
+ * @public
+ */
 export type SigninRedirectArgs = RedirectParams & ExtraSigninRequestArgs;
 
 /**
@@ -529,8 +534,8 @@ export class UserManager {
             const user = await this._loadUser();
             this._logger.debug("_signoutStart: loaded current user from storage");
 
-            if (this.settings.revokeAccessTokenOnSignout) {
-                await this._revokeInternal(user, true);
+            if (this.settings.revokeTokensOnSignout) {
+                await this._revokeInternal(user);
             }
 
             const id_token = args.id_token_hint || user && user.id_token;
@@ -563,50 +568,36 @@ export class UserManager {
         return signoutResponse;
     }
 
-    public async revokeAccessToken(): Promise<void> {
+    public async revokeTokens(types?: RevokeTokensTypes): Promise<void> {
         const user = await this._loadUser();
-        const success = await this._revokeInternal(user, false);
-        if (success && user) {
-            this._logger.debug("revokeAccessToken: removing token properties from user and re-storing");
-
-            user.access_token = "";
-            user.refresh_token = "";
-            user.expires_at = 0;
-            user.token_type = "";
-
-            await this.storeUser(user);
-            this._logger.debug("revokeAccessToken: user stored");
-            this._events.load(user);
-        }
-
-        this._logger.info("revokeAccessToken: access token revoked successfully");
+        await this._revokeInternal(user, types);
     }
 
-    protected async _revokeInternal(user: User | null, optional: boolean): Promise<boolean> {
-        if (!user) {
-            return false;
-        }
-        if (!user.access_token && !user.refresh_token) {
-            this._logger.debug("revokeAccessToken: no need to revoke due to no token(s)");
-            return false;
+    protected async _revokeInternal(user: User | null, types = this.settings.revokeTokenTypes): Promise<void> {
+        if (!user) return;
+
+        const typesPresent = types.filter(type => typeof user[type] === "string");
+
+        if (!typesPresent.length) {
+            this._logger.debug("revokeTokens: no need to revoke due to no token(s)");
+            return;
         }
 
-        if (user.access_token) {
+        // don't Promise.all, order matters
+        for (const type of typesPresent) {
             await this._tokenClient.revoke({
-                token: user.access_token,
-                token_type_hint: "access_token",
-                optional,
+                token: user[type]!, // eslint-disable-line @typescript-eslint/no-non-null-assertion
+                token_type_hint: type,
             });
-        }
-        if (user.refresh_token) {
-            await this._tokenClient.revoke({
-                token: user.refresh_token,
-                token_type_hint: "refresh_token",
-                optional,
-            });
+            this._logger.info(`revokeTokens: ${type} revoked successfully`);
+            if (type !== "access_token") {
+                user[type] = null as never;
+            }
         }
 
-        return true;
+        await this.storeUser(user);
+        this._logger.debug("revokeTokens: user stored");
+        this._events.load(user);
     }
 
     /**

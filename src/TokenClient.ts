@@ -36,8 +36,6 @@ export interface ExchangeRefreshTokenArgs {
 export interface RevokeArgs {
     token: string;
     token_type_hint: "access_token" | "refresh_token";
-
-    optional?: boolean;
 }
 
 /**
@@ -159,20 +157,13 @@ export class TokenClient {
         return response;
     }
 
-    public async revoke({
-        optional = false,
-        ...args
-    }: RevokeArgs): Promise<void> {
+    public async revoke(args: RevokeArgs): Promise<void> {
         if (!args.token) {
             this._logger.error("revoke: No token passed");
             throw new Error("A token is required");
         }
 
-        const url = await this._metadataService.getRevocationEndpoint(optional);
-        if (!url) {
-            // not required, so don't error and just return
-            return;
-        }
+        const url = await this._metadataService.getRevocationEndpoint(false);
 
         this._logger.debug("revoke: Received revocation endpoint, revoking " + args.token_type_hint);
 
