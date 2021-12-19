@@ -29,6 +29,13 @@ function prependBaseUrlToMetadata(baseUrl) {
     }
 }
 
+function encodeBase64Url(str) {
+    return Buffer.from(str).toString('base64')
+        .replace(/=/g, '')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_');
+}
+
 var keys = {
     keys: [
         {
@@ -62,7 +69,7 @@ module.exports = function(baseUrl, app) {
 
     app.get(authorizationPath, function(req, res) {
         var url = new URL(req.query.redirect_uri);
-        const paramsKey = req.query.response_mode === "fragment" ? "hash" : "query";
+        const paramsKey = req.query.response_mode === "fragment" ? "hash" : "search";
         const params = new URLSearchParams(url[paramsKey].slice(1));
         var state = req.query.state;
         if (state) {
@@ -77,8 +84,7 @@ module.exports = function(baseUrl, app) {
         if (req.query.display === 'popup') {
             res.status(200);
             res.type('text/html')
-            res.send(`
-<!DOCTYPE html>
+            res.send(`<!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="refresh" content="3;url=${url.href}" />
@@ -112,7 +118,13 @@ module.exports = function(baseUrl, app) {
     });
 
     app.post(tokenPath, function(req, res) {
-        res.json({});
+        res.json({
+            access_token: 'foobar',
+            token_type: 'Bearer',
+            id_token: [{ alg: 'none' }, claims]
+                .map(obj => JSON.stringify(obj))
+                .map(encodeBase64Url).join('.') + '.',
+        });
     });
 
 };
