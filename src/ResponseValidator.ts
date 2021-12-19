@@ -127,33 +127,30 @@ export class ResponseValidator {
     }
 
     protected async _processClaims(state: SigninState, response: SigninResponse): Promise<SigninResponse> {
-        if (response.isOpenIdConnect) {
-            this._logger.debug("_processClaims: response is OIDC, processing claims");
-            response.profile = this._filterProtocolClaims(response.profile);
-
-            if (state.skipUserInfo !== true && this._settings.loadUserInfo && response.access_token) {
-                this._logger.debug("_processClaims: loading user info");
-
-                const claims = await this._userInfoService.getClaims(response.access_token);
-                this._logger.debug("_processClaims: user info claims received from user info endpoint");
-
-                if (claims.sub !== response.profile.sub) {
-                    this._logger.error("_processClaims: sub from user info endpoint does not match sub in id_token");
-                    throw new Error("sub from user info endpoint does not match sub in id_token");
-                }
-
-                response.profile = this._mergeClaims(response.profile, claims);
-                this._logger.debug("_processClaims: user info claims received, updated profile:", response.profile);
-
-                return response;
-            }
-            else {
-                this._logger.debug("_processClaims: not loading user info");
-            }
-        }
-        else {
+        if (!response.isOpenIdConnect) {
             this._logger.debug("_processClaims: response is not OIDC, not processing claims");
+            return response;
         }
+        this._logger.debug("_processClaims: response is OIDC, processing claims");
+        response.profile = this._filterProtocolClaims(response.profile);
+
+        if (state.skipUserInfo || !this._settings.loadUserInfo || !response.access_token) {
+            this._logger.debug("_processClaims: not loading user info");
+            return response;
+        }
+
+        this._logger.debug("_processClaims: loading user info");
+
+        const claims = await this._userInfoService.getClaims(response.access_token);
+        this._logger.debug("_processClaims: user info claims received from user info endpoint");
+
+        if (claims.sub !== response.profile.sub) {
+            this._logger.error("_processClaims: sub from user info endpoint does not match sub in id_token");
+            throw new Error("sub from user info endpoint does not match sub in id_token");
+        }
+
+        response.profile = this._mergeClaims(response.profile, claims);
+        this._logger.debug("_processClaims: user info claims received, updated profile:", response.profile);
 
         return response;
     }
