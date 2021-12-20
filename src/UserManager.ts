@@ -405,9 +405,7 @@ export class UserManager {
                 this._logger.debug("_signinEnd: current user does not match user returned from signin. sub from signin: ", user.profile.sub);
                 throw new Error("login_required");
             }
-            else {
-                this._logger.debug("_signinEnd: current user matches user returned from signin");
-            }
+            this._logger.debug("_signinEnd: current user matches user returned from signin");
         }
 
         await this.storeUser(user);

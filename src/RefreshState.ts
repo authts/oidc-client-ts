@@ -1,6 +1,8 @@
 import type { State } from "./State";
 
 /**
+ * Fake state store implementation necessary for validating a refresh token requests.
+ *
  * @internal
  */
 export class RefreshState implements State {
@@ -24,6 +26,6 @@ export class RefreshState implements State {
     }
 
     public toStorageString(): string {
-        throw new Error("Method not implemented.");
+        throw new Error("This method was called in error - refresh requests do not store persistent state.");
     }
 }
