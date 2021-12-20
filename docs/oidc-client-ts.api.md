@@ -563,7 +563,7 @@ export class SigninResponse {
     // (undocumented)
     access_token: string;
     // (undocumented)
-    readonly code: string;
+    readonly code: string | undefined;
     // (undocumented)
     error: string | undefined;
     // (undocumented)

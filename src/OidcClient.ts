@@ -147,7 +147,8 @@ export class OidcClient {
 
         const { state, response } = await this.readSigninResponseState(url, true);
         this._logger.debug("processSigninResponse: Received state from storage; validating response");
-        return await this._validator.validateSigninResponse(state, response);
+        await this._validator.validateSigninResponse(response, state);
+        return response;
     }
 
     public async createSignoutRequest({
@@ -220,10 +221,11 @@ export class OidcClient {
         const { state, response } = await this.readSignoutResponseState(url, true);
         if (state) {
             this._logger.debug("processSignoutResponse: Received state from storage; validating response");
-            return this._validator.validateSignoutResponse(state, response);
+            this._validator.validateSignoutResponse(response, state);
+        } else {
+            this._logger.debug("processSignoutResponse: No state from storage; skipping validating response");
         }
 
-        this._logger.debug("processSignoutResponse: No state from storage; skipping validating response");
         return response;
     }
 

@@ -358,15 +358,15 @@ describe("OidcClient", () => {
                 request_type: "type",
             });
             jest.spyOn(subject.settings.stateStore, "remove")
-                .mockImplementation(() => Promise.resolve(item.toStorageString()));
+                .mockImplementation(async () => item.toStorageString());
             const validateSigninResponseMock = jest.spyOn(subject["_validator"], "validateSigninResponse")
-                .mockImplementation((_s, r) => Promise.resolve(r));
+                .mockResolvedValue();
 
             // act
             const response = await subject.processSigninResponse("http://app/cb?state=1");
 
             // assert
-            expect(validateSigninResponseMock).toBeCalledWith(item, response);
+            expect(validateSigninResponseMock).toBeCalledWith(response, item);
         });
     });
 
@@ -564,13 +564,13 @@ describe("OidcClient", () => {
             jest.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(() => Promise.resolve(item.toStorageString()));
             const validateSignoutResponse = jest.spyOn(subject["_validator"], "validateSignoutResponse")
-                .mockImplementation((_s, r) => r);
+                .mockReturnValue();
 
             // act
             const response = await subject.processSignoutResponse("http://app/cb?state=1&error=foo");
 
             // assert
-            expect(validateSignoutResponse).toBeCalledWith(item, response);
+            expect(validateSignoutResponse).toBeCalledWith(response, item);
         });
     });
 
@@ -627,15 +627,15 @@ describe("OidcClient", () => {
                 request_type: "type",
             });
             jest.spyOn(subject.settings.stateStore, "remove")
-                .mockImplementation(() => Promise.resolve(item.toStorageString()));
+                .mockImplementation(async () => item.toStorageString());
             const validateSignoutResponse = jest.spyOn(subject["_validator"], "validateSignoutResponse")
-                .mockImplementation((_s, r) => r);
+                .mockReturnValue();
 
             // act
             const response = await subject.processSignoutResponse("http://app/cb?state=1");
 
             // assert
-            expect(validateSignoutResponse).toBeCalledWith(item, response);
+            expect(validateSignoutResponse).toBeCalledWith(response, item);
         });
 
         it("should call validator with state even if error in response", async () => {
@@ -646,15 +646,15 @@ describe("OidcClient", () => {
                 request_type: "type",
             });
             jest.spyOn(subject.settings.stateStore, "remove")
-                .mockImplementation(() => Promise.resolve(item.toStorageString()));
+                .mockImplementation(async () => item.toStorageString());
             const validateSignoutResponse = jest.spyOn(subject["_validator"], "validateSignoutResponse")
-                .mockImplementation((_s, r) => r);
+                .mockReturnValue();
 
             // act
             const response = await subject.processSignoutResponse("http://app/cb?state=1&error=foo");
 
             // assert
-            expect(validateSignoutResponse).toBeCalledWith(item, response);
+            expect(validateSignoutResponse).toBeCalledWith(response, item);
         });
     });
 

@@ -16,7 +16,7 @@ export interface ExchangeCodeArgs {
 
     grant_type?: string;
     code: string;
-    code_verifier: string;
+    code_verifier?: string;
 }
 
 /**
