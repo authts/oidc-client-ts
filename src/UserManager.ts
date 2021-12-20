@@ -400,20 +400,19 @@ export class UserManager {
             return null;
         }
         catch (err) {
-            if (this.settings.monitorAnonymousSession &&
-                err instanceof ErrorResponse && err.session_state) {
-                if (err.message == "login_required" ||
-                    err.message == "consent_required" ||
-                    err.message == "interaction_required" ||
-                    err.message == "account_selection_required"
-                ) {
-                    this._logger.info("querySessionStatus: querySessionStatus success for anonymous user");
-                    return {
-                        session_state: err.session_state,
-                    };
+            if (this.settings.monitorAnonymousSession && err instanceof ErrorResponse) {
+                switch (err.error) {
+                    case "login_required":
+                    case "consent_required":
+                    case "interaction_required":
+                    case "account_selection_required":
+                        this._logger.info("querySessionStatus: querySessionStatus success for anonymous user");
+                        return {
+                            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                            session_state: err.session_state!,
+                        };
                 }
             }
-
             throw err;
         }
     }
