@@ -47,7 +47,7 @@ export class PopupWindow extends AbstractChildWindow {
                 this._abort.raise(new Error("Popup closed by user"));
             }
         }, checkForPopupClosedInterval);
-        this._disposeHandlers.add(this._abort.addHandler(() => clearInterval(popupClosedInterval)));
+        this._disposeHandlers.add(() => clearInterval(popupClosedInterval));
 
         return await super.navigate(params);
     }
