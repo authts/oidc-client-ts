@@ -250,7 +250,17 @@ export class OidcClient {
         response: SignoutResponse;
     }>;
     // (undocumented)
+    revokeToken(token: string, type?: "access_token" | "refresh_token"): Promise<void>;
+    // (undocumented)
     readonly settings: OidcClientSettingsStore;
+    // Warning: (ae-forgotten-export) The symbol "TokenClient" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    protected readonly _tokenClient: TokenClient;
+    // Warning: (ae-forgotten-export) The symbol "RefreshState" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    useRefreshToken(state: RefreshState): Promise<SigninResponse>;
     // Warning: (ae-forgotten-export) The symbol "ResponseValidator" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -740,18 +750,18 @@ export class User {
     });
     access_token: string;
     get expired(): boolean | undefined;
-    expires_at: number | undefined;
+    expires_at?: number;
     get expires_in(): number | undefined;
     set expires_in(value: number | undefined);
     // (undocumented)
     static fromStorageString(storageString: string): User;
-    id_token: string | undefined;
+    id_token?: string;
     profile: UserProfile;
-    refresh_token: string | undefined;
-    scope: string | undefined;
+    refresh_token?: string;
+    scope?: string;
     get scopes(): string[];
-    session_state: string | undefined;
-    readonly state: unknown | undefined;
+    session_state?: string;
+    readonly state: unknown;
     token_type: string;
     // (undocumented)
     toStorageString(): string;
@@ -834,16 +844,10 @@ export class UserManager {
     stopSilentRenew(): void;
     // (undocumented)
     storeUser(user: User | null): Promise<void>;
-    // Warning: (ae-forgotten-export) The symbol "TokenClient" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
-    protected readonly _tokenClient: TokenClient;
-    // (undocumented)
-    protected _useRefreshToken(user: User): Promise<User>;
+    protected _useRefreshToken(state: RefreshState): Promise<User>;
     // (undocumented)
     protected get _userStoreKey(): string;
-    // (undocumented)
-    protected _validateIdTokenFromTokenRefreshToken(profile: UserProfile, id_token: string): Promise<void>;
 }
 
 // @public (undocumented)

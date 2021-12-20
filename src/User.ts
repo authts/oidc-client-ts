@@ -70,10 +70,10 @@ export class User {
      * A JSON Web Token (JWT). Only provided if `openid` scope was requested.
      * The application can access the data decoded by using the `profile` property.
      */
-    public id_token: string | undefined;
+    public id_token?: string;
 
     /** The session state value returned from the OIDC provider. */
-    public session_state: string | undefined;
+    public session_state?: string;
 
     /**
      * The requested access token returned from the OIDC provider. The application can use this token to
@@ -86,22 +86,22 @@ export class User {
      * current access token expires. Refresh tokens are long-lived and can be used to maintain access to resources
      * for extended periods of time.
      */
-    public refresh_token: string | undefined;
+    public refresh_token?: string;
 
     /** Typically "Bearer" */
     public token_type: string;
 
     /** The scopes that the requested access token is valid for. */
-    public scope: string | undefined;
+    public scope?: string;
 
     /** The claims represented by a combination of the `id_token` and the user info endpoint. */
     public profile: UserProfile;
 
     /** The expires at returned from the OIDC provider. */
-    public expires_at: number | undefined;
+    public expires_at?: number;
 
     /** custom "state", which can be used by a caller to have "data" round tripped */
-    public readonly state: unknown | undefined;
+    public readonly state: unknown;
 
     public constructor(args: {
         id_token?: string; session_state?: string;

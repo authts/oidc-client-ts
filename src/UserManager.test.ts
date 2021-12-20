@@ -141,21 +141,15 @@ describe("UserManager", () => {
                 refresh_token: "bar",
             };
             subject["_loadUser"] = jest.fn().mockReturnValue(user);
-            const revokeSpy = jest.spyOn(subject["_tokenClient"], "revoke").mockResolvedValue(undefined);
+            const revokeSpy = jest.spyOn(subject["_client"], "revokeToken").mockResolvedValue(undefined);
             const storeUserSpy = jest.spyOn(subject, "storeUser").mockResolvedValue(undefined);
 
             // act
             await subject.revokeTokens(["access_token", "refresh_token"]);
 
             // assert
-            expect(revokeSpy).toHaveBeenNthCalledWith(1, expect.objectContaining({
-                token_type_hint: "access_token",
-                token: "foo",
-            }));
-            expect(revokeSpy).toHaveBeenNthCalledWith(2, expect.objectContaining({
-                token_type_hint: "refresh_token",
-                token: "bar",
-            }));
+            expect(revokeSpy).toHaveBeenNthCalledWith(1, "foo", "access_token");
+            expect(revokeSpy).toHaveBeenNthCalledWith(2, "bar", "refresh_token");
             expect(user).toMatchObject({
                 access_token: "foo",
                 refresh_token: null,
@@ -168,7 +162,7 @@ describe("UserManager", () => {
             subject["_loadUser"] = jest.fn().mockReturnValue({
                 access_token: "foo",
             });
-            const revokeSpy = jest.spyOn(subject["_tokenClient"], "revoke").mockResolvedValue(undefined);
+            const revokeSpy = jest.spyOn(subject["_client"], "revokeToken").mockResolvedValue(undefined);
             jest.spyOn(subject, "storeUser").mockResolvedValue(undefined);
 
             // act
@@ -176,9 +170,7 @@ describe("UserManager", () => {
 
             // assert
             expect(revokeSpy).toHaveBeenCalledTimes(1);
-            expect(revokeSpy).not.toHaveBeenCalledWith(expect.objectContaining({
-                token_type_hint: "refresh_token",
-            }));
+            expect(revokeSpy).not.toHaveBeenCalledWith(expect.anything(), "refresh_token");
         });
 
         it("should succeed with no user session", async () => {

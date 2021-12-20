@@ -6,12 +6,14 @@ import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSetting
 import { ResponseValidator } from "./ResponseValidator";
 import { MetadataService } from "./MetadataService";
 import { ErrorResponse } from "./ErrorResponse";
+import type { RefreshState } from "./RefreshState";
 import { SigninRequest } from "./SigninRequest";
 import { SigninResponse } from "./SigninResponse";
 import { SignoutRequest, SignoutRequestArgs } from "./SignoutRequest";
 import { SignoutResponse } from "./SignoutResponse";
 import { SigninState } from "./SigninState";
 import { State } from "./State";
+import { TokenClient } from "./TokenClient";
 
 /**
  * @public
@@ -61,6 +63,7 @@ export class OidcClient {
 
     public readonly metadataService: MetadataService;
     protected readonly _validator: ResponseValidator;
+    protected readonly _tokenClient: TokenClient;
 
     public constructor(settings: OidcClientSettings) {
         this.settings = new OidcClientSettingsStore(settings);
@@ -68,6 +71,7 @@ export class OidcClient {
 
         this.metadataService = new MetadataService(this.settings);
         this._validator = new ResponseValidator(this.settings, this.metadataService);
+        this._tokenClient = new TokenClient(this.settings, this.metadataService);
     }
 
     public async createSigninRequest({
@@ -148,6 +152,19 @@ export class OidcClient {
         const { state, response } = await this.readSigninResponseState(url, true);
         this._logger.debug("processSigninResponse: Received state from storage; validating response");
         await this._validator.validateSigninResponse(response, state);
+        return response;
+    }
+
+    public async useRefreshToken(state: RefreshState): Promise<SigninResponse> {
+        this._logger.debug("useRefreshToken");
+
+        const result = await this._tokenClient.exchangeRefreshToken({
+            refresh_token: state.refresh_token,
+        });
+        const response = new SigninResponse(new URLSearchParams());
+        Object.assign(response, result);
+        this._logger.debug("useRefreshToken: validating response", response);
+        await this._validator.validateRefreshResponse(response, state);
         return response;
     }
 
@@ -232,5 +249,13 @@ export class OidcClient {
     public clearStaleState(): Promise<void> {
         this._logger.debug("clearStaleState");
         return State.clearStaleState(this.settings.stateStore, this.settings.staleStateAgeInSeconds);
+    }
+
+    public async revokeToken(token: string, type?: "access_token" | "refresh_token"): Promise<void> {
+        this._logger.debug("revokeToken");
+        return await this._tokenClient.revoke({
+            token,
+            token_type_hint: type,
+        });
     }
 }

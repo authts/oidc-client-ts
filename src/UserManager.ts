@@ -1,20 +1,19 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Logger, JwtUtils } from "./utils";
+import { Logger } from "./utils";
 import { IFrameNavigator, NavigateResponse, PopupNavigator, RedirectNavigator, PopupWindowParams, IWindow, IFrameWindowParams, RedirectParams } from "./navigators";
 import { OidcClient, CreateSigninRequestArgs, CreateSignoutRequestArgs } from "./OidcClient";
 import { UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
-import { User, UserProfile } from "./User";
+import { User } from "./User";
 import { UserManagerEvents } from "./UserManagerEvents";
 import { SilentRenewService } from "./SilentRenewService";
 import { SessionMonitor } from "./SessionMonitor";
-import { TokenClient } from "./TokenClient";
 import type { SessionStatus } from "./SessionStatus";
 import type { SignoutResponse } from "./SignoutResponse";
 import { ErrorResponse } from "./ErrorResponse";
 import type { MetadataService } from "./MetadataService";
-import type { SigninResponse } from "./SigninResponse";
+import { RefreshState } from "./RefreshState";
 
 /**
  * @public
@@ -69,7 +68,7 @@ export type SignoutPopupArgs = PopupWindowParams & ExtraSignoutRequestArgs;
 export class UserManager {
     /** Returns the settings used to configure the `UserManager`. */
     public readonly settings: UserManagerSettingsStore;
-    protected readonly _logger: Logger;
+    protected readonly _logger = new Logger("UserManager");
 
     protected readonly _client: OidcClient;
     protected readonly _redirectNavigator: RedirectNavigator;
@@ -78,11 +77,9 @@ export class UserManager {
     protected readonly _events: UserManagerEvents;
     protected readonly _silentRenewService: SilentRenewService;
     protected readonly _sessionMonitor: SessionMonitor | null;
-    protected readonly _tokenClient: TokenClient;
 
     public constructor(settings: UserManagerSettings) {
         this.settings = new UserManagerSettingsStore(settings);
-        this._logger = new Logger("UserManager");
 
         this._client = new OidcClient(settings);
 
@@ -105,7 +102,6 @@ export class UserManager {
             this._sessionMonitor = new SessionMonitor(this);
         }
 
-        this._tokenClient = new TokenClient(this.settings, this.metadataService);
     }
 
     /** Returns an object used to register for events raised by the `UserManager`. */
@@ -230,8 +226,10 @@ export class UserManager {
         } = args;
         // first determine if we have a refresh token, or need to use iframe
         let user = await this._loadUser();
-        if (user && user.refresh_token) {
-            return await this._useRefreshToken(user);
+        if (user?.refresh_token) {
+            this._logger.debug("signinSilent: using refresh token");
+            const state = new RefreshState(user as Required<User>);
+            return await this._useRefreshToken(state);
         }
 
         const url = this.settings.silent_redirect_uri || this.settings.redirect_uri;
@@ -242,7 +240,7 @@ export class UserManager {
 
         let verifySub: string | undefined;
         if (user && this.settings.validateSubOnSilentRenew) {
-            this._logger.debug("signinSilent, subject prior to silent renew: ", user.profile.sub);
+            this._logger.debug("signinSilent: subject prior to silent renew: ", user.profile.sub);
             verifySub = user.profile.sub;
         }
 
@@ -266,57 +264,14 @@ export class UserManager {
         return user;
     }
 
-    // TODO: move this into OidcClient and construct a validated SigninResponse from the refresh token response
-    protected async _useRefreshToken(user: User): Promise<User> {
-        const result = await this._tokenClient.exchangeRefreshToken({
-            refresh_token: user.refresh_token || "",
-        }) as Partial<SigninResponse>;
-        if (!result) {
-            this._logger.error("_useRefreshToken: No response returned from token endpoint");
-            throw new Error("No response returned from token endpoint");
-        }
-        if (!result.access_token) {
-            this._logger.error("_useRefreshToken: No access token returned from token endpoint");
-            throw new Error("No access token returned from token endpoint");
-        }
-
-        if (result.id_token) {
-            await this._validateIdTokenFromTokenRefreshToken(user.profile, result.id_token);
-        }
-
-        this._logger.debug("_useRefreshToken: refresh token response success");
-        user.id_token = result.id_token || user.id_token;
-        user.access_token = result.access_token || user.access_token;
-        user.refresh_token = result.refresh_token || user.refresh_token;
-        user.expires_in = result.expires_in;
+    protected async _useRefreshToken(state: RefreshState): Promise<User> {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const response = await this._client.useRefreshToken(state);
+        const user = new User({ ...state, ...response });
 
         await this.storeUser(user);
         this._events.load(user);
         return user;
-    }
-
-    protected async _validateIdTokenFromTokenRefreshToken(profile: UserProfile, id_token: string): Promise<void> {
-        const payload = JwtUtils.decode(id_token);
-        if (!payload) {
-            this._logger.error("_validateIdTokenFromTokenRefreshToken: Failed to decode id_token");
-            throw new Error("Failed to decode id_token");
-        }
-        if (payload.sub !== profile.sub) {
-            this._logger.error("_validateIdTokenFromTokenRefreshToken: sub in id_token does not match current sub");
-            throw new Error("sub in id_token does not match current sub");
-        }
-        if (payload.auth_time && payload.auth_time !== profile.auth_time) {
-            this._logger.error("_validateIdTokenFromTokenRefreshToken: auth_time in id_token does not match original auth_time");
-            throw new Error("auth_time in id_token does not match original auth_time");
-        }
-        if (payload.azp && payload.azp !== profile.azp) {
-            this._logger.error("_validateIdTokenFromTokenRefreshToken: azp in id_token does not match original azp");
-            throw new Error("azp in id_token does not match original azp");
-        }
-        if (!payload.azp && profile.azp) {
-            this._logger.error("_validateIdTokenFromTokenRefreshToken: azp not in id_token, but present in original id_token");
-            throw new Error("azp not in id_token, but present in original id_token");
-        }
     }
 
     /**
@@ -584,10 +539,10 @@ export class UserManager {
 
         // don't Promise.all, order matters
         for (const type of typesPresent) {
-            await this._tokenClient.revoke({
-                token: user[type]!, // eslint-disable-line @typescript-eslint/no-non-null-assertion
-                token_type_hint: type,
-            });
+            await this._client.revokeToken(
+                user[type]!, // eslint-disable-line @typescript-eslint/no-non-null-assertion
+                type,
+            );
             this._logger.info(`revokeTokens: ${type} revoked successfully`);
             if (type !== "access_token") {
                 user[type] = null as never;

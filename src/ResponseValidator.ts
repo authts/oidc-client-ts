@@ -12,6 +12,7 @@ import type { SigninResponse } from "./SigninResponse";
 import type { State } from "./State";
 import type { SignoutResponse } from "./SignoutResponse";
 import type { UserProfile } from "./User";
+import type { RefreshState } from "./RefreshState";
 
 /**
  * Derived from the following sets of claims:
@@ -51,21 +52,40 @@ export class ResponseValidator {
         protected readonly _metadataService: MetadataService,
     ) {}
 
-    public async validateSigninResponse(response: SigninResponse, state?: SigninState): Promise<void> {
+    public async validateSigninResponse(response: SigninResponse, state: SigninState): Promise<void> {
         this._logger.debug("validateSigninResponse");
 
-        if (state) {
-            this._processSigninState(response, state);
-            this._logger.debug("validateSigninResponse: state processed");
+        this._processSigninState(response, state);
+        this._logger.debug("validateSigninResponse: state processed");
 
-            await this._processCode(response, state);
-            this._logger.debug("validateSigninResponse: code processed");
+        await this._processCode(response, state);
+        this._logger.debug("validateSigninResponse: code processed");
+
+        if (response.expires_in !== undefined) {
+            response.expires_in = Number(response.expires_in);
         }
 
-        await this._validateTokens(response);
+        if (response.id_token) {
+            this._validateIdTokenAttributes(response);
+        }
         this._logger.debug("validateSigninResponse: tokens validated");
 
         await this._processClaims(response, state?.skipUserInfo);
+        this._logger.debug("validateSigninResponse: claims processed");
+    }
+
+    public async validateRefreshResponse(response: SigninResponse, state: RefreshState): Promise<void> {
+        this._logger.debug("validateRefreshResponse");
+
+        response.scope ??= state.scope;
+        if (response.expires_in !== undefined) {
+            response.expires_in = Number(response.expires_in);
+        }
+        if (response.id_token) {
+            this._validateIdTokenAttributes(response, state.id_token);
+        }
+        this._logger.debug("validateSigninResponse: tokens validated");
+        await this._processClaims(response);
         this._logger.debug("validateSigninResponse: claims processed");
     }
 
@@ -228,30 +248,37 @@ export class ResponseValidator {
         }
     }
 
-    protected async _validateTokens(
-        response: SigninResponse,
-    ): Promise<void> {
-        if (response.expires_in !== undefined) {
-            response.expires_in = Number(response.expires_in);
-        }
-        if (response.id_token) {
-            this._logger.debug("_validateTokens: processing id_token");
-            this._validateIdTokenAttributes(response, response.id_token);
-        }
-
-        this._logger.debug("_validateTokens: token response successful");
-    }
-
-    protected _validateIdTokenAttributes(response: SigninResponse, id_token: string): void {
+    protected _validateIdTokenAttributes(response: SigninResponse, currentToken?: string): void {
         this._logger.debug("_validateIdTokenAttributes: Decoding JWT attributes");
 
-        const payload = JwtUtils.decode(id_token);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const profile = JwtUtils.decode(response.id_token!);
 
-        if (!payload.sub) {
+        if (!profile.sub) {
             this._logger.error("_validateIdTokenAttributes: No subject present in ID Token");
             throw new Error("No subject is present in ID Token");
         }
 
-        response.profile = payload;
+        if (currentToken) {
+            const current = JwtUtils.decode(currentToken);
+            if (current.sub !== profile.sub) {
+                this._logger.error("_validateIdTokenFromTokenRefreshToken: sub in id_token does not match current sub");
+                throw new Error("sub in id_token does not match current sub");
+            }
+            if (current.auth_time && current.auth_time !== profile.auth_time) {
+                this._logger.error("_validateIdTokenFromTokenRefreshToken: auth_time in id_token does not match original auth_time");
+                throw new Error("auth_time in id_token does not match original auth_time");
+            }
+            if (current.azp && current.azp !== profile.azp) {
+                this._logger.error("_validateIdTokenFromTokenRefreshToken: azp in id_token does not match original azp");
+                throw new Error("azp in id_token does not match original azp");
+            }
+            if (!current.azp && profile.azp) {
+                this._logger.error("_validateIdTokenFromTokenRefreshToken: azp not in id_token, but present in original id_token");
+                throw new Error("azp not in id_token, but present in original id_token");
+            }
+        }
+
+        response.profile = profile;
     }
 }
