@@ -1,4 +1,4 @@
-import { Log } from "./utils";
+import { CryptoUtils, Log } from "./utils";
 import { TokenClient } from "./TokenClient";
 import { MetadataService } from "./MetadataService";
 import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
@@ -81,6 +81,30 @@ describe("TokenClient", () => {
                 .mockResolvedValue("http://sts/token_endpoint");
             const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
                 .mockResolvedValue({});
+            const generateBasicAuthSpy = jest.spyOn(CryptoUtils, "generateBasicAuth");
+
+            // act
+            await subject.exchangeCode({ code: "code", code_verifier: "code_verifier" });
+
+            // assert
+            expect(generateBasicAuthSpy).toHaveBeenCalledWith("client_id", "client_secret");
+            expect(getTokenEndpointMock).toBeCalledWith(false);
+            expect(postFormMock).toBeCalledWith(
+                "http://sts/token_endpoint",
+                expect.any(URLSearchParams),
+                expect.stringContaining(""),
+            );
+        });
+
+        it("should include client secret when using client_secret_post", async () => {
+            // arrange
+            settings.client_authentication = "client_secret_post";
+            settings.client_secret = "client_secret";
+            subject = new TokenClient(new OidcClientSettingsStore(settings), metadataService);
+            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+                .mockResolvedValue("http://sts/token_endpoint");
+            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+                .mockResolvedValue({});
 
             // act
             await subject.exchangeCode({ code: "code", code_verifier: "code_verifier" });
@@ -89,9 +113,11 @@ describe("TokenClient", () => {
             expect(getTokenEndpointMock).toBeCalledWith(false);
             expect(postFormMock).toBeCalledWith(
                 "http://sts/token_endpoint",
-                expect.anything(),
-                expect.anything(),
+                expect.any(URLSearchParams),
+                undefined,
             );
+            const params = Object.fromEntries(postFormMock.mock.calls[0][1]);
+            expect(params).toHaveProperty("client_secret", "client_secret");
         });
 
         it("should call postForm", async () => {
@@ -108,7 +134,7 @@ describe("TokenClient", () => {
             expect(getTokenEndpointMock).toBeCalledWith(false);
             expect(postFormMock).toBeCalledWith(
                 "http://sts/token_endpoint",
-                expect.anything(),
+                expect.any(URLSearchParams),
                 undefined,
             );
         });
@@ -153,7 +179,7 @@ describe("TokenClient", () => {
             // act
             await expect(subject.exchangeRefreshToken({ refresh_token: "refresh_token" }))
                 // assert
-                .rejects.toThrow(Error);
+                .rejects.toThrow("A client_secret is required");
         });
 
         it("should calculate basic auth when using client_secret_basic", async () => {
@@ -173,9 +199,33 @@ describe("TokenClient", () => {
             expect(getTokenEndpointMock).toBeCalledWith(false);
             expect(postFormMock).toBeCalledWith(
                 "http://sts/token_endpoint",
-                expect.anything(),
-                expect.anything(),
+                expect.any(URLSearchParams),
+                expect.stringContaining(""),
             );
+        });
+
+        it("should include client secret when using client_secret_post", async () => {
+            // arrange
+            settings.client_authentication = "client_secret_post";
+            settings.client_secret = "client_secret";
+            subject = new TokenClient(new OidcClientSettingsStore(settings), metadataService);
+            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+                .mockResolvedValue("http://sts/token_endpoint");
+            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+                .mockResolvedValue({});
+
+            // act
+            await subject.exchangeRefreshToken({ refresh_token: "refresh_token" });
+
+            // assert
+            expect(getTokenEndpointMock).toBeCalledWith(false);
+            expect(postFormMock).toBeCalledWith(
+                "http://sts/token_endpoint",
+                expect.any(URLSearchParams),
+                undefined,
+            );
+            const params = Object.fromEntries(postFormMock.mock.calls[0][1]);
+            expect(params).toHaveProperty("client_secret", "client_secret");
         });
 
         it("should call postForm", async () => {
@@ -192,7 +242,7 @@ describe("TokenClient", () => {
             expect(getTokenEndpointMock).toBeCalledWith(false);
             expect(postFormMock).toBeCalledWith(
                 "http://sts/token_endpoint",
-                expect.anything(),
+                expect.any(URLSearchParams),
                 undefined,
             );
         });
@@ -223,7 +273,7 @@ describe("TokenClient", () => {
             expect(getTokenEndpointMock).toBeCalledWith(false);
             expect(postFormMock).toBeCalledWith(
                 "http://sts/revoke_endpoint",
-                expect.anything(),
+                expect.any(URLSearchParams),
             );
         });
     });

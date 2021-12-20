@@ -96,7 +96,7 @@ export class TokenClient {
             case "client_secret_post":
                 params.append("client_id", client_id);
                 if (client_secret) {
-                    params.append("client_secret", client_id);
+                    params.append("client_secret", client_secret);
                 }
                 break;
         }
@@ -143,7 +143,7 @@ export class TokenClient {
             case "client_secret_post":
                 params.append("client_id", client_id);
                 if (client_secret) {
-                    params.append("client_secret", client_id);
+                    params.append("client_secret", client_secret);
                 }
                 break;
         }
