@@ -16,8 +16,6 @@ export class AccessTokenEvents {
     addAccessTokenExpiring(cb: AccessTokenCallback): () => void;
     // (undocumented)
     load(container: User): void;
-    // Warning: (ae-forgotten-export) The symbol "Logger" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     protected _logger: Logger;
     removeAccessTokenExpired(cb: AccessTokenCallback): void;
@@ -166,6 +164,27 @@ export class Log {
     static reset(): void;
     // (undocumented)
     static get WARN(): number;
+}
+
+// @public
+export class Logger {
+    constructor(name: string);
+    // (undocumented)
+    debug(...args: unknown[]): void;
+    // (undocumented)
+    static debug(name: string, ...args: unknown[]): void;
+    // (undocumented)
+    error(...args: unknown[]): void;
+    // (undocumented)
+    static error(name: string, ...args: unknown[]): void;
+    // (undocumented)
+    info(...args: unknown[]): void;
+    // (undocumented)
+    static info(name: string, ...args: unknown[]): void;
+    // (undocumented)
+    warn(...args: unknown[]): void;
+    // (undocumented)
+    static warn(name: string, ...args: unknown[]): void;
 }
 
 // @public (undocumented)

@@ -67,7 +67,7 @@ export class Log {
 }
 
 /**
- * @internal
+ * @public
  * Internal logger instance
  */
 export class Logger {
