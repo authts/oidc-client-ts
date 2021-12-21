@@ -1,19 +1,12 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./utils";
 import { State } from "./State";
 
 import { InMemoryWebStorage } from "./InMemoryWebStorage";
 import { WebStorageStateStore } from "./WebStorageStateStore";
 
 describe("State", () => {
-
-    beforeEach(() =>{
-        Log.level = Log.NONE;
-        Log.logger = console;
-    });
-
     describe("constructor", () => {
 
         it("should generate id", () => {

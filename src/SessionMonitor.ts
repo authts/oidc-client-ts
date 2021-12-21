@@ -18,21 +18,20 @@ export class SessionMonitor {
 
     public constructor(private readonly _userManager: UserManager) {
         if (!_userManager) {
-            this._logger.error("ctor: No user manager passed to SessionMonitor");
-            throw new Error("userManager");
+            this._logger.throw("No user manager passed to SessionMonitor");
         }
 
         this._userManager.events.addUserLoaded(this._start);
         this._userManager.events.addUserUnloaded(this._stop);
 
-        Promise.resolve(this._init())
-            .catch((err: Error) => {
+        this._init().catch((err: unknown) => {
             // catch to suppress errors since we're in a ctor
-                this._logger.error("ctor: error:", err.message);
-            });
+            this._logger.error(err);
+        });
     }
 
     protected async _init(): Promise<void> {
+        this._logger.create("_init");
         const user = await this._userManager.getUser();
         // doing this manually here since calling getUser
         // doesn't trigger load event.
@@ -64,16 +63,17 @@ export class SessionMonitor {
         if (!session_state) {
             return;
         }
+        const logger = this._logger.create("_start");
 
         if (user.profile) {
             this._sub = user.profile.sub;
             this._sid = user.profile.sid;
-            this._logger.debug("_start: session_state:", session_state, ", sub:", this._sub);
+            logger.debug("session_state", session_state, ", sub", this._sub);
         }
         else {
             this._sub = undefined;
             this._sid = undefined;
-            this._logger.debug("_start: session_state:", session_state, ", anonymous user");
+            logger.debug("session_state", session_state, ", anonymous user");
         }
 
         if (this._checkSessionIFrame) {
@@ -84,7 +84,7 @@ export class SessionMonitor {
         try {
             const url = await this._userManager.metadataService.getCheckSessionIframe();
             if (url) {
-                this._logger.debug("_start: Initializing check session iframe");
+                logger.debug("initializing check session iframe");
 
                 const client_id = this._userManager.settings.client_id;
                 const intervalInSeconds = this._userManager.settings.checkSessionIntervalInSeconds;
@@ -96,21 +96,21 @@ export class SessionMonitor {
                 checkSessionIFrame.start(session_state);
             }
             else {
-                this._logger.warn("_start: No check session iframe found in the metadata");
+                logger.warn("no check session iframe found in the metadata");
             }
         }
         catch (err) {
             // catch to suppress errors since we're in non-promise callback
-            this._logger.error("_start: Error from getCheckSessionIframe:", err instanceof Error ? err.message : err);
+            logger.error("Error from getCheckSessionIframe:", err instanceof Error ? err.message : err);
         }
     };
 
     protected _stop = (): void => {
+        const logger = this._logger.create("_stop");
         this._sub = undefined;
         this._sid = undefined;
 
         if (this._checkSessionIFrame) {
-            this._logger.debug("_stop");
             this._checkSessionIFrame.stop();
         }
 
@@ -136,13 +136,14 @@ export class SessionMonitor {
                 }
                 catch (err) {
                     // catch to suppress errors since we're in a callback
-                    this._logger.error("_stop: error from querySessionStatus:", err instanceof Error ? err.message : err);
+                    logger.error("error from querySessionStatus", err instanceof Error ? err.message : err);
                 }
             }, 1000);
         }
     };
 
     protected _callback = async (): Promise<void> => {
+        const logger = this._logger.create("_callback");
         try {
             const session = await this._userManager.querySessionStatus();
             let raiseEvent = true;
@@ -153,36 +154,35 @@ export class SessionMonitor {
                     this._checkSessionIFrame.start(session.session_state);
 
                     if (session.sid === this._sid) {
-                        this._logger.debug("_callback: Same sub still logged in at OP, restarting check session iframe; session_state:", session.session_state);
+                        logger.debug("same sub still logged in at OP, restarting check session iframe; session_state", session.session_state);
                     }
                     else {
-                        this._logger.debug("_callback: Same sub still logged in at OP, session state has changed, restarting check session iframe; session_state:", session.session_state);
+                        logger.debug("same sub still logged in at OP, session state has changed, restarting check session iframe; session_state", session.session_state);
                         this._userManager.events._raiseUserSessionChanged();
                     }
                 }
                 else {
-                    this._logger.debug("_callback: Different subject signed into OP:", session.sub);
+                    logger.debug("different subject signed into OP", session.sub);
                 }
             }
             else {
-                this._logger.debug("_callback: Subject no longer signed into OP");
+                logger.debug("subject no longer signed into OP");
             }
 
             if (raiseEvent) {
                 if (this._sub) {
-                    this._logger.debug("_callback: SessionMonitor._callback; raising signed out event");
                     this._userManager.events._raiseUserSignedOut();
                 }
                 else {
-                    this._logger.debug("_callback: SessionMonitor._callback; raising signed in event");
                     this._userManager.events._raiseUserSignedIn();
                 }
+            } else {
+                logger.debug("no change in session detected, no event to raise");
             }
         }
         catch (err) {
             if (this._sub) {
-                this._logger.debug("_callback: Error calling queryCurrentSigninSession; raising signed out event",
-                    err instanceof Error ? err.message : err);
+                logger.debug("Error calling queryCurrentSigninSession; raising signed out event", err);
                 this._userManager.events._raiseUserSignedOut();
             }
         }

@@ -1,4 +1,4 @@
-import { CryptoUtils, Log } from "./utils";
+import { CryptoUtils } from "./utils";
 import { TokenClient } from "./TokenClient";
 import { MetadataService } from "./MetadataService";
 import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
@@ -9,9 +9,6 @@ describe("TokenClient", () => {
     let subject: TokenClient;
 
     beforeEach(() => {
-        Log.logger = console;
-        Log.level = Log.NONE;
-
         settings = {
             authority: "authority",
             client_id: "client_id",

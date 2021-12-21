@@ -18,29 +18,31 @@ export class UserInfoService {
     }
 
     public async getClaims(token: string): Promise<JwtClaims> {
+        const logger = this._logger.create("getClaims");
         if (!token) {
             this._logger.error("getClaims: No token passed");
             throw new Error("A token is required");
         }
 
         const url = await this._metadataService.getUserInfoEndpoint();
-        this._logger.debug("getClaims: received userinfo url", url);
+        logger.debug("got userinfo url", url);
 
         const claims = await this._jsonService.getJson(url, token);
-        this._logger.debug("getClaims: claims received", claims);
+        logger.debug("got claims", claims);
 
         return claims;
     }
 
     protected _getClaimsFromJwt = async (responseText: string): Promise<JwtClaims> => {
+        const logger = this._logger.create("_getClaimsFromJwt");
         try {
             const payload = JwtUtils.decode(responseText);
-            this._logger.debug("_getClaimsFromJwt: JWT decoding successful");
+            logger.debug("JWT decoding successful");
 
             return payload;
         }
         catch (err) {
-            this._logger.error("_getClaimsFromJwt: Error parsing JWT response", err instanceof Error ? err.message : err);
+            logger.error("Error parsing JWT response");
             throw err;
         }
     };

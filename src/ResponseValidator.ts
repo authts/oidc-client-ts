@@ -54,25 +54,25 @@ export class ResponseValidator {
     ) {}
 
     public async validateSigninResponse(response: SigninResponse, state: SigninState): Promise<void> {
-        this._logger.debug("validateSigninResponse");
+        const logger = this._logger.create("validateSigninResponse");
 
         this._processSigninState(response, state);
-        this._logger.debug("validateSigninResponse: state processed");
+        logger.debug("state processed");
 
         await this._processCode(response, state);
-        this._logger.debug("validateSigninResponse: code processed");
+        logger.debug("code processed");
 
         if (response.isOpenId) {
             this._validateIdTokenAttributes(response);
         }
-        this._logger.debug("validateSigninResponse: tokens validated");
+        logger.debug("tokens validated");
 
         await this._processClaims(response, state?.skipUserInfo);
-        this._logger.debug("validateSigninResponse: claims processed");
+        logger.debug("claims processed");
     }
 
     public async validateRefreshResponse(response: SigninResponse, state: RefreshState): Promise<void> {
-        this._logger.debug("validateRefreshResponse");
+        const logger = this._logger.create("validateRefreshResponse");
 
         response.userState = state.data;
         // if there's no scope on the response, then assume all scopes granted (per-spec) and copy over scopes from original request
@@ -81,104 +81,98 @@ export class ResponseValidator {
         if (response.isOpenId) {
             this._validateIdTokenAttributes(response, state.id_token);
         }
-        this._logger.debug("validateSigninResponse: tokens validated");
+        logger.debug("tokens validated");
         await this._processClaims(response);
-        this._logger.debug("validateSigninResponse: claims processed");
+        logger.debug("claims processed");
     }
 
     public validateSignoutResponse(response: SignoutResponse, state: State): void {
+        const logger = this._logger.create("validateSignoutResponse");
         if (state.id !== response.state) {
-            this._logger.error("validateSignoutResponse: State does not match");
-            throw new Error("State does not match");
+            logger.throw(new Error("State does not match"));
         }
 
         // now that we know the state matches, take the stored data
         // and set it into the response so callers can get their state
         // this is important for both success & error outcomes
-        this._logger.debug("validateSignoutResponse: state validated");
+        logger.debug("state validated");
         response.userState = state.data;
 
         if (response.error) {
-            this._logger.warn("validateSignoutResponse: Response was error", response.error);
+            logger.warn("Response was error", response.error);
             throw new ErrorResponse(response);
         }
     }
 
     protected _processSigninState(response: SigninResponse, state: SigninState): void {
+        const logger = this._logger.create("_processSigninState");
         if (state.id !== response.state) {
-            this._logger.error("_processSigninState: State does not match");
-            throw new Error("State does not match");
+            logger.throw(new Error("State does not match"));
         }
 
         if (!state.client_id) {
-            this._logger.error("_processSigninState: No client_id on state");
-            throw new Error("No client_id on state");
+            logger.throw(new Error("No client_id on state"));
         }
 
         if (!state.authority) {
-            this._logger.error("_processSigninState: No authority on state");
-            throw new Error("No authority on state");
+            logger.throw(new Error("No authority on state"));
         }
 
         // ensure we're using the correct authority
         if (this._settings.authority !== state.authority) {
-            this._logger.error("_processSigninState: authority mismatch on settings vs. signin state");
-            throw new Error("authority mismatch on settings vs. signin state");
+            logger.throw(new Error("authority mismatch on settings vs. signin state"));
         }
         if (this._settings.client_id && this._settings.client_id !== state.client_id) {
-            this._logger.error("_processSigninState: client_id mismatch on settings vs. signin state");
-            throw new Error("client_id mismatch on settings vs. signin state");
+            logger.throw(new Error("client_id mismatch on settings vs. signin state"));
         }
 
         // now that we know the state matches, take the stored data
         // and set it into the response so callers can get their state
         // this is important for both success & error outcomes
-        this._logger.debug("_processSigninState: state validated");
+        logger.debug("state validated");
         response.userState = state.data;
         // if there's no scope on the response, then assume all scopes granted (per-spec) and copy over scopes from original request
         response.scope ??= state.scope;
 
         if (response.error) {
-            this._logger.warn("_processSigninState: Response was error", response.error);
+            logger.warn("Response was error", response.error);
             throw new ErrorResponse(response);
         }
 
         if (state.code_verifier && !response.code) {
-            this._logger.error("_processSigninState: Expecting code in response");
-            throw new Error("No code in response");
+            logger.throw(new Error("Expected code in response"));
         }
 
         if (!state.code_verifier && response.code) {
-            this._logger.error("_processSigninState: Not expecting code in response");
-            throw new Error("Unexpected code in response");
+            logger.throw(new Error("Unexpected code in response"));
         }
     }
 
     protected async _processClaims(response: SigninResponse, skipUserInfo = false): Promise<void> {
+        const logger = this._logger.create("_processClaims");
         if (!response.isOpenId) {
-            this._logger.debug("_processClaims: response is not OIDC, not processing claims");
+            logger.debug("response is not OIDC, skipping claims processing");
             return;
         }
-        this._logger.debug("_processClaims: response is OIDC, processing claims");
+        logger.debug("response is OIDC, processing claims", response.profile);
         response.profile = this._filterProtocolClaims(response.profile);
 
         if (skipUserInfo || !this._settings.loadUserInfo || !response.access_token) {
-            this._logger.debug("_processClaims: not loading user info");
+            logger.debug("not loading user info");
             return;
         }
 
-        this._logger.debug("_processClaims: loading user info");
+        logger.debug("loading user info");
 
         const claims = await this._userInfoService.getClaims(response.access_token);
-        this._logger.debug("_processClaims: user info claims received from user info endpoint");
+        logger.debug("user info claims received from user info endpoint");
 
         if (claims.sub !== response.profile.sub) {
-            this._logger.error("_processClaims: subject from UserInfo response does not match subject in ID Token");
-            throw new Error("subject from UserInfo response does not match subject in ID Token");
+            logger.throw(new Error("subject from UserInfo response does not match subject in ID Token"));
         }
 
         response.profile = this._mergeClaims(response.profile, this._filterProtocolClaims(claims as IdTokenClaims));
-        this._logger.debug("_processClaims: user info claims received, updated profile:", response.profile);
+        logger.debug("_processClaims: user info claims received, updated profile:", response.profile);
     }
 
     protected _mergeClaims(claims1: UserProfile, claims2: JwtClaims): UserProfile {
@@ -210,26 +204,21 @@ export class ResponseValidator {
     }
 
     protected _filterProtocolClaims(claims: UserProfile): UserProfile {
-        this._logger.debug("_filterProtocolClaims, incoming claims:", claims);
-
         const result = { ...claims };
 
         if (this._settings.filterProtocolClaims) {
             for (const type of ProtocolClaims) {
                 delete result[type];
             }
-            this._logger.debug("_filterProtocolClaims: protocol claims filtered:", result);
-        }
-        else {
-            this._logger.debug("_filterProtocolClaims: protocol claims not filtered");
         }
 
         return result;
     }
 
     protected async _processCode(response: SigninResponse, state: SigninState): Promise<void> {
+        const logger = this._logger.create("_processCode");
         if (response.code) {
-            this._logger.debug("_processCode: Validating code");
+            logger.debug("Validating code");
             const tokenResponse = await this._tokenClient.exchangeCode({
                 client_id: state.client_id,
                 client_secret: state.client_secret,
@@ -240,37 +229,33 @@ export class ResponseValidator {
             });
             Object.assign(response, tokenResponse);
         } else {
-            this._logger.debug("_processCode: No code to process");
+            logger.debug("No code to process");
         }
     }
 
     protected _validateIdTokenAttributes(response: SigninResponse, currentToken?: string): void {
-        this._logger.debug("_validateIdTokenAttributes: Decoding JWT attributes");
+        const logger = this._logger.create("_validateIdTokenAttributes");
 
+        logger.debug("decoding ID Token JWT");
         const profile = JwtUtils.decode(response.id_token ?? "");
 
         if (!profile.sub) {
-            this._logger.error("_validateIdTokenAttributes: No subject present in ID Token");
-            throw new Error("No subject is present in ID Token");
+            logger.throw(new Error("ID Token is missing a subject claim"));
         }
 
         if (currentToken) {
             const current = JwtUtils.decode(currentToken);
             if (current.sub !== profile.sub) {
-                this._logger.error("_validateIdTokenFromTokenRefreshToken: sub in id_token does not match current sub");
-                throw new Error("sub in id_token does not match current sub");
+                logger.throw(new Error("sub in id_token does not match current sub"));
             }
             if (current.auth_time && current.auth_time !== profile.auth_time) {
-                this._logger.error("_validateIdTokenFromTokenRefreshToken: auth_time in id_token does not match original auth_time");
-                throw new Error("auth_time in id_token does not match original auth_time");
+                logger.throw(new Error("auth_time in id_token does not match original auth_time"));
             }
             if (current.azp && current.azp !== profile.azp) {
-                this._logger.error("_validateIdTokenFromTokenRefreshToken: azp in id_token does not match original azp");
-                throw new Error("azp in id_token does not match original azp");
+                logger.throw(new Error("azp in id_token does not match original azp"));
             }
             if (!current.azp && profile.azp) {
-                this._logger.error("_validateIdTokenFromTokenRefreshToken: azp not in id_token, but present in original id_token");
-                throw new Error("azp not in id_token, but present in original id_token");
+                logger.throw(new Error("azp not in id_token, but present in original id_token"));
             }
         }
 

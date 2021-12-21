@@ -2,11 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Event } from "./Event";
+import { Logger } from "./Logger";
 
 /**
  * @internal
  */
 export class Timer extends Event<[void]> {
+    protected readonly _logger = new Logger(`Timer('${this._name}')`);
     private _timerHandle: ReturnType<typeof setInterval> | null = null;
     private _expiration = 0;
 
@@ -16,17 +18,18 @@ export class Timer extends Event<[void]> {
     }
 
     public init(durationInSeconds: number): void {
+        const logger = this._logger.create("init");
         durationInSeconds = Math.max(Math.floor(durationInSeconds), 1);
         const expiration = Timer.getEpochTime() + durationInSeconds;
         if (this.expiration === expiration && this._timerHandle) {
             // no need to reinitialize to same expiration, so bail out
-            this._logger.debug("init timer " + this._name + " skipping initialization since already initialized for expiration:", this.expiration);
+            logger.debug("skipping since already initialized for expiration at", this.expiration);
             return;
         }
 
         this.cancel();
 
-        this._logger.debug("init timer " + this._name + " for duration:", durationInSeconds);
+        logger.debug("using duration", durationInSeconds);
         this._expiration = expiration;
 
         // we're using a fairly short timer and then checking the expiration in the
@@ -41,8 +44,8 @@ export class Timer extends Event<[void]> {
     }
 
     public cancel(): void {
+        this._logger.create("cancel");
         if (this._timerHandle) {
-            this._logger.debug("cancel: ", this._name);
             clearInterval(this._timerHandle);
             this._timerHandle = null;
         }
@@ -50,7 +53,7 @@ export class Timer extends Event<[void]> {
 
     protected _callback = (): void => {
         const diff = this._expiration - Timer.getEpochTime();
-        this._logger.debug("_callback: " + this._name + " timer expires in:", diff);
+        this._logger.debug("timer completes in", diff);
 
         if (this._expiration <= Timer.getEpochTime()) {
             this.cancel();

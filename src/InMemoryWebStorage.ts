@@ -11,22 +11,22 @@ export class InMemoryWebStorage implements Storage {
     private _data: Record<string, string> = {};
 
     public clear(): void {
-        this._logger.debug("clear");
+        this._logger.create("clear");
         this._data = {};
     }
 
     public getItem(key: string): string {
-        this._logger.debug("getItem", key);
+        this._logger.create(`getItem('${key}')`);
         return this._data[key];
     }
 
     public setItem(key: string, value: string): void {
-        this._logger.debug("setItem", key);
+        this._logger.create(`setItem('${key}')`);
         this._data[key] = value;
     }
 
     public removeItem(key: string): void {
-        this._logger.debug("removeItem", key);
+        this._logger.create(`removeItem('${key}')`);
         delete this._data[key];
     }
 

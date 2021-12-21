@@ -34,7 +34,7 @@ export class State {
     }
 
     public toStorageString(): string {
-        Logger.debug("State", "toStorageString");
+        new Logger("State").create("toStorageString");
         return JSON.stringify({
             id: this.id,
             data: this.data,
@@ -44,7 +44,7 @@ export class State {
     }
 
     public static fromStorageString(storageString: string): State {
-        Logger.debug("State", "fromStorageString");
+        Logger.debug("State.fromStorageString");
         return new State(JSON.parse(storageString));
     }
 
@@ -52,7 +52,7 @@ export class State {
         const cutoff = Timer.getEpochTime() - age;
 
         const keys = await storage.getAllKeys();
-        Logger.debug("State", "clearStaleState: got keys", keys);
+        Logger.debug("State.clearStaleState", "got keys", keys);
 
         for (let i = 0; i < keys.length; i++) {
             const key = keys[i];
@@ -63,23 +63,23 @@ export class State {
                 try {
                     const state = State.fromStorageString(item);
 
-                    Logger.debug("State", "clearStaleState: got item from key: ", key, state.created);
+                    Logger.debug("State.clearStaleState", "got item from key: ", key, state.created);
                     if (state.created <= cutoff) {
                         remove = true;
                     }
                 }
                 catch (err) {
-                    Logger.error("State", "clearStaleState: Error parsing state for key", key, err instanceof Error ? err.message : err);
+                    Logger.error("State.clearStaleState", "Error parsing state for key", key, err);
                     remove = true;
                 }
             }
             else {
-                Logger.debug("State", "clearStaleState: no item in storage for key: ", key);
+                Logger.debug("State.clearStaleState", "no item in storage for key: ", key);
                 remove = true;
             }
 
             if (remove) {
-                Logger.debug("State", "clearStaleState: removed item for key: ", key);
+                Logger.debug("State.clearStaleState", "removed item for key: ", key);
                 void storage.remove(key);
             }
         }

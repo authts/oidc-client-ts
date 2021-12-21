@@ -26,11 +26,12 @@ export abstract class AbstractChildWindow implements IWindow {
     protected _window: WindowProxy | null = null;
 
     public async navigate(params: NavigateParams): Promise<NavigateResponse> {
+        const logger = this._logger.create("navigate");
         if (!this._window) {
             throw new Error("Attempted to navigate on a disposed window");
         }
 
-        this._logger.debug("navigate: Setting URL in window");
+        logger.debug("setting URL in window");
         this._window.location.replace(params.url);
 
         const { url, keepOpen } = await new Promise<MessageData>((resolve, reject) => {
@@ -43,7 +44,7 @@ export abstract class AbstractChildWindow implements IWindow {
                 try {
                     const state = UrlUtils.readParams(data.url, params.response_mode).get("state");
                     if (!state) {
-                        this._logger.warn("navigate: no state found in response url");
+                        logger.warn("no state found in response url");
                     }
                     if (e.source !== this._window && state !== params.state) {
                         // MessageEvent source is a relatively modern feature, we can't rely on it
@@ -64,7 +65,7 @@ export abstract class AbstractChildWindow implements IWindow {
                 reject(reason);
             }));
         });
-        this._logger.debug("navigate: Got response from window");
+        logger.debug("got response from window");
         this._dispose();
 
         if (!keepOpen) {
@@ -77,7 +78,7 @@ export abstract class AbstractChildWindow implements IWindow {
     public abstract close(): void;
 
     private _dispose(): void {
-        this._logger.debug("_dispose");
+        this._logger.create("_dispose");
 
         for (const dispose of this._disposeHandlers) {
             dispose();

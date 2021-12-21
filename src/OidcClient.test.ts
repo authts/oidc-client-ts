@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { JwtUtils, Log } from "./utils";
+import { JwtUtils } from "./utils";
 import type { JwtClaims } from "./Claims";
 import { OidcClient } from "./OidcClient";
 import { OidcClientSettingsStore } from "./OidcClientSettings";
@@ -18,9 +18,6 @@ describe("OidcClient", () => {
     let subject: OidcClient;
 
     beforeEach(() => {
-        Log.logger = console;
-        Log.level = Log.NONE;
-
         subject = new OidcClient({
             authority: "authority",
             client_id: "client",
@@ -486,7 +483,7 @@ describe("OidcClient", () => {
             }
             catch (err) {
                 expect(err).toBeInstanceOf(Error);
-                expect((err as Error).message).toContain("no end session endpoint");
+                expect((err as Error).message).toContain("No end session endpoint");
             }
         });
 

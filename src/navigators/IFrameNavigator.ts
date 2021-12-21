@@ -21,7 +21,7 @@ export class IFrameNavigator implements INavigator {
     }
 
     public async callback(url: string): Promise<void> {
-        this._logger.debug("callback");
+        this._logger.create("callback");
         IFrameWindow.notifyParent(url);
     }
 }

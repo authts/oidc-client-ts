@@ -72,7 +72,7 @@ export class CheckSessionIFrame {
             return;
         }
 
-        this._logger.debug("start");
+        this._logger.create("start");
 
         this.stop();
 
@@ -94,10 +94,10 @@ export class CheckSessionIFrame {
     }
 
     public stop(): void {
+        this._logger.create("stop");
         this._session_state = null;
 
         if (this._timer) {
-            this._logger.debug("stop");
 
             clearInterval(this._timer);
             this._timer = null;

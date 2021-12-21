@@ -19,7 +19,7 @@ export class WebStorageStateStore implements StateStore {
     }
 
     public set(key: string, value: string): Promise<void> {
-        this._logger.debug("set", key);
+        this._logger.create(`set('${key}')`);
 
         key = this._prefix + key;
         this._store.setItem(key, value);
@@ -27,7 +27,7 @@ export class WebStorageStateStore implements StateStore {
     }
 
     public get(key: string): Promise<string | null> {
-        this._logger.debug("get", key);
+        this._logger.create(`get('${key}')`);
 
         key = this._prefix + key;
         const item = this._store.getItem(key);
@@ -35,7 +35,7 @@ export class WebStorageStateStore implements StateStore {
     }
 
     public remove(key: string): Promise<string | null> {
-        this._logger.debug("remove", key);
+        this._logger.create(`remove('${key}')`);
 
         key = this._prefix + key;
         const item = this._store.getItem(key);
@@ -44,7 +44,7 @@ export class WebStorageStateStore implements StateStore {
     }
 
     public getAllKeys(): Promise<string[]> {
-        this._logger.debug("getAllKeys");
+        this._logger.create("getAllKeys");
 
         const keys = [];
         for (let index = 0; index < this._store.length; index++) {

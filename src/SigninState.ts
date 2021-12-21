@@ -73,7 +73,7 @@ export class SigninState extends State {
     }
 
     public toStorageString(): string {
-        Logger.debug("SigninState", "toStorageString");
+        new Logger("SigninState").create("toStorageString");
         return JSON.stringify({
             id: this.id,
             data: this.data,
@@ -93,7 +93,7 @@ export class SigninState extends State {
     }
 
     public static fromStorageString(storageString: string): SigninState {
-        Logger.debug("SigninState", "fromStorageString");
+        Logger.debug("SigninState.fromStorageString");
         const data = JSON.parse(storageString);
         return new SigninState(data);
     }

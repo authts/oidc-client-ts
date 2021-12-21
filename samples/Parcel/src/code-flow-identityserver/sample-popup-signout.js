@@ -1,8 +1,8 @@
 import { Log, UserManager, settings } from "./sample-settings";
 import { log } from "./sample";
 
-Log.logger = console;
-Log.level = Log.INFO;
+Log.setLogger(console);
+Log.setLevel(Log.INFO);
 
 // can pass true param and will keep popup window open
 new UserManager(settings).signoutCallback().then(function() {

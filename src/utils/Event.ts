@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Logger } from "./Log";
+import { Logger } from "./Logger";
 
 /**
  * @internal
@@ -12,7 +12,7 @@ export type Callback<EventType extends unknown[]> = (...ev: EventType) => (Promi
  * @internal
  */
 export class Event<EventType extends unknown[]> {
-    protected readonly _logger = new Logger(`Event(${this._name})`);
+    protected readonly _logger = new Logger(`Event('${this._name}')`);
 
     private _callbacks: Array<Callback<EventType>> = [];
 
@@ -31,7 +31,7 @@ export class Event<EventType extends unknown[]> {
     }
 
     public raise(...ev: EventType): void {
-        this._logger.debug("Raising event: " + this._name);
+        this._logger.debug("raise:", ...ev);
         for (const cb of this._callbacks) {
             void cb(...ev);
         }

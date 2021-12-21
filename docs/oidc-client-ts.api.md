@@ -171,30 +171,34 @@ export interface JwtClaims {
 }
 
 // @public
-export class Log {
+export enum Log {
     // (undocumented)
-    static get DEBUG(): number;
+    DEBUG = 4,
     // (undocumented)
-    static get ERROR(): number;
+    ERROR = 1,
     // (undocumented)
-    static get INFO(): number;
+    INFO = 3,
     // (undocumented)
-    static get level(): number;
-    static set level(value: number);
+    NONE = 0,
     // (undocumented)
-    static get logger(): ILogger;
-    static set logger(value: ILogger);
+    WARN = 2
+}
+
+// @public
+export namespace Log {
     // (undocumented)
-    static get NONE(): number;
+    export function reset(): void;
     // (undocumented)
-    static reset(): void;
+    export function setLevel(value: Log): void;
     // (undocumented)
-    static get WARN(): number;
+    export function setLogger(value: ILogger): void;
 }
 
 // @public
 export class Logger {
-    constructor(name: string);
+    constructor(_name: string);
+    // (undocumented)
+    create(method: string): Logger;
     // (undocumented)
     debug(...args: unknown[]): void;
     // (undocumented)
@@ -207,6 +211,8 @@ export class Logger {
     info(...args: unknown[]): void;
     // (undocumented)
     static info(name: string, ...args: unknown[]): void;
+    // (undocumented)
+    throw(err: unknown): never;
     // (undocumented)
     warn(...args: unknown[]): void;
     // (undocumented)

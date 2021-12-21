@@ -49,14 +49,12 @@ export class UserManagerEvents extends AccessTokenEvents {
     }
 
     public load(user: User, raiseEvent=true): void {
-        this._logger.debug("load");
         super.load(user);
         if (raiseEvent) {
             this._userLoaded.raise(user);
         }
     }
     public unload(): void {
-        this._logger.debug("unload");
         super.unload();
         this._userUnloaded.raise();
     }
@@ -103,7 +101,6 @@ export class UserManagerEvents extends AccessTokenEvents {
      * @internal
      */
     public _raiseSilentRenewError(e: Error): void {
-        this._logger.debug("_raiseSilentRenewError", e.message);
         this._silentRenewError.raise(e);
     }
 
@@ -123,7 +120,6 @@ export class UserManagerEvents extends AccessTokenEvents {
      * @internal
      */
     public _raiseUserSignedIn(): void {
-        this._logger.debug("_raiseUserSignedIn");
         this._userSignedIn.raise();
     }
 
@@ -143,7 +139,6 @@ export class UserManagerEvents extends AccessTokenEvents {
      * @internal
      */
     public _raiseUserSignedOut(): void {
-        this._logger.debug("_raiseUserSignedOut");
         this._userSignedOut.raise();
     }
 
@@ -163,7 +158,6 @@ export class UserManagerEvents extends AccessTokenEvents {
      * @internal
      */
     public _raiseUserSessionChanged(): void {
-        this._logger.debug("_raiseUserSessionChanged");
         this._userSessionChanged.raise();
     }
 }

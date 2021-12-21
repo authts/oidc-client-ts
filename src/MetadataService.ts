@@ -25,19 +25,19 @@ export class MetadataService {
             this._metadataUrl = this._settings.metadataUrl;
         } else if (this._settings.authority) {
             this._metadataUrl = this._settings.authority;
-            if (this._metadataUrl[this._metadataUrl.length - 1] !== "/") {
+            if (!this._metadataUrl.endsWith("/")) {
                 this._metadataUrl += "/";
             }
             this._metadataUrl += OidcMetadataUrlPath;
         }
 
         if (this._settings.signingKeys) {
-            this._logger.debug("ctor: Using signingKeys from settings");
+            this._logger.debug("using signingKeys from settings");
             this._signingKeys = this._settings.signingKeys;
         }
 
         if (this._settings.metadata) {
-            this._logger.debug("ctor: Using metadata from settings");
+            this._logger.debug("using metadata from settings");
             this._metadata = this._settings.metadata;
         }
     }
@@ -47,22 +47,22 @@ export class MetadataService {
     }
 
     public async getMetadata(): Promise<Partial<OidcMetadata>> {
+        const logger = this._logger.create("getMetadata");
         if (this._metadata) {
-            this._logger.debug("getMetadata: Returning metadata from cache");
+            logger.debug("using cached values");
             return this._metadata;
         }
 
         if (!this._metadataUrl) {
-            this._logger.error("getMetadata: No authority or metadataUrl configured on settings");
-            throw new Error("No authority or metadataUrl configured on settings");
+            logger.throw(new Error("No authority or metadataUrl configured on settings"));
+            throw null;
         }
 
-        this._logger.debug("getMetadata: getting metadata from", this._metadataUrl);
+        logger.debug("getting metadata from", this._metadataUrl);
         const metadata = await this._jsonService.getJson(this._metadataUrl);
 
-        this._logger.debug("getMetadata: json received");
-        const seed = this._settings.metadataSeed || {};
-        this._metadata = Object.assign({}, seed, metadata) as Partial<OidcMetadata>;
+        logger.debug("merging remote JSON with seed metadata");
+        this._metadata = Object.assign({}, this._settings.metadataSeed, metadata);
         return this._metadata;
     }
 
@@ -105,39 +105,39 @@ export class MetadataService {
     }
 
     protected async _getMetadataProperty(name: keyof OidcMetadata, optional=false): Promise<string | boolean | string[] | undefined> {
-        this._logger.debug("getMetadataProperty for: " + name);
+        const logger = this._logger.create(`_getMetadataProperty('${name}')`);
 
         const metadata = await this.getMetadata();
-        this._logger.debug("getMetadataProperty: metadata received");
+        logger.debug("resolved");
 
         if (metadata[name] === undefined) {
             if (optional === true) {
-                this._logger.warn("getMetadataProperty: Metadata does not contain optional property " + name);
+                logger.warn("Metadata does not contain optional property");
                 return undefined;
             }
 
-            this._logger.error("getMetadataProperty: Metadata does not contain property " + name);
-            throw new Error("Metadata does not contain property " + name);
+            logger.throw(new Error("Metadata does not contain property " + name));
         }
 
         return metadata[name];
     }
 
     public async getSigningKeys(): Promise<SigningKey[] | null> {
+        const logger = this._logger.create("getSigningKeys");
         if (this._signingKeys) {
-            this._logger.debug("getSigningKeys: Returning signingKeys from cache");
+            logger.debug("returning signingKeys from cache");
             return this._signingKeys;
         }
 
         const jwks_uri = await this.getKeysEndpoint(false);
-        this._logger.debug("getSigningKeys: jwks_uri received", jwks_uri);
+        logger.debug("got jwks_uri", jwks_uri);
 
         const keySet = await this._jsonService.getJson(jwks_uri);
-        this._logger.debug("getSigningKeys: key set received", keySet);
+        logger.debug("got key set", keySet);
 
         if (!Array.isArray(keySet.keys)) {
-            this._logger.error("getSigningKeys: Missing keys on keyset");
-            throw new Error("Missing keys on keyset");
+            logger.throw(new Error("Missing keys on keyset"));
+            throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
         this._signingKeys = keySet.keys;

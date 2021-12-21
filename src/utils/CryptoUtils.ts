@@ -3,7 +3,7 @@ import sha256 from "crypto-js/sha256.js";
 import Base64 from "crypto-js/enc-base64.js";
 import Utf8 from "crypto-js/enc-utf8.js";
 
-import { Logger } from "./Log";
+import { Logger } from "./Logger";
 
 const UUID_V4_TEMPLATE = "10000000-1000-4000-8000-100000000000";
 
@@ -41,7 +41,7 @@ export class CryptoUtils {
             return Base64.stringify(hashed).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
         }
         catch (err) {
-            Logger.error("CryptoUtils", err);
+            Logger.error("CryptoUtils.generateCodeChallenge", err);
             throw err;
         }
     }
