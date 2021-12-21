@@ -7,7 +7,7 @@ import { Logger } from "./utils";
  * @internal
  */
 export class CheckSessionIFrame {
-    private readonly _logger: Logger;
+    private readonly _logger = new Logger("CheckSessionIFrame");
     private _frame_origin: string;
     private _frame: HTMLIFrameElement;
     private _timer: ReturnType<typeof setInterval> | null = null
@@ -20,8 +20,6 @@ export class CheckSessionIFrame {
         private _intervalInSeconds: number,
         private _stopOnError: boolean,
     ) {
-        this._logger = new Logger("CheckSessionIFrame");
-
         const idx = url.indexOf("/", url.indexOf("//") + 2);
         this._frame_origin = url.substr(0, idx);
 

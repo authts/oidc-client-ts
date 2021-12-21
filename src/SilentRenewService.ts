@@ -9,12 +9,10 @@ import type { AccessTokenCallback } from "./AccessTokenEvents";
  * @internal
  */
 export class SilentRenewService {
-    protected _logger: Logger;
+    protected _logger = new Logger("SilentRenewService");
     private _isStarted = false;
 
-    public constructor(private _userManager: UserManager) {
-        this._logger = new Logger("SilentRenewService");
-    }
+    public constructor(private _userManager: UserManager) {}
 
     public async start(): Promise<void> {
         if (!this._isStarted) {

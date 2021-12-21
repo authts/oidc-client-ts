@@ -13,7 +13,7 @@ export type JwtHandler = (text: string) => Promise<Record<string, unknown>>;
  * @internal
  */
 export class JsonService {
-    private readonly _logger: Logger;
+    private readonly _logger = new Logger("JsonService");
 
     private _contentTypes: string[] = [];
 
@@ -21,8 +21,6 @@ export class JsonService {
         additionalContentTypes: string[] = [],
         private _jwtHandler: JwtHandler | null = null,
     ) {
-        this._logger = new Logger("JsonService");
-
         this._contentTypes.push(...additionalContentTypes, "application/json");
         if (_jwtHandler) {
             this._contentTypes.push("application/jwt");

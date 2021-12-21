@@ -9,14 +9,11 @@ import type { MetadataService } from "./MetadataService";
  * @internal
  */
 export class UserInfoService {
-    protected readonly _logger: Logger;
-    private _jsonService: JsonService;
-    private _metadataService: MetadataService;
+    protected readonly _logger = new Logger("UserInfoService");
+    private readonly _jsonService: JsonService;
 
-    public constructor(metadataService: MetadataService) {
-        this._logger = new Logger("UserInfoService");
+    public constructor(private readonly _metadataService: MetadataService) {
         this._jsonService = new JsonService(undefined, this._getClaimsFromJwt);
-        this._metadataService = metadataService;
     }
 
     public async getClaims(token: string): Promise<JwtPayload> {

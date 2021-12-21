@@ -23,7 +23,7 @@ export interface SignoutRequestArgs {
  * @public
  */
 export class SignoutRequest {
-    private readonly _logger: Logger;
+    private readonly _logger = new Logger("SignoutRequest");
 
     public readonly url: string
     public readonly state?: State
@@ -32,8 +32,6 @@ export class SignoutRequest {
         url,
         state_data, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type,
     }: SignoutRequestArgs) {
-        this._logger = new Logger("SignoutRequest");
-
         if (!url) {
             this._logger.error("ctor: No url passed");
             throw new Error("url");

@@ -7,13 +7,8 @@ import { Logger } from "./utils";
  * @public
  */
 export class InMemoryWebStorage implements Storage {
-    private readonly _logger: Logger;
-    private _data: Record<string, string>;
-
-    public constructor() {
-        this._logger = new Logger("InMemoryWebStorage");
-        this._data = {};
-    }
+    private readonly _logger = new Logger("InMemoryWebStorage");
+    private _data: Record<string, string> = {};
 
     public clear(): void {
         this._logger.debug("clear");

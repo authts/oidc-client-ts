@@ -9,7 +9,7 @@ export type AccessTokenCallback = (...ev: unknown[]) => void;
 
 // @public (undocumented)
 export class AccessTokenEvents {
-    constructor({ expiringNotificationTimeInSeconds }: {
+    constructor(args: {
         expiringNotificationTimeInSeconds: number;
     });
     addAccessTokenExpired(cb: AccessTokenCallback): () => void;
@@ -17,7 +17,7 @@ export class AccessTokenEvents {
     // (undocumented)
     load(container: User): void;
     // (undocumented)
-    protected _logger: Logger;
+    protected readonly _logger: Logger;
     removeAccessTokenExpired(cb: AccessTokenCallback): void;
     removeAccessTokenExpiring(cb: AccessTokenCallback): void;
     // (undocumented)
@@ -129,7 +129,6 @@ export interface ILogger {
 
 // @public (undocumented)
 export class InMemoryWebStorage implements Storage {
-    constructor();
     // (undocumented)
     clear(): void;
     // (undocumented)
@@ -189,7 +188,7 @@ export class Logger {
 
 // @public (undocumented)
 export class MetadataService {
-    constructor(settings: OidcClientSettingsStore);
+    constructor(_settings: OidcClientSettingsStore);
     // (undocumented)
     getAuthorizationEndpoint(): Promise<string>;
     // (undocumented)
@@ -476,7 +475,7 @@ export type RevokeTokensTypes = UserManagerSettings["revokeTokenTypes"];
 
 // @public (undocumented)
 export class SessionMonitor {
-    constructor(userManager: UserManager);
+    constructor(_userManager: UserManager);
     // (undocumented)
     protected _callback: () => Promise<void>;
     // (undocumented)
@@ -861,6 +860,8 @@ export class UserManagerEvents extends AccessTokenEvents {
     addUserUnloaded(cb: UserUnloadedCallback): () => void;
     // (undocumented)
     load(user: User, raiseEvent?: boolean): void;
+    // (undocumented)
+    protected readonly _logger: Logger;
     // @internal (undocumented)
     _raiseSilentRenewError(e: Error): void;
     // @internal (undocumented)

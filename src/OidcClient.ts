@@ -59,7 +59,7 @@ export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url" | "state_d
  */
 export class OidcClient {
     public readonly settings: OidcClientSettingsStore;
-    protected readonly _logger: Logger;
+    protected readonly _logger = new Logger("OidcClient")
 
     public readonly metadataService: MetadataService;
     protected readonly _validator: ResponseValidator;
@@ -67,7 +67,6 @@ export class OidcClient {
 
     public constructor(settings: OidcClientSettings) {
         this.settings = new OidcClientSettingsStore(settings);
-        this._logger = new Logger("OidcClient");
 
         this.metadataService = new MetadataService(this.settings);
         this._validator = new ResponseValidator(this.settings, this.metadataService);

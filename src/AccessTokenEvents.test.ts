@@ -18,8 +18,10 @@ describe("AccessTokenEvents", () => {
         subject = new AccessTokenEvents({ expiringNotificationTimeInSeconds: 60 });
 
         // access private members
-        subject["_expiringTimer"] = expiringTimer;
-        subject["_expiredTimer"] = expiredTimer;
+        Object.assign(subject, {
+            _expiringTimer: expiringTimer,
+            _expiredTimer: expiredTimer,
+        });
     });
 
     describe("constructor", () => {
