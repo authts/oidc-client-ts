@@ -3,8 +3,6 @@
 
 import { Event } from "./Event";
 
-const DefaultTimerDurationInSeconds = 5; // seconds
-
 /**
  * @internal
  */
@@ -18,11 +16,7 @@ export class Timer extends Event<[void]> {
     }
 
     public init(durationInSeconds: number): void {
-        if (durationInSeconds <= 0) {
-            durationInSeconds = 1;
-        }
-
-        durationInSeconds = Math.floor(durationInSeconds);
+        durationInSeconds = Math.max(Math.floor(durationInSeconds), 1);
         const expiration = Timer.getEpochTime() + durationInSeconds;
         if (this.expiration === expiration && this._timerHandle) {
             // no need to reinitialize to same expiration, so bail out
@@ -38,10 +32,7 @@ export class Timer extends Event<[void]> {
         // we're using a fairly short timer and then checking the expiration in the
         // callback to handle scenarios where the browser device sleeps, and then
         // the timers end up getting delayed.
-        let timerDurationInSeconds = DefaultTimerDurationInSeconds;
-        if (durationInSeconds < timerDurationInSeconds) {
-            timerDurationInSeconds = durationInSeconds;
-        }
+        const timerDurationInSeconds = Math.min(durationInSeconds, 5);
         this._timerHandle = setInterval(this._callback, timerDurationInSeconds * 1000);
     }
 
