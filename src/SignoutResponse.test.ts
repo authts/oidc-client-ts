@@ -36,7 +36,7 @@ describe("SignoutResponse", () => {
             const subject = new SignoutResponse(new URLSearchParams("state=foo"));
 
             // assert
-            expect(subject.state_id).toEqual("foo");
+            expect(subject.state).toEqual("foo");
         });
     });
 });

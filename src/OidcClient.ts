@@ -126,16 +126,12 @@ export class OidcClient {
         this._logger.debug("readSigninResponseState");
 
         const response = new SigninResponse(UrlUtils.readParams(url, this.settings.response_mode));
-        const stateKey = response.state_id;
-        if (!stateKey) {
+        if (!response.state) {
             this._logger.error("readSigninResponseState: No state in response");
             throw new Error("No state in response");
         }
 
-        const stateStore = this.settings.stateStore;
-        const stateApi = removeState ? stateStore.remove.bind(stateStore) : stateStore.get.bind(stateStore);
-
-        const storedStateString = await stateApi(stateKey);
+        const storedStateString = await this.settings.stateStore[removeState ? "remove" : "get"](response.state);
         if (!storedStateString) {
             this._logger.error("readSigninResponseState: No matching state found in storage");
             throw new Error("No matching state found in storage");
@@ -206,8 +202,7 @@ export class OidcClient {
         this._logger.debug("readSignoutResponseState");
 
         const response = new SignoutResponse(UrlUtils.readParams(url, this.settings.response_mode));
-        const stateKey = response.state_id;
-        if (!stateKey) {
+        if (!response.state) {
             this._logger.debug("readSignoutResponseState: No state in response");
 
             if (response.error) {
@@ -218,10 +213,7 @@ export class OidcClient {
             return { state: undefined, response };
         }
 
-        const stateStore = this.settings.stateStore;
-
-        const stateApi = removeState ? stateStore.remove.bind(stateStore) : stateStore.get.bind(stateStore);
-        const storedStateString = await stateApi(stateKey);
+        const storedStateString = await this.settings.stateStore[removeState ? "remove" : "get"](response.state);
         if (!storedStateString) {
             this._logger.error("readSignoutResponseState: No matching state found in storage");
             throw new Error("No matching state found in storage");

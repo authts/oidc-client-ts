@@ -15,29 +15,29 @@ export class ErrorResponse extends Error {
     public readonly name: string = "ErrorResponse";
 
     /** An error code string that can be used to classify the types of errors that occur and to respond to errors. */
-    public readonly error: string;
+    public readonly error: string | null;
     /** additional information that can help a developer identify the cause of the error.*/
-    public readonly error_description: string | undefined;
+    public readonly error_description: string | null;
     /**
      * URI identifying a human-readable web page with information about the error, used to provide the client
        developer with additional information about the error.
     */
-    public readonly error_uri: string | undefined;
+    public readonly error_uri: string | null;
 
-    /** custom "state", which can be used by a caller to have "data" round tripped */
-    public state: unknown | undefined;
+    /** custom state data set during the initial signin request */
+    public state?: unknown;
 
-    public readonly session_state: string | undefined;
+    public readonly session_state: string | null;
 
     public constructor(
         args: {
-            error?: string; error_description?: string; error_uri?: string;
-            state?: unknown; session_state?: string;
+            error?: string | null; error_description?: string | null; error_uri?: string | null;
+            userState?: unknown; session_state?: string | null;
         },
         /** The x-www-form-urlencoded request body sent to the authority server */
         public readonly form?: URLSearchParams,
     ) {
-        super(args.error_description || args.error);
+        super(args.error_description || args.error || "");
 
         if (!args.error) {
             Logger.error("ErrorResponse", "No error passed");
@@ -45,10 +45,10 @@ export class ErrorResponse extends Error {
         }
 
         this.error = args.error;
-        this.error_description = args.error_description;
-        this.error_uri = args.error_uri;
+        this.error_description = args.error_description ?? null;
+        this.error_uri = args.error_uri ?? null;
 
-        this.state = args.state;
-        this.session_state = args.session_state;
+        this.state = args.userState;
+        this.session_state = args.session_state ?? null;
     }
 }

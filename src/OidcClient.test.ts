@@ -276,7 +276,7 @@ describe("OidcClient", () => {
             expect(state.authority).toEqual("authority");
             expect(state.client_id).toEqual("client");
             expect(state.request_type).toEqual("type");
-            expect(response.state_id).toEqual("1");
+            expect(response.state).toEqual("1");
         });
     });
 
@@ -362,6 +362,7 @@ describe("OidcClient", () => {
                 access_token: "new_access_token",
             };
             jest.spyOn(subject["_tokenClient"], "exchangeRefreshToken").mockResolvedValue(tokenResponse);
+            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
             const state = new RefreshState({
                 refresh_token: "refresh_token",
                 id_token: "id_token",
@@ -573,7 +574,7 @@ describe("OidcClient", () => {
             expect(state).toBeDefined();
             expect(state?.id).toEqual("1");
             expect(state?.request_type).toEqual("type");
-            expect(response.state_id).toEqual("1");
+            expect(response.state).toEqual("1");
         });
 
         it("should call validator with state even if error in response", async () => {

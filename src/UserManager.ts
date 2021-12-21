@@ -265,7 +265,6 @@ export class UserManager {
     }
 
     protected async _useRefreshToken(state: RefreshState): Promise<User> {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const response = await this._client.useRefreshToken(state);
         const user = new User({ ...state, ...response });
 

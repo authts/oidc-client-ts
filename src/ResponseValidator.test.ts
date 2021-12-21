@@ -6,6 +6,7 @@ import { ResponseValidator } from "./ResponseValidator";
 import { MetadataService } from "./MetadataService";
 import type { SigninState } from "./SigninState";
 import type { SigninResponse } from "./SigninResponse";
+import type { SignoutResponse } from "./SignoutResponse";
 import { ErrorResponse } from "./ErrorResponse";
 import type { UserProfile } from "./User";
 import type { OidcClientSettingsStore } from "./OidcClientSettings";
@@ -13,7 +14,7 @@ import { mocked } from "jest-mock";
 
 describe("ResponseValidator", () => {
     let stubState: SigninState;
-    let stubResponse: SigninResponse;
+    let stubResponse: SigninResponse & SignoutResponse;
     let settings: OidcClientSettingsStore;
     let metadataService: MetadataService;
     let subject: ResponseValidator;
@@ -30,9 +31,9 @@ describe("ResponseValidator", () => {
             scope: "openid",
         } as SigninState;
         stubResponse = {
-            state_id: "the_id",
-            isOpenIdConnect: false,
-        } as SigninResponse;
+            state: "the_id",
+            isOpenId: false,
+        } as SigninResponse & SignoutResponse;
         settings = {
             authority: "op",
             client_id: "client",
@@ -52,7 +53,7 @@ describe("ResponseValidator", () => {
     describe("validateSignoutResponse", () => {
         it("should validate that the client state matches response state", () => {
             // arrange
-            Object.assign(stubResponse, { state_id: "not_the_id" });
+            Object.assign(stubResponse, { state: "not_the_id" });
 
             // act
             expect(() => subject.validateSignoutResponse(stubResponse, stubState))
@@ -62,7 +63,7 @@ describe("ResponseValidator", () => {
 
         it("should fail on error response", () => {
             // arrange
-            stubResponse.error = "some_error";
+            Object.assign(stubResponse, { error: "some_error" });
 
             // act
             expect(() => subject.validateSignoutResponse(stubResponse, stubState))
@@ -75,7 +76,7 @@ describe("ResponseValidator", () => {
             subject.validateSignoutResponse(stubResponse, stubState);
 
             // assert
-            expect(stubResponse.state).toEqual({ some: "data" });
+            expect(stubResponse.userState).toEqual({ some: "data" });
         });
     });
 
@@ -90,13 +91,13 @@ describe("ResponseValidator", () => {
 
             // assert
             expect(subject["_tokenClient"].exchangeCode).toHaveBeenCalled();
-            expect(stubResponse).toHaveProperty("state", stubState.data);
+            expect(stubResponse).toHaveProperty("userState", stubState.data);
             expect(stubResponse).toHaveProperty("scope", stubState.scope);
         });
 
         it("should not process code if state fails", async () => {
             // arrange
-            Object.assign(stubResponse, { code: "code", state_id: "not_the_id" });
+            Object.assign(stubResponse, { code: "code", state: "not_the_id" });
             const exchangeCodeSpy = jest.spyOn(subject["_tokenClient"], "exchangeCode").mockRejectedValue(new Error("should not come here"));
 
             // act
@@ -109,9 +110,12 @@ describe("ResponseValidator", () => {
         it("should process valid claims", async () => {
             // arrange
             Object.assign(stubResponse, {
+                isOpenId: true,
                 access_token: "access_token",
-                isOpenIdConnect: true,
+                id_token: "id_token",
             });
+            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
+            mocked(subject["_userInfoService"].getClaims).mockResolvedValue({ sub: "sub" });
 
             // act
             await subject.validateSigninResponse(stubResponse, stubState);
@@ -122,19 +126,18 @@ describe("ResponseValidator", () => {
 
         it("should not process claims if state fails", async () => {
             // arrange
-            Object.assign(stubResponse, { state_id: "not_the_id", access_token: "access_token", isOpenIdConnect: true });
-            const getClaimsSpy = jest.spyOn(subject["_userInfoService"], "getClaims").mockResolvedValue({ nickname: "Nick" });
+            Object.assign(stubResponse, { state: "not_the_id", access_token: "access_token", isOpenId: true });
 
             // act
             await expect(subject.validateSigninResponse(stubResponse, stubState))
                 // assert
                 .rejects.toThrow("State does not match");
-            expect(getClaimsSpy).not.toHaveBeenCalled();
+            expect(subject["_userInfoService"].getClaims).not.toHaveBeenCalled();
         });
 
         it("should validate that the client state matches response state", async () => {
             // arrange
-            Object.assign(stubResponse, { state_id: "not_the_id" });
+            Object.assign(stubResponse, { state: "not_the_id" });
 
             // act
             await expect(subject.validateSigninResponse(stubResponse, stubState))
@@ -223,14 +226,20 @@ describe("ResponseValidator", () => {
             await subject.validateSigninResponse(stubResponse, stubState);
 
             // assert
-            expect(stubResponse.state).toEqual(stubState.data);
+            expect(stubResponse.userState).toEqual(stubState.data);
         });
 
         it("should filter protocol claims if OIDC", async () => {
             // arrange
             Object.assign(stubResponse, {
-                isOpenIdConnect: true,
-                profile: { a: "apple", b: "banana", iss: "foo" },
+                isOpenId: true,
+                id_token: "id_token",
+            });
+            jest.spyOn(JwtUtils, "decode").mockReturnValue({
+                sub: "sub",
+                iss: "iss",
+                a: "apple",
+                b: "banana",
             });
             Object.assign(settings, { filterProtocolClaims: true });
 
@@ -244,7 +253,7 @@ describe("ResponseValidator", () => {
         it("should not filter protocol claims if not OIDC", async () => {
             // arrange
             Object.assign(stubResponse, {
-                isOpenIdConnect: false,
+                isOpenId: false,
                 profile: { a: "apple", b: "banana", iss: "foo" },
             });
 
@@ -259,9 +268,14 @@ describe("ResponseValidator", () => {
             // arrange
             Object.assign(settings, { loadUserInfo: true });
             Object.assign(stubResponse, {
-                isOpenIdConnect: true,
-                profile: { sub: "sub" },
+                isOpenId: true,
                 access_token: "access_token",
+                id_token: "id_token",
+            });
+            jest.spyOn(JwtUtils, "decode").mockReturnValue({
+                sub: "sub",
+                a: "apple",
+                b: "banana",
             });
             mocked(subject["_userInfoService"].getClaims).mockResolvedValue({ sub: "sub different" });
 
@@ -275,11 +289,16 @@ describe("ResponseValidator", () => {
             // arrange
             Object.assign(settings, { loadUserInfo: true });
             Object.assign(stubResponse, {
-                isOpenIdConnect: true,
-                profile: { a: "apple", b: "banana" },
+                isOpenId: true,
                 access_token: "access_token",
+                id_token: "id_token",
             });
-            mocked(subject["_userInfoService"].getClaims).mockResolvedValue({ c: "carrot" });
+            jest.spyOn(JwtUtils, "decode").mockReturnValue({
+                sub: "sub",
+                a: "apple",
+                b: "banana",
+            });
+            mocked(subject["_userInfoService"].getClaims).mockResolvedValue({ sub: "sub", c: "carrot" });
 
             // act
             await subject.validateSigninResponse(stubResponse, stubState);
@@ -287,6 +306,7 @@ describe("ResponseValidator", () => {
             // assert
             expect(subject["_userInfoService"].getClaims).toHaveBeenCalledWith("access_token");
             expect(stubResponse.profile).toEqual({
+                sub: "sub",
                 a: "apple",
                 b: "banana",
                 c: "carrot",
@@ -297,8 +317,7 @@ describe("ResponseValidator", () => {
             // arrange
             Object.assign(settings, { loadUserInfo: true });
             Object.assign(stubResponse, {
-                isOpenIdConnect: false,
-                profile: { a: "apple", b: "banana" },
+                isOpenId: false,
                 access_token: "access_token",
             });
 
@@ -313,9 +332,14 @@ describe("ResponseValidator", () => {
             // arrange
             Object.assign(settings, { loadUserInfo: false });
             Object.assign(stubResponse, {
-                isOpenIdConnect: true,
-                profile: { a: "apple", b: "banana" },
+                isOpenId: true,
                 access_token: "access_token",
+                id_token: "id_token",
+            });
+            jest.spyOn(JwtUtils, "decode").mockReturnValue({
+                sub: "sub",
+                a: "apple",
+                b: "banana",
             });
 
             // act
@@ -329,8 +353,13 @@ describe("ResponseValidator", () => {
             // arrange
             Object.assign(settings, { loadUserInfo: true });
             Object.assign(stubResponse, {
-                isOpenIdConnect: true,
-                profile: { a: "apple", b: "banana" },
+                isOpenId: true,
+                id_token: "id_token",
+            });
+            jest.spyOn(JwtUtils, "decode").mockReturnValue({
+                sub: "sub",
+                a: "apple",
+                b: "banana",
             });
 
             // act
@@ -419,7 +448,7 @@ describe("ResponseValidator", () => {
             // arrange
             Object.assign(stubResponse, { code: "code" });
             Object.assign(stubState, { code_verifier: "code_verifier" });
-            const tokenResponse = { expires_in: "42" };
+            const tokenResponse = { expires_in: 42 };
             mocked(subject["_tokenClient"].exchangeCode).mockResolvedValue(tokenResponse);
 
             // act
@@ -431,7 +460,7 @@ describe("ResponseValidator", () => {
 
         it("should validate and decode id_token if response has id_token", async () => {
             // arrange
-            Object.assign(stubResponse, { id_token: "id_token" });
+            Object.assign(stubResponse, { id_token: "id_token", isOpenId: true });
             const profile = { sub: "sub" };
             jest.spyOn(JwtUtils, "decode").mockReturnValue(profile);
 
@@ -445,7 +474,7 @@ describe("ResponseValidator", () => {
 
         it("should fail if id_token does not contain sub", async () => {
             // arrange
-            Object.assign(stubResponse, { id_token: "id_token" });
+            Object.assign(stubResponse, { id_token: "id_token", isOpenId: true });
             jest.spyOn(JwtUtils, "decode").mockReturnValue({ a: "a" });
 
             // act

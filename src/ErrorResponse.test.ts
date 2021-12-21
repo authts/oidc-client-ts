@@ -47,7 +47,7 @@ describe("ErrorResponse", () => {
 
         it("should read state", () => {
             // act
-            const subject = new ErrorResponse({ error:"error", state:"foo" });
+            const subject = new ErrorResponse({ error:"error", userState:"foo" });
 
             // assert
             expect(subject.state).toEqual("foo");
