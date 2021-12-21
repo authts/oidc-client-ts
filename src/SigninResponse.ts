@@ -10,7 +10,7 @@ const OidcScope = "openid";
  * @public
  */
 export class SigninResponse {
-    public readonly code: string;
+    public readonly code: string | undefined;
     public readonly state_id: string | undefined;
 
     // updated by ResponseValidator
@@ -54,10 +54,10 @@ export class SigninResponse {
 
         // the default values here are for type safety only
         // ResponseValidator should check if these are empty and throw accordingly
-        this.code = values.get("code") ?? "";
         this.access_token = values.get("access_token") ?? "";
         this.token_type = values.get("token_type") ?? "";
 
+        this.code = values.get("code");
         this.state_id = values.get("state");
         this.id_token = values.get("id_token");
         this.session_state = values.get("session_state");

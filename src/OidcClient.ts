@@ -6,12 +6,14 @@ import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSetting
 import { ResponseValidator } from "./ResponseValidator";
 import { MetadataService } from "./MetadataService";
 import { ErrorResponse } from "./ErrorResponse";
+import type { RefreshState } from "./RefreshState";
 import { SigninRequest } from "./SigninRequest";
 import { SigninResponse } from "./SigninResponse";
 import { SignoutRequest, SignoutRequestArgs } from "./SignoutRequest";
 import { SignoutResponse } from "./SignoutResponse";
 import { SigninState } from "./SigninState";
 import { State } from "./State";
+import { TokenClient } from "./TokenClient";
 
 /**
  * @public
@@ -61,6 +63,7 @@ export class OidcClient {
 
     public readonly metadataService: MetadataService;
     protected readonly _validator: ResponseValidator;
+    protected readonly _tokenClient: TokenClient;
 
     public constructor(settings: OidcClientSettings) {
         this.settings = new OidcClientSettingsStore(settings);
@@ -68,30 +71,31 @@ export class OidcClient {
 
         this.metadataService = new MetadataService(this.settings);
         this._validator = new ResponseValidator(this.settings, this.metadataService);
+        this._tokenClient = new TokenClient(this.settings, this.metadataService);
     }
 
     public async createSigninRequest({
-        response_type, scope, redirect_uri,
         state,
-        prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
-        resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo,
+        request,
+        request_uri,
+        request_type,
+        id_token_hint,
+        login_hint,
+        skipUserInfo,
+        response_type = this.settings.response_type,
+        scope = this.settings.scope,
+        redirect_uri = this.settings.redirect_uri,
+        prompt = this.settings.prompt,
+        display = this.settings.display,
+        max_age = this.settings.max_age,
+        ui_locales = this.settings.ui_locales,
+        acr_values = this.settings.acr_values,
+        resource = this.settings.resource,
+        response_mode = this.settings.response_mode,
+        extraQueryParams = this.settings.extraQueryParams,
+        extraTokenParams = this.settings.extraTokenParams,
     }: CreateSigninRequestArgs): Promise<SigninRequest> {
         this._logger.debug("createSigninRequest");
-
-        response_type = response_type || this.settings.response_type;
-        scope = scope || this.settings.scope;
-        redirect_uri = redirect_uri || this.settings.redirect_uri;
-
-        // id_token_hint, login_hint aren't allowed on _settings
-        prompt = prompt || this.settings.prompt;
-        display = display || this.settings.display;
-        max_age = max_age || this.settings.max_age;
-        ui_locales = ui_locales || this.settings.ui_locales;
-        acr_values = acr_values || this.settings.acr_values;
-        resource = resource || this.settings.resource;
-        response_mode = response_mode || this.settings.response_mode;
-        extraQueryParams = extraQueryParams || this.settings.extraQueryParams;
-        extraTokenParams = extraTokenParams || this.settings.extraTokenParams;
 
         if (response_type !== "code") {
             throw new Error("Only the Authorization Code flow (with PKCE) is supported");
@@ -147,17 +151,31 @@ export class OidcClient {
 
         const { state, response } = await this.readSigninResponseState(url, true);
         this._logger.debug("processSigninResponse: Received state from storage; validating response");
-        return await this._validator.validateSigninResponse(state, response);
+        await this._validator.validateSigninResponse(response, state);
+        return response;
+    }
+
+    public async useRefreshToken(state: RefreshState): Promise<SigninResponse> {
+        this._logger.debug("useRefreshToken");
+
+        const result = await this._tokenClient.exchangeRefreshToken({
+            refresh_token: state.refresh_token,
+        });
+        const response = new SigninResponse(new URLSearchParams());
+        Object.assign(response, result);
+        this._logger.debug("useRefreshToken: validating response", response);
+        await this._validator.validateRefreshResponse(response, state);
+        return response;
     }
 
     public async createSignoutRequest({
         state,
-        id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type,
+        id_token_hint,
+        request_type,
+        post_logout_redirect_uri = this.settings.post_logout_redirect_uri,
+        extraQueryParams = this.settings.extraQueryParams,
     }: CreateSignoutRequestArgs = {}): Promise<SignoutRequest> {
         this._logger.debug("createSignoutRequest");
-
-        post_logout_redirect_uri = post_logout_redirect_uri || this.settings.post_logout_redirect_uri;
-        extraQueryParams = extraQueryParams || this.settings.extraQueryParams;
 
         const url = await this.metadataService.getEndSessionEndpoint();
         if (!url) {
@@ -220,15 +238,24 @@ export class OidcClient {
         const { state, response } = await this.readSignoutResponseState(url, true);
         if (state) {
             this._logger.debug("processSignoutResponse: Received state from storage; validating response");
-            return this._validator.validateSignoutResponse(state, response);
+            this._validator.validateSignoutResponse(response, state);
+        } else {
+            this._logger.debug("processSignoutResponse: No state from storage; skipping validating response");
         }
 
-        this._logger.debug("processSignoutResponse: No state from storage; skipping validating response");
         return response;
     }
 
     public clearStaleState(): Promise<void> {
         this._logger.debug("clearStaleState");
         return State.clearStaleState(this.settings.stateStore, this.settings.staleStateAgeInSeconds);
+    }
+
+    public async revokeToken(token: string, type?: "access_token" | "refresh_token"): Promise<void> {
+        this._logger.debug("revokeToken");
+        return await this._tokenClient.revoke({
+            token,
+            token_type_hint: type,
+        });
     }
 }

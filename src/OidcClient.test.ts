@@ -1,15 +1,17 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./utils";
+import { JwtPayload, JwtUtils, Log } from "./utils";
 import { OidcClient } from "./OidcClient";
-import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
+import { OidcClientSettingsStore } from "./OidcClientSettings";
 import { SigninState } from "./SigninState";
 import { State } from "./State";
 import { SigninRequest } from "./SigninRequest";
 import { SignoutRequest } from "./SignoutRequest";
 import { SignoutResponse } from "./SignoutResponse";
 import type { ErrorResponse } from "./ErrorResponse";
+import { RefreshState } from "./RefreshState";
+import { SigninResponse } from "./SigninResponse";
 
 describe("OidcClient", () => {
     let subject: OidcClient;
@@ -18,16 +20,16 @@ describe("OidcClient", () => {
         Log.logger = console;
         Log.level = Log.NONE;
 
-        // restore spyOn
-        jest.restoreAllMocks();
-
-        const settings: OidcClientSettings = {
+        subject = new OidcClient({
             authority: "authority",
             client_id: "client",
             redirect_uri: "redirect",
             post_logout_redirect_uri: "http://app",
-        };
-        subject = new OidcClient(settings);
+        });
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     describe("constructor", () => {
@@ -47,24 +49,6 @@ describe("OidcClient", () => {
     });
 
     describe("createSigninRequest", () => {
-
-        it("should return a promise", async () => {
-            // arrange
-            const args = {
-                redirect_uri: "redirect",
-                response_type: "response",
-                scope: "scope",
-            };
-            jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
-
-            // act
-            const p = subject.createSigninRequest(args);
-
-            // assert
-            expect(p).toBeInstanceOf(Promise);
-            // eslint-disable-next-line no-empty
-            try { await p; } catch {}
-        });
 
         it("should return SigninRequest", async () => {
             // arrange
@@ -242,16 +226,6 @@ describe("OidcClient", () => {
 
     describe("readSigninResponseState", () => {
 
-        it("should return a promise", async () => {
-            // act
-            const p = subject.readSigninResponseState("http://app/cb?state=state");
-
-            // asssert
-            expect(p).toBeInstanceOf(Promise);
-            // eslint-disable-next-line no-empty
-            try { await p; } catch {}
-        });
-
         it("should fail if no state on response", async () => {
             // arrange
             jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve("state"));
@@ -307,16 +281,6 @@ describe("OidcClient", () => {
     });
 
     describe("processSigninResponse", () => {
-        it("should return a promise", async () => {
-            // act
-            const p = subject.processSigninResponse("http://app/cb?state=state");
-
-            // assert
-            expect(p).toBeInstanceOf(Promise);
-            // eslint-disable-next-line no-empty
-            try { await p; } catch {}
-        });
-
         it("should fail if no state on response", async () => {
             // arrange
             jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve("state"));
@@ -358,33 +322,91 @@ describe("OidcClient", () => {
                 request_type: "type",
             });
             jest.spyOn(subject.settings.stateStore, "remove")
-                .mockImplementation(() => Promise.resolve(item.toStorageString()));
+                .mockImplementation(async () => item.toStorageString());
             const validateSigninResponseMock = jest.spyOn(subject["_validator"], "validateSigninResponse")
-                .mockImplementation((_s, r) => Promise.resolve(r));
+                .mockResolvedValue();
 
             // act
             const response = await subject.processSigninResponse("http://app/cb?state=1");
 
             // assert
-            expect(validateSigninResponseMock).toBeCalledWith(item, response);
+            expect(validateSigninResponseMock).toBeCalledWith(response, item);
+        });
+    });
+
+    describe("useRefreshToken", () => {
+        it("should return a SigninResponse", async () => {
+            // arrange
+            const tokenResponse = {
+                access_token: "new_access_token",
+                scope: "replacement scope",
+            };
+            jest.spyOn(subject["_tokenClient"], "exchangeRefreshToken").mockResolvedValue(tokenResponse);
+            const state = new RefreshState({
+                refresh_token: "refresh_token",
+                id_token: "id_token",
+                scope: "openid",
+            });
+
+            // act
+            const response = await subject.useRefreshToken(state);
+
+            // assert
+            expect(response).toBeInstanceOf(SigninResponse);
+            expect(response).toMatchObject(tokenResponse);
+        });
+
+        it("should preserve the scope", async () => {
+            // arrange
+            const tokenResponse = {
+                access_token: "new_access_token",
+            };
+            jest.spyOn(subject["_tokenClient"], "exchangeRefreshToken").mockResolvedValue(tokenResponse);
+            const state = new RefreshState({
+                refresh_token: "refresh_token",
+                id_token: "id_token",
+                scope: "openid",
+            });
+
+            // act
+            const response = await subject.useRefreshToken(state);
+
+            // assert
+            expect(response).toBeInstanceOf(SigninResponse);
+            expect(response).toMatchObject(tokenResponse);
+            expect(response).toHaveProperty("scope", state.scope);
+        });
+
+        it("should enforce a matching sub claim", async () => {
+            // arrange
+            const profiles: Record<string, JwtPayload> = {
+                id_token: {
+                    sub: "current_sub",
+                },
+                new_id_token: {
+                    sub: "new_sub",
+                },
+            };
+            const tokenResponse = {
+                access_token: "new_access_token",
+                id_token: "new_id_token",
+            };
+            jest.spyOn(subject["_tokenClient"], "exchangeRefreshToken").mockResolvedValue(tokenResponse);
+            jest.spyOn(JwtUtils, "decode").mockImplementation((token) => profiles[token]);
+            const state = new RefreshState({
+                refresh_token: "refresh_token",
+                id_token: "id_token",
+                scope: "openid",
+            });
+
+            // act
+            await expect(subject.useRefreshToken(state))
+                // assert
+                .rejects.toThrow("sub in id_token does not match current sub");
         });
     });
 
     describe("createSignoutRequest", () => {
-
-        it("should return a promise", async () => {
-            // arrange
-            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
-
-            // act
-            const p = subject.createSignoutRequest();
-
-            // assert
-            expect(p).toBeInstanceOf(Promise);
-            // eslint-disable-next-line no-empty
-            try { await p; } catch {}
-        });
-
         it("should return SignoutRequest", async () => {
             // arrange
             jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
@@ -564,13 +586,13 @@ describe("OidcClient", () => {
             jest.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(() => Promise.resolve(item.toStorageString()));
             const validateSignoutResponse = jest.spyOn(subject["_validator"], "validateSignoutResponse")
-                .mockImplementation((_s, r) => r);
+                .mockReturnValue();
 
             // act
             const response = await subject.processSignoutResponse("http://app/cb?state=1&error=foo");
 
             // assert
-            expect(validateSignoutResponse).toBeCalledWith(item, response);
+            expect(validateSignoutResponse).toBeCalledWith(response, item);
         });
     });
 
@@ -627,15 +649,15 @@ describe("OidcClient", () => {
                 request_type: "type",
             });
             jest.spyOn(subject.settings.stateStore, "remove")
-                .mockImplementation(() => Promise.resolve(item.toStorageString()));
+                .mockImplementation(async () => item.toStorageString());
             const validateSignoutResponse = jest.spyOn(subject["_validator"], "validateSignoutResponse")
-                .mockImplementation((_s, r) => r);
+                .mockReturnValue();
 
             // act
             const response = await subject.processSignoutResponse("http://app/cb?state=1");
 
             // assert
-            expect(validateSignoutResponse).toBeCalledWith(item, response);
+            expect(validateSignoutResponse).toBeCalledWith(response, item);
         });
 
         it("should call validator with state even if error in response", async () => {
@@ -646,29 +668,19 @@ describe("OidcClient", () => {
                 request_type: "type",
             });
             jest.spyOn(subject.settings.stateStore, "remove")
-                .mockImplementation(() => Promise.resolve(item.toStorageString()));
+                .mockImplementation(async () => item.toStorageString());
             const validateSignoutResponse = jest.spyOn(subject["_validator"], "validateSignoutResponse")
-                .mockImplementation((_s, r) => r);
+                .mockReturnValue();
 
             // act
             const response = await subject.processSignoutResponse("http://app/cb?state=1&error=foo");
 
             // assert
-            expect(validateSignoutResponse).toBeCalledWith(item, response);
+            expect(validateSignoutResponse).toBeCalledWith(response, item);
         });
     });
 
     describe("clearStaleState", () => {
-
-        it("should return a promise", async () => {
-            // act
-            const p = subject.clearStaleState();
-
-            // assert
-            expect(p).toBeInstanceOf(Promise);
-            // eslint-disable-next-line no-empty
-            try { await p; } catch {}
-        });
 
         it("should call State.clearStaleState", async () => {
             // arrange
@@ -679,6 +691,22 @@ describe("OidcClient", () => {
 
             // assert
             expect(clearStaleState).toBeCalled();
+        });
+    });
+
+    describe("revokeToken", () => {
+        it("revokes a token type", async () => {
+            // arrange
+            const revokeSpy = jest.spyOn(subject["_tokenClient"], "revoke").mockResolvedValue();
+
+            // act
+            await subject.revokeToken("token", "access_token");
+
+            // assert
+            expect(revokeSpy).toHaveBeenCalledWith({
+                token: "token",
+                token_type_hint: "access_token",
+            });
         });
     });
 });

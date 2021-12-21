@@ -1,12 +1,12 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, Logger } from "./utils";
+import { Log } from "./utils";
 import type { PopupWindow } from "./navigators";
 import type { SigninResponse } from "./SigninResponse";
 import type { SignoutResponse } from "./SignoutResponse";
 import { UserManager, SigninPopupArgs, SigninRedirectArgs, SigninSilentArgs } from "./UserManager";
-import { UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
+import { UserManagerSettingsStore } from "./UserManagerSettings";
 import { User } from "./User";
 import { WebStorageStateStore } from "./WebStorageStateStore";
 import type { SigninState } from "./SigninState";
@@ -15,8 +15,6 @@ import type { State } from "./State";
 import { mocked } from "jest-mock";
 
 describe("UserManager", () => {
-    let settings: UserManagerSettings;
-    let logger: Logger;
     let userStoreMock: WebStorageStateStore;
 
     let subject: UserManager;
@@ -27,9 +25,8 @@ describe("UserManager", () => {
         localStorage.clear();
 
         userStoreMock = new WebStorageStateStore();
-        logger = new Logger("UserManager.test");
 
-        settings = {
+        subject = new UserManager({
             authority: "http://sts/oidc",
             client_id: "client",
             redirect_uri: "http://app/cb",
@@ -40,8 +37,7 @@ describe("UserManager", () => {
                 token_endpoint: "http://sts/oidc/token",
                 revocation_endpoint: "http://sts/oidc/revoke",
             },
-        };
-        subject = new UserManager(settings);
+        });
 
         const location = Object.defineProperties({}, {
             ...Object.getOwnPropertyDescriptors(window.location),
@@ -77,8 +73,7 @@ describe("UserManager", () => {
     describe("getUser", () => {
         it("should be able to call getUser without recursion", () => {
             // arrange
-            subject.events.addUserLoaded(async (user) => {
-                logger.debug("event.load", user);
+            subject.events.addUserLoaded(async () => {
                 await subject.getUser();
             });
 
@@ -141,21 +136,15 @@ describe("UserManager", () => {
                 refresh_token: "bar",
             };
             subject["_loadUser"] = jest.fn().mockReturnValue(user);
-            const revokeSpy = jest.spyOn(subject["_tokenClient"], "revoke").mockResolvedValue(undefined);
+            const revokeSpy = jest.spyOn(subject["_client"], "revokeToken").mockResolvedValue(undefined);
             const storeUserSpy = jest.spyOn(subject, "storeUser").mockResolvedValue(undefined);
 
             // act
             await subject.revokeTokens(["access_token", "refresh_token"]);
 
             // assert
-            expect(revokeSpy).toHaveBeenNthCalledWith(1, expect.objectContaining({
-                token_type_hint: "access_token",
-                token: "foo",
-            }));
-            expect(revokeSpy).toHaveBeenNthCalledWith(2, expect.objectContaining({
-                token_type_hint: "refresh_token",
-                token: "bar",
-            }));
+            expect(revokeSpy).toHaveBeenNthCalledWith(1, "foo", "access_token");
+            expect(revokeSpy).toHaveBeenNthCalledWith(2, "bar", "refresh_token");
             expect(user).toMatchObject({
                 access_token: "foo",
                 refresh_token: null,
@@ -168,7 +157,7 @@ describe("UserManager", () => {
             subject["_loadUser"] = jest.fn().mockReturnValue({
                 access_token: "foo",
             });
-            const revokeSpy = jest.spyOn(subject["_tokenClient"], "revoke").mockResolvedValue(undefined);
+            const revokeSpy = jest.spyOn(subject["_client"], "revokeToken").mockResolvedValue(undefined);
             jest.spyOn(subject, "storeUser").mockResolvedValue(undefined);
 
             // act
@@ -176,9 +165,7 @@ describe("UserManager", () => {
 
             // assert
             expect(revokeSpy).toHaveBeenCalledTimes(1);
-            expect(revokeSpy).not.toHaveBeenCalledWith(expect.objectContaining({
-                token_type_hint: "refresh_token",
-            }));
+            expect(revokeSpy).not.toHaveBeenCalledWith(expect.anything(), "refresh_token");
         });
 
         it("should succeed with no user session", async () => {
@@ -196,7 +183,7 @@ describe("UserManager", () => {
 
             // assert
             expect(window.location.assign).toHaveBeenCalledWith(
-                expect.stringContaining(settings.metadata!.authorization_endpoint!),
+                expect.stringContaining(subject.settings.metadata!.authorization_endpoint!),
             );
             const [location] = mocked(window.location.assign).mock.calls[0];
             const state = new URL(location).searchParams.get("state");
@@ -254,7 +241,7 @@ describe("UserManager", () => {
             await userStoreMock.set("test", JSON.stringify({
                 id: "test",
                 request_type: "si:r",
-                ...settings,
+                ...subject.settings,
             }));
 
             // act
@@ -347,12 +334,10 @@ describe("UserManager", () => {
                 profile: {},
             });
 
-            settings = {
-                ...settings,
+            Object.assign(subject.settings, {
                 silentRequestTimeoutInSeconds: 123,
                 silent_redirect_uri: "http://client/silent_callback",
-            };
-            subject = new UserManager(settings);
+            });
             subject["_signin"] = jest.fn().mockResolvedValue(user);
 
             // act
@@ -420,15 +405,41 @@ describe("UserManager", () => {
                 token_type: "token_type",
                 profile: {},
             });
-            settings = {
-                ...settings,
+            Object.assign(subject.settings, {
                 silent_redirect_uri: "http://client/silent_callback",
-            };
-            subject = new UserManager(settings);
+            });
             subject["_signin"] = jest.fn().mockResolvedValue(user);
 
             // act
             await subject.signinSilent();
+        });
+
+        it("should use the refresh_token grant when a refresh token is present", async () => {
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                refresh_token: "refresh_token",
+                profile: {
+                    sub: "sub",
+                    nickname: "Nick",
+                },
+            });
+
+            const useRefreshTokenSpy = jest.spyOn(subject["_client"], "useRefreshToken").mockResolvedValue({
+                access_token: "new_access_token",
+                profile: {
+                    sub: "sub",
+                    nickname: "Nicholas",
+                },
+            } as unknown as SigninResponse);
+            subject["_loadUser"] = jest.fn().mockResolvedValue(user);
+
+            // act
+            const refreshedUser = await subject.signinSilent();
+            expect(refreshedUser).toHaveProperty("access_token", "new_access_token");
+            expect(refreshedUser!.profile).toHaveProperty("nickname", "Nicholas");
+            expect(useRefreshTokenSpy).toBeCalledWith(expect.objectContaining({ refresh_token: user.refresh_token }));
         });
     });
 

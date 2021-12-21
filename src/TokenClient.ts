@@ -16,7 +16,7 @@ export interface ExchangeCodeArgs {
 
     grant_type?: string;
     code: string;
-    code_verifier: string;
+    code_verifier?: string;
 }
 
 /**
@@ -35,7 +35,7 @@ export interface ExchangeRefreshTokenArgs {
  */
 export interface RevokeArgs {
     token: string;
-    token_type_hint: "access_token" | "refresh_token";
+    token_type_hint?: "access_token" | "refresh_token";
 }
 
 /**
@@ -165,7 +165,7 @@ export class TokenClient {
 
         const url = await this._metadataService.getRevocationEndpoint(false);
 
-        this._logger.debug("revoke: Received revocation endpoint, revoking " + args.token_type_hint);
+        this._logger.debug(`revoke: Received revocation endpoint, revoking ${args.token_type_hint ?? "default type"}`);
 
         const params = new URLSearchParams();
         for (const [key, value] of Object.entries(args)) {

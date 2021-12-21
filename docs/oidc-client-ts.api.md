@@ -228,9 +228,9 @@ export class OidcClient {
     // (undocumented)
     clearStaleState(): Promise<void>;
     // (undocumented)
-    createSigninRequest({ response_type, scope, redirect_uri, state, prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, resource, request, request_uri, response_mode, extraQueryParams, extraTokenParams, request_type, skipUserInfo, }: CreateSigninRequestArgs): Promise<SigninRequest>;
+    createSigninRequest({ state, request, request_uri, request_type, id_token_hint, login_hint, skipUserInfo, response_type, scope, redirect_uri, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, extraQueryParams, extraTokenParams, }: CreateSigninRequestArgs): Promise<SigninRequest>;
     // (undocumented)
-    createSignoutRequest({ state, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type, }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
+    createSignoutRequest({ state, id_token_hint, request_type, post_logout_redirect_uri, extraQueryParams, }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
     // (undocumented)
     protected readonly _logger: Logger;
     // (undocumented)
@@ -250,7 +250,17 @@ export class OidcClient {
         response: SignoutResponse;
     }>;
     // (undocumented)
+    revokeToken(token: string, type?: "access_token" | "refresh_token"): Promise<void>;
+    // (undocumented)
     readonly settings: OidcClientSettingsStore;
+    // Warning: (ae-forgotten-export) The symbol "TokenClient" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    protected readonly _tokenClient: TokenClient;
+    // Warning: (ae-forgotten-export) The symbol "RefreshState" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    useRefreshToken(state: RefreshState): Promise<SigninResponse>;
     // Warning: (ae-forgotten-export) The symbol "ResponseValidator" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -563,7 +573,7 @@ export class SigninResponse {
     // (undocumented)
     access_token: string;
     // (undocumented)
-    readonly code: string;
+    readonly code: string | undefined;
     // (undocumented)
     error: string | undefined;
     // (undocumented)
@@ -740,18 +750,18 @@ export class User {
     });
     access_token: string;
     get expired(): boolean | undefined;
-    expires_at: number | undefined;
+    expires_at?: number;
     get expires_in(): number | undefined;
     set expires_in(value: number | undefined);
     // (undocumented)
     static fromStorageString(storageString: string): User;
-    id_token: string | undefined;
+    id_token?: string;
     profile: UserProfile;
-    refresh_token: string | undefined;
-    scope: string | undefined;
+    refresh_token?: string;
+    scope?: string;
     get scopes(): string[];
-    session_state: string | undefined;
-    readonly state: unknown | undefined;
+    session_state?: string;
+    readonly state: unknown;
     token_type: string;
     // (undocumented)
     toStorageString(): string;
@@ -834,16 +844,10 @@ export class UserManager {
     stopSilentRenew(): void;
     // (undocumented)
     storeUser(user: User | null): Promise<void>;
-    // Warning: (ae-forgotten-export) The symbol "TokenClient" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
-    protected readonly _tokenClient: TokenClient;
-    // (undocumented)
-    protected _useRefreshToken(user: User): Promise<User>;
+    protected _useRefreshToken(state: RefreshState): Promise<User>;
     // (undocumented)
     protected get _userStoreKey(): string;
-    // (undocumented)
-    protected _validateIdTokenFromTokenRefreshToken(profile: UserProfile, id_token: string): Promise<void>;
 }
 
 // @public (undocumented)
