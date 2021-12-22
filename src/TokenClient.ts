@@ -42,17 +42,13 @@ export interface RevokeArgs {
  * @internal
  */
 export class TokenClient {
-    private readonly _settings: OidcClientSettingsStore;
-    private readonly _logger: Logger;
-    private readonly _jsonService: JsonService;
-    private readonly _metadataService: MetadataService;
+    private readonly _logger = new Logger("TokenClient");
+    private readonly _jsonService = new JsonService();
 
-    public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService) {
-        this._settings = settings;
-        this._logger = new Logger("TokenClient");
-        this._jsonService = new JsonService();
-        this._metadataService = metadataService;
-    }
+    public constructor(
+        private readonly _settings: OidcClientSettingsStore,
+        private readonly _metadataService: MetadataService,
+    ) {}
 
     public async exchangeCode({
         grant_type = "authorization_code",

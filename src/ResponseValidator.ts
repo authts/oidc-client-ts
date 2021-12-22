@@ -61,11 +61,7 @@ export class ResponseValidator {
         await this._processCode(response, state);
         this._logger.debug("validateSigninResponse: code processed");
 
-        if (response.expires_in !== undefined) {
-            response.expires_in = Number(response.expires_in);
-        }
-
-        if (response.id_token) {
+        if (response.isOpenId) {
             this._validateIdTokenAttributes(response);
         }
         this._logger.debug("validateSigninResponse: tokens validated");
@@ -77,11 +73,11 @@ export class ResponseValidator {
     public async validateRefreshResponse(response: SigninResponse, state: RefreshState): Promise<void> {
         this._logger.debug("validateRefreshResponse");
 
+        response.userState = state.data;
+        // if there's no scope on the response, then assume all scopes granted (per-spec) and copy over scopes from original request
         response.scope ??= state.scope;
-        if (response.expires_in !== undefined) {
-            response.expires_in = Number(response.expires_in);
-        }
-        if (response.id_token) {
+
+        if (response.isOpenId) {
             this._validateIdTokenAttributes(response, state.id_token);
         }
         this._logger.debug("validateSigninResponse: tokens validated");
@@ -90,7 +86,7 @@ export class ResponseValidator {
     }
 
     public validateSignoutResponse(response: SignoutResponse, state: State): void {
-        if (state.id !== response.state_id) {
+        if (state.id !== response.state) {
             this._logger.error("validateSignoutResponse: State does not match");
             throw new Error("State does not match");
         }
@@ -99,7 +95,7 @@ export class ResponseValidator {
         // and set it into the response so callers can get their state
         // this is important for both success & error outcomes
         this._logger.debug("validateSignoutResponse: state validated");
-        response.state = state.data;
+        response.userState = state.data;
 
         if (response.error) {
             this._logger.warn("validateSignoutResponse: Response was error", response.error);
@@ -108,7 +104,7 @@ export class ResponseValidator {
     }
 
     protected _processSigninState(response: SigninResponse, state: SigninState): void {
-        if (state.id !== response.state_id) {
+        if (state.id !== response.state) {
             this._logger.error("_processSigninState: State does not match");
             throw new Error("State does not match");
         }
@@ -137,7 +133,9 @@ export class ResponseValidator {
         // and set it into the response so callers can get their state
         // this is important for both success & error outcomes
         this._logger.debug("_processSigninState: state validated");
-        response.state = state.data;
+        response.userState = state.data;
+        // if there's no scope on the response, then assume all scopes granted (per-spec) and copy over scopes from original request
+        response.scope ??= state.scope;
 
         if (response.error) {
             this._logger.warn("_processSigninState: Response was error", response.error);
@@ -153,13 +151,10 @@ export class ResponseValidator {
             this._logger.error("_processSigninState: Not expecting code in response");
             throw new Error("Unexpected code in response");
         }
-
-        // if there's no scope on the response, then assume all scopes granted (per-spec) and copy over scopes from original request
-        response.scope ??= state.scope;
     }
 
     protected async _processClaims(response: SigninResponse, skipUserInfo = false): Promise<void> {
-        if (!response.isOpenIdConnect) {
+        if (!response.isOpenId) {
             this._logger.debug("_processClaims: response is not OIDC, not processing claims");
             return;
         }
@@ -251,8 +246,7 @@ export class ResponseValidator {
     protected _validateIdTokenAttributes(response: SigninResponse, currentToken?: string): void {
         this._logger.debug("_validateIdTokenAttributes: Decoding JWT attributes");
 
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const profile = JwtUtils.decode(response.id_token!);
+        const profile = JwtUtils.decode(response.id_token ?? "");
 
         if (!profile.sub) {
             this._logger.error("_validateIdTokenAttributes: No subject present in ID Token");

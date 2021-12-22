@@ -13,18 +13,14 @@ export type AccessTokenCallback = (...ev: unknown[]) => void;
  * @public
  */
 export class AccessTokenEvents {
-    protected _logger: Logger;
+    protected readonly _logger = new Logger("AccessTokenEvents");
 
-    private _expiringNotificationTimeInSeconds: number
-    private _expiringTimer: Timer
-    private _expiredTimer: Timer
+    private readonly _expiringTimer = new Timer("Access token expiring");
+    private readonly _expiredTimer = new Timer("Access token expired");
+    private readonly _expiringNotificationTimeInSeconds: number;
 
-    public constructor({ expiringNotificationTimeInSeconds }: { expiringNotificationTimeInSeconds: number }) {
-        this._logger = new Logger("AccessTokenEvents");
-
-        this._expiringNotificationTimeInSeconds = expiringNotificationTimeInSeconds;
-        this._expiringTimer = new Timer("Access token expiring");
-        this._expiredTimer = new Timer("Access token expired");
+    public constructor(args: { expiringNotificationTimeInSeconds: number }) {
+        this._expiringNotificationTimeInSeconds = args.expiringNotificationTimeInSeconds;
     }
 
     public load(container: User): void {

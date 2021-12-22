@@ -10,91 +10,68 @@ const OidcScope = "openid";
  * @public
  */
 export class SigninResponse {
-    public readonly code: string | undefined;
-    public readonly state_id: string | undefined;
-
-    // updated by ResponseValidator
-    /** @see {@link ErrorResponse.error} */
-    public error: string | undefined;
-    /** @see {@link ErrorResponse.error_description} */
-    public error_description: string | undefined;
-    /** @see {@link ErrorResponse.error_uri} */
-    public error_uri: string | undefined;
-
-    // updated by ResponseValidator
-    /** @see {@link User.id_token} */
-    public id_token: string | undefined;
+    // props present in the initial callback response regardless of success
+    public readonly state: string | null;
     /** @see {@link User.session_state} */
-    public session_state: string | undefined;
+    public readonly session_state: string | null;
+
+    // error props
+    /** @see {@link ErrorResponse.error} */
+    public readonly error: string | null;
+    /** @see {@link ErrorResponse.error_description} */
+    public readonly error_description: string | null;
+    /** @see {@link ErrorResponse.error_uri} */
+    public readonly error_uri: string | null;
+
+    // success props
+    public readonly code: string | null;
+
+    // props set after validation
+    /** @see {@link User.id_token} */
+    public id_token?: string;
     /** @see {@link User.access_token} */
-    public access_token: string;
-    /** @see {@link User.refresh_token} */
-    public refresh_token: string | undefined;
+    public access_token = "";
     /** @see {@link User.token_type} */
-    public token_type: string;
+    public token_type = "";
+    /** @see {@link User.refresh_token} */
+    public refresh_token?: string;
     /** @see {@link User.scope} */
-    public scope: string | undefined;
+    public scope?: string;
     /** @see {@link User.expires_at} */
-    public expires_at: number | undefined;
+    public expires_at?: number;
 
-    // set by ResponseValidator
-    /** custom "state", which can be used by a caller to have "data" round tripped */
-    public state: unknown;
+    /** custom state data set during the initial signin request */
+    public userState: unknown;
 
-    // set by ResponseValidator
     /** @see {@link User.profile} */
     public profile: UserProfile = {};
 
     public constructor(params: URLSearchParams) {
-        // URLSearchParams returns `null` for missing values, reconstruct it as a map
-        const values = new Map(params);
-        this.error = values.get("error");
-        this.error_description = values.get("error_description");
-        this.error_uri = values.get("error_uri");
+        this.state = params.get("state");
+        this.session_state = params.get("session_state");
 
-        // the default values here are for type safety only
-        // ResponseValidator should check if these are empty and throw accordingly
-        this.access_token = values.get("access_token") ?? "";
-        this.token_type = values.get("token_type") ?? "";
+        this.error = params.get("error");
+        this.error_description = params.get("error_description");
+        this.error_uri = params.get("error_uri");
 
-        this.code = values.get("code");
-        this.state_id = values.get("state");
-        this.id_token = values.get("id_token");
-        this.session_state = values.get("session_state");
-        this.refresh_token = values.get("refresh_token");
-        this.scope = values.get("scope");
-        const expiresIn = values.get("expires_in");
-        this.expires_in = expiresIn ? parseInt(expiresIn) : undefined;
+        this.code = params.get("code");
     }
 
     public get expires_in(): number | undefined {
-        if (this.expires_at) {
-            const now = Timer.getEpochTime();
-            return this.expires_at - now;
+        if (this.expires_at === undefined) {
+            return undefined;
         }
-        return undefined;
+        return this.expires_at - Timer.getEpochTime();
     }
     public set expires_in(value: number | undefined) {
-        if (value && value > 0) {
-            const expires_in = Math.floor(value);
-            const now = Timer.getEpochTime();
-            this.expires_at = now + expires_in;
+        // spec expects a number, but normalize here just in case
+        if (typeof value === "string") value = Number(value);
+        if (value !== undefined && value >= 0) {
+            this.expires_at = Math.floor(value) + Timer.getEpochTime();
         }
     }
 
-    public get expired(): boolean | undefined {
-        const expires_in = this.expires_in;
-        if (expires_in !== undefined) {
-            return expires_in <= 0;
-        }
-        return undefined;
-    }
-
-    public get scopes(): string[] {
-        return (this.scope || "").split(" ");
-    }
-
-    public get isOpenIdConnect(): boolean {
-        return this.scopes.indexOf(OidcScope) >= 0 || !!this.id_token;
+    public get isOpenId(): boolean {
+        return this.scope?.split(" ").includes(OidcScope) || !!this.id_token;
     }
 }

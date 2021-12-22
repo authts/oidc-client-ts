@@ -10,11 +10,9 @@ import type { INavigator } from "./INavigator";
  * @internal
  */
 export class IFrameNavigator implements INavigator {
-    private readonly _logger: Logger;
+    private readonly _logger = new Logger("IFrameNavigator");
 
-    constructor(private _settings: UserManagerSettingsStore) {
-        this._logger = new Logger("IFrameNavigator");
-    }
+    constructor(private _settings: UserManagerSettingsStore) {}
 
     public async prepare({
         silentRequestTimeoutInSeconds = this._settings.silentRequestTimeoutInSeconds,

@@ -10,11 +10,9 @@ import type { UserManagerSettingsStore } from "../UserManagerSettings";
  * @internal
  */
 export class PopupNavigator implements INavigator {
-    private readonly _logger: Logger;
+    private readonly _logger = new Logger("PopupNavigator");
 
-    constructor(private _settings: UserManagerSettingsStore) {
-        this._logger = new Logger("PopupNavigator");
-    }
+    constructor(private _settings: UserManagerSettingsStore) {}
 
     public async prepare({
         popupWindowFeatures = this._settings.popupWindowFeatures,

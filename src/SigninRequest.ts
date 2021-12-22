@@ -42,7 +42,7 @@ export interface SigninRequestArgs {
  * @public
  */
 export class SigninRequest {
-    private readonly _logger: Logger;
+    private readonly _logger = new Logger("SigninRequest");
 
     public readonly url: string;
     public readonly state: SigninState;
@@ -57,8 +57,6 @@ export class SigninRequest {
         extraTokenParams,
         ...optionalParams
     }: SigninRequestArgs) {
-        this._logger = new Logger("SigninRequest");
-
         if (!url) {
             this._logger.error("ctor: No url passed");
             throw new Error("url");

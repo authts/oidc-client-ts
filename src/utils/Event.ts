@@ -12,15 +12,11 @@ export type Callback<EventType extends unknown[]> = (...ev: EventType) => (Promi
  * @internal
  */
 export class Event<EventType extends unknown[]> {
-    protected readonly _name: string;
-    protected readonly _logger: Logger;
+    protected readonly _logger = new Logger(`Event(${this._name})`);
 
     private _callbacks: Array<Callback<EventType>> = [];
 
-    public constructor(name: string) {
-        this._name = name;
-        this._logger = new Logger(`Event(${name})`);
-    }
+    public constructor(protected readonly _name: string) {}
 
     public addHandler(cb: Callback<EventType>): () => void {
         this._callbacks.push(cb);

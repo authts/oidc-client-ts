@@ -73,7 +73,7 @@ export class User {
     public id_token?: string;
 
     /** The session state value returned from the OIDC provider. */
-    public session_state?: string;
+    public session_state: string | null;
 
     /**
      * The requested access token returned from the OIDC provider. The application can use this token to
@@ -100,17 +100,22 @@ export class User {
     /** The expires at returned from the OIDC provider. */
     public expires_at?: number;
 
-    /** custom "state", which can be used by a caller to have "data" round tripped */
+    /** custom state data set during the initial signin request */
     public readonly state: unknown;
 
     public constructor(args: {
-        id_token?: string; session_state?: string;
-        access_token: string; refresh_token?: string;
-        token_type: string; scope?: string; profile: UserProfile; expires_at?: number;
-        state?: unknown;
+        id_token?: string;
+        session_state?: string | null;
+        access_token: string;
+        refresh_token?: string;
+        token_type: string;
+        scope?: string;
+        profile: UserProfile;
+        expires_at?: number;
+        userState?: unknown;
     }) {
         this.id_token = args.id_token;
-        this.session_state = args.session_state;
+        this.session_state = args.session_state ?? null;
         this.access_token = args.access_token;
         this.refresh_token = args.refresh_token;
 
@@ -118,37 +123,35 @@ export class User {
         this.scope = args.scope;
         this.profile = args.profile;
         this.expires_at = args.expires_at;
-        this.state = args.state;
+        this.state = args.userState;
     }
 
-    /** Calculated number of seconds the access token has remaining. */
+    /** Computed number of seconds the access token has remaining. */
     public get expires_in(): number | undefined {
-        if (this.expires_at) {
-            const now = Timer.getEpochTime();
-            return this.expires_at - now;
+        if (this.expires_at === undefined) {
+            return undefined;
         }
-        return undefined;
+        return this.expires_at - Timer.getEpochTime();
     }
+
     public set expires_in(value: number | undefined) {
-        if (value && value > 0) {
-            const expires_in = Math.floor(value);
-            const now = Timer.getEpochTime();
-            this.expires_at = now + expires_in;
+        if (value !== undefined) {
+            this.expires_at = Math.floor(value) + Timer.getEpochTime();
         }
     }
 
-    /** Calculated value indicating if the access token is expired. */
+    /** Computed value indicating if the access token is expired. */
     public get expired(): boolean | undefined {
         const expires_in = this.expires_in;
-        if (expires_in !== undefined) {
-            return expires_in <= 0;
+        if (expires_in === undefined) {
+            return undefined;
         }
-        return undefined;
+        return expires_in <= 0;
     }
 
     /** Array representing the parsed values from the `scope`. */
     public get scopes(): string[] {
-        return (this.scope || "").split(" ");
+        return this.scope?.split(" ") ?? [];
     }
 
     public toStorageString(): string {

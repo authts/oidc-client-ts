@@ -9,7 +9,7 @@ export type AccessTokenCallback = (...ev: unknown[]) => void;
 
 // @public (undocumented)
 export class AccessTokenEvents {
-    constructor({ expiringNotificationTimeInSeconds }: {
+    constructor(args: {
         expiringNotificationTimeInSeconds: number;
     });
     addAccessTokenExpired(cb: AccessTokenCallback): () => void;
@@ -17,7 +17,7 @@ export class AccessTokenEvents {
     // (undocumented)
     load(container: User): void;
     // (undocumented)
-    protected _logger: Logger;
+    protected readonly _logger: Logger;
     removeAccessTokenExpired(cb: AccessTokenCallback): void;
     removeAccessTokenExpiring(cb: AccessTokenCallback): void;
     // (undocumented)
@@ -86,21 +86,21 @@ export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url" | "state_d
 // @public
 export class ErrorResponse extends Error {
     constructor(args: {
-        error?: string;
-        error_description?: string;
-        error_uri?: string;
-        state?: unknown;
-        session_state?: string;
+        error?: string | null;
+        error_description?: string | null;
+        error_uri?: string | null;
+        userState?: unknown;
+        session_state?: string | null;
     },
     form?: URLSearchParams | undefined);
-    readonly error: string;
-    readonly error_description: string | undefined;
-    readonly error_uri: string | undefined;
+    readonly error: string | null;
+    readonly error_description: string | null;
+    readonly error_uri: string | null;
     readonly form?: URLSearchParams | undefined;
     readonly name: string;
     // (undocumented)
-    readonly session_state: string | undefined;
-    state: unknown | undefined;
+    readonly session_state: string | null;
+    state?: unknown;
 }
 
 // @public (undocumented)
@@ -129,7 +129,6 @@ export interface ILogger {
 
 // @public (undocumented)
 export class InMemoryWebStorage implements Storage {
-    constructor();
     // (undocumented)
     clear(): void;
     // (undocumented)
@@ -189,7 +188,7 @@ export class Logger {
 
 // @public (undocumented)
 export class MetadataService {
-    constructor(settings: OidcClientSettingsStore);
+    constructor(_settings: OidcClientSettingsStore);
     // (undocumented)
     getAuthorizationEndpoint(): Promise<string>;
     // (undocumented)
@@ -476,7 +475,7 @@ export type RevokeTokensTypes = UserManagerSettings["revokeTokenTypes"];
 
 // @public (undocumented)
 export class SessionMonitor {
-    constructor(userManager: UserManager);
+    constructor(_userManager: UserManager);
     // (undocumented)
     protected _callback: () => Promise<void>;
     // (undocumented)
@@ -573,39 +572,35 @@ export class SigninResponse {
     // (undocumented)
     access_token: string;
     // (undocumented)
-    readonly code: string | undefined;
+    readonly code: string | null;
     // (undocumented)
-    error: string | undefined;
+    readonly error: string | null;
     // (undocumented)
-    error_description: string | undefined;
+    readonly error_description: string | null;
     // (undocumented)
-    error_uri: string | undefined;
+    readonly error_uri: string | null;
     // (undocumented)
-    get expired(): boolean | undefined;
-    // (undocumented)
-    expires_at: number | undefined;
+    expires_at?: number;
     // (undocumented)
     get expires_in(): number | undefined;
     set expires_in(value: number | undefined);
     // (undocumented)
-    id_token: string | undefined;
+    id_token?: string;
     // (undocumented)
-    get isOpenIdConnect(): boolean;
+    get isOpenId(): boolean;
     // (undocumented)
     profile: UserProfile;
     // (undocumented)
-    refresh_token: string | undefined;
+    refresh_token?: string;
     // (undocumented)
-    scope: string | undefined;
+    scope?: string;
     // (undocumented)
-    get scopes(): string[];
+    readonly session_state: string | null;
     // (undocumented)
-    session_state: string | undefined;
-    state: unknown;
-    // (undocumented)
-    readonly state_id: string | undefined;
+    readonly state: string | null;
     // (undocumented)
     token_type: string;
+    userState: unknown;
 }
 
 // @public (undocumented)
@@ -687,14 +682,14 @@ export interface SignoutRequestArgs {
 export class SignoutResponse {
     constructor(params: URLSearchParams);
     // (undocumented)
-    error: string | undefined;
+    error: string | null;
     // (undocumented)
-    error_description: string | undefined;
+    error_description: string | null;
     // (undocumented)
-    error_uri: string | undefined;
-    state: unknown;
+    error_uri: string | null;
     // (undocumented)
-    readonly state_id: string | undefined;
+    readonly state: string | null;
+    userState: unknown;
 }
 
 // @public (undocumented)
@@ -739,14 +734,14 @@ export interface StateStore {
 export class User {
     constructor(args: {
         id_token?: string;
-        session_state?: string;
+        session_state?: string | null;
         access_token: string;
         refresh_token?: string;
         token_type: string;
         scope?: string;
         profile: UserProfile;
         expires_at?: number;
-        state?: unknown;
+        userState?: unknown;
     });
     access_token: string;
     get expired(): boolean | undefined;
@@ -760,7 +755,7 @@ export class User {
     refresh_token?: string;
     scope?: string;
     get scopes(): string[];
-    session_state?: string;
+    session_state: string | null;
     readonly state: unknown;
     token_type: string;
     // (undocumented)
@@ -861,6 +856,8 @@ export class UserManagerEvents extends AccessTokenEvents {
     addUserUnloaded(cb: UserUnloadedCallback): () => void;
     // (undocumented)
     load(user: User, raiseEvent?: boolean): void;
+    // (undocumented)
+    protected readonly _logger: Logger;
     // @internal (undocumented)
     _raiseSilentRenewError(e: Error): void;
     // @internal (undocumented)

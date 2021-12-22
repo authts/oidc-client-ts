@@ -10,22 +10,17 @@ import type { User } from "./User";
  * @public
  */
 export class SessionMonitor {
-    private readonly _logger: Logger;
+    private readonly _logger = new Logger("SessionMonitor");
 
-    private readonly _userManager: UserManager;
     private _sub: string | undefined;
     private _sid: string | undefined;
     private _checkSessionIFrame?: CheckSessionIFrame;
 
-    public constructor(userManager: UserManager) {
-        this._logger = new Logger("SessionMonitor");
-
-        if (!userManager) {
+    public constructor(private readonly _userManager: UserManager) {
+        if (!_userManager) {
             this._logger.error("ctor: No user manager passed to SessionMonitor");
             throw new Error("userManager");
         }
-
-        this._userManager = userManager;
 
         this._userManager.events.addUserLoaded(this._start);
         this._userManager.events.addUserUnloaded(this._stop);

@@ -35,23 +35,17 @@ export type UserSessionChangedCallback = () => Promise<void> | void;
  * @public
  */
 export class UserManagerEvents extends AccessTokenEvents {
-    private _userLoaded: Event<[User]>;
-    private _userUnloaded: Event<[void]>;
-    private _silentRenewError: Event<[Error]>;
-    private _userSignedIn: Event<[void]>;
-    private _userSignedOut: Event<[void]>;
-    private _userSessionChanged: Event<[void]>;
+    protected readonly _logger = new Logger("UserManagerEvents")
+
+    private readonly _userLoaded = new Event<[User]>("User loaded");
+    private readonly _userUnloaded = new Event<[]>("User unloaded");
+    private readonly _silentRenewError = new Event<[Error]>("Silent renew error");
+    private readonly _userSignedIn = new Event<[]>("User signed in");
+    private readonly _userSignedOut = new Event<[]>("User signed out");
+    private readonly _userSessionChanged = new Event<[]>("User session changed");
 
     public constructor(settings: UserManagerSettingsStore) {
         super({ expiringNotificationTimeInSeconds: settings.accessTokenExpiringNotificationTimeInSeconds });
-        this._logger = new Logger("UserManagerEvents");
-
-        this._userLoaded = new Event("User loaded");
-        this._userUnloaded = new Event("User unloaded");
-        this._silentRenewError = new Event("Silent renew error");
-        this._userSignedIn = new Event("User signed in");
-        this._userSignedOut = new Event("User signed out");
-        this._userSessionChanged = new Event("User session changed");
     }
 
     public load(user: User, raiseEvent=true): void {

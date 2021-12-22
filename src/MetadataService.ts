@@ -12,21 +12,15 @@ const OidcMetadataUrlPath = ".well-known/openid-configuration";
  * @public
  */
 export class MetadataService {
-    private readonly _settings: OidcClientSettingsStore;
-    private readonly _logger: Logger;
-    private readonly _jsonService: JsonService;
+    private readonly _logger = new Logger("MetadataService");
+    private readonly _jsonService = new JsonService(["application/jwk-set+json"]);
 
     // cache
-    private _metadataUrl: string | null;
-    private _signingKeys: SigningKey[] | null;
-    private _metadata: Partial<OidcMetadata> | null;
+    private _metadataUrl: string | null = null;
+    private _signingKeys: SigningKey[] | null = null;
+    private _metadata: Partial<OidcMetadata> | null = null;
 
-    public constructor(settings: OidcClientSettingsStore) {
-        this._settings = settings;
-        this._logger = new Logger("MetadataService");
-        this._jsonService = new JsonService(["application/jwk-set+json"]);
-
-        this._metadataUrl = null;
+    public constructor(private readonly _settings: OidcClientSettingsStore) {
         if (this._settings.metadataUrl) {
             this._metadataUrl = this._settings.metadataUrl;
         } else if (this._settings.authority) {
@@ -37,13 +31,11 @@ export class MetadataService {
             this._metadataUrl += OidcMetadataUrlPath;
         }
 
-        this._signingKeys = null;
         if (this._settings.signingKeys) {
             this._logger.debug("ctor: Using signingKeys from settings");
             this._signingKeys = this._settings.signingKeys;
         }
 
-        this._metadata = null;
         if (this._settings.metadata) {
             this._logger.debug("ctor: Using metadata from settings");
             this._metadata = this._settings.metadata;
