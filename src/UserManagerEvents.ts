@@ -35,7 +35,7 @@ export type UserSessionChangedCallback = () => Promise<void> | void;
  * @public
  */
 export class UserManagerEvents extends AccessTokenEvents {
-    protected readonly _logger = new Logger("UserManagerEvents")
+    protected readonly _logger = new Logger("UserManagerEvents");
 
     private readonly _userLoaded = new Event<[User]>("User loaded");
     private readonly _userUnloaded = new Event<[]>("User unloaded");

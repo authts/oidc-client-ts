@@ -59,7 +59,7 @@ export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url" | "state_d
  */
 export class OidcClient {
     public readonly settings: OidcClientSettingsStore;
-    protected readonly _logger = new Logger("OidcClient")
+    protected readonly _logger = new Logger("OidcClient");
 
     public readonly metadataService: MetadataService;
     protected readonly _validator: ResponseValidator;

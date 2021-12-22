@@ -10,8 +10,8 @@ import type { StateStore } from "./StateStore";
 export class WebStorageStateStore implements StateStore {
     private readonly _logger = new Logger("WebStorageStateStore");
 
-    private readonly _store: Storage
-    private readonly _prefix: string
+    private readonly _store: Storage;
+    private readonly _prefix: string;
 
     public constructor({ prefix = "oidc.", store = localStorage } = {}) {
         this._store = store;

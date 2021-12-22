@@ -18,16 +18,16 @@ import { RefreshState } from "./RefreshState";
 /**
  * @public
  */
-export type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "extraQueryParams" | "extraTokenParams" | "state">
+export type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "extraQueryParams" | "extraTokenParams" | "state">;
 /**
  * @public
  */
-export type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQueryParams" | "state">
+export type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQueryParams" | "state">;
 
 /**
  * @public
  */
-export type RevokeTokensTypes = UserManagerSettings["revokeTokenTypes"]
+export type RevokeTokensTypes = UserManagerSettings["revokeTokenTypes"];
 
 /**
  * @public

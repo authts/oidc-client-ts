@@ -48,5 +48,5 @@ export class SilentRenewService {
                 this._logger.error("_tokenExpiring: Error from signinSilent:", error.message);
                 this._userManager.events._raiseSilentRenewError(error);
             });
-    }
+    };
 }
