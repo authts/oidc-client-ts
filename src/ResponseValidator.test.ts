@@ -460,7 +460,7 @@ describe("ResponseValidator", () => {
     describe("_mergeClaims", () => {
         it("should merge claims", () => {
             // arrange
-            const c1 = { a: "apple", b: "banana" } as UserProfile;
+            const c1 = { a: "apple", b: "banana" } as unknown as UserProfile;
             const c2 = { c: "carrot" };
 
             // act
@@ -472,7 +472,7 @@ describe("ResponseValidator", () => {
 
         it("should not merge claims when claim types are objects", () => {
             // arrange
-            const c1 = { custom: { "apple": "foo", "pear": "bar" } } as UserProfile;
+            const c1 = { custom: { "apple": "foo", "pear": "bar" } } as unknown as UserProfile;
             const c2 = { custom: { "apple": "foo", "orange": "peel" }, b: "banana" };
 
             // act
@@ -486,7 +486,7 @@ describe("ResponseValidator", () => {
             // arrange
             Object.assign(settings, { mergeClaims: true });
 
-            const c1 = { custom: { "apple": "foo", "pear": "bar" } } as UserProfile;
+            const c1 = { custom: { "apple": "foo", "pear": "bar" } } as unknown as UserProfile;
             const c2 = { custom: { "apple": "foo", "orange": "peel" }, b: "banana" };
 
             // act
@@ -498,7 +498,7 @@ describe("ResponseValidator", () => {
 
         it("should merge same claim types into array", () => {
             // arrange
-            const c1 = { a: "apple", b: "banana" } as UserProfile;
+            const c1 = { a: "apple", b: "banana" } as unknown as UserProfile;
             const c2 = { a: "carrot" };
 
             // act
@@ -510,7 +510,7 @@ describe("ResponseValidator", () => {
 
         it("should merge arrays of same claim types into array", () => {
             // arrange
-            const c1 = { a: "apple", b: "banana" } as UserProfile;
+            const c1 = { a: "apple", b: "banana" } as unknown as UserProfile;
             const c2 = { a: ["carrot", "durian"] };
 
             // act
@@ -520,7 +520,7 @@ describe("ResponseValidator", () => {
             expect(result).toEqual({ a: ["apple", "carrot", "durian"], b: "banana" });
 
             // arrange
-            const d1 = { a: ["apple", "carrot"], b: "banana" } as UserProfile;
+            const d1 = { a: ["apple", "carrot"], b: "banana" } as unknown as UserProfile;
             const d2 = { a: ["durian"] };
 
             // act
@@ -530,7 +530,7 @@ describe("ResponseValidator", () => {
             expect(result).toEqual({ a: ["apple", "carrot", "durian"], b: "banana" });
 
             // arrange
-            const e1 = { a: ["apple", "carrot"], b: "banana" } as UserProfile;
+            const e1 = { a: ["apple", "carrot"], b: "banana" } as unknown as UserProfile;
             const e2 = { a: "durian" };
 
             // act
@@ -542,7 +542,7 @@ describe("ResponseValidator", () => {
 
         it("should remove duplicates when producing arrays", () => {
             // arrange
-            const c1 = { a: "apple", b: "banana" } as UserProfile;
+            const c1 = { a: "apple", b: "banana" } as unknown as UserProfile;
             const c2 = { a: ["apple", "durian"] };
 
             // act
@@ -554,7 +554,7 @@ describe("ResponseValidator", () => {
 
         it("should not add if already present in array", () => {
             // arrange
-            const c1 = { a: ["apple", "durian"], b: "banana" } as UserProfile;
+            const c1 = { a: ["apple", "durian"], b: "banana" } as unknown as UserProfile;
             const c2 = { a: "apple" };
 
             // act

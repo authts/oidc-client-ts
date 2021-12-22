@@ -8,6 +8,7 @@ import type { SignoutResponse } from "./SignoutResponse";
 import { UserManager, SigninPopupArgs, SigninRedirectArgs, SigninSilentArgs } from "./UserManager";
 import { UserManagerSettingsStore } from "./UserManagerSettings";
 import { User } from "./User";
+import type { UserProfile } from "./User";
 import { WebStorageStateStore } from "./WebStorageStateStore";
 import type { SigninState } from "./SigninState";
 import type { State } from "./State";
@@ -86,7 +87,7 @@ describe("UserManager", () => {
             const user = new User({
                 access_token: "access_token",
                 token_type: "token_type",
-                profile: {},
+                profile: {} as UserProfile,
             });
             subject["_loadUser"] = jest.fn().mockReturnValue(user);
             const loadMock = jest.spyOn(subject["_events"], "load");
@@ -281,7 +282,7 @@ describe("UserManager", () => {
             const user = new User({
                 access_token: "access_token",
                 token_type: "token_type",
-                profile: {},
+                profile: {} as UserProfile,
             });
             const handle = { } as PopupWindow;
             jest.spyOn(subject["_popupNavigator"], "prepare")
@@ -331,7 +332,7 @@ describe("UserManager", () => {
                 id_token: "id_token",
                 access_token: "access_token",
                 token_type: "token_type",
-                profile: {},
+                profile: {} as UserProfile,
             });
 
             Object.assign(subject.settings, {
@@ -368,7 +369,7 @@ describe("UserManager", () => {
             const user = new User({
                 access_token: "access_token",
                 token_type: "token_type",
-                profile: {},
+                profile: {} as UserProfile,
             });
             jest.spyOn(subject["_popupNavigator"], "prepare");
             subject["_signin"] = jest.fn().mockResolvedValue(user);
@@ -403,7 +404,7 @@ describe("UserManager", () => {
             const user = new User({
                 access_token: "access_token",
                 token_type: "token_type",
-                profile: {},
+                profile: {} as UserProfile,
             });
             Object.assign(subject.settings, {
                 silent_redirect_uri: "http://client/silent_callback",
@@ -423,7 +424,7 @@ describe("UserManager", () => {
                 profile: {
                     sub: "sub",
                     nickname: "Nick",
-                },
+                } as UserProfile,
             });
 
             const useRefreshTokenSpy = jest.spyOn(subject["_client"], "useRefreshToken").mockResolvedValue({
@@ -463,7 +464,7 @@ describe("UserManager", () => {
             const user = new User({
                 access_token: "access_token",
                 token_type: "token_type",
-                profile: {},
+                profile: {} as UserProfile,
             });
             const responseState = {
                 state: { request_type: "si:r" } as SigninState,
@@ -599,7 +600,7 @@ describe("UserManager", () => {
             const user = new User({
                 access_token: "access_token",
                 token_type: "token_type",
-                profile: {},
+                profile: {} as UserProfile,
             });
 
             // act
@@ -615,7 +616,7 @@ describe("UserManager", () => {
             const user = new User({
                 access_token: "access_token",
                 token_type: "token_type",
-                profile: {},
+                profile: {} as UserProfile,
             });
             await subject.storeUser(user);
 

@@ -43,7 +43,7 @@ export class SigninResponse {
 
     // set by ResponseValidator
     /** @see {@link User.profile} */
-    public profile: UserProfile = {};
+    public profile: UserProfile = {} as UserProfile;
 
     public constructor(params: URLSearchParams) {
         // URLSearchParams returns `null` for missing values, reconstruct it as a map

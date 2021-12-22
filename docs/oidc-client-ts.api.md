@@ -109,6 +109,20 @@ export type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "extraQueryPa
 // @public (undocumented)
 export type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQueryParams" | "state">;
 
+// Warning: (ae-forgotten-export) The symbol "Mandatory" needs to be exported by the entry point index.d.ts
+//
+// @public
+export interface IdTokenClaims extends Mandatory<OidcStandardClaims, "sub">, Mandatory<JwtClaims, "iss" | "sub" | "aud" | "exp" | "iat"> {
+    // (undocumented)
+    [claim: string]: unknown;
+    acr?: string;
+    amr?: unknown;
+    auth_time?: number;
+    azp?: string;
+    nonce?: string;
+    sid?: string;
+}
+
 // @public (undocumented)
 export interface IFrameWindowParams {
     // (undocumented)
@@ -142,6 +156,19 @@ export class InMemoryWebStorage implements Storage {
     removeItem(key: string): void;
     // (undocumented)
     setItem(key: string, value: string): void;
+}
+
+// @public
+export interface JwtClaims {
+    // (undocumented)
+    [claim: string]: unknown;
+    aud?: string | string[];
+    exp?: number;
+    iat?: number;
+    iss?: string;
+    jti?: string;
+    nbf?: number;
+    sub?: string;
 }
 
 // @public
@@ -220,6 +247,16 @@ export class MetadataService {
     getUserInfoEndpoint(): Promise<string>;
     // (undocumented)
     resetSigningKeys(): void;
+}
+
+// @public
+export interface OidcAddressClaim {
+    country?: string;
+    formatted?: string;
+    locality?: string;
+    postal_code?: string;
+    region?: string;
+    street_address?: string;
 }
 
 // @public
@@ -426,6 +463,30 @@ export interface OidcMetadata {
     ui_locales_supported: string[];
     // (undocumented)
     userinfo_endpoint: string;
+}
+
+// @public
+export interface OidcStandardClaims {
+    address?: OidcAddressClaim;
+    birthdate?: string;
+    email?: string;
+    email_verified?: boolean;
+    family_name?: string;
+    gender?: string;
+    given_name?: string;
+    locale?: string;
+    middle_name?: string;
+    name?: string;
+    nickname?: string;
+    phone_number?: string;
+    phone_number_verified?: boolean;
+    picture?: string;
+    preferred_username?: string;
+    profile?: string;
+    sub?: string;
+    updated_at?: number;
+    website?: string;
+    zoneinfo?: string;
 }
 
 // @public (undocumented)
@@ -950,38 +1011,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 }
 
 // @public
-export interface UserProfile {
-    // (undocumented)
-    [claim: string]: unknown;
-    address?: Record<string, unknown>;
-    // (undocumented)
-    at_hash?: string;
-    // (undocumented)
-    auth_time?: number;
-    // (undocumented)
-    azp?: string;
-    birthdate?: string;
-    email?: string;
-    email_verified?: boolean;
-    family_name?: string;
-    gender?: string;
-    given_name?: string;
-    locale?: string;
-    middle_name?: string;
-    name?: string;
-    nickname?: string;
-    phone_number?: string;
-    phone_number_verified?: boolean;
-    picture?: string;
-    preferred_username?: string;
-    profile?: string;
-    // (undocumented)
-    sid?: string;
-    sub?: string;
-    updated_at?: number;
-    website?: string;
-    zoneinfo?: string;
-}
+export type UserProfile = IdTokenClaims;
 
 // @public (undocumented)
 export type UserSessionChangedCallback = () => Promise<void> | void;

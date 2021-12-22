@@ -4,6 +4,7 @@
 export type { IFrameWindowParams, PopupWindowParams, RedirectParams } from "./navigators";
 export { Log, Logger } from "./utils";
 export type { ILogger, PopupWindowFeatures } from "./utils";
+export type { OidcAddressClaim, OidcStandardClaims, IdTokenClaims, JwtClaims } from "./Claims";
 
 export { AccessTokenEvents } from "./AccessTokenEvents";
 export type { AccessTokenCallback } from "./AccessTokenEvents";
