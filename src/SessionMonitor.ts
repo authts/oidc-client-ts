@@ -103,7 +103,7 @@ export class SessionMonitor {
             // catch to suppress errors since we're in non-promise callback
             this._logger.error("_start: Error from getCheckSessionIframe:", err instanceof Error ? err.message : err);
         }
-    }
+    };
 
     protected _stop = (): void => {
         this._sub = undefined;
@@ -140,7 +140,7 @@ export class SessionMonitor {
                 }
             }, 1000);
         }
-    }
+    };
 
     protected _callback = async (): Promise<void> => {
         try {
@@ -186,5 +186,5 @@ export class SessionMonitor {
                 this._userManager.events._raiseUserSignedOut();
             }
         }
-    }
+    };
 }

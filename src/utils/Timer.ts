@@ -56,5 +56,5 @@ export class Timer extends Event<[void]> {
             this.cancel();
             super.raise();
         }
-    }
+    };
 }

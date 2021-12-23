@@ -10,7 +10,7 @@ export class CheckSessionIFrame {
     private readonly _logger = new Logger("CheckSessionIFrame");
     private _frame_origin: string;
     private _frame: HTMLIFrameElement;
-    private _timer: ReturnType<typeof setInterval> | null = null
+    private _timer: ReturnType<typeof setInterval> | null = null;
     private _session_state: string | null = null;
 
     public constructor(
@@ -65,7 +65,7 @@ export class CheckSessionIFrame {
                 this._logger.debug(e.data + " message from check session op iframe");
             }
         }
-    }
+    };
 
     public start(session_state: string): void {
         if (this._session_state === session_state) {

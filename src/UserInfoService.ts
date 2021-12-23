@@ -42,5 +42,5 @@ export class UserInfoService {
             this._logger.error("_getClaimsFromJwt: Error parsing JWT response", err instanceof Error ? err.message : err);
             throw err;
         }
-    }
+    };
 }

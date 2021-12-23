@@ -39,6 +39,7 @@ overrides:
       - plugin:@typescript-eslint/recommended-requiring-type-checking
     rules:
       indent: "off"
+      semi: "off"
       no-return-await: "off"
       "@typescript-eslint/indent":
         - error
@@ -51,8 +52,10 @@ overrides:
       "@typescript-eslint/return-await":
         - error
         - always
+      "@typescript-eslint/semi": error
       # custom rules to fix code style
       "@typescript-eslint/require-await": "off"
+      "@typescript-eslint/no-unsafe-argument": "off"
       "@typescript-eslint/no-unsafe-assignment": "off"
   - files: src/**/*
     env:

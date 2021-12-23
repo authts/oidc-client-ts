@@ -25,8 +25,8 @@ export interface SignoutRequestArgs {
 export class SignoutRequest {
     private readonly _logger = new Logger("SignoutRequest");
 
-    public readonly url: string
-    public readonly state?: State
+    public readonly url: string;
+    public readonly state?: State;
 
     public constructor({
         url,

@@ -20,7 +20,7 @@ interface MessageData {
  */
 export abstract class AbstractChildWindow implements IWindow {
     protected abstract readonly _logger: Logger;
-    protected readonly _abort = new Event<[reason: Error]>("Window navigation aborted")
+    protected readonly _abort = new Event<[reason: Error]>("Window navigation aborted");
     protected readonly _disposeHandlers = new Set<() => void>();
 
     protected _window: WindowProxy | null = null;
