@@ -13,7 +13,7 @@
     "open": "^8.2.1"
   },
   "devDependencies": {
-    "concurrently": "^6.2.1",
+    "concurrently": "^7.0.0",
     "parcel": "^2.0.0-rc.0"
   }
 }
