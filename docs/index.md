@@ -1,4 +1,4 @@
-oidc-client-ts is a TypeScript library intended to be used by web applications and run in browsers. It provides protocol support for OIDC and OAuth2, as well as management functions for user sessions and access tokens management.
+[oidc-client-ts](https://github.com/authts/oidc-client-ts) is a TypeScript library intended to be used by web applications and run in browsers. It provides protocol support for OIDC and OAuth2, as well as management functions for user sessions and access tokens management.
 
 If you are unfamiliar with OpenID Connect, then you should learn the [protocol](https://openid.net/specs/openid-connect-core-1_0.html) first. This library is designed as a spec-compliant protocol library.
 
@@ -43,8 +43,8 @@ The [UserManager](classes/UserManager.html) will raise various events about the 
 
 To register for the events, there is an `events` property on the [UserManager](classes/UserManager.html) with `addXxx` and `removeXxx` APIs to add/remove callbacks for the events. An example:
 
-```
-var mgr = new UserManager();
+```javascript
+const mgr = new UserManager();
 mgr.events.addAccessTokenExpiring(function() {
     console.log("token expiring...");
 });
@@ -52,21 +52,45 @@ mgr.events.addAccessTokenExpiring(function() {
 
 
 ## User
-
 The [User](classes/User.html) type is returned from the [UserManager](classes/UserManager.html)'s [getUser](classes/UserManager.html#getUser) API.
 
 
 ## Logging
-
 The oidc-client-ts library supports logging. You can set a logger by assigning `Oidc.Log.logger` to anything that supports a `info`, `warn`, and `error` methods that accept a params array. By default, no logger is configured.
 
 The `console` object in the browser supports these, so a common way to easily enable logging in the browser is to simply add this code:
 
-```
+```javascript
 Oidc.Log.logger = console;
 ```
 
 Also, logging has levels so you can control the verbosity by setting the `Oidc.Log.level` to one of `Oidc.Log.NONE`, `Oidc.Log.ERROR`, `Oidc.Log.WARN`, or `Oidc.Log.INFO`. The default is `Oidc.Log.INFO`.
+
+
+## Provider specific settings
+Additional provider specific settings may be needed for a flawless operation:
+
+**Amazon Cognito**
+```javascript
+const mgr = new UserManager({
+    // ...
+    revokeTokenTypes: ["refresh_token"]
+});
+```
+
+
+## Custom state in user object
+In case you would like to add additional data into the [User](classes/User.html) object, you can do so during the initial sign-in request.
+
+```javascript
+const mgr = new UserManager();
+const customState = { foo: "bar" };
+mgr.signinRedirect({ state: customState });
+```
+
+After successful sign-in the custom state is part of the [User](classes/User.html#state) object as `state`. In case of failure it is inside [ErrorResponse](classes/ErrorResponse.html#state).
+
+This custom state should not be confused with the URL state parameter. The latter is internally used to match against the authentication state object to finish the authentication process.
 
 
 ## Samples using oidc-client
