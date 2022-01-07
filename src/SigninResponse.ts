@@ -44,7 +44,7 @@ export class SigninResponse {
     public userState: unknown;
 
     /** @see {@link User.profile} */
-    public profile: UserProfile = {};
+    public profile: UserProfile = {} as UserProfile;
 
     public constructor(params: URLSearchParams) {
         this.state = params.get("state");

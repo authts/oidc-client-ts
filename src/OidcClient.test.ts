@@ -1,7 +1,8 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { JwtPayload, JwtUtils, Log } from "./utils";
+import { JwtUtils, Log } from "./utils";
+import type { JwtClaims } from "./Claims";
 import { OidcClient } from "./OidcClient";
 import { OidcClientSettingsStore } from "./OidcClientSettings";
 import { SigninState } from "./SigninState";
@@ -380,7 +381,7 @@ describe("OidcClient", () => {
 
         it("should enforce a matching sub claim", async () => {
             // arrange
-            const profiles: Record<string, JwtPayload> = {
+            const profiles: Record<string, JwtClaims> = {
                 id_token: {
                     sub: "current_sub",
                 },

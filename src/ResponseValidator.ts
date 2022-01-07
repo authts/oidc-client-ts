@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Logger, JwtUtils, JwtPayload } from "./utils";
+import { Logger, JwtUtils } from "./utils";
 import type { MetadataService } from "./MetadataService";
 import { UserInfoService } from "./UserInfoService";
 import { TokenClient } from "./TokenClient";
@@ -13,6 +13,7 @@ import type { State } from "./State";
 import type { SignoutResponse } from "./SignoutResponse";
 import type { UserProfile } from "./User";
 import type { RefreshState } from "./RefreshState";
+import type { JwtClaims, IdTokenClaims } from "./Claims";
 
 /**
  * Derived from the following sets of claims:
@@ -176,11 +177,11 @@ export class ResponseValidator {
             throw new Error("subject from UserInfo response does not match subject in ID Token");
         }
 
-        response.profile = this._mergeClaims(response.profile, this._filterProtocolClaims(claims));
+        response.profile = this._mergeClaims(response.profile, this._filterProtocolClaims(claims as IdTokenClaims));
         this._logger.debug("_processClaims: user info claims received, updated profile:", response.profile);
     }
 
-    protected _mergeClaims(claims1: UserProfile, claims2: JwtPayload): UserProfile {
+    protected _mergeClaims(claims1: UserProfile, claims2: JwtClaims): UserProfile {
         const result = { ...claims1 };
 
         for (const [claim, values] of Object.entries(claims2)) {
@@ -273,6 +274,6 @@ export class ResponseValidator {
             }
         }
 
-        response.profile = profile;
+        response.profile = profile as UserProfile;
     }
 }
