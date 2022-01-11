@@ -153,6 +153,11 @@ export class TokenClient {
         return response;
     }
 
+    /**
+     * Revoke an access or refresh token.
+     *
+     * @see https://datatracker.ietf.org/doc/html/rfc7009#section-2.1
+     */
     public async revoke(args: RevokeArgs): Promise<void> {
         if (!args.token) {
             this._logger.error("revoke: No token passed");
