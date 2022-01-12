@@ -5,7 +5,7 @@
 ```ts
 
 // @public (undocumented)
-export type AccessTokenCallback = (...ev: unknown[]) => void;
+export type AccessTokenCallback = (...ev: unknown[]) => (Promise<void> | void);
 
 // @public (undocumented)
 export class AccessTokenEvents {
