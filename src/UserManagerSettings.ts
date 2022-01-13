@@ -39,6 +39,8 @@ export interface UserManagerSettings extends OidcClientSettings {
     validateSubOnSilentRenew?: boolean;
     /** Flag to control if id_token is included as id_token_hint in silent renew calls (default: false) */
     includeIdTokenInSilentRenew?: boolean;
+    /** Retry silent renew every 5s until we receive a response from the authority server (default: true) */
+    retrySilentRenew?: boolean;
 
     /** Will raise events for when user has performed a signout at the OP (default: false) */
     monitorSession?: boolean;
@@ -84,6 +86,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly automaticSilentRenew: boolean;
     public readonly validateSubOnSilentRenew: boolean;
     public readonly includeIdTokenInSilentRenew: boolean;
+    public readonly retrySilentRenew: boolean;
 
     public readonly monitorSession: boolean;
     public readonly monitorAnonymousSession: boolean;
@@ -110,6 +113,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             automaticSilentRenew = true,
             validateSubOnSilentRenew = true,
             includeIdTokenInSilentRenew = false,
+            retrySilentRenew = true,
 
             monitorSession = false,
             monitorAnonymousSession = false,
@@ -137,6 +141,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         this.automaticSilentRenew = automaticSilentRenew;
         this.validateSubOnSilentRenew = validateSubOnSilentRenew;
         this.includeIdTokenInSilentRenew = includeIdTokenInSilentRenew;
+        this.retrySilentRenew = retrySilentRenew;
 
         this.monitorSession = monitorSession;
         this.monitorAnonymousSession = monitorAnonymousSession;

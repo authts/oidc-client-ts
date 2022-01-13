@@ -972,6 +972,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     // (undocumented)
     query_status_response_type?: string;
     redirectMethod?: "replace" | "assign";
+    retrySilentRenew?: boolean;
     revokeTokensOnSignout?: boolean;
     revokeTokenTypes?: ("access_token" | "refresh_token")[];
     silent_redirect_uri?: string;
@@ -1009,6 +1010,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     readonly query_status_response_type: string | undefined;
     // (undocumented)
     readonly redirectMethod: "replace" | "assign";
+    // (undocumented)
+    readonly retrySilentRenew: boolean;
     // (undocumented)
     readonly revokeTokensOnSignout: boolean;
     // (undocumented)

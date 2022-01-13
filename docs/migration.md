@@ -34,11 +34,14 @@ removed.
 - type of `popupWindowFeatures` changed from a string to a dictionary
   - additionally, its default dimensions are now responsive to the opener
     window's
-- a new property `revokeTokenTypes: ('access_token' | 'refresh_token')[]` was
-  added
+- a new property `revokeTokenTypes: ('access_token' | 'refresh_token')[]` was added
   - by default, `UserManager` will attempt revoking both token types when
     `revokeTokensOnSignout` is `true`. Compared to 1.x, sign out will now fail
     if revocations fail.
+- a new property `retrySilentRenew: boolean` was added
+  - by default `SilentRenewService` will retry every 5s until it receives a response
+    from the authority server. If you depend on your own custom silent renew error
+    event handler you can set `false`.
 
 ### [UserManager](https://authts.github.io/oidc-client-ts/classes/UserManager.html)
 
