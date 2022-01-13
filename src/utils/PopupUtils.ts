@@ -20,7 +20,7 @@ export interface PopupWindowFeatures {
 
 export class PopupUtils {
     /**
-     * Popuplates a map of window features with a placement centered in front of
+     * Populates a map of window features with a placement centered in front of
      * the current window. If no explicit width is given, a default value is
      * binned into [800, 720, 600, 480, 360] based on the current window's width.
      */
