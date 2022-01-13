@@ -1,8 +1,8 @@
 import { Log, settings } from "./sample-settings";
 import { log } from "./sample";
 
-Log.logger = console;
-Log.level = Log.INFO;
+Log.setLogger(console);
+Log.setLevel(Log.INFO);
 
 new OidcClient(settings).processSigninResponse().then(function(response) {
     log("signin response success", response);

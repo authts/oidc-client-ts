@@ -1,7 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./utils";
 import type { PopupWindow } from "./navigators";
 import type { SigninResponse } from "./SigninResponse";
 import type { SignoutResponse } from "./SignoutResponse";
@@ -21,8 +20,6 @@ describe("UserManager", () => {
     let subject: UserManager;
 
     beforeEach(() => {
-        Log.logger = console;
-        Log.level = Log.NONE;
         localStorage.clear();
 
         userStoreMock = new WebStorageStateStore();
@@ -313,7 +310,7 @@ describe("UserManager", () => {
     describe("signinPopupCallback", () => {
         it("should call navigator callback", async () => {
             // arrange
-            const callbackMock = jest.spyOn(subject["_popupNavigator"], "callback");
+            const callbackMock = jest.spyOn(subject["_popupNavigator"], "callback").mockResolvedValue();
             const url = "http://app/cb?state=test&code=code";
             const keepOpen = true;
 
@@ -492,7 +489,7 @@ describe("UserManager", () => {
             };
             jest.spyOn(subject["_client"], "readSigninResponseState")
                 .mockImplementation(() => Promise.resolve(responseState));
-            const signinPopupCallbackMock = jest.spyOn(subject, "signinPopupCallback");
+            const signinPopupCallbackMock = jest.spyOn(subject, "signinPopupCallback").mockResolvedValue();
             const url = "http://app/cb?state=test&code=code";
 
             // act
@@ -511,7 +508,7 @@ describe("UserManager", () => {
             };
             jest.spyOn(subject["_client"], "readSigninResponseState")
                 .mockImplementation(() => Promise.resolve(responseState));
-            const signinRedirectCallbackMock = jest.spyOn(subject, "signinSilentCallback");
+            const signinRedirectCallbackMock = jest.spyOn(subject, "signinSilentCallback").mockResolvedValue();
             const url = "http://app/cb?state=test&code=code";
 
             // act

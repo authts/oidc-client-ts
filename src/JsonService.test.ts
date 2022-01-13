@@ -1,7 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./utils";
 import { ErrorResponse } from "./ErrorResponse";
 import { JsonService } from "./JsonService";
 import { mocked } from "jest-mock";
@@ -10,10 +9,6 @@ describe("JsonService", () => {
     let subject: JsonService;
 
     beforeEach(() =>{
-        Log.logger = console;
-        Log.level = Log.NONE;
-
-        globalThis.fetch = jest.fn();
         subject = new JsonService();
     });
 
@@ -95,7 +90,7 @@ describe("JsonService", () => {
 
         it("should reject promise when http response is error", async () => {
             // arrange
-            mocked(fetch).mockRejectedValue({ ok: false });
+            mocked(fetch).mockRejectedValue(new Error("Network Error"));
 
             // act
             await expect(subject.getJson("http://test"))
@@ -245,7 +240,7 @@ describe("JsonService", () => {
 
         it("should reject promise when http response is error", async () => {
             // arrange
-            mocked(fetch).mockRejectedValue({});
+            mocked(fetch).mockRejectedValue(new Error("Network Error"));
 
             // act
             await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy")))

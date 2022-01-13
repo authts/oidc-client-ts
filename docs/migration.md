@@ -50,3 +50,8 @@ removed.
   - Compared to 1.x, this function will now throw if _any_ revocation of the
     types specified fail. Uses the `revokeTokenTypes` setting when no `types`
     are passed.
+
+### [Log](https://authts.github.io/oidc-client-ts/modules/Log.html)
+
+- The getter/setters for `Log.level` and `Log.logger` have been replaced by
+  `Log.setLevel()` and `Log.setLogger()`.

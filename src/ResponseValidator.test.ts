@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { JwtUtils, Log } from "./utils";
+import { JwtUtils } from "./utils";
 import { ResponseValidator } from "./ResponseValidator";
 import { MetadataService } from "./MetadataService";
 import type { SigninState } from "./SigninState";
@@ -20,9 +20,6 @@ describe("ResponseValidator", () => {
     let subject: ResponseValidator;
 
     beforeEach(() => {
-        Log.logger = console;
-        Log.level = Log.NONE;
-
         stubState = {
             id: "the_id",
             data: { some: "data" },
@@ -187,7 +184,7 @@ describe("ResponseValidator", () => {
 
         it("should return data for error responses", async () => {
             // arrange
-            stubResponse.error = "some_error";
+            Object.assign(stubResponse, { error: "some_error" });
 
             // act
             await expect(subject.validateSigninResponse(stubResponse, stubState))
@@ -203,7 +200,7 @@ describe("ResponseValidator", () => {
             // act
             await expect(subject.validateSigninResponse(stubResponse, stubState))
                 // assert
-                .rejects.toThrow(/No code/);
+                .rejects.toThrow("Expected code in response");
         });
 
         it("should fail if request was not code flow but code in response", async () => {
@@ -480,7 +477,7 @@ describe("ResponseValidator", () => {
             // act
             await expect(subject.validateSigninResponse(stubResponse, stubState))
                 // assert
-                .rejects.toThrow("No subject is present in ID Token");
+                .rejects.toThrow("ID Token is missing a subject claim");
             expect(JwtUtils.decode).toHaveBeenCalledWith("id_token");
             expect(stubResponse).not.toHaveProperty("profile");
         });

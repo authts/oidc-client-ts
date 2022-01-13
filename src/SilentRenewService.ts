@@ -15,6 +15,7 @@ export class SilentRenewService {
     public constructor(private _userManager: UserManager) {}
 
     public async start(): Promise<void> {
+        const logger = this._logger.create("start");
         if (!this._isStarted) {
             this._isStarted = true;
             this._userManager.events.addAccessTokenExpiring(this._tokenExpiring);
@@ -26,7 +27,7 @@ export class SilentRenewService {
             }
             catch (err) {
                 // catch to suppress errors since we're in a ctor
-                this._logger.error("start: Error from getUser:", err instanceof Error ? err.message : err);
+                logger.error("getUser error", err);
             }
         }
     }
@@ -38,15 +39,14 @@ export class SilentRenewService {
         }
     }
 
-    protected _tokenExpiring: AccessTokenCallback = () => {
-        this._userManager.signinSilent()
-            .then(() => {
-                this._logger.debug("_tokenExpiring: Silent token renewal successful");
-            })
-            .catch((err) => {
-                const error = err instanceof Error ? err : new Error("Silent renew failed");
-                this._logger.error("_tokenExpiring: Error from signinSilent:", error.message);
-                this._userManager.events._raiseSilentRenewError(error);
-            });
+    protected _tokenExpiring: AccessTokenCallback = async () => {
+        const logger = this._logger.create("_tokenExpiring");
+        try {
+            await this._userManager.signinSilent();
+            logger.debug("silent token renewal successful");
+        } catch (err) {
+            logger.error("Error from signinSilent:", err);
+            this._userManager.events._raiseSilentRenewError(err as Error);
+        }
     };
 }

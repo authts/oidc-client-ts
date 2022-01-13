@@ -28,28 +28,29 @@ export class JsonService {
     }
 
     public async getJson(url: string, token?: string): Promise<Record<string, unknown>> {
+        const logger = this._logger.create("getJson");
         const headers: HeadersInit = {
             "Accept": this._contentTypes.join(", "),
         };
         if (token) {
-            this._logger.debug("getJson: token passed, setting Authorization header");
+            logger.debug("token passed, setting Authorization header");
             headers["Authorization"] = "Bearer " + token;
         }
 
         let response: Response;
         try {
-            this._logger.debug("getJson, url:", url);
+            logger.debug("url:", url);
             response = await fetch(url, { method: "GET", headers });
         }
         catch (err) {
-            this._logger.error("getJson: network error");
-            throw new Error("Network Error");
+            logger.error("Network Error");
+            throw err;
         }
 
-        this._logger.debug("getJson: HTTP response received, status", response.status);
+        logger.debug("HTTP response received, status", response.status);
         const contentType = response.headers.get("Content-Type");
         if (contentType && !this._contentTypes.find(item => contentType.startsWith(item))) {
-            throw new Error(`Invalid response Content-Type: ${(contentType ?? "undefined")}, from URL: ${url}`);
+            logger.throw(new Error(`Invalid response Content-Type: ${(contentType ?? "undefined")}, from URL: ${url}`));
         }
         if (response.ok && this._jwtHandler && contentType?.startsWith("application/jwt")) {
             return await this._jwtHandler(await response.text());
@@ -59,12 +60,12 @@ export class JsonService {
             json = await response.json();
         }
         catch (err) {
-            this._logger.error("getJson: Error parsing JSON response", err);
+            logger.error("Error parsing JSON response", err);
             if (response.ok) throw err;
             throw new Error(`${response.statusText} (${response.status})`);
         }
         if (!response.ok) {
-            this._logger.error("getJson: Error from server:", json);
+            logger.error("Error from server:", json);
             if (json.error) {
                 throw new ErrorResponse(json);
             }
@@ -74,6 +75,7 @@ export class JsonService {
     }
 
     public async postForm(url: string, body: URLSearchParams, basicAuth?: string): Promise<Record<string, unknown>> {
+        const logger = this._logger.create("postForm");
         const headers: HeadersInit = {
             "Accept": this._contentTypes.join(", "),
             "Content-Type": "application/x-www-form-urlencoded",
@@ -84,15 +86,15 @@ export class JsonService {
 
         let response: Response;
         try {
-            this._logger.debug("postForm, url:", url);
+            logger.debug("url:", url);
             response = await fetch(url, { method: "POST", headers, body });
         }
         catch (err) {
-            this._logger.error("postForm: network error");
-            throw new Error("Network Error");
+            logger.error("Network error");
+            throw err;
         }
 
-        this._logger.debug("postForm: HTTP response received, status", response.status);
+        logger.debug("HTTP response received, status", response.status);
         const contentType = response.headers.get("Content-Type");
         if (contentType && !this._contentTypes.find(item => contentType.startsWith(item))) {
             throw new Error(`Invalid response Content-Type: ${(contentType ?? "undefined")}, from URL: ${url}`);
@@ -106,14 +108,14 @@ export class JsonService {
                 json = JSON.parse(responseText);
             }
             catch (err) {
-                this._logger.error("postForm: Error parsing JSON response", err);
+                logger.error("Error parsing JSON response", err);
                 if (response.ok) throw err;
                 throw new Error(`${response.statusText} (${response.status})`);
             }
         }
 
         if (!response.ok) {
-            this._logger.error("postForm: Error from server:", json);
+            logger.error("Error from server:", json);
             if (json.error) {
                 throw new ErrorResponse(json, body);
             }

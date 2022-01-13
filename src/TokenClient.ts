@@ -57,21 +57,18 @@ export class TokenClient {
         client_secret = this._settings.client_secret,
         ...args
     }: ExchangeCodeArgs): Promise<Record<string, unknown>> {
+        const logger = this._logger.create("exchangeCode");
         if (!client_id) {
-            this._logger.error("exchangeCode: No client_id passed");
-            throw new Error("A client_id is required");
+            logger.throw(new Error("A client_id is required"));
         }
         if (!redirect_uri) {
-            this._logger.error("exchangeCode: No redirect_uri passed");
-            throw new Error("A redirect_uri is required");
+            logger.throw(new Error("A redirect_uri is required"));
         }
         if (!args.code) {
-            this._logger.error("exchangeCode: No code passed");
-            throw new Error("A code is required");
+            logger.throw(new Error("A code is required"));
         }
         if (!args.code_verifier) {
-            this._logger.error("exchangeCode: No code_verifier passed");
-            throw new Error("A code_verifier is required");
+            logger.throw(new Error("A code_verifier is required"));
         }
 
         const params = new URLSearchParams({ grant_type, redirect_uri });
@@ -84,8 +81,8 @@ export class TokenClient {
         switch (this._settings.client_authentication) {
             case "client_secret_basic":
                 if (!client_secret) {
-                    this._logger.error("exchangeCode: No client_secret passed");
-                    throw new Error("A client_secret is required");
+                    logger.throw(new Error("A client_secret is required"));
+                    throw null; // https://github.com/microsoft/TypeScript/issues/46972
                 }
                 basicAuth = CryptoUtils.generateBasicAuth(client_id, client_secret);
                 break;
@@ -98,10 +95,10 @@ export class TokenClient {
         }
 
         const url = await this._metadataService.getTokenEndpoint(false);
-        this._logger.debug("exchangeCode: Received token endpoint");
+        logger.debug("got token endpoint");
 
         const response = await this._jsonService.postForm(url, params, basicAuth);
-        this._logger.debug("exchangeCode: response received");
+        logger.debug("got response");
 
         return response;
     }
@@ -112,13 +109,12 @@ export class TokenClient {
         client_secret = this._settings.client_secret,
         ...args
     }: ExchangeRefreshTokenArgs): Promise<Record<string, unknown>> {
+        const logger = this._logger.create("exchangeRefreshToken");
         if (!client_id) {
-            this._logger.error("exchangeRefreshToken: No client_id passed");
-            throw new Error("A client_id is required");
+            logger.throw(new Error("A client_id is required"));
         }
         if (!args.refresh_token) {
-            this._logger.error("exchangeRefreshToken: No refresh_token passed");
-            throw new Error("A refresh_token is required");
+            logger.throw(new Error("A refresh_token is required"));
         }
 
         const params = new URLSearchParams({ grant_type });
@@ -131,8 +127,8 @@ export class TokenClient {
         switch (this._settings.client_authentication) {
             case "client_secret_basic":
                 if (!client_secret) {
-                    this._logger.error("exchangeCode: No client_secret passed");
-                    throw new Error("A client_secret is required");
+                    logger.throw(new Error("A client_secret is required"));
+                    throw null; // https://github.com/microsoft/TypeScript/issues/46972
                 }
                 basicAuth = CryptoUtils.generateBasicAuth(client_id, client_secret);
                 break;
@@ -145,10 +141,10 @@ export class TokenClient {
         }
 
         const url = await this._metadataService.getTokenEndpoint(false);
-        this._logger.debug("exchangeRefreshToken: Received token endpoint");
+        logger.debug("got token endpoint");
 
         const response = await this._jsonService.postForm(url, params, basicAuth);
-        this._logger.debug("exchangeRefreshToken: response received");
+        logger.debug("got response");
 
         return response;
     }
@@ -159,14 +155,14 @@ export class TokenClient {
      * @see https://datatracker.ietf.org/doc/html/rfc7009#section-2.1
      */
     public async revoke(args: RevokeArgs): Promise<void> {
+        const logger = this._logger.create("revoke");
         if (!args.token) {
-            this._logger.error("revoke: No token passed");
-            throw new Error("A token is required");
+            logger.throw(new Error("A token is required"));
         }
 
         const url = await this._metadataService.getRevocationEndpoint(false);
 
-        this._logger.debug(`revoke: Received revocation endpoint, revoking ${args.token_type_hint ?? "default type"}`);
+        logger.debug(`got revocation endpoint, revoking ${args.token_type_hint ?? "default token type"}`);
 
         const params = new URLSearchParams();
         for (const [key, value] of Object.entries(args)) {
@@ -180,6 +176,6 @@ export class TokenClient {
         }
 
         await this._jsonService.postForm(url, params);
-        this._logger.debug("revoke: response received");
+        logger.debug("got response");
     }
 }

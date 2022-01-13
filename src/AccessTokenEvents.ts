@@ -24,10 +24,11 @@ export class AccessTokenEvents {
     }
 
     public load(container: User): void {
+        const logger = this._logger.create("load");
         // only register events if there's an access token and it has an expiration
         if (container.access_token && container.expires_in !== undefined) {
             const duration = container.expires_in;
-            this._logger.debug("load: access token present, remaining duration:", duration);
+            logger.debug("access token present, remaining duration:", duration);
 
             if (duration > 0) {
                 // only register expiring if we still have time
@@ -36,17 +37,17 @@ export class AccessTokenEvents {
                     expiring = 1;
                 }
 
-                this._logger.debug("load: registering expiring timer in:", expiring);
+                logger.debug("registering expiring timer, raising in", expiring, "seconds");
                 this._expiringTimer.init(expiring);
             }
             else {
-                this._logger.debug("load: canceling existing expiring timer because we're past expiration.");
+                logger.debug("canceling existing expiring timer because we're past expiration.");
                 this._expiringTimer.cancel();
             }
 
             // if it's negative, it will still fire
             const expired = duration + 1;
-            this._logger.debug("load: registering expired timer in:", expired);
+            logger.debug("registering expired timer, raising in", expired, "seconds");
             this._expiredTimer.init(expired);
         }
         else {

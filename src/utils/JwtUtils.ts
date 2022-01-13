@@ -1,6 +1,6 @@
 import jwt_decode from "jwt-decode";
 
-import { Logger } from "./Log";
+import { Logger } from "./Logger";
 import type { JwtClaims } from "../Claims";
 
 /**
@@ -13,7 +13,7 @@ export class JwtUtils {
             return jwt_decode<JwtClaims>(token);
         }
         catch (err) {
-            Logger.error("JwtUtils", err);
+            Logger.error("JwtUtils.decode", err);
             throw err;
         }
     }

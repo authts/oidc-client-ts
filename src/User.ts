@@ -103,7 +103,7 @@ export class User {
     }
 
     public toStorageString(): string {
-        Logger.debug("User", "toStorageString");
+        new Logger("User").create("toStorageString");
         return JSON.stringify({
             id_token: this.id_token,
             session_state: this.session_state,
@@ -117,7 +117,7 @@ export class User {
     }
 
     public static fromStorageString(storageString: string): User {
-        Logger.debug("User", "fromStorageString");
+        Logger.debug("User.fromStorageString");
         return new User(JSON.parse(storageString));
     }
 }

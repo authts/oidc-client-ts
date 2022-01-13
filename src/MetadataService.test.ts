@@ -1,7 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log } from "./utils";
 import { MetadataService } from "./MetadataService";
 import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 
@@ -10,9 +9,6 @@ describe("MetadataService", () => {
     let subject: MetadataService;
 
     beforeEach(() => {
-        Log.logger = console;
-        Log.level = Log.NONE;
-
         settings = {
             authority: "authority",
             client_id: "client",

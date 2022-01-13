@@ -22,7 +22,7 @@ export class PopupNavigator implements INavigator {
     }
 
     public async callback(url: string, keepOpen = false): Promise<void> {
-        this._logger.debug("callback");
+        this._logger.create("callback");
 
         PopupWindow.notifyOpener(url, keepOpen);
     }

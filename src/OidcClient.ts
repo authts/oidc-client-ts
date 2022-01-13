@@ -94,14 +94,14 @@ export class OidcClient {
         extraQueryParams = this.settings.extraQueryParams,
         extraTokenParams = this.settings.extraTokenParams,
     }: CreateSigninRequestArgs): Promise<SigninRequest> {
-        this._logger.debug("createSigninRequest");
+        const logger = this._logger.create("createSigninRequest");
 
         if (response_type !== "code") {
             throw new Error("Only the Authorization Code flow (with PKCE) is supported");
         }
 
         const url = await this.metadataService.getAuthorizationEndpoint();
-        this._logger.debug("createSigninRequest: Received authorization endpoint", url);
+        logger.debug("Received authorization endpoint", url);
 
         const signinRequest = new SigninRequest({
             url,
@@ -123,18 +123,19 @@ export class OidcClient {
     }
 
     public async readSigninResponseState(url: string, removeState = false): Promise<{ state: SigninState; response: SigninResponse }> {
-        this._logger.debug("readSigninResponseState");
+        const logger = this._logger.create("readSigninResponseState");
 
         const response = new SigninResponse(UrlUtils.readParams(url, this.settings.response_mode));
         if (!response.state) {
-            this._logger.error("readSigninResponseState: No state in response");
-            throw new Error("No state in response");
+            logger.throw(new Error("No state in response"));
+            // need to throw within this function's body for type narrowing to work
+            throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
         const storedStateString = await this.settings.stateStore[removeState ? "remove" : "get"](response.state);
         if (!storedStateString) {
-            this._logger.error("readSigninResponseState: No matching state found in storage");
-            throw new Error("No matching state found in storage");
+            logger.throw(new Error("No matching state found in storage"));
+            throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
         const state = SigninState.fromStorageString(storedStateString);
@@ -142,23 +143,23 @@ export class OidcClient {
     }
 
     public async processSigninResponse(url: string): Promise<SigninResponse> {
-        this._logger.debug("processSigninResponse");
+        const logger = this._logger.create("processSigninResponse");
 
         const { state, response } = await this.readSigninResponseState(url, true);
-        this._logger.debug("processSigninResponse: Received state from storage; validating response");
+        logger.debug("received state from storage; validating response");
         await this._validator.validateSigninResponse(response, state);
         return response;
     }
 
     public async useRefreshToken(state: RefreshState): Promise<SigninResponse> {
-        this._logger.debug("useRefreshToken");
+        const logger = this._logger.create("useRefreshToken");
 
         const result = await this._tokenClient.exchangeRefreshToken({
             refresh_token: state.refresh_token,
         });
         const response = new SigninResponse(new URLSearchParams());
         Object.assign(response, result);
-        this._logger.debug("useRefreshToken: validating response", response);
+        logger.debug("validating response", response);
         await this._validator.validateRefreshResponse(response, state);
         return response;
     }
@@ -170,15 +171,15 @@ export class OidcClient {
         post_logout_redirect_uri = this.settings.post_logout_redirect_uri,
         extraQueryParams = this.settings.extraQueryParams,
     }: CreateSignoutRequestArgs = {}): Promise<SignoutRequest> {
-        this._logger.debug("createSignoutRequest");
+        const logger = this._logger.create("createSignoutRequest");
 
         const url = await this.metadataService.getEndSessionEndpoint();
         if (!url) {
-            this._logger.error("createSignoutRequest: No end session endpoint url returned");
-            throw new Error("no end session endpoint");
+            logger.throw(new Error("No end session endpoint"));
+            throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
-        this._logger.debug("createSignoutRequest: Received end session endpoint", url);
+        logger.debug("createSignoutRequest: Received end session endpoint", url);
 
         const request = new SignoutRequest({
             url,
@@ -191,7 +192,7 @@ export class OidcClient {
 
         const signoutState = request.state;
         if (signoutState) {
-            this._logger.debug("createSignoutRequest: Signout request has state to persist");
+            logger.debug("Signout request has state to persist");
             await this.settings.stateStore.set(signoutState.id, signoutState.toStorageString());
         }
 
@@ -199,14 +200,14 @@ export class OidcClient {
     }
 
     public async readSignoutResponseState(url: string, removeState = false): Promise<{ state: State | undefined; response: SignoutResponse }> {
-        this._logger.debug("readSignoutResponseState");
+        const logger = this._logger.create("readSignoutResponseState");
 
         const response = new SignoutResponse(UrlUtils.readParams(url, this.settings.response_mode));
         if (!response.state) {
-            this._logger.debug("readSignoutResponseState: No state in response");
+            logger.debug("No state in response");
 
             if (response.error) {
-                this._logger.warn("readSignoutResponseState: Response was error:", response.error);
+                logger.warn("Response was error:", response.error);
                 throw new ErrorResponse(response);
             }
 
@@ -215,8 +216,8 @@ export class OidcClient {
 
         const storedStateString = await this.settings.stateStore[removeState ? "remove" : "get"](response.state);
         if (!storedStateString) {
-            this._logger.error("readSignoutResponseState: No matching state found in storage");
-            throw new Error("No matching state found in storage");
+            logger.throw(new Error("No matching state found in storage"));
+            throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
         const state = State.fromStorageString(storedStateString);
@@ -224,26 +225,26 @@ export class OidcClient {
     }
 
     public async processSignoutResponse(url: string): Promise<SignoutResponse> {
-        this._logger.debug("processSignoutResponse");
+        const logger = this._logger.create("processSignoutResponse");
 
         const { state, response } = await this.readSignoutResponseState(url, true);
         if (state) {
-            this._logger.debug("processSignoutResponse: Received state from storage; validating response");
+            logger.debug("Received state from storage; validating response");
             this._validator.validateSignoutResponse(response, state);
         } else {
-            this._logger.debug("processSignoutResponse: No state from storage; skipping validating response");
+            logger.debug("No state from storage; skipping response validation");
         }
 
         return response;
     }
 
     public clearStaleState(): Promise<void> {
-        this._logger.debug("clearStaleState");
+        this._logger.create("clearStaleState");
         return State.clearStaleState(this.settings.stateStore, this.settings.staleStateAgeInSeconds);
     }
 
     public async revokeToken(token: string, type?: "access_token" | "refresh_token"): Promise<void> {
-        this._logger.debug("revokeToken");
+        this._logger.create("revokeToken");
         return await this._tokenClient.revoke({
             token,
             token_type_hint: type,

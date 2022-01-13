@@ -25,8 +25,8 @@ document.getElementById("popupSignout").addEventListener("click", popupSignout, 
 ///////////////////////////////
 // config
 ///////////////////////////////
-Log.logger = console;
-Log.level = Log.DEBUG;
+Log.setLogger(console);
+Log.setLevel(Log.INFO);
 
 function log() {
     document.getElementById("out").innerText = "";
