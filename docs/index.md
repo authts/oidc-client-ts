@@ -49,9 +49,6 @@ provider:
   - authorization_endpoint
   - userinfo_endpoint
   - end_session_endpoint
-  - jwks_uri
-- [signingKeys](interfaces/UserManagerSettings.html#signingKeys) (which is the
-  `keys` property of the `jwks_uri` endpoint)
 - [metadataSeed](interfaces/UserManagerSettings.html#metadataSeed) can be used
   to seed or add additional values to the results of the discovery request.
 
