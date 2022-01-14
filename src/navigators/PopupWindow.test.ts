@@ -9,7 +9,7 @@ function firstSuccessfulResult<T>(fn: () => T): T {
 describe("PopupWindow", () => {
     beforeEach(() => {
         Object.defineProperty(window, "location", {
-            writable: true,
+            enumerable: true,
             value: { origin: "http://app" },
         });
 
