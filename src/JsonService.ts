@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { ErrorResponse } from "./errors";
+import { ErrorNetwork, ErrorResponse } from "./errors";
 import { Logger } from "./utils";
 
 /**
@@ -44,7 +44,7 @@ export class JsonService {
         }
         catch (err) {
             logger.error("Network Error");
-            throw err;
+            throw new ErrorNetwork(err as TypeError);
         }
 
         logger.debug("HTTP response received, status", response.status);
@@ -91,7 +91,7 @@ export class JsonService {
         }
         catch (err) {
             logger.error("Network error");
-            throw err;
+            throw new ErrorNetwork(err as TypeError);
         }
 
         logger.debug("HTTP response received, status", response.status);

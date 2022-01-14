@@ -90,7 +90,7 @@ describe("JsonService", () => {
 
         it("should reject promise when http response is error", async () => {
             // arrange
-            mocked(fetch).mockRejectedValue(new Error("Network Error"));
+            mocked(fetch).mockRejectedValue(new TypeError("Network Error"));
 
             // act
             await expect(subject.getJson("http://test"))
@@ -240,7 +240,7 @@ describe("JsonService", () => {
 
         it("should reject promise when http response is error", async () => {
             // arrange
-            mocked(fetch).mockRejectedValue(new Error("Network Error"));
+            mocked(fetch).mockRejectedValue(new TypeError("Network Error"));
 
             // act
             await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy")))
