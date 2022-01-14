@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { JwtUtils } from "./utils";
+import type { ErrorResponse } from "./errors";
 import type { JwtClaims } from "./Claims";
 import { OidcClient } from "./OidcClient";
 import { OidcClientSettingsStore } from "./OidcClientSettings";
@@ -10,7 +11,6 @@ import { State } from "./State";
 import { SigninRequest } from "./SigninRequest";
 import { SignoutRequest } from "./SignoutRequest";
 import { SignoutResponse } from "./SignoutResponse";
-import type { ErrorResponse } from "./ErrorResponse";
 import { RefreshState } from "./RefreshState";
 import { SigninResponse } from "./SigninResponse";
 
