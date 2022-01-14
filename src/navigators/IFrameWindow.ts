@@ -55,8 +55,8 @@ export class IFrameWindow extends AbstractChildWindow {
         if (this._frame) {
             if (this._frame.parentNode) {
                 this._frame.parentNode.removeChild(this._frame);
+                this._abort.raise(new Error("IFrame removed from DOM"));
             }
-            this._abort.raise(new Error("IFrame removed from DOM"));
             this._frame = null;
         }
         this._window = null;
