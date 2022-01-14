@@ -103,6 +103,12 @@ export class ErrorResponse extends Error {
     state?: unknown;
 }
 
+// @public
+export class ErrorTimeout extends Error {
+    constructor(message?: string);
+    readonly name: string;
+}
+
 // @public (undocumented)
 export type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "extraQueryParams" | "extraTokenParams" | "state">;
 
