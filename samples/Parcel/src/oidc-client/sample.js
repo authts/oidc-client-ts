@@ -15,8 +15,6 @@ document.getElementById("links").addEventListener("change", toggleLinks, false);
 ///////////////////////////////
 // OidcClient config
 ///////////////////////////////
-Log.setLogger(console);
-Log.setLevel(Log.INFO);
 
 function log() {
     document.getElementById("out").innerText = "";

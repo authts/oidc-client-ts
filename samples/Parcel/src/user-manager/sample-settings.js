@@ -1,5 +1,8 @@
 import { Log, UserManager} from "../../../../src";
 
+Log.setLogger(console);
+Log.setLevel(Log.INFO);
+
 const url = window.location.origin + "/user-manager";
 
 export const settings = {

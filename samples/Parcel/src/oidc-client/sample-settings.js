@@ -1,4 +1,7 @@
-import { Log, OidcClient} from "../../../../src";
+import { Log, OidcClient } from "../../../../src";
+
+Log.setLogger(console);
+Log.setLevel(Log.INFO);
 
 const url = window.location.origin + "/oidc-client";
 

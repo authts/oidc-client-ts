@@ -1,4 +1,7 @@
-import { Log, UserManager} from "../../../../src";
+import { Log, UserManager } from "../../../../src";
+
+Log.setLogger(console);
+Log.setLevel(Log.INFO);
 
 const url = window.location.origin + "/code-flow-identityserver";
 
