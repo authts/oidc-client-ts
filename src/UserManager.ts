@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Logger } from "./utils";
-import { IFrameNavigator, NavigateResponse, PopupNavigator, RedirectNavigator, PopupWindowParams, IWindow, IFrameWindowParams, RedirectParams } from "./navigators";
+import { ErrorResponse } from "./errors";
+import { IFrameNavigator, NavigateResponse, PopupNavigator, RedirectNavigator, PopupWindowParams,
+    IWindow, IFrameWindowParams, RedirectParams } from "./navigators";
 import { OidcClient, CreateSigninRequestArgs, CreateSignoutRequestArgs } from "./OidcClient";
 import { UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
 import { User } from "./User";
@@ -11,7 +13,6 @@ import { SilentRenewService } from "./SilentRenewService";
 import { SessionMonitor } from "./SessionMonitor";
 import type { SessionStatus } from "./SessionStatus";
 import type { SignoutResponse } from "./SignoutResponse";
-import { ErrorResponse } from "./ErrorResponse";
 import type { MetadataService } from "./MetadataService";
 import { RefreshState } from "./RefreshState";
 

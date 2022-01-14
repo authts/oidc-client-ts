@@ -1,6 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+export { ErrorResponse } from "./errors";
 export type { IFrameWindowParams, PopupWindowParams, RedirectParams } from "./navigators";
 export { Log, Logger } from "./utils";
 export type { ILogger, PopupWindowFeatures } from "./utils";
@@ -9,7 +10,6 @@ export type { OidcAddressClaim, OidcStandardClaims, IdTokenClaims, JwtClaims } f
 export { AccessTokenEvents } from "./AccessTokenEvents";
 export type { AccessTokenCallback } from "./AccessTokenEvents";
 export { CheckSessionIFrame } from "./CheckSessionIFrame";
-export { ErrorResponse } from "./ErrorResponse";
 export { InMemoryWebStorage } from "./InMemoryWebStorage";
 export { MetadataService } from "./MetadataService";
 export * from "./OidcClient";
