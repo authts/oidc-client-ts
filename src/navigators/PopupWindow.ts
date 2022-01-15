@@ -56,8 +56,8 @@ export class PopupWindow extends AbstractChildWindow {
         if (this._window) {
             if (!this._window.closed) {
                 this._window.close();
+                this._abort.raise(new Error("Popup closed"));
             }
-            this._abort.raise(new Error("Popup closed"));
         }
         this._window = null;
     }
