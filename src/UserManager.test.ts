@@ -36,22 +36,6 @@ describe("UserManager", () => {
                 revocation_endpoint: "http://sts/oidc/revoke",
             },
         });
-
-        const location = Object.defineProperties({}, {
-            ...Object.getOwnPropertyDescriptors(window.location),
-            assign: {
-                enumerable: true,
-                value: jest.fn(),
-            },
-            replace: {
-                enumerable: true,
-                value: jest.fn(),
-            },
-        });
-        Object.defineProperty(window, "location", {
-            enumerable: true,
-            get: () => location,
-        });
     });
 
     describe("constructor", () => {

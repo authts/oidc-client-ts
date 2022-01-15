@@ -24,10 +24,24 @@ export class RedirectNavigator implements INavigator {
     public async prepare({
         redirectMethod = this._settings.redirectMethod,
     }: RedirectParams): Promise<IWindow> {
+        this._logger.create("prepare");
         const redirect = window.location[redirectMethod].bind(window.location) as (url: string) => never;
+        let abort: (reason: Error) => void;
         return {
-            navigate: (params) => redirect(params.url),
-            close: () => this._logger.warn("close: cannot close the current window"),
+            navigate: async (params): Promise<never> => {
+                this._logger.create("navigate");
+                const promise = new Promise((resolve, reject) => {
+                    abort = reject;
+                    window.addEventListener("beforeunload", () => resolve(null));
+                });
+                redirect(params.url);
+                return await (promise as Promise<never>);
+            },
+            close: () => {
+                this._logger.create("close");
+                abort?.(new Error("Redirect aborted"));
+                window.stop();
+            },
         };
     }
 }
