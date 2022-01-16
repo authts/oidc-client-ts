@@ -32,7 +32,7 @@ export class RedirectNavigator implements INavigator {
                 this._logger.create("navigate");
                 const promise = new Promise((resolve, reject) => {
                     abort = reject;
-                    window.addEventListener("beforeunload", () => resolve(null));
+                    window.addEventListener("unload", () => resolve(null));
                 });
                 redirect(params.url);
                 return await (promise as Promise<never>);

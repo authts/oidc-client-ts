@@ -3,7 +3,7 @@ import { Log } from "../src";
 beforeAll(() => {
     globalThis.fetch = jest.fn();
 
-    const unload = () => window.dispatchEvent(new Event("beforeunload"));
+    const unload = () => window.dispatchEvent(new Event("unload"));
 
     const location = Object.defineProperties({}, {
         ...Object.getOwnPropertyDescriptors(window.location),
