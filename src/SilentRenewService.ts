@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Logger, Timer } from "./utils";
-import { ErrorNetwork, ErrorTimeout } from "./errors";
+import { ErrorNetworkTimeout, ErrorTimeout } from "./errors";
 import type { UserManager } from "./UserManager";
 import type { AccessTokenCallback } from "./AccessTokenEvents";
 
@@ -52,7 +52,7 @@ export class SilentRenewService {
         }
         catch (err) {
             if (this._userManager.settings.retrySilentRenew &&
-                (err instanceof ErrorTimeout || err instanceof ErrorNetwork)) {
+                (err instanceof ErrorTimeout || err instanceof ErrorNetworkTimeout)) {
                 // no response from authority server, e.g. IFrame timeout, ...
                 logger.warn("Error(Timeout|Network) from signinSilent:", err, "retry in 5s");
                 this._retryTimer.init(5);

@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { ErrorNetwork, ErrorResponse } from "./errors";
+import { ErrorNetworkTimeout, ErrorResponse } from "./errors";
 import { Logger } from "./utils";
 
 /**
@@ -27,6 +27,18 @@ export class JsonService {
         }
     }
 
+    protected async fetchWithTimeout(input: RequestInfo, init: RequestInit & { timeout?: number } = {}) {
+        const { timeout = 8 * 1000, ...initFetch } = init;
+        return await Promise.race([
+            fetch(input, initFetch),
+            new Promise<Response>((_, reject) => {
+                setTimeout(() => {
+                    reject(new ErrorNetworkTimeout("Network timed out"));
+                }, timeout);
+            }),
+        ]);
+    }
+
     public async getJson(url: string, token?: string): Promise<Record<string, unknown>> {
         const logger = this._logger.create("getJson");
         const headers: HeadersInit = {
@@ -40,11 +52,11 @@ export class JsonService {
         let response: Response;
         try {
             logger.debug("url:", url);
-            response = await fetch(url, { method: "GET", headers });
+            response = await this.fetchWithTimeout(url, { method: "GET", headers });
         }
         catch (err) {
             logger.error("Network Error");
-            throw new ErrorNetwork(err as TypeError);
+            throw err;
         }
 
         logger.debug("HTTP response received, status", response.status);
@@ -87,11 +99,11 @@ export class JsonService {
         let response: Response;
         try {
             logger.debug("url:", url);
-            response = await fetch(url, { method: "POST", headers, body });
+            response = await this.fetchWithTimeout(url, { method: "POST", headers, body });
         }
         catch (err) {
             logger.error("Network error");
-            throw new ErrorNetwork(err as TypeError);
+            throw err;
         }
 
         logger.debug("HTTP response received, status", response.status);

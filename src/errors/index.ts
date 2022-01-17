@@ -1,3 +1,3 @@
-export * from "./ErrorNetwork";
+export * from "./ErrorNetworkTimeout";
 export * from "./ErrorResponse";
 export * from "./ErrorTimeout";

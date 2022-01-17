@@ -84,8 +84,8 @@ export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url" | "state_d
 };
 
 // @public
-export class ErrorNetwork extends TypeError {
-    constructor(error: TypeError);
+export class ErrorNetworkTimeout extends TypeError {
+    constructor(message?: string);
     readonly name: string;
 }
 

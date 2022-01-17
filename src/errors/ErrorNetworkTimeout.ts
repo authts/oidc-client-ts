@@ -6,11 +6,11 @@
  *
  * @public
  */
-export class ErrorNetwork extends TypeError {
-    /** Marker to detect class: "ErrorNetwork" */
-    public readonly name: string = "ErrorNetwork";
+export class ErrorNetworkTimeout extends TypeError {
+    /** Marker to detect class: "ErrorNetworkTimeout" */
+    public readonly name: string = "ErrorNetworkTimeout";
 
-    public constructor(error: TypeError) {
-        super(error.message);
+    public constructor(message?: string) {
+        super(message);
     }
 }
