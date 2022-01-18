@@ -17,6 +17,8 @@ removed.
     their behavior
 - restricted `response_type` to `code` flow only (PKCE remains optional)
   - as in oidc-client 1.x, OAuth 2.0 hybrid flows are not supported
+  - the property `signingKeys` is unused, unless the MetaDataService with this feature is used
+    outside of this library.
 
 ### [UserManagerSettings](https://authts.github.io/oidc-client-ts/interfaces/UserManagerSettings.html)
 
