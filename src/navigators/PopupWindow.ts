@@ -2,17 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Logger, PopupUtils, PopupWindowFeatures } from "../utils";
+import { DefaultPopupWindowFeatures, DefaultPopupTarget } from "../UserManagerSettings";
 import { AbstractChildWindow } from "./AbstractChildWindow";
 import type { NavigateParams, NavigateResponse } from "./IWindow";
 
 const checkForPopupClosedInterval = 500;
-const defaultPopupWindowFeatures: PopupWindowFeatures = {
-    location: false,
-    toolbar: false,
-    height: 640,
-};
-
-const defaultPopupTarget = "_blank";
 
 /**
  * @public
@@ -31,11 +25,11 @@ export class PopupWindow extends AbstractChildWindow {
     protected _window: WindowProxy | null;
 
     public constructor({
-        popupWindowTarget = defaultPopupTarget,
+        popupWindowTarget = DefaultPopupTarget,
         popupWindowFeatures = {},
     }: PopupWindowParams) {
         super();
-        const centeredPopup = PopupUtils.center({ ...defaultPopupWindowFeatures, ...popupWindowFeatures });
+        const centeredPopup = PopupUtils.center({ ...DefaultPopupWindowFeatures, ...popupWindowFeatures });
         this._window = window.open(undefined, popupWindowTarget, PopupUtils.serialize(centeredPopup));
     }
 

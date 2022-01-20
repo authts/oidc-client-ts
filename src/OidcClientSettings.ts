@@ -111,7 +111,7 @@ export interface OidcClientSettings {
 export class OidcClientSettingsStore {
     // metadata
     public readonly authority: string;
-    public readonly metadataUrl: string | undefined;
+    public readonly metadataUrl: string;
     public readonly metadata: Partial<OidcMetadata> | undefined;
     public readonly metadataSeed: Partial<OidcMetadata> | undefined;
     public readonly signingKeys: SigningKey[] | undefined;
@@ -172,7 +172,19 @@ export class OidcClientSettingsStore {
     }: OidcClientSettings) {
 
         this.authority = authority;
-        this.metadataUrl = metadataUrl;
+
+        if (metadataUrl) {
+            this.metadataUrl = metadataUrl;
+        } else {
+            this.metadataUrl = authority;
+            if (authority) {
+                if (!this.metadataUrl.endsWith("/")) {
+                    this.metadataUrl += "/";
+                }
+                this.metadataUrl += ".well-known/openid-configuration";
+            }
+        }
+
         this.metadata = metadata;
         this.metadataSeed = metadataSeed;
         this.signingKeys = signingKeys;

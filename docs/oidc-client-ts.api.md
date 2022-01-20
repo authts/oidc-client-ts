@@ -385,7 +385,7 @@ export class OidcClientSettingsStore {
     // (undocumented)
     readonly metadataSeed: Partial<OidcMetadata> | undefined;
     // (undocumented)
-    readonly metadataUrl: string | undefined;
+    readonly metadataUrl: string;
     // (undocumented)
     readonly post_logout_redirect_uri: string | undefined;
     // (undocumented)
@@ -994,13 +994,13 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     // (undocumented)
     readonly popup_post_logout_redirect_uri: string | undefined;
     // (undocumented)
-    readonly popup_redirect_uri: string | undefined;
+    readonly popup_redirect_uri: string;
     // (undocumented)
-    readonly popupWindowFeatures: PopupWindowFeatures | undefined;
+    readonly popupWindowFeatures: PopupWindowFeatures;
     // (undocumented)
-    readonly popupWindowTarget: string | undefined;
+    readonly popupWindowTarget: string;
     // (undocumented)
-    readonly query_status_response_type: string | undefined;
+    readonly query_status_response_type: string;
     // (undocumented)
     readonly redirectMethod: "replace" | "assign";
     // (undocumented)
@@ -1008,9 +1008,9 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     // (undocumented)
     readonly revokeTokenTypes: ("access_token" | "refresh_token")[];
     // (undocumented)
-    readonly silent_redirect_uri: string | undefined;
+    readonly silent_redirect_uri: string;
     // (undocumented)
-    readonly silentRequestTimeoutInSeconds: number | undefined;
+    readonly silentRequestTimeoutInSeconds: number;
     // (undocumented)
     readonly stopCheckSessionOnError: boolean;
     // (undocumented)

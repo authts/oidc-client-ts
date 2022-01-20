@@ -2,12 +2,19 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
-import type { PopupWindowFeatures } from "./utils";
+import type { PopupWindowFeatures } from "./utils/PopupUtils";
 import { WebStorageStateStore } from "./WebStorageStateStore";
 import { InMemoryWebStorage } from "./InMemoryWebStorage";
 
+export const DefaultPopupWindowFeatures: PopupWindowFeatures = {
+    location: false,
+    toolbar: false,
+    height: 640,
+};
+export const DefaultPopupTarget = "_blank";
 const DefaultAccessTokenExpiringNotificationTimeInSeconds = 60;
 const DefaultCheckSessionIntervalInSeconds = 2;
+export const DefaultSilentRequestTimeoutInSeconds = 10;
 
 /**
  * The settings used to configure the {@link UserManager}.
@@ -73,14 +80,14 @@ export interface UserManagerSettings extends OidcClientSettings {
  * @public
  */
 export class UserManagerSettingsStore extends OidcClientSettingsStore {
-    public readonly popup_redirect_uri: string | undefined;
+    public readonly popup_redirect_uri: string;
     public readonly popup_post_logout_redirect_uri: string | undefined;
-    public readonly popupWindowFeatures: PopupWindowFeatures | undefined;
-    public readonly popupWindowTarget: string | undefined;
+    public readonly popupWindowFeatures: PopupWindowFeatures;
+    public readonly popupWindowTarget: string;
     public readonly redirectMethod: "replace" | "assign";
 
-    public readonly silent_redirect_uri: string | undefined;
-    public readonly silentRequestTimeoutInSeconds: number | undefined;
+    public readonly silent_redirect_uri: string;
+    public readonly silentRequestTimeoutInSeconds: number;
     public readonly automaticSilentRenew: boolean;
     public readonly validateSubOnSilentRenew: boolean;
     public readonly includeIdTokenInSilentRenew: boolean;
@@ -88,7 +95,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly monitorSession: boolean;
     public readonly monitorAnonymousSession: boolean;
     public readonly checkSessionIntervalInSeconds: number;
-    public readonly query_status_response_type: string | undefined;
+    public readonly query_status_response_type: string;
     public readonly stopCheckSessionOnError: boolean;
 
     public readonly revokeTokenTypes: ("access_token" | "refresh_token")[];
@@ -99,14 +106,14 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
     public constructor(args: UserManagerSettings) {
         const {
-            popup_redirect_uri,
-            popup_post_logout_redirect_uri,
-            popupWindowFeatures,
-            popupWindowTarget,
+            popup_redirect_uri = args.redirect_uri,
+            popup_post_logout_redirect_uri = args.post_logout_redirect_uri,
+            popupWindowFeatures = DefaultPopupWindowFeatures,
+            popupWindowTarget = DefaultPopupTarget,
             redirectMethod = "assign",
 
-            silent_redirect_uri,
-            silentRequestTimeoutInSeconds,
+            silent_redirect_uri = args.redirect_uri,
+            silentRequestTimeoutInSeconds = DefaultSilentRequestTimeoutInSeconds,
             automaticSilentRenew = true,
             validateSubOnSilentRenew = true,
             includeIdTokenInSilentRenew = false,
@@ -114,7 +121,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             monitorSession = false,
             monitorAnonymousSession = false,
             checkSessionIntervalInSeconds = DefaultCheckSessionIntervalInSeconds,
-            query_status_response_type,
+            query_status_response_type = "code",
             stopCheckSessionOnError = true,
 
             revokeTokenTypes = ["access_token", "refresh_token"],
@@ -142,12 +149,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         this.monitorAnonymousSession = monitorAnonymousSession;
         this.checkSessionIntervalInSeconds = checkSessionIntervalInSeconds;
         this.stopCheckSessionOnError = stopCheckSessionOnError;
-        if (query_status_response_type) {
-            this.query_status_response_type = query_status_response_type;
-        }
-        else {
-            this.query_status_response_type = "code";
-        }
+        this.query_status_response_type = query_status_response_type;
 
         this.revokeTokenTypes = revokeTokenTypes;
         this.revokeTokensOnSignout = revokeTokensOnSignout;
