@@ -1,7 +1,8 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Logger } from "./utils";
+import { Logger, Timer } from "./utils";
+import { ErrorTimeout } from "./errors";
 import type { UserManager } from "./UserManager";
 import type { AccessTokenCallback } from "./AccessTokenEvents";
 
@@ -11,6 +12,7 @@ import type { AccessTokenCallback } from "./AccessTokenEvents";
 export class SilentRenewService {
     protected _logger = new Logger("SilentRenewService");
     private _isStarted = false;
+    private readonly _retryTimer = new Timer("Retry Silent Renew");
 
     public constructor(private _userManager: UserManager) {}
 
@@ -19,6 +21,7 @@ export class SilentRenewService {
         if (!this._isStarted) {
             this._isStarted = true;
             this._userManager.events.addAccessTokenExpiring(this._tokenExpiring);
+            this._retryTimer.addHandler(this._tokenExpiring);
 
             // this will trigger loading of the user so the expiring events can be initialized
             try {
@@ -34,6 +37,8 @@ export class SilentRenewService {
 
     public stop(): void {
         if (this._isStarted) {
+            this._retryTimer.cancel();
+            this._retryTimer.removeHandler(this._tokenExpiring);
             this._userManager.events.removeAccessTokenExpiring(this._tokenExpiring);
             this._isStarted = false;
         }
@@ -44,7 +49,15 @@ export class SilentRenewService {
         try {
             await this._userManager.signinSilent();
             logger.debug("silent token renewal successful");
-        } catch (err) {
+        }
+        catch (err) {
+            if (err instanceof ErrorTimeout) {
+                // no response from authority server, e.g. IFrame timeout, ...
+                logger.warn("ErrorTimeout from signinSilent:", err, "retry in 5s");
+                this._retryTimer.init(5);
+                return;
+            }
+
             logger.error("Error from signinSilent:", err);
             this._userManager.events._raiseSilentRenewError(err as Error);
         }

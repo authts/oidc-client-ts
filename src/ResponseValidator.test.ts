@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { JwtUtils } from "./utils";
+import { ErrorResponse } from "./errors";
 import { ResponseValidator } from "./ResponseValidator";
 import { MetadataService } from "./MetadataService";
 import type { SigninState } from "./SigninState";
 import type { SigninResponse } from "./SigninResponse";
 import type { SignoutResponse } from "./SignoutResponse";
-import { ErrorResponse } from "./ErrorResponse";
 import type { UserProfile } from "./User";
 import type { OidcClientSettingsStore } from "./OidcClientSettings";
 import { mocked } from "jest-mock";

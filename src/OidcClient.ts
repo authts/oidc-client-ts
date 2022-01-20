@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Logger, UrlUtils } from "./utils";
+import { ErrorResponse } from "./errors";
 import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 import { ResponseValidator } from "./ResponseValidator";
 import { MetadataService } from "./MetadataService";
-import { ErrorResponse } from "./ErrorResponse";
 import type { RefreshState } from "./RefreshState";
 import { SigninRequest } from "./SigninRequest";
 import { SigninResponse } from "./SigninResponse";

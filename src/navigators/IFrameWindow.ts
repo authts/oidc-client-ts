@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Logger } from "../utils";
+import { ErrorTimeout } from "../errors";
 import type { NavigateParams, NavigateResponse } from "./IWindow";
 import { AbstractChildWindow } from "./AbstractChildWindow";
 
@@ -45,7 +46,7 @@ export class IFrameWindow extends AbstractChildWindow {
 
     public async navigate(params: NavigateParams): Promise<NavigateResponse> {
         this._logger.debug("navigate: Using timeout of:", this._timeoutInSeconds);
-        const timer = setTimeout(() => this._abort.raise(new Error("IFrame timed out without a response")), this._timeoutInSeconds * 1000);
+        const timer = setTimeout(() => this._abort.raise(new ErrorTimeout("IFrame timed out without a response")), this._timeoutInSeconds * 1000);
         this._disposeHandlers.add(() => clearTimeout(timer));
 
         return await super.navigate(params);

@@ -5,7 +5,7 @@
 ```ts
 
 // @public (undocumented)
-export type AccessTokenCallback = (...ev: unknown[]) => void;
+export type AccessTokenCallback = (...ev: unknown[]) => (Promise<void> | void);
 
 // @public (undocumented)
 export class AccessTokenEvents {
@@ -101,6 +101,12 @@ export class ErrorResponse extends Error {
     // (undocumented)
     readonly session_state: string | null;
     state?: unknown;
+}
+
+// @public
+export class ErrorTimeout extends Error {
+    constructor(message?: string);
+    readonly name: string;
 }
 
 // @public (undocumented)

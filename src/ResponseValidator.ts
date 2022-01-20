@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Logger, JwtUtils } from "./utils";
+import { ErrorResponse } from "./errors";
 import type { MetadataService } from "./MetadataService";
 import { UserInfoService } from "./UserInfoService";
 import { TokenClient } from "./TokenClient";
-import { ErrorResponse } from "./ErrorResponse";
 import type { OidcClientSettingsStore } from "./OidcClientSettings";
 import type { SigninState } from "./SigninState";
 import type { SigninResponse } from "./SigninResponse";
