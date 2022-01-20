@@ -263,7 +263,10 @@ export class UserManager {
     }
 
     protected async _useRefreshToken(state: RefreshState): Promise<User> {
-        const response = await this._client.useRefreshToken({ state });
+        const response = await this._client.useRefreshToken({
+            state,
+            timeoutInSeconds: this.settings.silentRequestTimeoutInSeconds,
+        });
         const user = new User({ ...state, ...response });
 
         await this.storeUser(user);
