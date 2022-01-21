@@ -47,6 +47,13 @@ export interface CreateSigninRequestArgs {
 /**
  * @public
  */
+export interface UseRefreshTokenArgs {
+    state: RefreshState;
+}
+
+/**
+ * @public
+ */
 export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url" | "state_data"> & { state?: unknown };
 
 /**
@@ -151,7 +158,9 @@ export class OidcClient {
         return response;
     }
 
-    public async useRefreshToken(state: RefreshState): Promise<SigninResponse> {
+    public async useRefreshToken({
+        state,
+    }: UseRefreshTokenArgs): Promise<SigninResponse> {
         const logger = this._logger.create("useRefreshToken");
 
         const result = await this._tokenClient.exchangeRefreshToken({

@@ -305,10 +305,8 @@ export class OidcClient {
     //
     // (undocumented)
     protected readonly _tokenClient: TokenClient;
-    // Warning: (ae-forgotten-export) The symbol "RefreshState" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
-    useRefreshToken(state: RefreshState): Promise<SigninResponse>;
+    useRefreshToken({ state, }: UseRefreshTokenArgs): Promise<SigninResponse>;
     // Warning: (ae-forgotten-export) The symbol "ResponseValidator" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -833,6 +831,14 @@ export class User {
     token_type: string;
     // (undocumented)
     toStorageString(): string;
+}
+
+// @public (undocumented)
+export interface UseRefreshTokenArgs {
+    // Warning: (ae-forgotten-export) The symbol "RefreshState" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    state: RefreshState;
 }
 
 // @public (undocumented)

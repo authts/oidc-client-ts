@@ -347,7 +347,7 @@ describe("OidcClient", () => {
             });
 
             // act
-            const response = await subject.useRefreshToken(state);
+            const response = await subject.useRefreshToken({ state });
 
             // assert
             expect(response).toBeInstanceOf(SigninResponse);
@@ -368,7 +368,7 @@ describe("OidcClient", () => {
             });
 
             // act
-            const response = await subject.useRefreshToken(state);
+            const response = await subject.useRefreshToken({ state });
 
             // assert
             expect(response).toBeInstanceOf(SigninResponse);
@@ -399,7 +399,7 @@ describe("OidcClient", () => {
             });
 
             // act
-            await expect(subject.useRefreshToken(state))
+            await expect(subject.useRefreshToken({ state }))
                 // assert
                 .rejects.toThrow("sub in id_token does not match current sub");
         });
