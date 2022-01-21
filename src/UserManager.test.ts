@@ -421,7 +421,11 @@ describe("UserManager", () => {
             const refreshedUser = await subject.signinSilent();
             expect(refreshedUser).toHaveProperty("access_token", "new_access_token");
             expect(refreshedUser!.profile).toHaveProperty("nickname", "Nicholas");
-            expect(useRefreshTokenSpy).toBeCalledWith(expect.objectContaining({ refresh_token: user.refresh_token }));
+            expect(useRefreshTokenSpy).toBeCalledWith(
+                expect.objectContaining({
+                    state: { refresh_token: user.refresh_token },
+                }),
+            );
         });
     });
 
