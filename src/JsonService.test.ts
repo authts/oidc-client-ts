@@ -3,6 +3,7 @@
 
 import { ErrorResponse } from "./errors";
 import { JsonService } from "./JsonService";
+
 import { mocked } from "jest-mock";
 
 describe("JsonService", () => {
@@ -18,10 +19,13 @@ describe("JsonService", () => {
             await expect(subject.getJson("http://test")).rejects.toThrow();
 
             // assert
-            expect(fetch).toBeCalledWith("http://test", {
-                headers: { Accept: "application/json" },
-                method: "GET",
-            });
+            expect(fetch).toBeCalledWith(
+                "http://test",
+                expect.objectContaining({
+                    headers: { Accept: "application/json" },
+                    method: "GET",
+                }),
+            );
         });
 
         it("should set token as authorization header", async () => {
@@ -29,10 +33,13 @@ describe("JsonService", () => {
             await expect(subject.getJson("http://test", "token")).rejects.toThrow();
 
             // assert
-            expect(fetch).toBeCalledWith("http://test", {
-                headers: { Accept: "application/json", Authorization: "Bearer token" },
-                method: "GET",
-            });
+            expect(fetch).toBeCalledWith(
+                "http://test",
+                expect.objectContaining({
+                    headers: { Accept: "application/json", Authorization: "Bearer token" },
+                    method: "GET",
+                }),
+            );
         });
 
         it("should fulfill promise when http response is 200", async () => {
