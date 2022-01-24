@@ -27,7 +27,7 @@ export class UserInfoService {
         const url = await this._metadataService.getUserInfoEndpoint();
         logger.debug("got userinfo url", url);
 
-        const claims = await this._jsonService.getJson(url, token);
+        const claims = await this._jsonService.getJson(url, { token });
         logger.debug("got claims", claims);
 
         return claims;

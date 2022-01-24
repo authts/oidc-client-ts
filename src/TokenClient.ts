@@ -99,7 +99,7 @@ export class TokenClient {
         const url = await this._metadataService.getTokenEndpoint(false);
         logger.debug("got token endpoint");
 
-        const response = await this._jsonService.postForm(url, params, basicAuth);
+        const response = await this._jsonService.postForm(url, { body: params, basicAuth });
         logger.debug("got response");
 
         return response;
@@ -109,6 +109,7 @@ export class TokenClient {
         grant_type = "refresh_token",
         client_id = this._settings.client_id,
         client_secret = this._settings.client_secret,
+        timeoutInSeconds,
         ...args
     }: ExchangeRefreshTokenArgs): Promise<Record<string, unknown>> {
         const logger = this._logger.create("exchangeRefreshToken");
@@ -145,7 +146,7 @@ export class TokenClient {
         const url = await this._metadataService.getTokenEndpoint(false);
         logger.debug("got token endpoint");
 
-        const response = await this._jsonService.postForm(url, params, basicAuth, args.timeoutInSeconds);
+        const response = await this._jsonService.postForm(url, { body: params, basicAuth, timeoutInSeconds });
         logger.debug("got response");
 
         return response;
@@ -177,7 +178,7 @@ export class TokenClient {
             params.set("client_secret", this._settings.client_secret);
         }
 
-        await this._jsonService.postForm(url, params);
+        await this._jsonService.postForm(url, { body: params });
         logger.debug("got response");
     }
 }

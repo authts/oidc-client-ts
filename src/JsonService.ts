@@ -12,6 +12,22 @@ export type JwtHandler = (text: string) => Promise<Record<string, unknown>>;
 /**
  * @internal
  */
+export interface GetJsonOpts {
+    token?: string;
+}
+
+/**
+ * @internal
+ */
+export interface PostFormOpts {
+    body: URLSearchParams;
+    basicAuth?: string;
+    timeoutInSeconds?: number;
+}
+
+/**
+ * @internal
+ */
 export class JsonService {
     private readonly _logger = new Logger("JsonService");
 
@@ -54,7 +70,9 @@ export class JsonService {
         }
     }
 
-    public async getJson(url: string, token?: string): Promise<Record<string, unknown>> {
+    public async getJson(url: string, {
+        token,
+    }: GetJsonOpts = {}): Promise<Record<string, unknown>> {
         const logger = this._logger.create("getJson");
         const headers: HeadersInit = {
             "Accept": this._contentTypes.join(", "),
@@ -101,7 +119,11 @@ export class JsonService {
         return json;
     }
 
-    public async postForm(url: string, body: URLSearchParams, basicAuth?: string, timeoutInSeconds?: number): Promise<Record<string, unknown>> {
+    public async postForm(url: string, {
+        body,
+        basicAuth,
+        timeoutInSeconds,
+    }: PostFormOpts): Promise<Record<string, unknown>> {
         const logger = this._logger.create("postForm");
         const headers: HeadersInit = {
             "Accept": this._contentTypes.join(", "),
