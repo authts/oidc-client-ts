@@ -5,8 +5,7 @@ import { Logger } from "../utils";
 import { ErrorTimeout } from "../errors";
 import type { NavigateParams, NavigateResponse } from "./IWindow";
 import { AbstractChildWindow } from "./AbstractChildWindow";
-
-const defaultTimeoutInSeconds = 10;
+import { DefaultSilentRequestTimeoutInSeconds } from "../UserManagerSettings";
 
 /**
  * @public
@@ -24,7 +23,7 @@ export class IFrameWindow extends AbstractChildWindow {
     private _timeoutInSeconds: number;
 
     public constructor({
-        silentRequestTimeoutInSeconds = defaultTimeoutInSeconds,
+        silentRequestTimeoutInSeconds = DefaultSilentRequestTimeoutInSeconds,
     }: IFrameWindowParams) {
         super();
         this._timeoutInSeconds = silentRequestTimeoutInSeconds;

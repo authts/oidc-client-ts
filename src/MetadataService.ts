@@ -6,8 +6,6 @@ import { JsonService } from "./JsonService";
 import type { OidcClientSettingsStore, SigningKey } from "./OidcClientSettings";
 import type { OidcMetadata } from "./OidcMetadata";
 
-const OidcMetadataUrlPath = ".well-known/openid-configuration";
-
 /**
  * @public
  */
@@ -16,20 +14,12 @@ export class MetadataService {
     private readonly _jsonService = new JsonService(["application/jwk-set+json"]);
 
     // cache
-    private _metadataUrl: string | null = null;
+    private _metadataUrl: string;
     private _signingKeys: SigningKey[] | null = null;
     private _metadata: Partial<OidcMetadata> | null = null;
 
     public constructor(private readonly _settings: OidcClientSettingsStore) {
-        if (this._settings.metadataUrl) {
-            this._metadataUrl = this._settings.metadataUrl;
-        } else if (this._settings.authority) {
-            this._metadataUrl = this._settings.authority;
-            if (!this._metadataUrl.endsWith("/")) {
-                this._metadataUrl += "/";
-            }
-            this._metadataUrl += OidcMetadataUrlPath;
-        }
+        this._metadataUrl = this._settings.metadataUrl;
 
         if (this._settings.signingKeys) {
             this._logger.debug("using signingKeys from settings");

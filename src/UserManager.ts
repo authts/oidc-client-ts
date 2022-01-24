@@ -181,9 +181,9 @@ export class UserManager {
             popupWindowTarget,
             ...requestArgs
         } = args;
-        const url = this.settings.popup_redirect_uri || this.settings.redirect_uri;
+        const url = this.settings.popup_redirect_uri;
         if (!url) {
-            logger.throw(new Error("No popup_redirect_uri or redirect_uri configured"));
+            logger.throw(new Error("No popup_redirect_uri configured"));
         }
 
         const handle = await this._popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget });
@@ -231,7 +231,7 @@ export class UserManager {
             return await this._useRefreshToken(state);
         }
 
-        const url = this.settings.silent_redirect_uri || this.settings.redirect_uri;
+        const url = this.settings.silent_redirect_uri;
         if (!url) {
             logger.throw(new Error("No silent_redirect_uri configured"));
         }
@@ -321,7 +321,7 @@ export class UserManager {
             silentRequestTimeoutInSeconds,
             ...requestArgs
         } = args;
-        const url = this.settings.silent_redirect_uri || this.settings.redirect_uri;
+        const url = this.settings.silent_redirect_uri;
         if (!url) {
             logger.throw(new Error("No silent_redirect_uri configured"));
         }
@@ -452,7 +452,7 @@ export class UserManager {
             popupWindowTarget,
             ...requestArgs
         } = args;
-        const url = this.settings.popup_post_logout_redirect_uri || this.settings.post_logout_redirect_uri;
+        const url = this.settings.popup_post_logout_redirect_uri;
 
         const handle = await this._popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget });
         await this._signout({
