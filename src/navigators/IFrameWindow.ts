@@ -28,19 +28,24 @@ export class IFrameWindow extends AbstractChildWindow {
         super();
         this._timeoutInSeconds = silentRequestTimeoutInSeconds;
 
-        this._frame = window.document.createElement("iframe");
+        this._frame = IFrameWindow.createHiddenIframe();
         this._window = this._frame.contentWindow;
+    }
+
+    private static createHiddenIframe(): HTMLIFrameElement {
+        const iframe = window.document.createElement("iframe");
 
         // shotgun approach
-        this._frame.style.visibility = "hidden";
-        this._frame.style.position = "fixed";
-        this._frame.style.left = "-1000px";
-        this._frame.style.top = "0";
-        this._frame.width = "0";
-        this._frame.height = "0";
+        iframe.style.visibility = "hidden";
+        iframe.style.position = "fixed";
+        iframe.style.left = "-1000px";
+        iframe.style.top = "0";
+        iframe.width = "0";
+        iframe.height = "0";
+        iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms");
 
-        window.document.body.appendChild(this._frame);
-        this._window = this._frame.contentWindow;
+        window.document.body.appendChild(iframe);
+        return iframe;
     }
 
     public async navigate(params: NavigateParams): Promise<NavigateResponse> {
@@ -51,7 +56,7 @@ export class IFrameWindow extends AbstractChildWindow {
         return await super.navigate(params);
     }
 
-    close(): void {
+    public close(): void {
         if (this._frame) {
             if (this._frame.parentNode) {
                 this._frame.addEventListener("load", (ev) => {
