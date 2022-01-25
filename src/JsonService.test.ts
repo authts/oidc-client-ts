@@ -30,7 +30,7 @@ describe("JsonService", () => {
 
         it("should set token as authorization header", async () => {
             // act
-            await expect(subject.getJson("http://test", "token")).rejects.toThrow();
+            await expect(subject.getJson("http://test", { token: "token" })).rejects.toThrow();
 
             // assert
             expect(fetch).toBeCalledWith(
@@ -169,7 +169,7 @@ describe("JsonService", () => {
     describe("postForm", () => {
         it("should make POST request to url", async () => {
             // act
-            await expect(subject.postForm("http://test", new URLSearchParams("a=b"))).rejects.toThrow();
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("a=b") })).rejects.toThrow();
 
             // assert
             expect(fetch).toBeCalledWith(
@@ -187,7 +187,7 @@ describe("JsonService", () => {
 
         it("should set basicAuth as authorization header", async () => {
             // act
-            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy"), "basicAuth")).rejects.toThrow();
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), basicAuth: "basicAuth" })).rejects.toThrow();
 
             // assert
             expect(fetch).toBeCalledWith(
@@ -206,7 +206,7 @@ describe("JsonService", () => {
 
         it("should set payload as body", async () => {
             // act
-            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy"))).rejects.toThrow();
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy") })).rejects.toThrow();
 
             // assert
             const body = new URLSearchParams();
@@ -239,7 +239,7 @@ describe("JsonService", () => {
             } as Response);
 
             // act
-            const result = await subject.postForm("http://test", new URLSearchParams("payload=dummy"));
+            const result = await subject.postForm("http://test", { body: new URLSearchParams("payload=dummy") });
 
             // assert
             expect(result).toEqual(json);
@@ -250,7 +250,7 @@ describe("JsonService", () => {
             mocked(fetch).mockRejectedValue(new Error("Network Error"));
 
             // act
-            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy")))
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy") }))
                 // assert
                 .rejects.toThrow("Network Error");
         });
@@ -269,7 +269,7 @@ describe("JsonService", () => {
             } as Response);
 
             // act
-            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy")))
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy") }))
                 // assert
                 .rejects.toThrow(error);
         });
@@ -288,7 +288,7 @@ describe("JsonService", () => {
             } as Response);
 
             // act
-            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy")))
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy") }))
                 // assert
                 .rejects.toThrow("Invalid response Content-Type: text/html");
         });
@@ -307,7 +307,7 @@ describe("JsonService", () => {
             } as Response);
 
             // act
-            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy")))
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy") }))
                 // assert
                 .rejects.toThrow(ErrorResponse);
         });
@@ -326,7 +326,7 @@ describe("JsonService", () => {
             } as Response);
 
             // act
-            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy")))
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy") }))
                 // assert
                 .rejects.toThrow(JSON.stringify(json));
         });
@@ -345,7 +345,7 @@ describe("JsonService", () => {
             } as Response);
 
             // act
-            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy")))
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy") }))
                 // assert
                 .rejects.toThrow(/bad request.+400/);
         });
@@ -364,7 +364,7 @@ describe("JsonService", () => {
             } as Response);
 
             // act
-            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy")))
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy") }))
                 // assert
                 .rejects.toThrow("Invalid response Content-Type: text/html");
         });
@@ -381,7 +381,7 @@ describe("JsonService", () => {
             } as Response);
 
             // act
-            await expect(subject.postForm("http://test", new URLSearchParams("payload=dummy")))
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy") }))
                 // assert
                 .rejects.toThrow(/server error.+500/);
         });
@@ -401,7 +401,7 @@ describe("JsonService", () => {
             } as Response);
 
             // act
-            const result = await subject.postForm("http://test", new URLSearchParams("payload=dummy"));
+            const result = await subject.postForm("http://test", { body: new URLSearchParams("payload=dummy") });
 
             // assert
             expect(result).toEqual(json);

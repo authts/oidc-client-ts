@@ -59,7 +59,12 @@ describe("UserInfoService", () => {
             await subject.getClaims("token");
 
             // assert
-            expect(getJsonMock).toBeCalledWith("http://sts/userinfo", "token");
+            expect(getJsonMock).toBeCalledWith(
+                "http://sts/userinfo",
+                expect.objectContaining({
+                    token: "token",
+                }),
+            );
         });
 
         it("should fail when dependencies fail", async () => {

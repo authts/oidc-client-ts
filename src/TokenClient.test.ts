@@ -88,8 +88,10 @@ describe("TokenClient", () => {
             expect(getTokenEndpointMock).toBeCalledWith(false);
             expect(postFormMock).toBeCalledWith(
                 "http://sts/token_endpoint",
-                expect.any(URLSearchParams),
-                expect.stringContaining(""),
+                expect.objectContaining({
+                    body: expect.any(URLSearchParams),
+                    basicAuth: expect.stringContaining(""),
+                }),
             );
         });
 
@@ -110,10 +112,13 @@ describe("TokenClient", () => {
             expect(getTokenEndpointMock).toBeCalledWith(false);
             expect(postFormMock).toBeCalledWith(
                 "http://sts/token_endpoint",
-                expect.any(URLSearchParams),
-                undefined,
+                expect.objectContaining({
+                    body: expect.any(URLSearchParams),
+                    basicAuth: undefined,
+                }),
             );
-            const params = Object.fromEntries(postFormMock.mock.calls[0][1]);
+            const opts = postFormMock.mock.calls[0][1];
+            const params = Object.fromEntries(opts.body);
             expect(params).toHaveProperty("client_secret", "client_secret");
         });
 
@@ -131,8 +136,10 @@ describe("TokenClient", () => {
             expect(getTokenEndpointMock).toBeCalledWith(false);
             expect(postFormMock).toBeCalledWith(
                 "http://sts/token_endpoint",
-                expect.any(URLSearchParams),
-                undefined,
+                expect.objectContaining({
+                    body: expect.any(URLSearchParams),
+                    basicAuth: undefined,
+                }),
             );
         });
     });
@@ -196,9 +203,11 @@ describe("TokenClient", () => {
             expect(getTokenEndpointMock).toBeCalledWith(false);
             expect(postFormMock).toBeCalledWith(
                 "http://sts/token_endpoint",
-                expect.any(URLSearchParams),
-                expect.stringContaining(""),
-                undefined,
+                expect.objectContaining({
+                    body: expect.any(URLSearchParams),
+                    basicAuth: expect.stringContaining(""),
+                    timeoutInSeconds: undefined,
+                }),
             );
         });
 
@@ -219,11 +228,14 @@ describe("TokenClient", () => {
             expect(getTokenEndpointMock).toBeCalledWith(false);
             expect(postFormMock).toBeCalledWith(
                 "http://sts/token_endpoint",
-                expect.any(URLSearchParams),
-                undefined,
-                undefined,
+                expect.objectContaining({
+                    body: expect.any(URLSearchParams),
+                    basicAuth: undefined,
+                    timeoutInSeconds: undefined,
+                }),
             );
-            const params = Object.fromEntries(postFormMock.mock.calls[0][1]);
+            const opts = postFormMock.mock.calls[0][1];
+            const params = Object.fromEntries(opts.body);
             expect(params).toHaveProperty("client_secret", "client_secret");
         });
 
@@ -241,9 +253,11 @@ describe("TokenClient", () => {
             expect(getTokenEndpointMock).toBeCalledWith(false);
             expect(postFormMock).toBeCalledWith(
                 "http://sts/token_endpoint",
-                expect.any(URLSearchParams),
-                undefined,
-                undefined,
+                expect.objectContaining({
+                    body: expect.any(URLSearchParams),
+                    basicAuth: undefined,
+                    timeoutInSeconds: undefined,
+                }),
             );
         });
     });
@@ -273,7 +287,9 @@ describe("TokenClient", () => {
             expect(getTokenEndpointMock).toBeCalledWith(false);
             expect(postFormMock).toBeCalledWith(
                 "http://sts/revoke_endpoint",
-                expect.any(URLSearchParams),
+                expect.objectContaining({
+                    body: expect.any(URLSearchParams),
+                }),
             );
         });
     });
