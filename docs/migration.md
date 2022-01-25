@@ -17,8 +17,8 @@ removed.
     their behavior
 - restricted `response_type` to `code` flow only (PKCE remains optional)
   - as in oidc-client 1.x, OAuth 2.0 hybrid flows are not supported
-  - the property `signingKeys` is unused, unless the MetaDataService with this feature is used
-    outside of this library.
+- the property `signingKeys` is unused, unless the MetaDataService with this feature is used
+  outside of this library.
 
 ### [UserManagerSettings](https://authts.github.io/oidc-client-ts/interfaces/UserManagerSettings.html)
 
@@ -36,8 +36,7 @@ removed.
 - type of `popupWindowFeatures` changed from a string to a dictionary
   - additionally, its default dimensions are now responsive to the opener
     window's
-- a new property `revokeTokenTypes: ('access_token' | 'refresh_token')[]` was
-  added
+- a new property `revokeTokenTypes: ('access_token' | 'refresh_token')[]` was added
   - by default, `UserManager` will attempt revoking both token types when
     `revokeTokensOnSignout` is `true`. Compared to 1.x, sign out will now fail
     if revocations fail.
