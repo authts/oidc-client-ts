@@ -28,6 +28,8 @@ export interface ExchangeRefreshTokenArgs {
 
     grant_type?: string;
     refresh_token: string;
+
+    timeoutInSeconds?: number;
 }
 
 /**
@@ -143,7 +145,7 @@ export class TokenClient {
         const url = await this._metadataService.getTokenEndpoint(false);
         logger.debug("got token endpoint");
 
-        const response = await this._jsonService.postForm(url, params, basicAuth);
+        const response = await this._jsonService.postForm(url, params, basicAuth, args.timeoutInSeconds);
         logger.debug("got response");
 
         return response;

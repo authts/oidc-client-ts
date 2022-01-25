@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { ErrorResponse } from "./errors";
+import { ErrorResponse, ErrorTimeout } from "./errors";
 import { Logger } from "./utils";
 
 /**
@@ -27,6 +27,33 @@ export class JsonService {
         }
     }
 
+    protected async fetchWithTimeout(input: RequestInfo, init: RequestInit & { timeoutInSeconds?: number } = {}) {
+        const { timeoutInSeconds, ...initFetch } = init;
+        if (!timeoutInSeconds) {
+            return await fetch(input, initFetch);
+        }
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutInSeconds * 1000);
+
+        try {
+            const response = await fetch(input, {
+                ...init,
+                signal: controller.signal,
+            });
+            return response;
+        }
+        catch (err) {
+            if (err instanceof DOMException && err.name === "AbortError") {
+                throw new ErrorTimeout("Network timed out");
+            }
+            throw err;
+        }
+        finally {
+            clearTimeout(timeoutId);
+        }
+    }
+
     public async getJson(url: string, token?: string): Promise<Record<string, unknown>> {
         const logger = this._logger.create("getJson");
         const headers: HeadersInit = {
@@ -40,7 +67,7 @@ export class JsonService {
         let response: Response;
         try {
             logger.debug("url:", url);
-            response = await fetch(url, { method: "GET", headers });
+            response = await this.fetchWithTimeout(url, { method: "GET", headers });
         }
         catch (err) {
             logger.error("Network Error");
@@ -74,7 +101,7 @@ export class JsonService {
         return json;
     }
 
-    public async postForm(url: string, body: URLSearchParams, basicAuth?: string): Promise<Record<string, unknown>> {
+    public async postForm(url: string, body: URLSearchParams, basicAuth?: string, timeoutInSeconds?: number): Promise<Record<string, unknown>> {
         const logger = this._logger.create("postForm");
         const headers: HeadersInit = {
             "Accept": this._contentTypes.join(", "),
@@ -87,7 +114,7 @@ export class JsonService {
         let response: Response;
         try {
             logger.debug("url:", url);
-            response = await fetch(url, { method: "POST", headers, body });
+            response = await this.fetchWithTimeout(url, { method: "POST", headers, body, timeoutInSeconds });
         }
         catch (err) {
             logger.error("Network error");

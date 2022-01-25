@@ -198,6 +198,7 @@ describe("TokenClient", () => {
                 "http://sts/token_endpoint",
                 expect.any(URLSearchParams),
                 expect.stringContaining(""),
+                undefined,
             );
         });
 
@@ -220,6 +221,7 @@ describe("TokenClient", () => {
                 "http://sts/token_endpoint",
                 expect.any(URLSearchParams),
                 undefined,
+                undefined,
             );
             const params = Object.fromEntries(postFormMock.mock.calls[0][1]);
             expect(params).toHaveProperty("client_secret", "client_secret");
@@ -240,6 +242,7 @@ describe("TokenClient", () => {
             expect(postFormMock).toBeCalledWith(
                 "http://sts/token_endpoint",
                 expect.any(URLSearchParams),
+                undefined,
                 undefined,
             );
         });

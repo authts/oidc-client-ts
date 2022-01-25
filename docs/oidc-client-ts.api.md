@@ -306,7 +306,7 @@ export class OidcClient {
     // (undocumented)
     protected readonly _tokenClient: TokenClient;
     // (undocumented)
-    useRefreshToken({ state, }: UseRefreshTokenArgs): Promise<SigninResponse>;
+    useRefreshToken({ state, timeoutInSeconds, }: UseRefreshTokenArgs): Promise<SigninResponse>;
     // Warning: (ae-forgotten-export) The symbol "ResponseValidator" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -839,6 +839,8 @@ export interface UseRefreshTokenArgs {
     //
     // (undocumented)
     state: RefreshState;
+    // (undocumented)
+    timeoutInSeconds?: number;
 }
 
 // @public (undocumented)
