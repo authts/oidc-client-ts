@@ -28,6 +28,7 @@ export interface ExchangeRefreshTokenArgs {
 
     grant_type?: string;
     refresh_token: string;
+    scope?: string;
 
     timeoutInSeconds?: number;
 }
