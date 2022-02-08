@@ -359,7 +359,9 @@ describe("OidcClient", () => {
             const tokenResponse = {
                 access_token: "new_access_token",
             };
-            jest.spyOn(subject["_tokenClient"], "exchangeRefreshToken").mockResolvedValue(tokenResponse);
+            const exchangeRefreshTokenMock =
+                jest.spyOn(subject["_tokenClient"], "exchangeRefreshToken")
+                    .mockResolvedValue(tokenResponse);
             jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
             const state = new RefreshState({
                 refresh_token: "refresh_token",
@@ -371,6 +373,10 @@ describe("OidcClient", () => {
             const response = await subject.useRefreshToken({ state });
 
             // assert
+            expect(exchangeRefreshTokenMock).toHaveBeenCalledWith( {
+                refresh_token: "refresh_token",
+                scope: "openid",
+            });
             expect(response).toBeInstanceOf(SigninResponse);
             expect(response).toMatchObject(tokenResponse);
             expect(response).toHaveProperty("scope", state.scope);
