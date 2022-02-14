@@ -96,7 +96,10 @@ Additional provider specific settings may be needed for a flawless operation:
 ```javascript
 const mgr = new UserManager({
     // ...
-    revokeTokenTypes: ["refresh_token"]
+    // no revoke of "access token" (https://github.com/authts/oidc-client-ts/issues/262)
+    revokeTokenTypes: ["refresh_token"],
+    // no silent renew via "prompt=none" (https://github.com/authts/oidc-client-ts/issues/366)
+    automaticSilentRenew: false,
 });
 ```
 
