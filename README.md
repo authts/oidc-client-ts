@@ -39,7 +39,7 @@ Implements the following OAuth 2.0 protocols and supports
 Using [npm](https://npmjs.org/)
 
 ```sh
-$ npm install oidc-client-ts
+$ npm install oidc-client-ts --save
 ```
 
 ## Building the Source
