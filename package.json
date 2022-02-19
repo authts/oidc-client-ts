@@ -9,6 +9,7 @@
   "homepage": "https://github.com/authts/oidc-client-ts#readme",
   "license": "Apache-2.0",
   "main": "dist/umd/oidc-client-ts.js",
+  "module": "dist/esm/oidc-client-ts.js",
   "types": "dist/types/oidc-client-ts.d.ts",
   "exports": {
     ".": {
