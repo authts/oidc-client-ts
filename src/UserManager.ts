@@ -23,7 +23,7 @@ export type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "extraQueryPa
 /**
  * @public
  */
-export type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQueryParams" | "state">;
+export type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQueryParams" | "state" | "id_token_hint">;
 
 /**
  * @public
