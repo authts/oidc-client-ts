@@ -6,7 +6,7 @@ export type { IFrameWindowParams, PopupWindowParams, RedirectParams } from "./na
 export { Log, Logger } from "./utils";
 export type { ILogger, PopupWindowFeatures } from "./utils";
 export type { OidcAddressClaim, OidcStandardClaims, IdTokenClaims, JwtClaims } from "./Claims";
-
+export type { ClockService } from "./ClockService";
 export { AccessTokenEvents } from "./AccessTokenEvents";
 export type { AccessTokenCallback } from "./AccessTokenEvents";
 export { CheckSessionIFrame } from "./CheckSessionIFrame";

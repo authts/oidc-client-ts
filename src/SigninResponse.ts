@@ -1,8 +1,8 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Timer } from "./utils";
 import type { UserProfile } from "./User";
+import type { ClockService } from "./ClockService";
 
 const OidcScope = "openid";
 
@@ -46,7 +46,7 @@ export class SigninResponse {
     /** @see {@link User.profile} */
     public profile: UserProfile = {} as UserProfile;
 
-    public constructor(params: URLSearchParams) {
+    public constructor(params: URLSearchParams, private readonly _clockService: ClockService) {
         this.state = params.get("state");
         this.session_state = params.get("session_state");
 
@@ -61,13 +61,13 @@ export class SigninResponse {
         if (this.expires_at === undefined) {
             return undefined;
         }
-        return this.expires_at - Timer.getEpochTime();
+        return this.expires_at - this._clockService.getEpochTime();
     }
     public set expires_in(value: number | undefined) {
         // spec expects a number, but normalize here just in case
         if (typeof value === "string") value = Number(value);
         if (value !== undefined && value >= 0) {
-            this.expires_at = Math.floor(value) + Timer.getEpochTime();
+            this.expires_at = Math.floor(value) + this._clockService.getEpochTime();
         }
     }
 

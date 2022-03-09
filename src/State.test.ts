@@ -5,15 +5,22 @@ import { State } from "./State";
 
 import { InMemoryWebStorage } from "./InMemoryWebStorage";
 import { WebStorageStateStore } from "./WebStorageStateStore";
+import { ClockService } from "./ClockService";
 
 describe("State", () => {
+    let clockService: ClockService;
+
+    beforeEach(() => {
+        clockService = new ClockService();
+    });
+
     describe("constructor", () => {
 
         it("should generate id", () => {
             // act
             const subject = new State({
                 request_type: "type",
-            });
+            }, clockService);
 
             // assert
             expect(subject.id).toBeDefined();
@@ -24,7 +31,7 @@ describe("State", () => {
             const subject = new State({
                 request_type: "type",
                 id: "5",
-            });
+            }, clockService);
 
             // assert
             expect(subject.id).toEqual("5");
@@ -35,7 +42,7 @@ describe("State", () => {
             const subject = new State({
                 request_type: "type",
                 data: "test",
-            });
+            }, clockService);
 
             // assert
             expect(subject.data).toEqual("test");
@@ -46,7 +53,7 @@ describe("State", () => {
             const subject = new State({
                 request_type: "type",
                 data: { foo: "test" },
-            });
+            }, clockService);
 
             // assert
             expect(subject.data).toEqual({ foo: "test" });
@@ -57,7 +64,7 @@ describe("State", () => {
             const subject = new State({
                 request_type: "type",
                 created: 1000,
-            });
+            }, clockService);
 
             // assert
             expect(subject.created).toEqual(1000);
@@ -73,7 +80,7 @@ describe("State", () => {
             // act
             const subject = new State({
                 request_type: "type",
-            });
+            }, clockService);
 
             // assert
             expect(subject.created).toEqual(123);
@@ -84,7 +91,7 @@ describe("State", () => {
             // act
             const subject = new State({
                 request_type: "xoxo",
-            });
+            }, clockService);
 
             // assert
             expect(subject.request_type).toEqual("xoxo");
@@ -95,11 +102,11 @@ describe("State", () => {
         // arrange
         const subject1 = new State({
             data: { foo: "test" }, created: 1000, request_type:"type",
-        });
+        }, clockService);
 
         // act
         const storage = subject1.toStorageString();
-        const subject2 = State.fromStorageString(storage);
+        const subject2 = State.fromStorageString(storage, clockService);
 
         // assert
         expect(subject2).toEqual(subject1);
@@ -118,11 +125,11 @@ describe("State", () => {
             const inMemStore = new InMemoryWebStorage();
             const store = new WebStorageStateStore({ prefix: prefix, store: inMemStore });
 
-            const s1 = new State({ id: "s1", created: 5, request_type:"type" });
-            const s2 = new State({ id: "s2", created: 99, request_type:"type" });
-            const s3 = new State({ id: "s3", created: 100, request_type:"type" });
-            const s4 = new State({ id: "s4", created: 101, request_type:"type" });
-            const s5 = new State({ id: "s5", created: 150, request_type:"type" });
+            const s1 = new State({ id: "s1", created: 5, request_type:"type" }, clockService);
+            const s2 = new State({ id: "s2", created: 99, request_type:"type" }, clockService);
+            const s3 = new State({ id: "s3", created: 100, request_type:"type" }, clockService);
+            const s4 = new State({ id: "s4", created: 101, request_type:"type" }, clockService);
+            const s5 = new State({ id: "s5", created: 150, request_type:"type" }, clockService);
 
             inMemStore.setItem("junk0", "junk");
             inMemStore.setItem(prefix + s1.id, s1.toStorageString());
@@ -137,7 +144,7 @@ describe("State", () => {
             inMemStore.setItem("junk5", "junk");
 
             // act
-            await State.clearStaleState(store, 100);
+            await State.clearStaleState(store, 100, clockService);
 
             // assert
             expect(inMemStore.length).toEqual(8);

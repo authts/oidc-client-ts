@@ -3,6 +3,7 @@
 
 import { Event } from "./Event";
 import { Logger } from "./Logger";
+import type { ClockService } from "../ClockService";
 
 /**
  * @internal
@@ -12,15 +13,14 @@ export class Timer extends Event<[void]> {
     private _timerHandle: ReturnType<typeof setInterval> | null = null;
     private _expiration = 0;
 
-    // get the time
-    public static getEpochTime(): number {
-        return Math.floor(Date.now() / 1000);
+    public constructor(name: string, protected readonly _clockService: ClockService) {
+        super(name);
     }
 
     public init(durationInSeconds: number): void {
         const logger = this._logger.create("init");
         durationInSeconds = Math.max(Math.floor(durationInSeconds), 1);
-        const expiration = Timer.getEpochTime() + durationInSeconds;
+        const expiration = this._clockService.getEpochTime() + durationInSeconds;
         if (this.expiration === expiration && this._timerHandle) {
             // no need to reinitialize to same expiration, so bail out
             logger.debug("skipping since already initialized for expiration at", this.expiration);
@@ -52,10 +52,11 @@ export class Timer extends Event<[void]> {
     }
 
     protected _callback = (): void => {
-        const diff = this._expiration - Timer.getEpochTime();
+        const now = this._clockService.getEpochTime();
+        const diff = this._expiration - now;
         this._logger.debug("timer completes in", diff);
 
-        if (this._expiration <= Timer.getEpochTime()) {
+        if (this._expiration <= now) {
             this.cancel();
             super.raise();
         }

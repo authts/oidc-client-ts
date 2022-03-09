@@ -2,8 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { SigninState } from "./SigninState";
+import { ClockService } from "./ClockService";
 
 describe("SigninState", () => {
+    let clockService: ClockService;
+
+    beforeEach(() => {
+        clockService = new ClockService();
+    });
+
     describe("constructor", () => {
 
         it("should call base ctor", () => {
@@ -18,7 +25,7 @@ describe("SigninState", () => {
                 redirect_uri: "http://cb",
                 request_type: "type",
                 scope: "scope",
-            });
+            }, clockService);
 
             // assert
             expect(subject.id).toEqual("5");
@@ -34,7 +41,7 @@ describe("SigninState", () => {
                 scope: "scope",
                 request_type: "type",
                 redirect_uri: "http://cb",
-            });
+            }, clockService);
 
             // assert
             expect(subject.redirect_uri).toEqual("http://cb");
@@ -49,7 +56,7 @@ describe("SigninState", () => {
                 scope: "scope",
                 request_type: "type",
                 code_verifier: "5",
-            });
+            }, clockService);
 
             // assert
             expect(subject.code_verifier).toEqual("5");
@@ -64,7 +71,7 @@ describe("SigninState", () => {
                 scope: "scope",
                 request_type: "type",
                 code_verifier: true,
-            });
+            }, clockService);
 
             // assert
             expect(subject.code_verifier).toBeDefined();
@@ -81,7 +88,7 @@ describe("SigninState", () => {
                 scope: "scope",
                 request_type: "type",
                 code_verifier: true,
-            });
+            }, clockService);
 
             // assert
             expect(subject.code_challenge).toBeDefined();
@@ -95,7 +102,7 @@ describe("SigninState", () => {
                 scope: "scope",
                 request_type: "type",
                 client_id: "client",
-            });
+            }, clockService);
 
             // assert
             expect(subject.client_id).toEqual("client");
@@ -109,7 +116,7 @@ describe("SigninState", () => {
                 scope: "scope",
                 request_type: "type",
                 authority: "test",
-            });
+            }, clockService);
 
             // assert
             expect(subject.authority).toEqual("test");
@@ -123,7 +130,7 @@ describe("SigninState", () => {
                 redirect_uri: "http://cb",
                 scope: "scope",
                 request_type: "xoxo",
-            });
+            }, clockService);
 
             // assert
             expect(subject.request_type).toEqual("xoxo");
@@ -140,7 +147,7 @@ describe("SigninState", () => {
                 extraTokenParams: {
                     "resourceServer" : "abc",
                 },
-            });
+            }, clockService);
 
             // assert
             expect(subject.extraTokenParams).toEqual({ "resourceServer" : "abc" });
@@ -158,11 +165,11 @@ describe("SigninState", () => {
             redirect_uri: "http://cb",
             scope: "scope",
             request_type: "type",
-        });
+        }, clockService);
 
         // act
         const storage = subject1.toStorageString();
-        const subject2 = SigninState.fromStorageString(storage);
+        const subject2 = SigninState.fromStorageString(storage, clockService);
 
         // assert
         expect(subject2).toEqual(subject1);

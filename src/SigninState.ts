@@ -3,6 +3,7 @@
 
 import { Logger, CryptoUtils } from "./utils";
 import { State } from "./State";
+import type { ClockService } from "./ClockService";
 
 /**
  * @public
@@ -47,8 +48,8 @@ export class SigninState extends State {
         extraTokenParams?: Record<string, unknown>;
         response_mode?: "query" | "fragment";
         skipUserInfo?: boolean;
-    }) {
-        super(args);
+    }, clockService: ClockService) {
+        super(args, clockService);
 
         if (args.code_verifier === true) {
             this.code_verifier = CryptoUtils.generateCodeVerifier();
@@ -92,9 +93,9 @@ export class SigninState extends State {
         });
     }
 
-    public static fromStorageString(storageString: string): SigninState {
+    public static fromStorageString(storageString: string, clockService: ClockService): SigninState {
         Logger.createStatic("SigninState", "fromStorageString");
         const data = JSON.parse(storageString);
-        return new SigninState(data);
+        return new SigninState(data, clockService);
     }
 }

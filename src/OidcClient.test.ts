@@ -13,11 +13,14 @@ import { SignoutRequest } from "./SignoutRequest";
 import { SignoutResponse } from "./SignoutResponse";
 import { RefreshState } from "./RefreshState";
 import { SigninResponse } from "./SigninResponse";
+import { ClockService } from "./ClockService";
 
 describe("OidcClient", () => {
+    let clockService: ClockService;
     let subject: OidcClient;
 
     beforeEach(() => {
+        clockService = new ClockService();
         subject = new OidcClient({
             authority: "authority",
             client_id: "client",
@@ -263,7 +266,7 @@ describe("OidcClient", () => {
                 redirect_uri: "http://app/cb",
                 scope: "scope",
                 request_type: "type",
-            }).toStorageString();
+            }, clockService).toStorageString();
             jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item));
 
             // act
@@ -318,7 +321,7 @@ describe("OidcClient", () => {
                 redirect_uri: "http://app/cb",
                 scope: "scope",
                 request_type: "type",
-            });
+            }, clockService);
             jest.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(async () => item.toStorageString());
             const validateSigninResponseMock = jest.spyOn(subject["_validator"], "validateSigninResponse")
@@ -568,7 +571,7 @@ describe("OidcClient", () => {
 
         it("should deserialize stored state and return state and response", async () => {
             // arrange
-            const item = new State({ id: "1", request_type: "type" }).toStorageString();
+            const item = new State({ id: "1", request_type: "type" }, clockService).toStorageString();
             jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item));
 
             // act
@@ -587,7 +590,7 @@ describe("OidcClient", () => {
                 id: "1",
                 data: "bar",
                 request_type: "type",
-            });
+            }, clockService);
             jest.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(() => Promise.resolve(item.toStorageString()));
             const validateSignoutResponse = jest.spyOn(subject["_validator"], "validateSignoutResponse")
@@ -652,7 +655,7 @@ describe("OidcClient", () => {
             const item = new State({
                 id: "1",
                 request_type: "type",
-            });
+            }, clockService);
             jest.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(async () => item.toStorageString());
             const validateSignoutResponse = jest.spyOn(subject["_validator"], "validateSignoutResponse")
@@ -671,7 +674,7 @@ describe("OidcClient", () => {
                 id: "1",
                 data: "bar",
                 request_type: "type",
-            });
+            }, clockService);
             jest.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(async () => item.toStorageString());
             const validateSignoutResponse = jest.spyOn(subject["_validator"], "validateSignoutResponse")

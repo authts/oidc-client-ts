@@ -5,6 +5,7 @@ import { WebStorageStateStore } from "./WebStorageStateStore";
 import type { OidcMetadata } from "./OidcMetadata";
 import type { StateStore } from "./StateStore";
 import { InMemoryWebStorage } from "./InMemoryWebStorage";
+import { ClockService } from "./ClockService";
 
 const DefaultResponseType = "code";
 const DefaultScope = "openid";
@@ -79,6 +80,8 @@ export interface OidcClientSettings {
     staleStateAgeInSeconds?: number;
     /** The window of time (in seconds) to allow the current time to deviate when validating token's iat, nbf, and exp values (default: 300) */
     clockSkewInSeconds?: number;
+    /** Service that can be configured to get the clock time. Used to deal with client machines with incorrect clocks. */
+    clockService?: ClockService;
     userInfoJwtIssuer?: "ANY" | "OP" | string;
 
     /**
@@ -139,6 +142,7 @@ export class OidcClientSettingsStore {
     public readonly loadUserInfo: boolean;
     public readonly staleStateAgeInSeconds: number;
     public readonly clockSkewInSeconds: number;
+    public readonly clockService: ClockService;
     public readonly userInfoJwtIssuer: "ANY" | "OP" | string;
     public readonly mergeClaims: boolean;
 
@@ -162,6 +166,7 @@ export class OidcClientSettingsStore {
         loadUserInfo = false,
         staleStateAgeInSeconds = DefaultStaleStateAgeInSeconds,
         clockSkewInSeconds = DefaultClockSkewInSeconds,
+        clockService = new ClockService(),
         userInfoJwtIssuer = "OP",
         mergeClaims = false,
         // other behavior
@@ -209,6 +214,7 @@ export class OidcClientSettingsStore {
         this.loadUserInfo = !!loadUserInfo;
         this.staleStateAgeInSeconds = staleStateAgeInSeconds;
         this.clockSkewInSeconds = clockSkewInSeconds;
+        this.clockService = clockService;
         this.userInfoJwtIssuer = userInfoJwtIssuer;
         this.mergeClaims = !!mergeClaims;
 
