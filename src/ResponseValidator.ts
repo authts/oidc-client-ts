@@ -78,7 +78,9 @@ export class ResponseValidator {
         // if there's no scope on the response, then assume all scopes granted (per-spec) and copy over scopes from original request
         response.scope ??= state.scope;
 
-        if (response.isOpenId) {
+        // OpenID Connect Core 1.0 says that id_token is optional in refresh response:
+        // https://openid.net/specs/openid-connect-core-1_0.html#RefreshTokenResponse
+        if (response.isOpenId && !!response.id_token) {
             this._validateIdTokenAttributes(response, state.id_token);
         }
         logger.debug("tokens validated");
