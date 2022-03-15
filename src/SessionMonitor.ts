@@ -18,7 +18,7 @@ export class SessionMonitor {
 
     public constructor(private readonly _userManager: UserManager) {
         if (!_userManager) {
-            this._logger.throw("No user manager passed to SessionMonitor");
+            this._logger.throw(new Error("No user manager passed"));
         }
 
         this._userManager.events.addUserLoaded(this._start);

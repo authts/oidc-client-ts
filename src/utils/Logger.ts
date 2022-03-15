@@ -89,7 +89,7 @@ export class Logger {
         }
     }
 
-    public throw(err: unknown): never {
+    public throw(err: Error): never {
         this.error(err);
         throw err;
     }

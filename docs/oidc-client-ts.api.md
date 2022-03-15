@@ -218,7 +218,7 @@ export class Logger {
     // (undocumented)
     static info(name: string, ...args: unknown[]): void;
     // (undocumented)
-    throw(err: unknown): never;
+    throw(err: Error): never;
     // (undocumented)
     warn(...args: unknown[]): void;
     // (undocumented)
