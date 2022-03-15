@@ -117,7 +117,7 @@ export class User {
     }
 
     public static fromStorageString(storageString: string): User {
-        Logger.debug("User.fromStorageString");
+        Logger.createStatic("User", "fromStorageString");
         return new User(JSON.parse(storageString));
     }
 }
