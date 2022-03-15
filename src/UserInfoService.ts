@@ -20,8 +20,7 @@ export class UserInfoService {
     public async getClaims(token: string): Promise<JwtClaims> {
         const logger = this._logger.create("getClaims");
         if (!token) {
-            this._logger.error("getClaims: No token passed");
-            throw new Error("A token is required");
+            this._logger.throw(new Error("No token passed"));
         }
 
         const url = await this._metadataService.getUserInfoEndpoint();

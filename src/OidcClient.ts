@@ -192,7 +192,7 @@ export class OidcClient {
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
-        logger.debug("createSignoutRequest: Received end session endpoint", url);
+        logger.debug("Received end session endpoint", url);
 
         const request = new SignoutRequest({
             url,

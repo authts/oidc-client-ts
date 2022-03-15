@@ -174,7 +174,7 @@ export class ResponseValidator {
         }
 
         response.profile = this._mergeClaims(response.profile, this._filterProtocolClaims(claims as IdTokenClaims));
-        logger.debug("_processClaims: user info claims received, updated profile:", response.profile);
+        logger.debug("user info claims received, updated profile:", response.profile);
     }
 
     protected _mergeClaims(claims1: UserProfile, claims2: JwtClaims): UserProfile {
