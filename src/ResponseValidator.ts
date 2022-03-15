@@ -152,11 +152,6 @@ export class ResponseValidator {
 
     protected async _processClaims(response: SigninResponse, skipUserInfo = false): Promise<void> {
         const logger = this._logger.create("_processClaims");
-        if (!response.isOpenId) {
-            logger.debug("response is not OIDC, skipping claims processing");
-            return;
-        }
-        logger.debug("response is OIDC, processing claims", response.profile);
         response.profile = this._filterProtocolClaims(response.profile);
 
         if (skipUserInfo || !this._settings.loadUserInfo || !response.access_token) {
@@ -165,11 +160,10 @@ export class ResponseValidator {
         }
 
         logger.debug("loading user info");
-
         const claims = await this._userInfoService.getClaims(response.access_token);
         logger.debug("user info claims received from user info endpoint");
 
-        if (claims.sub !== response.profile.sub) {
+        if (response.isOpenId && claims.sub !== response.profile.sub) {
             logger.throw(new Error("subject from UserInfo response does not match subject in ID Token"));
         }
 

@@ -310,7 +310,7 @@ describe("ResponseValidator", () => {
             });
         });
 
-        it("should not run if request was not openid", async () => {
+        it("should run if request was not openid", async () => {
             // arrange
             Object.assign(settings, { loadUserInfo: true });
             Object.assign(stubResponse, {
@@ -322,7 +322,7 @@ describe("ResponseValidator", () => {
             await subject.validateSigninResponse(stubResponse, stubState);
 
             // assert
-            expect(subject["_userInfoService"].getClaims).not.toHaveBeenCalled();
+            expect(subject["_userInfoService"].getClaims).toHaveBeenCalled();
         });
 
         it("should not load and merge user info claims when loadUserInfo not configured", async () => {
