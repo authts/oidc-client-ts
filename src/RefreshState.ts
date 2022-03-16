@@ -1,15 +1,14 @@
-import type { State } from "./State";
+// Copyright (C) AuthTS Contributors
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 /**
  * Fake state store implementation necessary for validating refresh token requests.
  *
  * @internal
  */
-export class RefreshState implements State {
-    public readonly id = undefined as never;
-    public readonly created = undefined as never;
-    public readonly request_type = undefined;
-    public readonly data: unknown;
+export class RefreshState {
+    /** custom "state", which can be used by a caller to have "data" round tripped */
+    public readonly data: unknown | undefined;
 
     public readonly refresh_token: string;
     public readonly id_token: string;
@@ -25,9 +24,5 @@ export class RefreshState implements State {
         this.id_token = args.id_token;
         this.scope = args.scope;
         this.data = args.state;
-    }
-
-    public toStorageString(): string {
-        throw new Error("This method was called in error - refresh requests do not store persistent state.");
     }
 }
