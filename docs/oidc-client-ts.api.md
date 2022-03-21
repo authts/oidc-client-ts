@@ -206,6 +206,8 @@ export class Logger {
     // (undocumented)
     create(method: string): Logger;
     // (undocumented)
+    static createStatic(name: string, staticMethod: string): Logger;
+    // (undocumented)
     debug(...args: unknown[]): void;
     // (undocumented)
     static debug(name: string, ...args: unknown[]): void;
@@ -218,7 +220,7 @@ export class Logger {
     // (undocumented)
     static info(name: string, ...args: unknown[]): void;
     // (undocumented)
-    throw(err: unknown): never;
+    throw(err: Error): never;
     // (undocumented)
     warn(...args: unknown[]): void;
     // (undocumented)

@@ -404,7 +404,7 @@ export class UserManager {
         const user = new User(signinResponse);
         if (verifySub) {
             if (verifySub !== user.profile.sub) {
-                logger.debug("current user does not match user returned from signin. sub from signin: ", user.profile.sub);
+                logger.debug("current user does not match user returned from signin. sub from signin:", user.profile.sub);
                 throw new ErrorResponse({ ...signinResponse, error: "login_required" });
             }
             logger.debug("current user matches user returned from signin");

@@ -44,15 +44,16 @@ export class State {
     }
 
     public static fromStorageString(storageString: string): State {
-        Logger.debug("State.fromStorageString");
+        Logger.createStatic("State", "fromStorageString");
         return new State(JSON.parse(storageString));
     }
 
     public static async clearStaleState(storage: StateStore, age: number): Promise<void> {
+        const logger = Logger.createStatic("State", "clearStaleState");
         const cutoff = Timer.getEpochTime() - age;
 
         const keys = await storage.getAllKeys();
-        Logger.debug("State.clearStaleState", "got keys", keys);
+        logger.debug("got keys", keys);
 
         for (let i = 0; i < keys.length; i++) {
             const key = keys[i];
@@ -63,23 +64,23 @@ export class State {
                 try {
                     const state = State.fromStorageString(item);
 
-                    Logger.debug("State.clearStaleState", "got item from key: ", key, state.created);
+                    logger.debug("got item from key:", key, state.created);
                     if (state.created <= cutoff) {
                         remove = true;
                     }
                 }
                 catch (err) {
-                    Logger.error("State.clearStaleState", "Error parsing state for key", key, err);
+                    logger.error("Error parsing state for key:", key, err);
                     remove = true;
                 }
             }
             else {
-                Logger.debug("State.clearStaleState", "no item in storage for key: ", key);
+                logger.debug("no item in storage for key:", key);
                 remove = true;
             }
 
             if (remove) {
-                Logger.debug("State.clearStaleState", "removed item for key: ", key);
+                logger.debug("removed item for key:", key);
                 void storage.remove(key);
             }
         }

@@ -89,7 +89,7 @@ export class Logger {
         }
     }
 
-    public throw(err: unknown): never {
+    public throw(err: Error): never {
         this.error(err);
         throw err;
     }
@@ -101,9 +101,15 @@ export class Logger {
         return methodLogger;
     }
 
+    public static createStatic(name: string, staticMethod: string): Logger {
+        const staticLogger = new Logger(`${name}.${staticMethod}`);
+        staticLogger.debug("begin");
+        return staticLogger;
+    }
+
     private static _format(name: string, method?: string) {
         const prefix = `[${name}]`;
-        return method ? prefix + ` ${method}:` : prefix;
+        return method ? `${prefix} ${method}:` : prefix;
     }
 
     // helpers for static class methods
