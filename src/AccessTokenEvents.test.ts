@@ -4,6 +4,7 @@
 import { Timer } from "./utils";
 import { AccessTokenEvents } from "./AccessTokenEvents";
 import type { User } from "./User";
+import { ClockService } from "./ClockService";
 
 describe("AccessTokenEvents", () => {
 
@@ -12,10 +13,11 @@ describe("AccessTokenEvents", () => {
     let expiredTimer: StubTimer;
 
     beforeEach(() => {
-        expiringTimer = new StubTimer("stub expiring timer");
-        expiredTimer = new StubTimer("stub expired timer");
+        const clockService = new ClockService();
+        expiringTimer = new StubTimer("stub expiring timer", clockService);
+        expiredTimer = new StubTimer("stub expired timer", clockService);
 
-        subject = new AccessTokenEvents({ expiringNotificationTimeInSeconds: 60 });
+        subject = new AccessTokenEvents({ expiringNotificationTimeInSeconds: 60, clockService });
 
         // access private members
         Object.assign(subject, {
@@ -128,8 +130,8 @@ class StubTimer extends Timer {
     cancelWasCalled: boolean;
     duration: number | undefined;
 
-    constructor(name: string) {
-        super(name);
+    constructor(name: string, clockService: ClockService) {
+        super(name, clockService);
         this.cancelWasCalled = false;
         this.duration = undefined;
     }

@@ -123,7 +123,7 @@ export class OidcClient {
             resource, request, request_uri, extraQueryParams, extraTokenParams, request_type, response_mode,
             client_secret: this.settings.client_secret,
             skipUserInfo,
-        });
+        }, this.settings.clockService);
 
         const signinState = signinRequest.state;
         await this.settings.stateStore.set(signinState.id, signinState.toStorageString());
@@ -133,7 +133,7 @@ export class OidcClient {
     public async readSigninResponseState(url: string, removeState = false): Promise<{ state: SigninState; response: SigninResponse }> {
         const logger = this._logger.create("readSigninResponseState");
 
-        const response = new SigninResponse(UrlUtils.readParams(url, this.settings.response_mode));
+        const response = new SigninResponse(UrlUtils.readParams(url, this.settings.response_mode), this.settings.clockService);
         if (!response.state) {
             logger.throw(new Error("No state in response"));
             // need to throw within this function's body for type narrowing to work
@@ -146,7 +146,7 @@ export class OidcClient {
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
-        const state = SigninState.fromStorageString(storedStateString);
+        const state = SigninState.fromStorageString(storedStateString, this.settings.clockService);
         return { state, response };
     }
 
@@ -170,7 +170,7 @@ export class OidcClient {
             scope: state.scope,
             timeoutInSeconds,
         });
-        const response = new SigninResponse(new URLSearchParams());
+        const response = new SigninResponse(new URLSearchParams(), this.settings.clockService);
         Object.assign(response, result);
         logger.debug("validating response", response);
         await this._validator.validateRefreshResponse(response, state);
@@ -201,7 +201,7 @@ export class OidcClient {
             state_data: state,
             extraQueryParams,
             request_type,
-        });
+        }, this.settings.clockService);
 
         const signoutState = request.state;
         if (signoutState) {
@@ -233,7 +233,7 @@ export class OidcClient {
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
-        const state = State.fromStorageString(storedStateString);
+        const state = State.fromStorageString(storedStateString, this.settings.clockService);
         return { state, response };
     }
 
@@ -253,7 +253,10 @@ export class OidcClient {
 
     public clearStaleState(): Promise<void> {
         this._logger.create("clearStaleState");
-        return State.clearStaleState(this.settings.stateStore, this.settings.staleStateAgeInSeconds);
+        return State.clearStaleState(
+            this.settings.stateStore,
+            this.settings.staleStateAgeInSeconds,
+            this.settings.clockService);
     }
 
     public async revokeToken(token: string, type?: "access_token" | "refresh_token"): Promise<void> {

@@ -1,8 +1,9 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Logger, Timer } from "./utils";
+import { Logger } from "./utils";
 import type { IdTokenClaims } from "./Claims";
+import type { ClockService } from "./ClockService";
 
 /**
  * Holds claims represented by a combination of the `id_token` and the user info endpoint.
@@ -61,7 +62,7 @@ export class User {
         profile: UserProfile;
         expires_at?: number;
         userState?: unknown;
-    }) {
+    }, private readonly _clockService: ClockService) {
         this.id_token = args.id_token;
         this.session_state = args.session_state ?? null;
         this.access_token = args.access_token;
@@ -79,12 +80,12 @@ export class User {
         if (this.expires_at === undefined) {
             return undefined;
         }
-        return this.expires_at - Timer.getEpochTime();
+        return this.expires_at - this._clockService.getEpochTime();
     }
 
     public set expires_in(value: number | undefined) {
         if (value !== undefined) {
-            this.expires_at = Math.floor(value) + Timer.getEpochTime();
+            this.expires_at = Math.floor(value) + this._clockService.getEpochTime();
         }
     }
 
@@ -116,8 +117,8 @@ export class User {
         });
     }
 
-    public static fromStorageString(storageString: string): User {
+    public static fromStorageString(storageString: string, clockService: ClockService): User {
         Logger.createStatic("User", "fromStorageString");
-        return new User(JSON.parse(storageString));
+        return new User(JSON.parse(storageString), clockService);
     }
 }

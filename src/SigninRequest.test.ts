@@ -2,11 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { SigninRequest, SigninRequestArgs } from "./SigninRequest";
+import { ClockService } from "./ClockService";
 
 describe("SigninRequest", () => {
-
-    let subject: SigninRequest;
     let settings: SigninRequestArgs;
+    let clockService: ClockService;
+    let subject: SigninRequest;
 
     beforeEach(() => {
         settings = {
@@ -18,7 +19,8 @@ describe("SigninRequest", () => {
             authority : "op",
             state_data: { data: "test" },
         };
-        subject = new SigninRequest(settings);
+        clockService = new ClockService();
+        subject = new SigninRequest(settings, clockService);
     });
 
     describe("constructor", () => {
@@ -27,7 +29,7 @@ describe("SigninRequest", () => {
             Object.assign(settings, { [param]: undefined });
 
             // act
-            expect(() => new SigninRequest(settings))
+            expect(() => new SigninRequest(settings, clockService))
                 // assert
                 .toThrow(param);
         });
@@ -70,7 +72,7 @@ describe("SigninRequest", () => {
             settings.prompt = "foo";
 
             // act
-            subject = new SigninRequest(settings);
+            subject = new SigninRequest(settings, clockService);
 
             // assert
             expect(subject.url).toContain("prompt=foo");
@@ -81,7 +83,7 @@ describe("SigninRequest", () => {
             settings.display = "foo";
 
             // act
-            subject = new SigninRequest(settings);
+            subject = new SigninRequest(settings, clockService);
 
             // assert
             expect(subject.url).toContain("display=foo");
@@ -92,7 +94,7 @@ describe("SigninRequest", () => {
             settings.max_age = 42;
 
             // act
-            subject = new SigninRequest(settings);
+            subject = new SigninRequest(settings, clockService);
 
             // assert
             expect(subject.url).toContain("max_age=42");
@@ -103,7 +105,7 @@ describe("SigninRequest", () => {
             settings.ui_locales = "foo";
 
             // act
-            subject = new SigninRequest(settings);
+            subject = new SigninRequest(settings, clockService);
 
             // assert
             expect(subject.url).toContain("ui_locales=foo");
@@ -114,7 +116,7 @@ describe("SigninRequest", () => {
             settings.id_token_hint = "foo";
 
             // act
-            subject = new SigninRequest(settings);
+            subject = new SigninRequest(settings, clockService);
 
             // assert
             expect(subject.url).toContain("id_token_hint=foo");
@@ -125,7 +127,7 @@ describe("SigninRequest", () => {
             settings.login_hint = "foo";
 
             // act
-            subject = new SigninRequest(settings);
+            subject = new SigninRequest(settings, clockService);
 
             // assert
             expect(subject.url).toContain("login_hint=foo");
@@ -136,7 +138,7 @@ describe("SigninRequest", () => {
             settings.acr_values = "foo";
 
             // act
-            subject = new SigninRequest(settings);
+            subject = new SigninRequest(settings, clockService);
 
             // assert
             expect(subject.url).toContain("acr_values=foo");
@@ -147,7 +149,7 @@ describe("SigninRequest", () => {
             settings.resource = "foo";
 
             // act
-            subject = new SigninRequest(settings);
+            subject = new SigninRequest(settings, clockService);
 
             // assert
             expect(subject.url).toContain("resource=foo");
@@ -158,7 +160,7 @@ describe("SigninRequest", () => {
             settings.response_mode = "fragment";
 
             // act
-            subject = new SigninRequest(settings);
+            subject = new SigninRequest(settings, clockService);
 
             // assert
             expect(subject.url).toContain("response_mode=fragment");
@@ -169,7 +171,7 @@ describe("SigninRequest", () => {
             settings.request = "foo";
 
             // act
-            subject = new SigninRequest(settings);
+            subject = new SigninRequest(settings, clockService);
 
             // assert
             expect(subject.url).toContain("request=foo");
@@ -180,7 +182,7 @@ describe("SigninRequest", () => {
             settings.request_uri = "foo";
 
             // act
-            subject = new SigninRequest(settings);
+            subject = new SigninRequest(settings, clockService);
 
             // assert
             expect(subject.url).toContain("request_uri=foo");
@@ -194,7 +196,7 @@ describe("SigninRequest", () => {
             };
 
             // act
-            subject = new SigninRequest(settings);
+            subject = new SigninRequest(settings, clockService);
 
             // assert
             expect(subject.url).toContain("hd=domain.com&foo=bar");
@@ -207,7 +209,7 @@ describe("SigninRequest", () => {
             };
 
             // act
-            subject = new SigninRequest(settings);
+            subject = new SigninRequest(settings, clockService);
 
             // assert
             expect(subject.state.extraTokenParams).toEqual({
@@ -220,7 +222,7 @@ describe("SigninRequest", () => {
             settings.response_type = "code";
 
             // act
-            subject = new SigninRequest(settings);
+            subject = new SigninRequest(settings, clockService);
 
             // assert
             expect(subject.url).toContain("code_challenge=");

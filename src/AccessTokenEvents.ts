@@ -3,6 +3,7 @@
 
 import { Logger, Timer } from "./utils";
 import type { User } from "./User";
+import type { ClockService } from "./ClockService";
 
 /**
  * @public
@@ -15,11 +16,13 @@ export type AccessTokenCallback = (...ev: unknown[]) => (Promise<void> | void);
 export class AccessTokenEvents {
     protected readonly _logger = new Logger("AccessTokenEvents");
 
-    private readonly _expiringTimer = new Timer("Access token expiring");
-    private readonly _expiredTimer = new Timer("Access token expired");
+    private readonly _expiringTimer: Timer;
+    private readonly _expiredTimer: Timer;
     private readonly _expiringNotificationTimeInSeconds: number;
 
-    public constructor(args: { expiringNotificationTimeInSeconds: number }) {
+    public constructor(args: { expiringNotificationTimeInSeconds: number; clockService: ClockService }) {
+        this._expiringTimer = new Timer("Access token expiring", args.clockService);
+        this._expiredTimer = new Timer("Access token expired", args.clockService);
         this._expiringNotificationTimeInSeconds = args.expiringNotificationTimeInSeconds;
     }
 

@@ -2,14 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { SigninResponse } from "./SigninResponse";
-import { Timer } from "./utils";
+import { ClockService } from "./ClockService";
 
 describe("SigninResponse", () => {
     let now: number;
+    let clockService: ClockService;
 
     beforeEach(() => {
         now = 0;
-        jest.spyOn(Timer, "getEpochTime").mockImplementation(() => now);
+        clockService = new ClockService();
+        jest.spyOn(clockService, "getEpochTime").mockImplementation(() => now);
     });
 
     afterEach(() => {
@@ -19,7 +21,7 @@ describe("SigninResponse", () => {
     describe("constructor", () => {
         it("should read error", () => {
             // act
-            const subject = new SigninResponse(new URLSearchParams("error=foo"));
+            const subject = new SigninResponse(new URLSearchParams("error=foo"), clockService);
 
             // assert
             expect(subject.error).toEqual("foo");
@@ -27,7 +29,7 @@ describe("SigninResponse", () => {
 
         it("should read error_description", () => {
             // act
-            const subject = new SigninResponse(new URLSearchParams("error_description=foo"));
+            const subject = new SigninResponse(new URLSearchParams("error_description=foo"), clockService);
 
             // assert
             expect(subject.error_description).toEqual("foo");
@@ -35,7 +37,7 @@ describe("SigninResponse", () => {
 
         it("should read error_uri", () => {
             // act
-            const subject = new SigninResponse(new URLSearchParams("error_uri=foo"));
+            const subject = new SigninResponse(new URLSearchParams("error_uri=foo"), clockService);
 
             // assert
             expect(subject.error_uri).toEqual("foo");
@@ -43,7 +45,7 @@ describe("SigninResponse", () => {
 
         it("should read state", () => {
             // act
-            const subject = new SigninResponse(new URLSearchParams("state=foo"));
+            const subject = new SigninResponse(new URLSearchParams("state=foo"), clockService);
 
             // assert
             expect(subject.state).toEqual("foo");
@@ -51,7 +53,7 @@ describe("SigninResponse", () => {
 
         it("should read code", () => {
             // act
-            const subject = new SigninResponse(new URLSearchParams("code=foo"));
+            const subject = new SigninResponse(new URLSearchParams("code=foo"), clockService);
 
             // assert
             expect(subject.code).toEqual("foo");
@@ -59,7 +61,7 @@ describe("SigninResponse", () => {
 
         it("should read session_state", () => {
             // act
-            const subject = new SigninResponse(new URLSearchParams("session_state=foo"));
+            const subject = new SigninResponse(new URLSearchParams("session_state=foo"), clockService);
 
             // assert
             expect(subject.session_state).toEqual("foo");
@@ -67,11 +69,11 @@ describe("SigninResponse", () => {
 
         it("should calculate expires_at", () => {
             // act
-            const subject = new SigninResponse(new URLSearchParams());
+            const subject = new SigninResponse(new URLSearchParams(), clockService);
             Object.assign(subject, { expires_in: 10 });
 
             // assert
-            expect(subject.expires_at).toEqual(Timer.getEpochTime() + 10);
+            expect(subject.expires_at).toEqual(10);
         });
 
         it.each([
@@ -79,7 +81,7 @@ describe("SigninResponse", () => {
             [-10],
         ])("should not read invalid expires_in", (expires_in) => {
             // act
-            const subject = new SigninResponse(new URLSearchParams());
+            const subject = new SigninResponse(new URLSearchParams(), clockService);
             Object.assign(subject, { expires_in });
 
             // assert
@@ -90,7 +92,7 @@ describe("SigninResponse", () => {
 
     describe("expires_in", () => {
         it("should calculate how much time left", () => {
-            const subject = new SigninResponse(new URLSearchParams());
+            const subject = new SigninResponse(new URLSearchParams(), clockService);
             Object.assign(subject, { expires_in: 100 });
 
             // act
@@ -103,7 +105,7 @@ describe("SigninResponse", () => {
 
     describe("isOpenId", () => {
         it("should detect openid scope", () => {
-            const subject = new SigninResponse(new URLSearchParams());
+            const subject = new SigninResponse(new URLSearchParams(), clockService);
 
             // act
             Object.assign(subject, { scope: "foo openid bar" });
@@ -131,7 +133,7 @@ describe("SigninResponse", () => {
         });
 
         it("shoud detect id_token", () => {
-            const subject = new SigninResponse(new URLSearchParams());
+            const subject = new SigninResponse(new URLSearchParams(), clockService);
 
             // act
             Object.assign(subject, { id_token: undefined });

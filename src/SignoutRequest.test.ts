@@ -2,11 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { SignoutRequest, SignoutRequestArgs } from "./SignoutRequest";
+import { ClockService } from "./ClockService";
 
 describe("SignoutRequest", () => {
-
-    let subject: SignoutRequest;
     let settings: SignoutRequestArgs;
+    let clockService: ClockService;
+    let subject: SignoutRequest;
 
     beforeEach(() => {
         settings = {
@@ -15,7 +16,8 @@ describe("SignoutRequest", () => {
             post_logout_redirect_uri: "loggedout",
             state_data: { data: "test" },
         };
-        subject = new SignoutRequest(settings);
+        clockService = new ClockService();
+        subject = new SignoutRequest(settings, clockService);
     });
 
     describe("constructor", () => {
@@ -26,7 +28,7 @@ describe("SignoutRequest", () => {
 
             // act
             try {
-                new SignoutRequest(settings);
+                new SignoutRequest(settings, clockService);
                 fail("should not come here");
             }
             catch (err) {
@@ -58,7 +60,7 @@ describe("SignoutRequest", () => {
             delete settings.id_token_hint;
 
             // act
-            subject = new SignoutRequest(settings);
+            subject = new SignoutRequest(settings, clockService);
 
             // assert
             expect(subject.url).toContain("post_logout_redirect_uri=loggedout");
@@ -75,7 +77,7 @@ describe("SignoutRequest", () => {
             delete settings.post_logout_redirect_uri;
 
             // act
-            subject = new SignoutRequest(settings);
+            subject = new SignoutRequest(settings, clockService);
 
             // assert
             expect(subject.url).not.toContain("state=");
@@ -99,7 +101,7 @@ describe("SignoutRequest", () => {
             };
 
             // act
-            subject = new SignoutRequest(settings);
+            subject = new SignoutRequest(settings, clockService);
 
             // assert
             expect(subject.url).toContain("TargetResource=logouturl.com&InErrorResource=errorurl.com");

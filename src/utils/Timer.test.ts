@@ -2,15 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Timer } from "./Timer";
+import { ClockService } from "../ClockService";
 
 describe("Timer", () => {
-
+    let clockService: StubClockService;
     let subject: Timer;
-    let now = 1;
 
     beforeEach(() => {
-        subject = new Timer("test name");
-        jest.spyOn(Timer, "getEpochTime").mockImplementation(() => now);
+        clockService = new StubClockService();
+        subject = new Timer("test name", clockService);
         jest.useFakeTimers();
         jest.spyOn(globalThis, "clearInterval");
         jest.spyOn(globalThis, "setInterval");
@@ -66,7 +66,7 @@ describe("Timer", () => {
             expect(clearInterval).not.toHaveBeenCalled();
 
             // act
-            now += 1;
+            clockService.now += 1;
             subject.init(10);
 
             // assert
@@ -101,14 +101,14 @@ describe("Timer", () => {
             expect(setInterval).toHaveBeenCalledWith(expect.any(Function), expect.any(Number));
 
             // act
-            now += 9;
+            clockService.now += 9;
             jest.runOnlyPendingTimers();
 
             // assert
             expect(cb).toBeCalledTimes(0);
 
             // act
-            now += 1;
+            clockService.now += 1;
             jest.runOnlyPendingTimers();
 
             // assert
@@ -125,13 +125,13 @@ describe("Timer", () => {
             // assert
             expect(setInterval).toHaveBeenCalledWith(expect.any(Function), expect.any(Number));
 
-            now += 9;
+            clockService.now += 9;
             jest.runOnlyPendingTimers();
 
             // assert
             expect(cb).toBeCalledTimes(0);
 
-            now += 2;
+            clockService.now += 2;
             jest.runOnlyPendingTimers();
 
             // assert
@@ -145,7 +145,7 @@ describe("Timer", () => {
             // assert
             expect(setInterval).toHaveBeenCalledWith(expect.any(Function), expect.any(Number));
 
-            now += 10;
+            clockService.now += 10;
             jest.runOnlyPendingTimers();
 
             // assert
@@ -187,7 +187,7 @@ describe("Timer", () => {
             // act
             subject.addHandler(cb);
             subject.init(10);
-            now += 10;
+            clockService.now += 10;
             jest.runOnlyPendingTimers();
 
             // assert
@@ -204,7 +204,7 @@ describe("Timer", () => {
             subject.addHandler(cb);
             subject.addHandler(cb);
             subject.init(10);
-            now += 10;
+            clockService.now += 10;
             jest.runOnlyPendingTimers();
 
             // assert
@@ -222,7 +222,7 @@ describe("Timer", () => {
 
             // act
             subject.removeHandler(cb);
-            now += 10;
+            clockService.now += 10;
             jest.runOnlyPendingTimers();
 
             // assert
@@ -241,7 +241,7 @@ describe("Timer", () => {
             subject.init(10);
             subject.removeHandler(cb1);
             subject.removeHandler(cb1);
-            now += 10;
+            clockService.now += 10;
             jest.runOnlyPendingTimers();
 
             // assert
@@ -250,3 +250,10 @@ describe("Timer", () => {
         });
     });
 });
+
+class StubClockService extends ClockService {
+    public now = 1;
+    getEpochTime(): number {
+        return this.now;
+    }
+}

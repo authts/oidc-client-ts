@@ -11,18 +11,20 @@ import type { UserProfile } from "./User";
 import { WebStorageStateStore } from "./WebStorageStateStore";
 import type { SigninState } from "./SigninState";
 import type { State } from "./State";
+import { ClockService } from "./ClockService";
 
 import { mocked } from "jest-mock";
 
 describe("UserManager", () => {
     let userStoreMock: WebStorageStateStore;
-
+    let clockService: ClockService;
     let subject: UserManager;
 
     beforeEach(() => {
         localStorage.clear();
 
         userStoreMock = new WebStorageStateStore();
+        clockService = new ClockService();
 
         subject = new UserManager({
             authority: "http://sts/oidc",
@@ -69,7 +71,7 @@ describe("UserManager", () => {
                 access_token: "access_token",
                 token_type: "token_type",
                 profile: {} as UserProfile,
-            });
+            }, clockService);
             subject["_loadUser"] = jest.fn().mockReturnValue(user);
             const loadMock = jest.spyOn(subject["_events"], "load");
 
@@ -264,7 +266,7 @@ describe("UserManager", () => {
                 access_token: "access_token",
                 token_type: "token_type",
                 profile: {} as UserProfile,
-            });
+            }, clockService);
             const handle = { } as PopupWindow;
             jest.spyOn(subject["_popupNavigator"], "prepare")
                 .mockImplementation(() => Promise.resolve(handle));
@@ -314,7 +316,7 @@ describe("UserManager", () => {
                 access_token: "access_token",
                 token_type: "token_type",
                 profile: {} as UserProfile,
-            });
+            }, clockService);
 
             Object.assign(subject.settings, {
                 silentRequestTimeoutInSeconds: 123,
@@ -351,7 +353,7 @@ describe("UserManager", () => {
                 access_token: "access_token",
                 token_type: "token_type",
                 profile: {} as UserProfile,
-            });
+            }, clockService);
             jest.spyOn(subject["_popupNavigator"], "prepare");
             subject["_signin"] = jest.fn().mockResolvedValue(user);
             const extraArgs: SigninSilentArgs = {
@@ -386,7 +388,7 @@ describe("UserManager", () => {
                 access_token: "access_token",
                 token_type: "token_type",
                 profile: {} as UserProfile,
-            });
+            }, clockService);
             Object.assign(subject.settings, {
                 silent_redirect_uri: "http://client/silent_callback",
             });
@@ -406,7 +408,7 @@ describe("UserManager", () => {
                     sub: "sub",
                     nickname: "Nick",
                 } as UserProfile,
-            });
+            }, clockService);
 
             const useRefreshTokenSpy = jest.spyOn(subject["_client"], "useRefreshToken").mockResolvedValue({
                 access_token: "new_access_token",
@@ -450,7 +452,7 @@ describe("UserManager", () => {
                 access_token: "access_token",
                 token_type: "token_type",
                 profile: {} as UserProfile,
-            });
+            }, clockService);
             const responseState = {
                 state: { request_type: "si:r" } as SigninState,
                 response: { } as SigninResponse,
@@ -586,7 +588,7 @@ describe("UserManager", () => {
                 access_token: "access_token",
                 token_type: "token_type",
                 profile: {} as UserProfile,
-            });
+            }, clockService);
 
             // act
             await subject.storeUser(user);
@@ -602,7 +604,7 @@ describe("UserManager", () => {
                 access_token: "access_token",
                 token_type: "token_type",
                 profile: {} as UserProfile,
-            });
+            }, clockService);
             await subject.storeUser(user);
 
             // act

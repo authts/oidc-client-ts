@@ -267,7 +267,7 @@ export class UserManager {
             state,
             timeoutInSeconds: this.settings.silentRequestTimeoutInSeconds,
         });
-        const user = new User({ ...state, ...response });
+        const user = new User({ ...state, ...response }, this.settings.clockService);
 
         await this.storeUser(user);
         this._events.load(user);
@@ -401,7 +401,7 @@ export class UserManager {
         const signinResponse = await this._client.processSigninResponse(url);
         logger.debug("got signin response");
 
-        const user = new User(signinResponse);
+        const user = new User(signinResponse, this.settings.clockService);
         if (verifySub) {
             if (verifySub !== user.profile.sub) {
                 logger.debug("current user does not match user returned from signin. sub from signin:", user.profile.sub);
@@ -584,7 +584,7 @@ export class UserManager {
         const storageString = await this.settings.userStore.get(this._userStoreKey);
         if (storageString) {
             logger.debug("user storageString loaded");
-            return User.fromStorageString(storageString);
+            return User.fromStorageString(storageString, this.settings.clockService);
         }
 
         logger.debug("no user storageString");

@@ -45,7 +45,10 @@ export class UserManagerEvents extends AccessTokenEvents {
     private readonly _userSessionChanged = new Event<[]>("User session changed");
 
     public constructor(settings: UserManagerSettingsStore) {
-        super({ expiringNotificationTimeInSeconds: settings.accessTokenExpiringNotificationTimeInSeconds });
+        super({
+            expiringNotificationTimeInSeconds: settings.accessTokenExpiringNotificationTimeInSeconds,
+            clockService: settings.clockService,
+        });
     }
 
     public load(user: User, raiseEvent=true): void {

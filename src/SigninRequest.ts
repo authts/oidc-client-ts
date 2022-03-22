@@ -3,6 +3,7 @@
 
 import { Logger } from "./utils";
 import { SigninState } from "./SigninState";
+import type { ClockService } from "./ClockService";
 
 /**
  * @public
@@ -56,7 +57,7 @@ export class SigninRequest {
         extraQueryParams,
         extraTokenParams,
         ...optionalParams
-    }: SigninRequestArgs) {
+    }: SigninRequestArgs, clockService: ClockService) {
         if (!url) {
             this._logger.error("ctor: No url passed");
             throw new Error("url");
@@ -90,7 +91,7 @@ export class SigninRequest {
             response_mode,
             client_secret, scope, extraTokenParams,
             skipUserInfo,
-        });
+        }, clockService);
 
         const parsedUrl = new URL(url);
         parsedUrl.searchParams.append("client_id", client_id);

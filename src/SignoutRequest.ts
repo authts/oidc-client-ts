@@ -3,6 +3,7 @@
 
 import { Logger } from "./utils";
 import { State } from "./State";
+import type { ClockService } from "./ClockService";
 
 /**
  * @public
@@ -31,7 +32,7 @@ export class SignoutRequest {
     public constructor({
         url,
         state_data, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type,
-    }: SignoutRequestArgs) {
+    }: SignoutRequestArgs, clockService: ClockService) {
         if (!url) {
             this._logger.error("ctor: No url passed");
             throw new Error("url");
@@ -46,7 +47,7 @@ export class SignoutRequest {
             parsedUrl.searchParams.append("post_logout_redirect_uri", post_logout_redirect_uri);
 
             if (state_data) {
-                this.state = new State({ data: state_data, request_type });
+                this.state = new State({ data: state_data, request_type }, clockService);
 
                 parsedUrl.searchParams.append("state", this.state.id);
             }
