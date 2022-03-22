@@ -5,7 +5,7 @@ import { Logger } from "./utils";
 import { ErrorResponse } from "./errors";
 import { IFrameNavigator, NavigateResponse, PopupNavigator, RedirectNavigator, PopupWindowParams,
     IWindow, IFrameWindowParams, RedirectParams } from "./navigators";
-import { OidcClient, CreateSigninRequestArgs, CreateSignoutRequestArgs } from "./OidcClient";
+import { OidcClient, CreateSigninRequestArgs, CreateSignoutRequestArgs, CreateRegisterRequestArgs } from "./OidcClient";
 import { UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
 import { User } from "./User";
 import { UserManagerEvents } from "./UserManagerEvents";
@@ -19,7 +19,13 @@ import { RefreshState } from "./RefreshState";
 /**
  * @public
  */
-export type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "extraQueryParams" | "extraTokenParams" | "state">;
+export type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "extraQueryParams" | "extraTokenParams" | "state" | "redirect_uri">;
+
+/**
+ * @public
+ */
+export type ExtraRegisterRequestArgs = Pick<CreateRegisterRequestArgs, "extraQueryParams" | "extraTokenParams" | "state" | "registration_endpoint" | "redirect_uri">;
+
 /**
  * @public
  */
@@ -44,6 +50,11 @@ export type SigninPopupArgs = PopupWindowParams & ExtraSigninRequestArgs;
  * @public
  */
 export type SigninSilentArgs = IFrameWindowParams & ExtraSigninRequestArgs;
+
+/**
+ * @public
+ */
+export type RegisterRedirectArgs = RedirectParams & ExtraRegisterRequestArgs;
 
 /**
  * @public
@@ -150,6 +161,22 @@ export class UserManager {
         } = args;
         const handle = await this._redirectNavigator.prepare({ redirectMethod });
         await this._signinStart({
+            request_type: "si:r",
+            ...requestArgs,
+        }, handle);
+    }
+
+    /**
+     * Returns promise to trigger a redirect of the current window to the registration endpoint.
+     */
+    public async registerRedirect(args: RegisterRedirectArgs = {}): Promise<void> {
+        this._logger.create("registerRedirect");
+        const {
+            redirectMethod,
+            ...requestArgs
+        } = args;
+        const handle = await this._redirectNavigator.prepare({ redirectMethod });
+        await this._registerRedirectStart({
             request_type: "si:r",
             ...requestArgs,
         }, handle);
@@ -415,6 +442,26 @@ export class UserManager {
         this._events.load(user);
 
         return user;
+    }
+    protected async _registerRedirectStart(args: CreateRegisterRequestArgs, handle: IWindow): Promise<NavigateResponse> {
+        const logger = this._logger.create("_registerRedirectStart");
+
+        try {
+            const { registration_endpoint, ...argv } = args;
+            const signinRequest = await this._client.createSigninRequest(argv, registration_endpoint);
+            logger.debug("got signin request");
+
+            return await handle.navigate({
+                url: signinRequest.url,
+                state: signinRequest.state.id,
+                response_mode: signinRequest.state.response_mode,
+            });
+        }
+        catch (err) {
+            logger.debug("error after preparing navigator, closing navigator window");
+            handle.close();
+            throw err;
+        }
     }
 
     /**

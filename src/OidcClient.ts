@@ -47,6 +47,13 @@ export interface CreateSigninRequestArgs {
 /**
  * @public
  */
+export interface CreateRegisterRequestArgs extends CreateSigninRequestArgs {
+    registration_endpoint?: string;
+}
+
+/**
+ * @public
+ */
 export interface UseRefreshTokenArgs {
     state: RefreshState;
     timeoutInSeconds?: number;
@@ -101,14 +108,15 @@ export class OidcClient {
         response_mode = this.settings.response_mode,
         extraQueryParams = this.settings.extraQueryParams,
         extraTokenParams = this.settings.extraTokenParams,
-    }: CreateSigninRequestArgs): Promise<SigninRequest> {
+    }: CreateSigninRequestArgs,
+    registration_endpoint: string | null = null): Promise<SigninRequest> {
         const logger = this._logger.create("createSigninRequest");
 
         if (response_type !== "code") {
             throw new Error("Only the Authorization Code flow (with PKCE) is supported");
         }
 
-        const url = await this.metadataService.getAuthorizationEndpoint();
+        const url = registration_endpoint ?? await this.metadataService.getAuthorizationEndpoint();
         logger.debug("Received authorization endpoint", url);
 
         const signinRequest = new SigninRequest({

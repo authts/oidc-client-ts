@@ -1,12 +1,12 @@
 {
-  "name": "oidc-client-ts",
-  "version": "2.0.2",
+  "name": "@carbonext/oidc-client-ts",
+  "version": "1.0.1",
   "description": "OpenID Connect (OIDC) & OAuth2 client library",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com:authts/oidc-client-ts.git"
+    "url": "git+https://github.com:carbonext-tech/oidc-client-ts.git"
   },
-  "homepage": "https://github.com/authts/oidc-client-ts#readme",
+  "homepage": "https://github.com/carbonext-tech/oidc-client-ts#readme",
   "license": "Apache-2.0",
   "main": "dist/umd/oidc-client-ts.js",
   "types": "dist/types/oidc-client-ts.d.ts",
