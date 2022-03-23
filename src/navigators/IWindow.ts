@@ -5,6 +5,8 @@
  */
 export interface NavigateParams {
     url: string;
+    /** The request "nonce" parameter. */
+    nonce?: string;
     /** The request "state" parameter. For sign out requests, this parameter is optional. */
     state?: string;
     response_mode?: "query" | "fragment";
