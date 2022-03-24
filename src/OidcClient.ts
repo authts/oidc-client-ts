@@ -22,6 +22,7 @@ export interface CreateSigninRequestArgs {
     redirect_uri?: string;
     response_type?: string;
     scope?: string;
+    nonce?: string;
 
     /** custom "state", which can be used by a caller to have "data" round tripped */
     state?: unknown;
@@ -89,6 +90,7 @@ export class OidcClient {
         id_token_hint,
         login_hint,
         skipUserInfo,
+        nonce, 
         response_type = this.settings.response_type,
         scope = this.settings.scope,
         redirect_uri = this.settings.redirect_uri,
@@ -123,6 +125,7 @@ export class OidcClient {
             resource, request, request_uri, extraQueryParams, extraTokenParams, request_type, response_mode,
             client_secret: this.settings.client_secret,
             skipUserInfo,
+            nonce,
         });
 
         const signinState = signinRequest.state;

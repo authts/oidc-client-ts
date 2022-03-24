@@ -226,5 +226,16 @@ describe("SigninRequest", () => {
             expect(subject.url).toContain("code_challenge=");
             expect(subject.url).toContain("code_challenge_method=S256");
         });
+
+        it("should include nonce", () => {
+            // arrange
+            settings.nonce = "random_nonce";
+
+            // act
+            subject = new SigninRequest(settings);
+
+            // assert
+            expect(subject.url).toContain("nonce=");
+        });
     });
 });

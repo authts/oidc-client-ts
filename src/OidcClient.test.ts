@@ -85,6 +85,7 @@ describe("OidcClient", () => {
                 resource: "res",
                 request: "req",
                 request_uri: "req_uri",
+                nonce: "rnd",
             });
 
             // assert
@@ -105,6 +106,7 @@ describe("OidcClient", () => {
             expect(url).toContain("request=req");
             expect(url).toContain("request_uri=req_uri");
             expect(url).toContain("response_mode=fragment");
+            expect(url).toContain("nonce=rnd");
         });
 
         it("should pass state in place of data to SigninRequest", async () => {

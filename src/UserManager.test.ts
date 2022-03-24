@@ -196,6 +196,7 @@ describe("UserManager", () => {
                 extraQueryParams: { q : "q" },
                 extraTokenParams: { t: "t" },
                 state: "state",
+                nonce: "random_nonce",
             };
 
             // act
@@ -273,6 +274,7 @@ describe("UserManager", () => {
                 extraQueryParams: { q : "q" },
                 extraTokenParams: { t: "t" },
                 state: "state",
+                nonce: "random_nonce",
             };
 
             // act
@@ -358,6 +360,7 @@ describe("UserManager", () => {
                 extraQueryParams: { q : "q" },
                 extraTokenParams: { t: "t" },
                 state: "state",
+                nonce: "random_nonce",
             };
 
             // act

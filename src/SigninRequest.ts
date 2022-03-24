@@ -33,6 +33,7 @@ export interface SigninRequestArgs {
     client_secret?: string;
     extraTokenParams?: Record<string, unknown>;
     skipUserInfo?: boolean;
+    nonce?: string; 
 
     /** custom "state", which can be used by a caller to have "data" round tripped */
     state_data?: unknown;
@@ -51,7 +52,7 @@ export class SigninRequest {
         // mandatory
         url, authority, client_id, redirect_uri, response_type, scope,
         // optional
-        state_data, response_mode, request_type, client_secret,
+        state_data, response_mode, request_type, client_secret, nonce,
         skipUserInfo,
         extraQueryParams,
         extraTokenParams,
@@ -97,6 +98,9 @@ export class SigninRequest {
         parsedUrl.searchParams.append("redirect_uri", redirect_uri);
         parsedUrl.searchParams.append("response_type", response_type);
         parsedUrl.searchParams.append("scope", scope);
+        if (nonce) {
+            parsedUrl.searchParams.append("nonce", nonce);
+        }
 
         parsedUrl.searchParams.append("state", this.state.id);
         if (this.state.code_challenge) {
