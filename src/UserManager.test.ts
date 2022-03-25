@@ -427,6 +427,69 @@ describe("UserManager", () => {
                 }),
             );
         });
+
+        it("should only perform one refresh concurrently", async () => {
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                refresh_token: "refresh_token",
+                profile: {
+                    sub: "sub",
+                    nickname: "Nick",
+                } as UserProfile,
+            });
+
+            const useRefreshTokenSpy = jest.spyOn(subject["_client"], "useRefreshToken").mockResolvedValue({
+                access_token: "new_access_token",
+                profile: {
+                    sub: "sub",
+                    nickname: "Nicholas",
+                },
+            } as unknown as SigninResponse);
+            subject["_loadUser"] = jest.fn().mockResolvedValue(user);
+
+            // act
+            const refreshedUsers = await Promise.all([subject.signinSilent(), subject.signinSilent()]);
+            expect(refreshedUsers[0]).toHaveProperty("access_token", "new_access_token");
+            expect(refreshedUsers[1]).toHaveProperty("access_token", "new_access_token");
+            expect(useRefreshTokenSpy).toBeCalledTimes(1);
+        });
+
+        it("should not fail when Web Locks API is unavailable", async () => {
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                refresh_token: "refresh_token",
+                profile: {
+                    sub: "sub",
+                    nickname: "Nick",
+                } as UserProfile,
+            });
+
+            const useRefreshTokenSpy = jest.spyOn(subject["_client"], "useRefreshToken").mockResolvedValue({
+                access_token: "new_access_token",
+                profile: {
+                    sub: "sub",
+                    nickname: "Nicholas",
+                },
+            } as unknown as SigninResponse);
+            subject["_loadUser"] = jest.fn().mockResolvedValue(user);
+
+            const originalLocks = globalThis.navigator.locks;
+            // @ts-expect-error It is normally disallowed to do this, fine for the test though.
+            globalThis.navigator.locks = undefined;
+
+            // act
+            try {
+                const refreshedUser = await subject.signinSilent();
+                expect(refreshedUser).toHaveProperty("access_token", "new_access_token");
+                expect(useRefreshTokenSpy).toBeCalledTimes(1);
+            } finally {
+                globalThis.navigator.locks = originalLocks;
+            }
+        });
     });
 
     describe("signinSilentCallback", () => {

@@ -263,15 +263,42 @@ export class UserManager {
     }
 
     protected async _useRefreshToken(state: RefreshState): Promise<User> {
-        const response = await this._client.useRefreshToken({
-            state,
-            timeoutInSeconds: this.settings.silentRequestTimeoutInSeconds,
-        });
-        const user = new User({ ...state, ...response });
+        const refreshUser = async (): Promise<User> => {
+            const response = await this._client.useRefreshToken({
+                state,
+                timeoutInSeconds: this.settings.silentRequestTimeoutInSeconds,
+            });
+            return new User({ ...state, ...response });
+        };
 
-        await this.storeUser(user);
-        this._events.load(user);
-        return user;
+        if (!navigator.locks) {
+            // Legacy option for older browser which don't support `navigator.locks`.
+            const user = await refreshUser();
+            await this.storeUser(user);
+            this._events.load(user);
+            return user;
+        }
+
+        const broadcastChannel = new BroadcastChannel(`refresh_token_${state.refresh_token}`);
+        let user : User | null = null;
+
+        broadcastChannel.addEventListener("message", (event : MessageEvent<User>) => {
+            user = event.data;
+        });
+
+        return await navigator.locks.request(
+            `refresh_token_${state.refresh_token}`,
+            async () => {
+                if (!user) {
+                    user = await refreshUser();
+                    broadcastChannel.postMessage(user);
+                }
+
+                await this.storeUser(user);
+                this._events.load(user);
+                return user;
+            },
+        );
     }
 
     /**
