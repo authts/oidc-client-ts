@@ -115,7 +115,7 @@ export class ErrorTimeout extends Error {
 export type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "nonce" | "extraQueryParams" | "extraTokenParams" | "state">;
 
 // @public (undocumented)
-export type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQueryParams" | "state" | "id_token_hint">;
+export type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQueryParams" | "state" | "id_token_hint" | "post_logout_redirect_uri">;
 
 // Warning: (ae-forgotten-export) The symbol "Mandatory" needs to be exported by the entry point index.d.ts
 //
