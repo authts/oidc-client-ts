@@ -486,6 +486,36 @@ describe("OidcClientSettings", () => {
         });
     });
 
+    describe("extraSignoutQueryParams", () => {
+
+        it("should use default value", () => {
+            // act
+            const subject = new OidcClientSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+            });
+
+            // assert
+            expect(subject.extraSignoutQueryParams).toEqual({});
+        });
+
+        it("should return value from initial settings", () => {
+            // act
+            const subject = new OidcClientSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                extraSignoutQueryParams: {
+                    "hd": "domain.com",
+                },
+            });
+
+            // assert
+            expect(subject.extraSignoutQueryParams).toEqual({ "hd": "domain.com" });
+        });
+    });
+
     describe("extraTokenParams", () => {
 
         it("should use default value", () => {

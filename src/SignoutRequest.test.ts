@@ -105,5 +105,18 @@ describe("SignoutRequest", () => {
             expect(subject.url).toContain("TargetResource=logouturl.com&InErrorResource=errorurl.com");
         });
 
+        it("should include extra signout query params", () => {
+            // arrange
+            settings.extraSignoutQueryParams = {
+                "redirect_to": "logouturl.com",
+            };
+
+            // act
+            subject = new SignoutRequest(settings);
+
+            // assert
+            expect(subject.url).toContain("redirect_to=logouturl.com");
+        });
+
     });
 });

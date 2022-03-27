@@ -16,6 +16,7 @@ export interface SignoutRequestArgs {
     id_token_hint?: string;
     post_logout_redirect_uri?: string;
     extraQueryParams?: Record<string, string | number | boolean>;
+    extraSignoutQueryParams?: Record<string, string | number | boolean>;
     request_type?: string;
 }
 
@@ -30,7 +31,7 @@ export class SignoutRequest {
 
     public constructor({
         url,
-        state_data, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type,
+        state_data, id_token_hint, post_logout_redirect_uri, extraQueryParams, extraSignoutQueryParams, request_type,
     }: SignoutRequestArgs) {
         if (!url) {
             this._logger.error("ctor: No url passed");
@@ -52,7 +53,7 @@ export class SignoutRequest {
             }
         }
 
-        for (const [key, value] of Object.entries({ ...extraQueryParams })) {
+        for (const [key, value] of Object.entries({ ...extraQueryParams, ...extraSignoutQueryParams })) {
             if (value != null) {
                 parsedUrl.searchParams.append(key, value.toString());
             }

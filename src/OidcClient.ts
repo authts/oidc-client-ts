@@ -186,6 +186,7 @@ export class OidcClient {
         request_type,
         post_logout_redirect_uri = this.settings.post_logout_redirect_uri,
         extraQueryParams = this.settings.extraQueryParams,
+        extraSignoutQueryParams = this.settings.extraSignoutQueryParams,
     }: CreateSignoutRequestArgs = {}): Promise<SignoutRequest> {
         const logger = this._logger.create("createSignoutRequest");
 
@@ -203,6 +204,7 @@ export class OidcClient {
             post_logout_redirect_uri,
             state_data: state,
             extraQueryParams,
+            extraSignoutQueryParams,
             request_type,
         });
 

@@ -99,6 +99,12 @@ export interface OidcClientSettings {
      */
     extraQueryParams?: Record<string, string | number | boolean>;
 
+    /**
+     * An object containing additional query string parameters to be including in the signout authorization request.
+     * E.g, when using KeyCloak to redirect after logout you must pass an additional parameter `redirect_to`. extraSignoutQueryParams: `{redirect_to:"/signout-callback"}`
+     */
+    extraSignoutQueryParams?: Record<string, string | number | boolean>;
+
     extraTokenParams?: Record<string, unknown>;
 }
 
@@ -146,6 +152,7 @@ export class OidcClientSettingsStore {
 
     // extra
     public readonly extraQueryParams: Record<string, string | number | boolean>;
+    public readonly extraSignoutQueryParams: Record<string, string | number | boolean>;
     public readonly extraTokenParams: Record<string, unknown>;
 
     public constructor({
@@ -168,6 +175,7 @@ export class OidcClientSettingsStore {
         stateStore,
         // extra query params
         extraQueryParams = {},
+        extraSignoutQueryParams = {},
         extraTokenParams = {},
     }: OidcClientSettings) {
 
@@ -221,6 +229,7 @@ export class OidcClientSettingsStore {
         }
 
         this.extraQueryParams = extraQueryParams;
+        this.extraSignoutQueryParams = extraSignoutQueryParams;
         this.extraTokenParams = extraTokenParams;
     }
 }
