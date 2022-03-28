@@ -67,7 +67,7 @@ export class ResponseValidator {
         }
         logger.debug("tokens validated");
 
-        await this._processClaims(response, state?.skipUserInfo);
+        await this._processClaims(response, state?.skipUserInfo, response.isOpenId);
         logger.debug("claims processed");
     }
 
@@ -80,11 +80,13 @@ export class ResponseValidator {
 
         // OpenID Connect Core 1.0 says that id_token is optional in refresh response:
         // https://openid.net/specs/openid-connect-core-1_0.html#RefreshTokenResponse
-        if (response.isOpenId && !!response.id_token) {
+        const hasIdToken = response.isOpenId && !!response.id_token;
+        if (hasIdToken) {
             this._validateIdTokenAttributes(response, state.id_token);
+            logger.debug("ID Token validated");
         }
-        logger.debug("tokens validated");
-        await this._processClaims(response);
+
+        await this._processClaims(response, false, hasIdToken);
         logger.debug("claims processed");
     }
 
@@ -150,7 +152,7 @@ export class ResponseValidator {
         }
     }
 
-    protected async _processClaims(response: SigninResponse, skipUserInfo = false): Promise<void> {
+    protected async _processClaims(response: SigninResponse, skipUserInfo = false, validateSub = true): Promise<void> {
         const logger = this._logger.create("_processClaims");
         response.profile = this._filterProtocolClaims(response.profile);
 
@@ -163,7 +165,7 @@ export class ResponseValidator {
         const claims = await this._userInfoService.getClaims(response.access_token);
         logger.debug("user info claims received from user info endpoint");
 
-        if (response.isOpenId && claims.sub !== response.profile.sub) {
+        if (validateSub && claims.sub !== response.profile.sub) {
             logger.throw(new Error("subject from UserInfo response does not match subject in ID Token"));
         }
 
