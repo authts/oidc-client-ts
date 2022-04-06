@@ -20,8 +20,8 @@ export class CheckSessionIFrame {
         private _intervalInSeconds: number,
         private _stopOnError: boolean,
     ) {
-        const idx = url.indexOf("/", url.indexOf("//") + 2);
-        this._frame_origin = url.substr(0, idx);
+        const parsedUrl = new URL(url);
+        this._frame_origin = parsedUrl.origin;
 
         this._frame = window.document.createElement("iframe");
 
@@ -32,7 +32,7 @@ export class CheckSessionIFrame {
         this._frame.style.top = "0";
         this._frame.width = "0";
         this._frame.height = "0";
-        this._frame.src = url;
+        this._frame.src = parsedUrl.href;
     }
 
     public load(): Promise<void> {
