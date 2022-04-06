@@ -197,6 +197,7 @@ describe("UserManager", () => {
                 extraTokenParams: { t: "t" },
                 state: "state",
                 nonce: "random_nonce",
+                redirect_uri: "http://app/extra_callback",
             };
 
             // act
@@ -275,6 +276,7 @@ describe("UserManager", () => {
                 extraTokenParams: { t: "t" },
                 state: "state",
                 nonce: "random_nonce",
+                redirect_uri: "http://app/extra_callback",
             };
 
             // act
@@ -284,7 +286,6 @@ describe("UserManager", () => {
             expect(subject["_signin"]).toBeCalledWith(
                 {
                     request_type: "si:p",
-                    redirect_uri: subject.settings.redirect_uri,
                     display: "popup",
                     ...extraArgs,
                 },
@@ -361,6 +362,7 @@ describe("UserManager", () => {
                 extraTokenParams: { t: "t" },
                 state: "state",
                 nonce: "random_nonce",
+                redirect_uri: "http://app/extra_callback",
             };
 
             // act
@@ -370,7 +372,6 @@ describe("UserManager", () => {
             expect(subject["_signin"]).toBeCalledWith(
                 {
                     request_type: "si:s",
-                    redirect_uri: subject.settings.redirect_uri,
                     prompt: "none",
                     id_token_hint: undefined,
                     ...extraArgs,
