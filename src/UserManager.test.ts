@@ -11,6 +11,7 @@ import type { UserProfile } from "./User";
 import { WebStorageStateStore } from "./WebStorageStateStore";
 import type { SigninState } from "./SigninState";
 import type { State } from "./State";
+import type { SigninRequest, SigninRequestArgs } from "./SigninRequest";
 
 import { mocked } from "jest-mock";
 
@@ -155,6 +156,24 @@ describe("UserManager", () => {
             await expect(subject.revokeTokens())
                 // assert
                 .resolves.toBe(undefined);
+        });
+    });
+
+    describe("createSigninRequest", () => {
+        it("should relay to _client.createSigninRequest", async () => {
+            // arrange
+            const args = {} as SigninRequestArgs;
+            const resultMock = {} as SigninRequest;
+            const spy = jest.spyOn(subject["_client"], "createSigninRequest")
+                .mockResolvedValue(resultMock);
+
+            // act
+            const signinRequest = await subject.createSigninRequest(args);
+
+            // assert
+            expect(spy).toBeCalledTimes(1);
+            expect(spy).toBeCalledWith(args);
+            expect(signinRequest).toBe(resultMock);
         });
     });
 

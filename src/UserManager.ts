@@ -14,6 +14,7 @@ import { SessionMonitor } from "./SessionMonitor";
 import type { SessionStatus } from "./SessionStatus";
 import type { SignoutResponse } from "./SignoutResponse";
 import type { MetadataService } from "./MetadataService";
+import type { SigninRequest } from "./SigninRequest";
 import { RefreshState } from "./RefreshState";
 
 /**
@@ -137,6 +138,15 @@ export class UserManager {
         await this.storeUser(null);
         logger.info("user removed from storage");
         this._events.unload();
+    }
+
+    /**
+     * Returns a promise with the sign-in request information for the given request arguments
+     * @param args The sign-in request args
+     * @returns The sign-in request
+     */
+    public createSigninRequest(args: CreateSigninRequestArgs): Promise<SigninRequest> {
+        return this._client.createSigninRequest(args);
     }
 
     /**

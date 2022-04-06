@@ -858,6 +858,7 @@ export class UserManager {
     clearStaleState(): Promise<void>;
     // (undocumented)
     protected readonly _client: OidcClient;
+    createSigninRequest(args: CreateSigninRequestArgs): Promise<SigninRequest>;
     get events(): UserManagerEvents;
     // (undocumented)
     protected readonly _events: UserManagerEvents;
