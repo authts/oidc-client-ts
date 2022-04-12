@@ -294,6 +294,7 @@ export class UserManager {
                     broadcastChannel.postMessage(user);
                 }
 
+                broadcastChannel.close();
                 await this.storeUser(user);
                 this._events.load(user);
                 return user;
