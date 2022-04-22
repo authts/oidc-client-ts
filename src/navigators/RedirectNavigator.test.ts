@@ -19,9 +19,15 @@ describe("RedirectNavigator", () => {
 
     it("should redirect to the authority server using a specific redirect method", async () => {
         const handle = await navigator.prepare({ redirectMethod: "replace" });
-        await handle.navigate({ url: "http://sts/authorize" });
+        const spy = jest.fn();
+        handle.navigate({ url: "http://sts/authorize" }).finally(spy);
 
         expect(window.location.replace).toHaveBeenCalledWith("http://sts/authorize");
+
+        // We check that the promise does not resolve within some reasonable
+        // amount of time
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        expect(spy).not.toHaveBeenCalled();
     });
 
     it("should reject when the navigation is stopped programmatically", async () => {

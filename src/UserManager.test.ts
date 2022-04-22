@@ -161,7 +161,14 @@ describe("UserManager", () => {
     describe("signinRedirect", () => {
         it("should redirect the browser to the authorize url", async () => {
             // act
-            await subject.signinRedirect();
+            const spy = jest.fn();
+            subject.signinRedirect().finally(spy);
+
+            // signinRedirect is a promise that will never resolve (since we
+            // want it to hold until the page has redirected), so we use a
+            // timeout to wait for the majority of the code to have been run
+            // before proceeding with the rest of the test.
+            await new Promise(resolve => setTimeout(resolve, 200));
 
             // assert
             expect(window.location.assign).toHaveBeenCalledWith(
@@ -171,6 +178,9 @@ describe("UserManager", () => {
             const state = new URL(location).searchParams.get("state");
             const item = await userStoreMock.get(state!);
             expect(JSON.parse(item!)).toHaveProperty("request_type", "si:r");
+
+            // We check to make sure the promise has not resolved
+            expect(spy).not.toHaveBeenCalled();
         });
 
         it("should pass navigator params to navigator", async () => {

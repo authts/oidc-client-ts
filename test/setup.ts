@@ -3,17 +3,15 @@ import { Log } from "../src";
 beforeAll(() => {
     globalThis.fetch = jest.fn();
 
-    const unload = () => window.dispatchEvent(new Event("unload"));
-
     const location = Object.defineProperties({}, {
         ...Object.getOwnPropertyDescriptors(window.location),
         assign: {
             enumerable: true,
-            value: jest.fn(unload),
+            value: jest.fn(),
         },
         replace: {
             enumerable: true,
-            value: jest.fn(unload),
+            value: jest.fn(),
         },
     });
     Object.defineProperty(window, "location", {
