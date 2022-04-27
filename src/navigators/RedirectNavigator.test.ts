@@ -24,9 +24,11 @@ describe("RedirectNavigator", () => {
 
         expect(window.location.replace).toHaveBeenCalledWith("http://sts/authorize");
 
-        // We check that the promise does not resolve within some reasonable
-        // amount of time
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // We check that the promise does not resolve even after the window
+        // unload event
+        await new Promise<void>(resolve => {
+            window.addEventListener("unload", () => resolve());
+        });
         expect(spy).not.toHaveBeenCalled();
     });
 

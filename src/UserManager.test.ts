@@ -165,10 +165,11 @@ describe("UserManager", () => {
             subject.signinRedirect().finally(spy);
 
             // signinRedirect is a promise that will never resolve (since we
-            // want it to hold until the page has redirected), so we use a
-            // timeout to wait for the majority of the code to have been run
-            // before proceeding with the rest of the test.
-            await new Promise(resolve => setTimeout(resolve, 200));
+            // want it to hold until the page has redirected), so we wait for
+            // the browser unload event before checking the test assertions.
+            await new Promise<void>(resolve => {
+                window.addEventListener("unload", () => resolve());
+            });
 
             // assert
             expect(window.location.assign).toHaveBeenCalledWith(
