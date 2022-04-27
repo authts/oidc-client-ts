@@ -1,4 +1,5 @@
 import { mocked } from "jest-mock";
+import { once } from "events";
 import type { UserManagerSettingsStore } from "../UserManagerSettings";
 import { RedirectNavigator } from "./RedirectNavigator";
 
@@ -26,13 +27,7 @@ describe("RedirectNavigator", () => {
 
         // We check that the promise does not resolve even after the window
         // unload event
-        await new Promise<void>(resolve => {
-            const listener = () => {
-                resolve();
-                window.removeEventListener("unload", listener);
-            };
-            window.addEventListener("unload", listener);
-        });
+        await once(window, "unload");
         expect(spy).not.toHaveBeenCalled();
     });
 
