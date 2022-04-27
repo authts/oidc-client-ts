@@ -27,7 +27,11 @@ describe("RedirectNavigator", () => {
         // We check that the promise does not resolve even after the window
         // unload event
         await new Promise<void>(resolve => {
-            window.addEventListener("unload", () => resolve());
+            const listener = () => {
+                resolve();
+                window.removeEventListener("unload", listener);
+            };
+            window.addEventListener("unload", listener);
         });
         expect(spy).not.toHaveBeenCalled();
     });

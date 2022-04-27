@@ -168,7 +168,11 @@ describe("UserManager", () => {
             // want it to hold until the page has redirected), so we wait for
             // the browser unload event before checking the test assertions.
             await new Promise<void>(resolve => {
-                window.addEventListener("unload", () => resolve());
+                const listener = () => {
+                    resolve();
+                    window.removeEventListener("unload", listener);
+                };
+                window.addEventListener("unload", listener);
             });
 
             // assert
