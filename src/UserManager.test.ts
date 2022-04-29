@@ -1,6 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import { once } from "events";
 import type { PopupWindow } from "./navigators";
 import type { SigninResponse } from "./SigninResponse";
 import type { SignoutResponse } from "./SignoutResponse";
@@ -161,7 +162,13 @@ describe("UserManager", () => {
     describe("signinRedirect", () => {
         it("should redirect the browser to the authorize url", async () => {
             // act
-            await subject.signinRedirect();
+            const spy = jest.fn();
+            subject.signinRedirect().finally(spy);
+
+            // signinRedirect is a promise that will never resolve (since we
+            // want it to hold until the page has redirected), so we wait for
+            // the browser unload event before checking the test assertions.
+            await once(window, "unload");
 
             // assert
             expect(window.location.assign).toHaveBeenCalledWith(
@@ -171,6 +178,9 @@ describe("UserManager", () => {
             const state = new URL(location).searchParams.get("state");
             const item = await userStoreMock.get(state!);
             expect(JSON.parse(item!)).toHaveProperty("request_type", "si:r");
+
+            // We check to make sure the promise has not resolved
+            expect(spy).not.toHaveBeenCalled();
         });
 
         it("should pass navigator params to navigator", async () => {

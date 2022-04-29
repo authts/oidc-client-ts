@@ -1,4 +1,5 @@
 import { mocked } from "jest-mock";
+import { once } from "events";
 import type { UserManagerSettingsStore } from "../UserManagerSettings";
 import { RedirectNavigator } from "./RedirectNavigator";
 
@@ -19,9 +20,15 @@ describe("RedirectNavigator", () => {
 
     it("should redirect to the authority server using a specific redirect method", async () => {
         const handle = await navigator.prepare({ redirectMethod: "replace" });
-        await handle.navigate({ url: "http://sts/authorize" });
+        const spy = jest.fn();
+        handle.navigate({ url: "http://sts/authorize" }).finally(spy);
 
         expect(window.location.replace).toHaveBeenCalledWith("http://sts/authorize");
+
+        // We check that the promise does not resolve even after the window
+        // unload event
+        await once(window, "unload");
+        expect(spy).not.toHaveBeenCalled();
     });
 
     it("should reject when the navigation is stopped programmatically", async () => {
