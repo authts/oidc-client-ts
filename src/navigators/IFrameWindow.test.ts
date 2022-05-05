@@ -1,6 +1,8 @@
 import { IFrameWindow } from "./IFrameWindow";
 import type { NavigateParams } from "./IWindow";
 
+const flushPromises = () => new Promise(process.nextTick);
+
 describe("IFrameWindow", () => {
     const postMessageMock = jest.fn();
     const fakeWindowOrigin = "https://fake-origin.com";
@@ -84,7 +86,7 @@ describe("IFrameWindow", () => {
 
             contentWindowMock.mockReturnValue(null);
             jest.spyOn(window.document.body, "appendChild").mockImplementation();
-            jest.spyOn(window.document, "createElement").mockReturnValue(({
+            jest.spyOn(window.document, "createElement").mockImplementation(() => ({
                 contentWindow: contentWindowMock(),
                 style: {},
                 setAttribute: jest.fn(),
@@ -97,6 +99,71 @@ describe("IFrameWindow", () => {
             await expect(frameWindow.navigate({} as NavigateParams))
                 .rejects
                 .toMatchObject({ message: "Attempted to navigate on a disposed window" });
+        });
+
+        describe("when message received", () => {
+            const fakeState = "fffaaakkkeee_state";
+            const fakeContentWindow = { location: { replace: jest.fn() } };
+            const validNavigateParams = {
+                source: fakeContentWindow,
+                data: { source: "oidc-client",
+                    url: `https://test.com?state=${fakeState}` },
+                origin: fakeWindowOrigin,
+            };
+            const navigateParamsStub = jest.fn();
+
+            beforeAll(() => {
+                contentWindowMock.mockReturnValue(fakeContentWindow);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                jest.spyOn(window, "addEventListener").mockImplementation((_, listener: any) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                    listener(navigateParamsStub());
+                });
+            });
+
+            it.each([
+                ["https://custom-origin.com", "https://custom-origin.com" ],
+                [ fakeWindowOrigin, undefined],
+            ])("and all parameters match should resolve navigation without issues", async (origin, scriptOrigin) => {
+                navigateParamsStub.mockReturnValue({ ...validNavigateParams, origin });
+                const frameWindow = new IFrameWindow({});
+                await expect(frameWindow.navigate({ state: fakeState, url: fakeUrl, scriptOrigin })).resolves.not.toThrow();
+            });
+
+            it.each([
+                { passedOrigin: undefined, type: "window origin" },
+                { passedOrigin: "https://custom-origin.com", type: "passed script origi" },
+            ])("and message origin does not match $type should never resolve", async (args) => {
+                let promiseDone = false;
+                navigateParamsStub.mockReturnValue({ ...validNavigateParams, origin: "http://different.com" });
+
+                const frameWindow = new IFrameWindow({});
+                const promise = frameWindow.navigate({ state: fakeState, url: fakeUrl, scriptOrigin: args.passedOrigin });
+
+                promise.finally(() => promiseDone = true);
+                await flushPromises();
+
+                expect(promiseDone).toBe(false);
+            });
+
+            it("and data url parse fails should reject with error", async () => {
+                navigateParamsStub.mockReturnValue({ ...validNavigateParams, data: { ...validNavigateParams.data, url: undefined } });
+                const frameWindow = new IFrameWindow({});
+                await expect(frameWindow.navigate({ state: fakeState, url: fakeUrl })).rejects.toThrowError("Invalid response from window");
+            });
+
+            it("and args source with state do not match contentWindow should never resolve", async () => {
+                let promiseDone = false;
+                navigateParamsStub.mockReturnValue({ ...validNavigateParams, source: {} });
+
+                const frameWindow = new IFrameWindow({});
+                const promise = frameWindow.navigate({ state: "diff_state", url: fakeUrl });
+
+                promise.finally(() => promiseDone = true);
+                await flushPromises();
+
+                expect(promiseDone).toBe(false);
+            });
         });
     });
 
