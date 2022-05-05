@@ -36,6 +36,10 @@ export interface UserManagerSettings extends OidcClientSettings {
     /** The methods window.location method used to redirect (default: "assign") */
     redirectMethod?: "replace" | "assign";
 
+    /** The target to pass while calling postMessage inside iframe for callback */
+    iframeNotifyParentOrigin?: string;
+    iframeScriptOrigin?: string;
+
     /** The URL for the page containing the code handling the silent renew */
     silent_redirect_uri?: string;
     /** Number of seconds to wait for the silent renew to return before assuming it has failed or timed out (default: 10) */
@@ -86,6 +90,9 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly popupWindowTarget: string;
     public readonly redirectMethod: "replace" | "assign";
 
+    public readonly iframeNotifyParentOrigin: string | undefined;
+    public readonly iframeScriptOrigin: string | undefined;
+
     public readonly silent_redirect_uri: string;
     public readonly silentRequestTimeoutInSeconds: number;
     public readonly automaticSilentRenew: boolean;
@@ -111,6 +118,9 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             popupWindowFeatures = DefaultPopupWindowFeatures,
             popupWindowTarget = DefaultPopupTarget,
             redirectMethod = "assign",
+
+            iframeNotifyParentOrigin = args.iframeNotifyParentOrigin,
+            iframeScriptOrigin = args.iframeScriptOrigin,
 
             silent_redirect_uri = args.redirect_uri,
             silentRequestTimeoutInSeconds = DefaultSilentRequestTimeoutInSeconds,
@@ -138,6 +148,9 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         this.popupWindowFeatures = popupWindowFeatures;
         this.popupWindowTarget = popupWindowTarget;
         this.redirectMethod = redirectMethod;
+
+        this.iframeNotifyParentOrigin = iframeNotifyParentOrigin;
+        this.iframeScriptOrigin = iframeScriptOrigin;
 
         this.silent_redirect_uri = silent_redirect_uri;
         this.silentRequestTimeoutInSeconds = silentRequestTimeoutInSeconds;

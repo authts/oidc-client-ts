@@ -388,6 +388,7 @@ export class UserManager {
                 url: signinRequest.url,
                 state: signinRequest.state.id,
                 response_mode: signinRequest.state.response_mode,
+                scriptOrigin: this.settings.iframeScriptOrigin,
             });
         }
         catch (err) {

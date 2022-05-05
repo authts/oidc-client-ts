@@ -22,6 +22,6 @@ export class IFrameNavigator implements INavigator {
 
     public async callback(url: string): Promise<void> {
         this._logger.create("callback");
-        IFrameWindow.notifyParent(url);
+        IFrameWindow.notifyParent(url, this._settings.iframeNotifyParentOrigin);
     }
 }
