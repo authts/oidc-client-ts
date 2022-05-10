@@ -36,8 +36,10 @@ export interface UserManagerSettings extends OidcClientSettings {
     /** The methods window.location method used to redirect (default: "assign") */
     redirectMethod?: "replace" | "assign";
 
-    /** The target to pass while calling postMessage inside iframe for callback */
+    /** The target to pass while calling postMessage inside iframe for callback (default: window.location.origin) */
     iframeNotifyParentOrigin?: string;
+
+    /** The script origin to check during 'message' callback execution while performing silent auth via iframe (default: window.location.origin) */
     iframeScriptOrigin?: string;
 
     /** The URL for the page containing the code handling the silent renew */

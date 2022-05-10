@@ -969,7 +969,6 @@ export interface UserManagerSettings extends OidcClientSettings {
     automaticSilentRenew?: boolean;
     checkSessionIntervalInSeconds?: number;
     iframeNotifyParentOrigin?: string;
-    // (undocumented)
     iframeScriptOrigin?: string;
     includeIdTokenInSilentRenew?: boolean;
     // (undocumented)
