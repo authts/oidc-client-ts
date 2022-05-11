@@ -968,6 +968,8 @@ export interface UserManagerSettings extends OidcClientSettings {
     accessTokenExpiringNotificationTimeInSeconds?: number;
     automaticSilentRenew?: boolean;
     checkSessionIntervalInSeconds?: number;
+    iframeNotifyParentOrigin?: string;
+    iframeScriptOrigin?: string;
     includeIdTokenInSilentRenew?: boolean;
     // (undocumented)
     monitorAnonymousSession?: boolean;
@@ -999,6 +1001,10 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     readonly automaticSilentRenew: boolean;
     // (undocumented)
     readonly checkSessionIntervalInSeconds: number;
+    // (undocumented)
+    readonly iframeNotifyParentOrigin: string | undefined;
+    // (undocumented)
+    readonly iframeScriptOrigin: string | undefined;
     // (undocumented)
     readonly includeIdTokenInSilentRenew: boolean;
     // (undocumented)

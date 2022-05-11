@@ -37,7 +37,8 @@ export abstract class AbstractChildWindow implements IWindow {
         const { url, keepOpen } = await new Promise<MessageData>((resolve, reject) => {
             const listener = (e: MessageEvent) => {
                 const data: MessageData | undefined = e.data;
-                if (e.origin !== window.location.origin || data?.source !== messageSource) {
+                const origin = params.scriptOrigin ?? window.location.origin;
+                if (e.origin !== origin || data?.source !== messageSource) {
                     // silently discard events not intended for us
                     return;
                 }
@@ -86,11 +87,11 @@ export abstract class AbstractChildWindow implements IWindow {
         this._disposeHandlers.clear();
     }
 
-    protected static _notifyParent(parent: Window, url: string, keepOpen = false): void {
+    protected static _notifyParent(parent: Window, url: string, keepOpen = false, targetOrigin = window.location.origin): void {
         parent.postMessage({
             source: messageSource,
             url,
             keepOpen,
-        } as MessageData, window.location.origin);
+        } as MessageData, targetOrigin);
     }
 }

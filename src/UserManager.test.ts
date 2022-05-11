@@ -44,6 +44,21 @@ describe("UserManager", () => {
             // act
             expect(subject.settings.client_id).toEqual("client");
         });
+
+        it.each([
+            { monitorSession: true, message: "should" },
+            { monitorSession: false, message: "should not" },
+        ])("when monitorSession is $monitorSession $message init sessionMonitor", (args) => {
+            const settings = { ...subject.settings, monitorSession: args.monitorSession };
+
+            const userManager = new UserManager(settings);
+            const sessionMonitor = userManager["_sessionMonitor"];
+            if (args.monitorSession) {
+                expect(sessionMonitor).toBeDefined();
+            } else {
+                expect(sessionMonitor).toBeNull();
+            }
+        });
     });
 
     describe("settings", () => {
