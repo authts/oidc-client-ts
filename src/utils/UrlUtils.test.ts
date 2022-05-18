@@ -48,7 +48,7 @@ describe("UrlUtils", () => {
             const call = () => UrlUtils.readParams("");
 
             // assert
-            expect(call).toThrow(new Error("Invalid URL"));
+            expect(call).toThrow(new TypeError("Invalid URL"));
         });
 
     });
