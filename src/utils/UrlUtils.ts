@@ -6,7 +6,8 @@
  */
 export class UrlUtils {
     public static readParams(url: string, responseMode: "query" | "fragment" = "query"): URLSearchParams {
-        const parsedUrl = new URL(url);
+        if (!url) throw new TypeError("Invalid URL");
+        const parsedUrl = new URL(url, window.location.origin);
         const params = parsedUrl[responseMode === "fragment" ? "hash" : "search"];
         return new URLSearchParams(params.slice(1));
     }
