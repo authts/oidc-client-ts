@@ -223,6 +223,7 @@ describe("UserManager", () => {
                 state: "state",
                 nonce: "random_nonce",
                 redirect_uri: "http://app/extra_callback",
+                prompt: "login",
             };
 
             // act
@@ -302,6 +303,7 @@ describe("UserManager", () => {
                 state: "state",
                 nonce: "random_nonce",
                 redirect_uri: "http://app/extra_callback",
+                prompt: "login",
             };
 
             // act
