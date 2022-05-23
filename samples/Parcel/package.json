@@ -9,8 +9,7 @@
   },
   "dependencies": {
     "express": "^4.17.1",
-    "jsrsasign": "^10.3.0",
-    "open": "^8.2.1"
+    "jsrsasign": "^10.3.0"
   },
   "devDependencies": {
     "concurrently": "^7.0.0",
