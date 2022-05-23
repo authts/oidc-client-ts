@@ -90,7 +90,7 @@ export class OidcClient {
         id_token_hint,
         login_hint,
         skipUserInfo,
-        nonce, 
+        nonce,
         response_type = this.settings.response_type,
         scope = this.settings.scope,
         redirect_uri = this.settings.redirect_uri,
@@ -127,6 +127,9 @@ export class OidcClient {
             skipUserInfo,
             nonce,
         });
+
+        // house cleaning
+        await this.clearStaleState();
 
         const signinState = signinRequest.state;
         await this.settings.stateStore.set(signinState.id, signinState.toStorageString());
@@ -205,6 +208,9 @@ export class OidcClient {
             extraQueryParams,
             request_type,
         });
+
+        // house cleaning
+        await this.clearStaleState();
 
         const signoutState = request.state;
         if (signoutState) {
