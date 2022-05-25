@@ -105,13 +105,14 @@ export class UserManagerEvents extends AccessTokenEvents {
     }
 
     /**
-     * Add callback: Raised when the user is signed in.
+     * Add callback: Raised when the user is signed in (when `monitorSession` is set).
+     * @see {@link UserManagerSettings.monitorSession}
      */
     public addUserSignedIn(cb: UserSignedInCallback): () => void {
         return this._userSignedIn.addHandler(cb);
     }
     /**
-     * Remove callback: Raised when the user is signed in.
+     * Remove callback: Raised when the user is signed in (when `monitorSession` is set).
      */
     public removeUserSignedIn(cb: UserSignedInCallback): void {
         this._userSignedIn.removeHandler(cb);
@@ -124,13 +125,14 @@ export class UserManagerEvents extends AccessTokenEvents {
     }
 
     /**
-     * Add callback: Raised when the user's sign-in status at the OP has changed.
+     * Add callback: Raised when the user's sign-in status at the OP has changed (when `monitorSession` is set).
+     * @see {@link UserManagerSettings.monitorSession}
      */
     public addUserSignedOut(cb: UserSignedOutCallback): () => void {
         return this._userSignedOut.addHandler(cb);
     }
     /**
-     * Remove callback: Raised when the user's sign-in status at the OP has changed.
+     * Remove callback: Raised when the user's sign-in status at the OP has changed (when `monitorSession` is set).
      */
     public removeUserSignedOut(cb: UserSignedOutCallback): void {
         this._userSignedOut.removeHandler(cb);
@@ -143,13 +145,14 @@ export class UserManagerEvents extends AccessTokenEvents {
     }
 
     /**
-     * Add callback: Raised when the user session changed (when `monitorSession` is set)
+     * Add callback: Raised when the user session changed (when `monitorSession` is set).
+     * @see {@link UserManagerSettings.monitorSession}
      */
     public addUserSessionChanged(cb: UserSessionChangedCallback): () => void {
         return this._userSessionChanged.addHandler(cb);
     }
     /**
-     * Remove callback: Raised when the user session changed (when `monitorSession` is set)
+     * Remove callback: Raised when the user session changed (when `monitorSession` is set).
      */
     public removeUserSessionChanged(cb: UserSessionChangedCallback): void {
         this._userSessionChanged.removeHandler(cb);
