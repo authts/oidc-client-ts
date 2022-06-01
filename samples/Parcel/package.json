@@ -8,12 +8,11 @@
     "server": "node ./server.js"
   },
   "dependencies": {
-    "express": "^4.17.1",
-    "jsrsasign": "^10.3.0",
-    "open": "^8.2.1"
+    "express": "^4.18.1",
+    "jsrsasign": "^10.5.21"
   },
   "devDependencies": {
-    "concurrently": "^7.0.0",
-    "parcel": "^2.0.1"
+    "concurrently": "^7.2.1",
+    "parcel": "^2.5.0"
   }
 }

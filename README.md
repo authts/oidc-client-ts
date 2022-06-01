@@ -56,7 +56,9 @@ $ npm run build
 **Parcel project**
 
 ```sh
-$ npm run -w parcel-sample start
+$ cd samples/Parcel
+$ npm install
+$ npm run start
 ```
 
 and then browse to [http://localhost:1234](http://localhost:1234).

@@ -30,7 +30,12 @@ jobs:
       - run: npm ci
       - run: npm pack --dry-run
       - run: npm run typedoc
-      - run: npm run -w parcel-sample build
+      
+      - name: Samples/Parcel builds
+        run: |
+          npm ci
+          npm run build
+        working-directory: samples/Parcel
 
   test:
     runs-on: ubuntu-latest
