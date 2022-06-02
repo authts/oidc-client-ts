@@ -77,8 +77,10 @@ export interface OidcClientSettings {
     loadUserInfo?: boolean;
     /** Number (in seconds) indicating the age of state entries in storage for authorize requests that are considered abandoned and thus can be cleaned up (default: 300) */
     staleStateAgeInSeconds?: number;
-    /** The window of time (in seconds) to allow the current time to deviate when validating token's iat, nbf, and exp values (default: 300) */
+
+    /** @deprecated Unused */
     clockSkewInSeconds?: number;
+    /** @deprecated Unused */
     userInfoJwtIssuer?: "ANY" | "OP" | string;
 
     /**
