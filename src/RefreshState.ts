@@ -11,17 +11,20 @@ export class RefreshState {
     public readonly data: unknown | undefined;
 
     public readonly refresh_token: string;
-    public readonly id_token: string;
-    public readonly scope: string;
+    public readonly id_token?: string;
+    public readonly session_state: string | null;
+    public readonly scope?: string;
 
     constructor(args: {
         refresh_token: string;
-        id_token: string;
-        scope: string;
+        id_token?: string;
+        session_state: string | null;
+        scope?: string;
         state?: unknown;
     }) {
         this.refresh_token = args.refresh_token;
         this.id_token = args.id_token;
+        this.session_state = args.session_state;
         this.scope = args.scope;
         this.data = args.state;
     }

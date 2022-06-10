@@ -345,6 +345,7 @@ describe("OidcClient", () => {
             const state = new RefreshState({
                 refresh_token: "refresh_token",
                 id_token: "id_token",
+                session_state: "session_state",
                 scope: "openid",
             });
 
@@ -356,7 +357,7 @@ describe("OidcClient", () => {
             expect(response).toMatchObject(tokenResponse);
         });
 
-        it("should preserve the scope", async () => {
+        it("should preserve the session_state and scope", async () => {
             // arrange
             const tokenResponse = {
                 access_token: "new_access_token",
@@ -368,6 +369,7 @@ describe("OidcClient", () => {
             const state = new RefreshState({
                 refresh_token: "refresh_token",
                 id_token: "id_token",
+                session_state: "session_state",
                 scope: "openid",
             });
 
@@ -381,6 +383,7 @@ describe("OidcClient", () => {
             });
             expect(response).toBeInstanceOf(SigninResponse);
             expect(response).toMatchObject(tokenResponse);
+            expect(response).toHaveProperty("session_state", state.session_state);
             expect(response).toHaveProperty("scope", state.scope);
         });
 
@@ -403,6 +406,7 @@ describe("OidcClient", () => {
             const state = new RefreshState({
                 refresh_token: "refresh_token",
                 id_token: "id_token",
+                session_state: "session_state",
                 scope: "openid",
             });
 

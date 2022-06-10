@@ -75,6 +75,8 @@ export class ResponseValidator {
         const logger = this._logger.create("validateRefreshResponse");
 
         response.userState = state.data;
+        // if there's no session_state on the response, copy over session_state from original request
+        response.session_state ??= state.session_state;
         // if there's no scope on the response, then assume all scopes granted (per-spec) and copy over scopes from original request
         response.scope ??= state.scope;
 

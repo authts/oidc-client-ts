@@ -13,7 +13,7 @@ export class SigninResponse {
     // props present in the initial callback response regardless of success
     public readonly state: string | null;
     /** @see {@link User.session_state} */
-    public readonly session_state: string | null;
+    public session_state: string | null;
 
     // error props
     /** @see {@link ErrorResponse.error} */
