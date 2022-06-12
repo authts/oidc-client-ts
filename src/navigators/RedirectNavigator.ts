@@ -11,7 +11,7 @@ import type { IWindow } from "./IWindow";
  */
 export interface RedirectParams {
     redirectMethod?: "replace" | "assign";
-    redirectTarget?: "top" | "parent" | "self";
+    redirectTarget?: "top" | "self";
 }
 
 /**

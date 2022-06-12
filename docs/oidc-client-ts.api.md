@@ -544,7 +544,7 @@ export interface RedirectParams {
     // (undocumented)
     redirectMethod?: "replace" | "assign";
     // (undocumented)
-    redirectTarget?: "top" | "parent" | "self";
+    redirectTarget?: "top" | "self";
 }
 
 // @public (undocumented)
