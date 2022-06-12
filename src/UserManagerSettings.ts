@@ -35,6 +35,8 @@ export interface UserManagerSettings extends OidcClientSettings {
     popupWindowTarget?: string;
     /** The methods window.location method used to redirect (default: "assign") */
     redirectMethod?: "replace" | "assign";
+    /** The methods target window being redirected (default: "self") */
+    redirectTarget?: "top" | "self";
 
     /** The target to pass while calling postMessage inside iframe for callback (default: window.location.origin) */
     iframeNotifyParentOrigin?: string;
@@ -91,6 +93,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly popupWindowFeatures: PopupWindowFeatures;
     public readonly popupWindowTarget: string;
     public readonly redirectMethod: "replace" | "assign";
+    public readonly redirectTarget: "top" | "self";
 
     public readonly iframeNotifyParentOrigin: string | undefined;
     public readonly iframeScriptOrigin: string | undefined;
@@ -120,6 +123,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             popupWindowFeatures = DefaultPopupWindowFeatures,
             popupWindowTarget = DefaultPopupTarget,
             redirectMethod = "assign",
+            redirectTarget = "self",
 
             iframeNotifyParentOrigin = args.iframeNotifyParentOrigin,
             iframeScriptOrigin = args.iframeScriptOrigin,
@@ -150,6 +154,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         this.popupWindowFeatures = popupWindowFeatures;
         this.popupWindowTarget = popupWindowTarget;
         this.redirectMethod = redirectMethod;
+        this.redirectTarget = redirectTarget;
 
         this.iframeNotifyParentOrigin = iframeNotifyParentOrigin;
         this.iframeScriptOrigin = iframeScriptOrigin;
