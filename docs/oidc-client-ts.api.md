@@ -672,7 +672,7 @@ export class SigninResponse {
     // (undocumented)
     scope?: string;
     // (undocumented)
-    readonly session_state: string | null;
+    session_state: string | null;
     // (undocumented)
     readonly state: string | null;
     // (undocumented)
