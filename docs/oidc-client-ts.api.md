@@ -543,6 +543,8 @@ export type QuerySessionStatusArgs = IFrameWindowParams & ExtraSigninRequestArgs
 export interface RedirectParams {
     // (undocumented)
     redirectMethod?: "replace" | "assign";
+    // (undocumented)
+    redirectTarget?: "top" | "self";
 }
 
 // @public (undocumented)
@@ -982,6 +984,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     // (undocumented)
     query_status_response_type?: string;
     redirectMethod?: "replace" | "assign";
+    redirectTarget?: "top" | "self";
     revokeTokensOnSignout?: boolean;
     revokeTokenTypes?: ("access_token" | "refresh_token")[];
     silent_redirect_uri?: string;
@@ -1023,6 +1026,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     readonly query_status_response_type: string;
     // (undocumented)
     readonly redirectMethod: "replace" | "assign";
+    // (undocumented)
+    readonly redirectTarget: "top" | "self";
     // (undocumented)
     readonly revokeTokensOnSignout: boolean;
     // (undocumented)
