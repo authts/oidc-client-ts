@@ -12,14 +12,9 @@
   "types": "dist/types/oidc-client-ts.d.ts",
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/types/oidc-client-ts.d.ts",
-        "default": "./dist/esm/oidc-client-ts.js"
-      },
-      "require": {
-        "types": "./dist/types/oidc-client-ts.d.ts",
-        "default": "./dist/umd/oidc-client-ts.js"
-      }
+      "import": "./dist/esm/oidc-client-ts.js",
+      "require": "./dist/umd/oidc-client-ts.js",
+      "types": "./dist/types/oidc-client-ts.d.ts"
     },
     "./package.json": "./package.json"
   },
