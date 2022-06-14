@@ -325,6 +325,7 @@ export interface OidcClientSettings {
     client_id: string;
     // (undocumented)
     client_secret?: string;
+    // @deprecated (undocumented)
     clockSkewInSeconds?: number;
     display?: string;
     extraQueryParams?: Record<string, string | number | boolean>;
@@ -349,7 +350,7 @@ export interface OidcClientSettings {
     staleStateAgeInSeconds?: number;
     stateStore?: StateStore;
     ui_locales?: string;
-    // (undocumented)
+    // @deprecated (undocumented)
     userInfoJwtIssuer?: "ANY" | "OP" | string;
 }
 
