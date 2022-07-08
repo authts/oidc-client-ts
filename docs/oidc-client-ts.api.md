@@ -943,6 +943,8 @@ export class UserManagerEvents extends AccessTokenEvents {
     addSilentRenewError(cb: SilentRenewErrorCallback): () => void;
     addUserLoaded(cb: UserLoadedCallback): () => void;
     addUserSessionChanged(cb: UserSessionChangedCallback): () => void;
+    // Warning: (ae-forgotten-export) The symbol "UserSessionErrorCallback" needs to be exported by the entry point index.d.ts
+    addUserSessionError(cb: UserSessionErrorCallback): () => void;
     addUserSignedIn(cb: UserSignedInCallback): () => void;
     addUserSignedOut(cb: UserSignedOutCallback): () => void;
     addUserUnloaded(cb: UserUnloadedCallback): () => void;
@@ -955,12 +957,15 @@ export class UserManagerEvents extends AccessTokenEvents {
     // @internal (undocumented)
     _raiseUserSessionChanged(): void;
     // @internal (undocumented)
+    _raiseUserSessionError(): void;
+    // @internal (undocumented)
     _raiseUserSignedIn(): void;
     // @internal (undocumented)
     _raiseUserSignedOut(): void;
     removeSilentRenewError(cb: SilentRenewErrorCallback): void;
     removeUserLoaded(cb: UserLoadedCallback): void;
     removeUserSessionChanged(cb: UserSessionChangedCallback): void;
+    removeUserSessionError(cb: UserSessionErrorCallback): void;
     removeUserSignedIn(cb: UserSignedInCallback): void;
     removeUserSignedOut(cb: UserSignedOutCallback): void;
     removeUserUnloaded(cb: UserUnloadedCallback): void;

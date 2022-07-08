@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { UserManagerEvents } from "./UserManagerEvents";
+import { UserManagerEvents, UserSessionErrorCallback } from "./UserManagerEvents";
 import { UserManagerSettingsStore } from "./UserManagerSettings";
 
 describe("UserManagerEvents", () => {
@@ -55,6 +55,20 @@ describe("UserManagerEvents", () => {
             // act
             subject.addSilentRenewError(cb);
             subject._raiseSilentRenewError(expected);
+
+            // assert
+            expect(e).toEqual(expected);
+        });
+
+        it("should pass error to callback", () => {
+            // arrange
+            const e: Error | null = null;
+            const cb: UserSessionErrorCallback = jest.fn();
+            const expected = new Error("boom");
+
+            // act
+            subject.addUserSessionError(cb);
+            subject._raiseUserSessionError();
 
             // assert
             expect(e).toEqual(expected);

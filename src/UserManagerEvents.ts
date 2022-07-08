@@ -30,6 +30,10 @@ export type UserSignedOutCallback = () => Promise<void> | void;
  * @public
  */
 export type UserSessionChangedCallback = () => Promise<void> | void;
+/**
+ * @public
+ */
+export type UserSessionErrorCallback = () => Promise<void> | void;
 
 /**
  * @public
@@ -43,6 +47,7 @@ export class UserManagerEvents extends AccessTokenEvents {
     private readonly _userSignedIn = new Event<[]>("User signed in");
     private readonly _userSignedOut = new Event<[]>("User signed out");
     private readonly _userSessionChanged = new Event<[]>("User session changed");
+    private readonly _userSessionError = new Event<[]>("User session error");
 
     public constructor(settings: UserManagerSettingsStore) {
         super({ expiringNotificationTimeInSeconds: settings.accessTokenExpiringNotificationTimeInSeconds });
@@ -162,5 +167,24 @@ export class UserManagerEvents extends AccessTokenEvents {
      */
     public _raiseUserSessionChanged(): void {
         this._userSessionChanged.raise();
+    }
+    /**
+     * Add callback: Raised when the user session changed (when `monitorSession` is set).
+     * @see {@link UserManagerSettings.monitorSession}
+     */
+    public addUserSessionError(cb: UserSessionErrorCallback): () => void {
+        return this._userSessionError.addHandler(cb);
+    }
+    /**
+     * Remove callback: Raised when the user session changed (when `monitorSession` is set).
+     */
+    public removeUserSessionError(cb: UserSessionErrorCallback): void {
+        this._userSessionError.removeHandler(cb);
+    }
+    /**
+     * @internal
+     */
+    public _raiseUserSessionError(): void {
+        this._userSessionError.raise();
     }
 }
