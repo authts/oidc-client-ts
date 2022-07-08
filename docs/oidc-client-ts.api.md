@@ -108,6 +108,7 @@ export class ErrorResponse extends Error {
 // @public
 export class ErrorTimeout extends Error {
     constructor(message?: string);
+
     readonly name: string;
 }
 
@@ -123,11 +124,17 @@ export type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQuery
 export interface IdTokenClaims extends Mandatory<OidcStandardClaims, "sub">, Mandatory<JwtClaims, "iss" | "sub" | "aud" | "exp" | "iat"> {
     // (undocumented)
     [claim: string]: unknown;
+
     acr?: string;
+
     amr?: unknown;
+
     auth_time?: number;
+
     azp?: string;
+
     nonce?: string;
+
     sid?: string;
 }
 
@@ -141,10 +148,13 @@ export interface IFrameWindowParams {
 export interface ILogger {
     // (undocumented)
     debug(...args: unknown[]): void;
+
     // (undocumented)
     error(...args: unknown[]): void;
+
     // (undocumented)
     info(...args: unknown[]): void;
+
     // (undocumented)
     warn(...args: unknown[]): void;
 }
@@ -169,12 +179,19 @@ export class InMemoryWebStorage implements Storage {
 export interface JwtClaims {
     // (undocumented)
     [claim: string]: unknown;
+
     aud?: string | string[];
+
     exp?: number;
+
     iat?: number;
+
     iss?: string;
+
     jti?: string;
+
     nbf?: number;
+
     sub?: string;
 }
 
@@ -196,8 +213,10 @@ export enum Log {
 export namespace Log {
     // (undocumented)
     export function reset(): void;
+
     // (undocumented)
     export function setLevel(value: Log): void;
+
     // (undocumented)
     export function setLogger(value: ILogger): void;
 }
@@ -280,9 +299,36 @@ export class OidcClient {
     // (undocumented)
     clearStaleState(): Promise<void>;
     // (undocumented)
-    createSigninRequest({ state, request, request_uri, request_type, id_token_hint, login_hint, skipUserInfo, nonce, response_type, scope, redirect_uri, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, extraQueryParams, extraTokenParams, }: CreateSigninRequestArgs): Promise<SigninRequest>;
+    createSigninRequest({
+        state,
+        request,
+        request_uri,
+        request_type,
+        id_token_hint,
+        login_hint,
+        skipUserInfo,
+        nonce,
+        response_type,
+        scope,
+        redirect_uri,
+        prompt,
+        display,
+        max_age,
+        ui_locales,
+        acr_values,
+        resource,
+        response_mode,
+        extraQueryParams,
+        extraTokenParams,
+    }: CreateSigninRequestArgs): Promise<SigninRequest>;
     // (undocumented)
-    createSignoutRequest({ state, id_token_hint, request_type, post_logout_redirect_uri, extraQueryParams, }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
+    createSignoutRequest({
+        state,
+        id_token_hint,
+        request_type,
+        post_logout_redirect_uri,
+        extraQueryParams,
+    }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
     // (undocumented)
     protected readonly _logger: Logger;
     // (undocumented)
@@ -310,7 +356,7 @@ export class OidcClient {
     // (undocumented)
     protected readonly _tokenClient: TokenClient;
     // (undocumented)
-    useRefreshToken({ state, timeoutInSeconds, }: UseRefreshTokenArgs): Promise<SigninResponse>;
+    useRefreshToken({state, timeoutInSeconds,}: UseRefreshTokenArgs): Promise<SigninResponse>;
     // Warning: (ae-forgotten-export) The symbol "ResponseValidator" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -356,7 +402,36 @@ export interface OidcClientSettings {
 
 // @public
 export class OidcClientSettingsStore {
-    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, clockSkewInSeconds, userInfoJwtIssuer, mergeClaims, stateStore, extraQueryParams, extraTokenParams, }: OidcClientSettings);
+    constructor({
+        authority,
+        metadataUrl,
+        metadata,
+        signingKeys,
+        metadataSeed,
+        client_id,
+        client_secret,
+        response_type,
+        scope,
+        redirect_uri,
+        post_logout_redirect_uri,
+        client_authentication,
+        prompt,
+        display,
+        max_age,
+        ui_locales,
+        acr_values,
+        resource,
+        response_mode,
+        filterProtocolClaims,
+        loadUserInfo,
+        staleStateAgeInSeconds,
+        clockSkewInSeconds,
+        userInfoJwtIssuer,
+        mergeClaims,
+        stateStore,
+        extraQueryParams,
+        extraTokenParams,
+    }: OidcClientSettings);
     // (undocumented)
     readonly acr_values: string | undefined;
     // (undocumented)
@@ -588,7 +663,23 @@ export type SigninRedirectArgs = RedirectParams & ExtraSigninRequestArgs;
 
 // @public (undocumented)
 export class SigninRequest {
-    constructor({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, skipUserInfo, extraQueryParams, extraTokenParams, ...optionalParams }: SigninRequestArgs);
+    constructor({
+        url,
+        authority,
+        client_id,
+        redirect_uri,
+        response_type,
+        scope,
+        state_data,
+        response_mode,
+        request_type,
+        client_secret,
+        nonce,
+        skipUserInfo,
+        extraQueryParams,
+        extraTokenParams,
+        ...optionalParams
+    }: SigninRequestArgs);
     // (undocumented)
     readonly state: SigninState;
     // (undocumented)
@@ -735,7 +826,14 @@ export type SignoutRedirectArgs = RedirectParams & ExtraSignoutRequestArgs;
 
 // @public (undocumented)
 export class SignoutRequest {
-    constructor({ url, state_data, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type, }: SignoutRequestArgs);
+    constructor({
+        url,
+        state_data,
+        id_token_hint,
+        post_logout_redirect_uri,
+        extraQueryParams,
+        request_type,
+    }: SignoutRequestArgs);
     // (undocumented)
     readonly state?: State;
     // (undocumented)
@@ -802,10 +900,13 @@ export class State {
 export interface StateStore {
     // (undocumented)
     get(key: string): Promise<string | null>;
+
     // (undocumented)
     getAllKeys(): Promise<string[]>;
+
     // (undocumented)
     remove(key: string): Promise<string | null>;
+
     // (undocumented)
     set(key: string, value: string): Promise<void>;
 }
@@ -1065,7 +1166,7 @@ export const Version: string;
 
 // @public (undocumented)
 export class WebStorageStateStore implements StateStore {
-    constructor({ prefix, store }?: {
+    constructor({prefix, store}?: {
         prefix?: string | undefined;
         store?: Storage | undefined;
     });
