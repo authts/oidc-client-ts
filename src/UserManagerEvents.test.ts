@@ -59,5 +59,19 @@ describe("UserManagerEvents", () => {
             // assert
             expect(e).toEqual(expected);
         });
+
+        it("should pass error to callback", () => {
+            // arrange
+            const e: Error | null = null;
+            const cb = jest.fn();
+            const expected = new Error("boom");
+
+            // act
+            subject.addUserSessionError(cb);
+            subject._raiseUserSessionError();
+
+            // assert
+            expect(e).toEqual(expected);
+        });
     });
 });
