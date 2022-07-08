@@ -5,6 +5,7 @@ import { Logger } from "./utils";
 import { CheckSessionIFrame } from "./CheckSessionIFrame";
 import type { UserManager } from "./UserManager";
 import type { User } from "./User";
+import type {SigninRequestArgs} from "./SigninRequest";
 
 /**
  * @public
@@ -145,7 +146,8 @@ export class SessionMonitor {
     protected _callback = async (): Promise<void> => {
         const logger = this._logger.create("_callback");
         try {
-            const session = await this._userManager.querySessionStatus();
+            const signRequestArgs: SigninRequestArgs = await this._userManager.loadIdTokenHint();
+            const session = await this._userManager.querySessionStatus(signRequestArgs);
             let raiseEvent = true;
 
             if (session && this._checkSessionIFrame) {
