@@ -146,7 +146,7 @@ export class SessionMonitor {
     protected _callback = async (): Promise<void> => {
         const logger = this._logger.create("_callback");
         try {
-            const signRequestArgs: SigninRequestArgs = await this._userManager.loadIdTokenHint();
+            const signRequestArgs: SigninRequestArgs = await this._userManager.signInRequestArgsForPromptNone();
             const session = await this._userManager.querySessionStatus(signRequestArgs);
             let raiseEvent = true;
 

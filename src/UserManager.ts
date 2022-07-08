@@ -316,7 +316,7 @@ export class UserManager {
         }
     }
 
-    async loadIdTokenHint(args = {}): Promise<SigninRequestArgs> {
+    async signInRequestArgsForPromptNone(): Promise<SigninRequestArgs> {
         let signInRequestArgs: SigninRequestArgs = Object.assign({}, args) as SigninRequestArgs;
         let user: User = await this.getUser() as User;
         signInRequestArgs.id_token_hint = user.id_token;
