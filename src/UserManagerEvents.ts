@@ -163,5 +163,4 @@ export class UserManagerEvents extends AccessTokenEvents {
     public _raiseUserSessionChanged(): void {
         this._userSessionChanged.raise();
     }
-
 }
