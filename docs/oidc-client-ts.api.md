@@ -26,7 +26,7 @@ export class AccessTokenEvents {
 
 // @internal (undocumented)
 export class CheckSessionIFrame {
-    constructor(_callback: () => Promise<void>, _client_id: string, url: string, _intervalInSeconds: number, _stopOnError: boolean);
+    constructor(_callback: () => Promise<void>, _client_id: string, url: string, _intervalInSeconds: number, _stopOnError: boolean, propagateUserSessionError: boolean, userSessionErrorCallback: () => void);
     // (undocumented)
     load(): Promise<void>;
     // (undocumented)
@@ -941,6 +941,8 @@ export class UserManagerEvents extends AccessTokenEvents {
     addSilentRenewError(cb: SilentRenewErrorCallback): () => void;
     addUserLoaded(cb: UserLoadedCallback): () => void;
     addUserSessionChanged(cb: UserSessionChangedCallback): () => void;
+    // Warning: (ae-forgotten-export) The symbol "UserSessionErrorCallback" needs to be exported by the entry point index.d.ts
+    addUserSessionError(cb: UserSessionErrorCallback): () => void;
     addUserSignedIn(cb: UserSignedInCallback): () => void;
     addUserSignedOut(cb: UserSignedOutCallback): () => void;
     addUserUnloaded(cb: UserUnloadedCallback): () => void;
@@ -953,12 +955,15 @@ export class UserManagerEvents extends AccessTokenEvents {
     // @internal (undocumented)
     _raiseUserSessionChanged(): void;
     // @internal (undocumented)
+    _raiseUserSessionError(): void;
+    // @internal (undocumented)
     _raiseUserSignedIn(): void;
     // @internal (undocumented)
     _raiseUserSignedOut(): void;
     removeSilentRenewError(cb: SilentRenewErrorCallback): void;
     removeUserLoaded(cb: UserLoadedCallback): void;
     removeUserSessionChanged(cb: UserSessionChangedCallback): void;
+    removeUserSessionError(cb: UserSessionErrorCallback): void;
     removeUserSignedIn(cb: UserSignedInCallback): void;
     removeUserSignedOut(cb: UserSignedOutCallback): void;
     removeUserUnloaded(cb: UserUnloadedCallback): void;
@@ -982,6 +987,8 @@ export interface UserManagerSettings extends OidcClientSettings {
     popup_redirect_uri?: string;
     popupWindowFeatures?: PopupWindowFeatures;
     popupWindowTarget?: string;
+    // (undocumented)
+    propagateUserSessionError?: boolean;
     // (undocumented)
     query_status_response_type?: string;
     redirectMethod?: "replace" | "assign";
@@ -1023,6 +1030,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     readonly popupWindowFeatures: PopupWindowFeatures;
     // (undocumented)
     readonly popupWindowTarget: string;
+    // (undocumented)
+    readonly propagateUserSessionError: boolean;
     // (undocumented)
     readonly query_status_response_type: string;
     // (undocumented)

@@ -37,8 +37,7 @@ export class SessionMonitor {
         // doesn't trigger load event.
         if (user) {
             void this._start(user);
-        }
-        else if (this._userManager.settings.monitorAnonymousSession) {
+        } else if (this._userManager.settings.monitorAnonymousSession) {
             const session = await this._userManager.querySessionStatus();
             if (session) {
                 const tmpUser = {
@@ -69,8 +68,7 @@ export class SessionMonitor {
             this._sub = user.profile.sub;
             this._sid = user.profile.sid;
             logger.debug("session_state", session_state, ", sub", this._sub);
-        }
-        else {
+        } else {
             this._sub = undefined;
             this._sid = undefined;
             logger.debug("session_state", session_state, ", anonymous user");
@@ -90,20 +88,26 @@ export class SessionMonitor {
                 const intervalInSeconds = this._userManager.settings.checkSessionIntervalInSeconds;
                 const stopOnError = this._userManager.settings.stopCheckSessionOnError;
 
-                const checkSessionIFrame = new CheckSessionIFrame(this._callback, client_id, url, intervalInSeconds, stopOnError);
+                const checkSessionIFrame = new CheckSessionIFrame(this._callback, client_id, url, intervalInSeconds, stopOnError, this.doUserSessionErrorPropagation(), this.raiseUserSessionError.bind(this));
                 await checkSessionIFrame.load();
                 this._checkSessionIFrame = checkSessionIFrame;
                 checkSessionIFrame.start(session_state);
-            }
-            else {
+            } else {
                 logger.warn("no check session iframe found in the metadata");
             }
-        }
-        catch (err) {
+        } catch (err) {
             // catch to suppress errors since we're in non-promise callback
             logger.error("Error from getCheckSessionIframe:", err instanceof Error ? err.message : err);
         }
     };
+
+    private doUserSessionErrorPropagation(): boolean {
+        return this._userManager.settings.propagateUserSessionError;
+    }
+
+    private raiseUserSessionError(): void {
+        this._userManager.events._raiseUserSessionError.bind(this);
+    }
 
     protected _stop = (): void => {
         const logger = this._logger.create("_stop");
@@ -133,8 +137,7 @@ export class SessionMonitor {
                         };
                         void this._start(tmpUser);
                     }
-                }
-                catch (err) {
+                } catch (err) {
                     // catch to suppress errors since we're in a callback
                     logger.error("error from querySessionStatus", err instanceof Error ? err.message : err);
                 }
@@ -155,32 +158,27 @@ export class SessionMonitor {
 
                     if (session.sid === this._sid) {
                         logger.debug("same sub still logged in at OP, restarting check session iframe; session_state", session.session_state);
-                    }
-                    else {
+                    } else {
                         logger.debug("same sub still logged in at OP, session state has changed, restarting check session iframe; session_state", session.session_state);
                         this._userManager.events._raiseUserSessionChanged();
                     }
-                }
-                else {
+                } else {
                     logger.debug("different subject signed into OP", session.sub);
                 }
-            }
-            else {
+            } else {
                 logger.debug("subject no longer signed into OP");
             }
 
             if (raiseEvent) {
                 if (this._sub) {
                     this._userManager.events._raiseUserSignedOut();
-                }
-                else {
+                } else {
                     this._userManager.events._raiseUserSignedIn();
                 }
             } else {
                 logger.debug("no change in session detected, no event to raise");
             }
-        }
-        catch (err) {
+        } catch (err) {
             if (this._sub) {
                 logger.debug("Error calling queryCurrentSigninSession; raising signed out event", err);
                 this._userManager.events._raiseUserSignedOut();

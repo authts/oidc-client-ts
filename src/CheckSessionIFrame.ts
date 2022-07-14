@@ -19,6 +19,8 @@ export class CheckSessionIFrame {
         url: string,
         private _intervalInSeconds: number,
         private _stopOnError: boolean,
+        private propagateUserSessionError: boolean,
+        private userSessionErrorCallback: () => void,
     ) {
         const parsedUrl = new URL(url);
         this._frame_origin = parsedUrl.origin;
@@ -54,6 +56,10 @@ export class CheckSessionIFrame {
                 this._logger.error("error message from check session op iframe");
                 if (this._stopOnError) {
                     this.stop();
+                }
+
+                if (this.propagateUserSessionError) {
+                    this.userSessionErrorCallback();
                 }
             }
             else if (e.data === "changed") {
