@@ -329,11 +329,13 @@ export class UserManager {
             logger.throw(new Error("No silent_redirect_uri configured"));
         }
 
+        const user = await this._loadUser();
         const handle = await this._iframeNavigator.prepare({ silentRequestTimeoutInSeconds });
         const navResponse = await this._signinStart({
             request_type: "si:s", // this acts like a signin silent
             redirect_uri: url,
             prompt: "none",
+            id_token_hint: this.settings.includeIdTokenInSilentRenew ? user?.id_token : undefined,
             response_type: this.settings.query_status_response_type,
             scope: "openid",
             skipUserInfo: true,
