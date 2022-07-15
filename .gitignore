@@ -22,3 +22,5 @@ node_modules/
 .vscode/
 temp/
 .history/
+.idea
+*.iml
