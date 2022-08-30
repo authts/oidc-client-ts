@@ -23,6 +23,7 @@ export interface PostFormOpts {
     body: URLSearchParams;
     basicAuth?: string;
     timeoutInSeconds?: number;
+    withCredentials?: boolean;
 }
 
 /**
@@ -123,6 +124,7 @@ export class JsonService {
         body,
         basicAuth,
         timeoutInSeconds,
+        withCredentials,
     }: PostFormOpts): Promise<Record<string, unknown>> {
         const logger = this._logger.create("postForm");
         const headers: HeadersInit = {
@@ -132,11 +134,15 @@ export class JsonService {
         if (basicAuth !== undefined) {
             headers["Authorization"] = "Basic " + basicAuth;
         }
+        let initCredentials = {};
+        if (withCredentials) {
+            initCredentials = { "credentials": "include" };
+        }
 
         let response: Response;
         try {
             logger.debug("url:", url);
-            response = await this.fetchWithTimeout(url, { method: "POST", headers, body, timeoutInSeconds });
+            response = await this.fetchWithTimeout(url, { method: "POST", headers, body, timeoutInSeconds, ...initCredentials });
         }
         catch (err) {
             logger.error("Network error");

@@ -102,6 +102,11 @@ export interface OidcClientSettings {
     extraQueryParams?: Record<string, string | number | boolean>;
 
     extraTokenParams?: Record<string, unknown>;
+
+    /**
+     * Whether credentials should be sent with the refresh request.
+     */
+    refreshWithCredentials?: boolean;
 }
 
 /**
@@ -150,6 +155,8 @@ export class OidcClientSettingsStore {
     public readonly extraQueryParams: Record<string, string | number | boolean>;
     public readonly extraTokenParams: Record<string, unknown>;
 
+    public readonly refreshWithCredentials: boolean;
+
     public constructor({
         // metadata related
         authority, metadataUrl, metadata, signingKeys, metadataSeed,
@@ -168,6 +175,7 @@ export class OidcClientSettingsStore {
         mergeClaims = false,
         // other behavior
         stateStore,
+        refreshWithCredentials = false,
         // extra query params
         extraQueryParams = {},
         extraTokenParams = {},
@@ -213,6 +221,8 @@ export class OidcClientSettingsStore {
         this.clockSkewInSeconds = clockSkewInSeconds;
         this.userInfoJwtIssuer = userInfoJwtIssuer;
         this.mergeClaims = !!mergeClaims;
+
+        this.refreshWithCredentials = refreshWithCredentials;
 
         if (stateStore) {
             this.stateStore = stateStore;

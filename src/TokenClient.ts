@@ -31,6 +31,8 @@ export interface ExchangeRefreshTokenArgs {
     scope?: string;
 
     timeoutInSeconds?: number;
+
+    refreshWithCredentials?: boolean;
 }
 
 /**
@@ -111,6 +113,7 @@ export class TokenClient {
         client_id = this._settings.client_id,
         client_secret = this._settings.client_secret,
         timeoutInSeconds,
+        refreshWithCredentials,
         ...args
     }: ExchangeRefreshTokenArgs): Promise<Record<string, unknown>> {
         const logger = this._logger.create("exchangeRefreshToken");
@@ -147,7 +150,7 @@ export class TokenClient {
         const url = await this._metadataService.getTokenEndpoint(false);
         logger.debug("got token endpoint");
 
-        const response = await this._jsonService.postForm(url, { body: params, basicAuth, timeoutInSeconds });
+        const response = await this._jsonService.postForm(url, { body: params, basicAuth, timeoutInSeconds, withCredentials: refreshWithCredentials });
         logger.debug("got response");
 
         return response;

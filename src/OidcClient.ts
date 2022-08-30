@@ -175,6 +175,7 @@ export class OidcClient {
             refresh_token: state.refresh_token,
             scope: state.scope,
             timeoutInSeconds,
+            refreshWithCredentials: this.settings.refreshWithCredentials,
         });
         const response = new SigninResponse(new URLSearchParams());
         Object.assign(response, result);
