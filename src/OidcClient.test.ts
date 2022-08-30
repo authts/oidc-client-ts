@@ -380,6 +380,8 @@ describe("OidcClient", () => {
             expect(exchangeRefreshTokenMock).toHaveBeenCalledWith( {
                 refresh_token: "refresh_token",
                 scope: "openid",
+                timeoutInSeconds: undefined,
+                refreshTokenCredentials: "same-origin",
             });
             expect(response).toBeInstanceOf(SigninResponse);
             expect(response).toMatchObject(tokenResponse);

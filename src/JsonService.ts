@@ -23,6 +23,7 @@ export interface PostFormOpts {
     body: URLSearchParams;
     basicAuth?: string;
     timeoutInSeconds?: number;
+    initCredentials?: "same-origin" | "include" | "omit";
 }
 
 /**
@@ -123,6 +124,7 @@ export class JsonService {
         body,
         basicAuth,
         timeoutInSeconds,
+        initCredentials,
     }: PostFormOpts): Promise<Record<string, unknown>> {
         const logger = this._logger.create("postForm");
         const headers: HeadersInit = {
@@ -136,7 +138,7 @@ export class JsonService {
         let response: Response;
         try {
             logger.debug("url:", url);
-            response = await this.fetchWithTimeout(url, { method: "POST", headers, body, timeoutInSeconds });
+            response = await this.fetchWithTimeout(url, { method: "POST", headers, body, timeoutInSeconds, credentials: initCredentials });
         }
         catch (err) {
             logger.error("Network error");
