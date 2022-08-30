@@ -134,15 +134,11 @@ export class JsonService {
         if (basicAuth !== undefined) {
             headers["Authorization"] = "Basic " + basicAuth;
         }
-        let initCredentials = {};
-        if (corsCredentials) {
-            initCredentials = { "credentials": corsCredentials };
-        }
 
         let response: Response;
         try {
             logger.debug("url:", url);
-            response = await this.fetchWithTimeout(url, { method: "POST", headers, body, timeoutInSeconds, ...initCredentials });
+            response = await this.fetchWithTimeout(url, { method: "POST", headers, body, timeoutInSeconds, credentials: corsCredentials });
         }
         catch (err) {
             logger.error("Network error");
