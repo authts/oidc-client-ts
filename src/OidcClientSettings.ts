@@ -104,7 +104,7 @@ export interface OidcClientSettings {
     extraTokenParams?: Record<string, unknown>;
 
     /**
-     * CORS settings for credentials sent with the refresh request.
+     * Credentials used by fetch with the refresh request. (default: "same-origin")
      */
     refreshTokenCredentials?: "same-origin" | "include" | "omit";
 }
@@ -155,7 +155,7 @@ export class OidcClientSettingsStore {
     public readonly extraQueryParams: Record<string, string | number | boolean>;
     public readonly extraTokenParams: Record<string, unknown>;
 
-    public readonly refreshTokenCredentials: "same-origin" | "include" | "omit" | undefined;
+    public readonly refreshTokenCredentials: "same-origin" | "include" | "omit";
 
     public constructor({
         // metadata related
@@ -175,7 +175,7 @@ export class OidcClientSettingsStore {
         mergeClaims = false,
         // other behavior
         stateStore,
-        refreshTokenCredentials,
+        refreshTokenCredentials = "same-origin",
         // extra query params
         extraQueryParams = {},
         extraTokenParams = {},

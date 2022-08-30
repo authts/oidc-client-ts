@@ -397,7 +397,7 @@ export class OidcClientSettingsStore {
     // (undocumented)
     readonly redirect_uri: string;
     // (undocumented)
-    readonly refreshTokenCredentials: "same-origin" | "include" | "omit" | undefined;
+    readonly refreshTokenCredentials: "same-origin" | "include" | "omit";
     // (undocumented)
     readonly resource: string | undefined;
     // (undocumented)

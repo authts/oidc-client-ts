@@ -31,7 +31,6 @@ export interface ExchangeRefreshTokenArgs {
     scope?: string;
 
     timeoutInSeconds?: number;
-
     refreshTokenCredentials?: "same-origin" | "include" | "omit";
 }
 
