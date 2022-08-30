@@ -149,7 +149,7 @@ export class TokenClient {
         const url = await this._metadataService.getTokenEndpoint(false);
         logger.debug("got token endpoint");
 
-        const response = await this._jsonService.postForm(url, { body: params, basicAuth, timeoutInSeconds, corsCredentials: refreshTokenCredentials });
+        const response = await this._jsonService.postForm(url, { body: params, basicAuth, timeoutInSeconds, initCredentials: refreshTokenCredentials });
         logger.debug("got response");
 
         return response;
