@@ -23,7 +23,7 @@ export interface PostFormOpts {
     body: URLSearchParams;
     basicAuth?: string;
     timeoutInSeconds?: number;
-    withCredentials?: boolean;
+    corsCredentials?: "same-origin" | "include" | "omit";
 }
 
 /**
@@ -124,7 +124,7 @@ export class JsonService {
         body,
         basicAuth,
         timeoutInSeconds,
-        withCredentials,
+        corsCredentials,
     }: PostFormOpts): Promise<Record<string, unknown>> {
         const logger = this._logger.create("postForm");
         const headers: HeadersInit = {
@@ -135,8 +135,8 @@ export class JsonService {
             headers["Authorization"] = "Basic " + basicAuth;
         }
         let initCredentials = {};
-        if (withCredentials) {
-            initCredentials = { "credentials": "include" };
+        if (corsCredentials) {
+            initCredentials = { "credentials": corsCredentials };
         }
 
         let response: Response;

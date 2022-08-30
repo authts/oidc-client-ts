@@ -381,7 +381,7 @@ describe("OidcClient", () => {
                 refresh_token: "refresh_token",
                 scope: "openid",
                 timeoutInSeconds: undefined,
-                refreshWithCredentials: false,
+                refreshTokenCredentials: undefined,
             });
             expect(response).toBeInstanceOf(SigninResponse);
             expect(response).toMatchObject(tokenResponse);

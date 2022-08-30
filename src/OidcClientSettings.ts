@@ -104,9 +104,9 @@ export interface OidcClientSettings {
     extraTokenParams?: Record<string, unknown>;
 
     /**
-     * Whether credentials should be sent with the refresh request.
+     * CORS settings for credentials sent with the refresh request.
      */
-    refreshWithCredentials?: boolean;
+    refreshTokenCredentials?: "same-origin" | "include" | "omit";
 }
 
 /**
@@ -155,7 +155,7 @@ export class OidcClientSettingsStore {
     public readonly extraQueryParams: Record<string, string | number | boolean>;
     public readonly extraTokenParams: Record<string, unknown>;
 
-    public readonly refreshWithCredentials: boolean;
+    public readonly refreshTokenCredentials: "same-origin" | "include" | "omit" | undefined;
 
     public constructor({
         // metadata related
@@ -175,7 +175,7 @@ export class OidcClientSettingsStore {
         mergeClaims = false,
         // other behavior
         stateStore,
-        refreshWithCredentials = false,
+        refreshTokenCredentials,
         // extra query params
         extraQueryParams = {},
         extraTokenParams = {},
@@ -222,7 +222,7 @@ export class OidcClientSettingsStore {
         this.userInfoJwtIssuer = userInfoJwtIssuer;
         this.mergeClaims = !!mergeClaims;
 
-        this.refreshWithCredentials = refreshWithCredentials;
+        this.refreshTokenCredentials = refreshTokenCredentials;
 
         if (stateStore) {
             this.stateStore = stateStore;
