@@ -82,12 +82,20 @@ export class ResponseValidator {
 
         // OpenID Connect Core 1.0 says that id_token is optional in refresh response:
         // https://openid.net/specs/openid-connect-core-1_0.html#RefreshTokenResponse
-        const hasIdToken = response.isOpenId && !!response.id_token;
-        if (hasIdToken) {
-            this._validateIdTokenAttributes(response, state.id_token);
-            logger.debug("ID Token validated");
+        if (response.isOpenId) {
+            if (response.id_token) {
+                this._validateIdTokenAttributes(response, state.id_token);
+                logger.debug("ID Token validated");
+            }
+            else {
+                // if there's no id_token on the response, copy over id_token from original request
+                response.id_token = state.id_token;
+                // and decoded part too
+                response.profile = state.profile;
+            }
         }
 
+        const hasIdToken = response.isOpenId && !!response.id_token;
         await this._processClaims(response, false, hasIdToken);
         logger.debug("claims processed");
     }
