@@ -454,7 +454,11 @@ describe("UserManager", () => {
             expect(refreshedUser!.profile).toHaveProperty("nickname", "Nicholas");
             expect(useRefreshTokenSpy).toBeCalledWith(
                 expect.objectContaining({
-                    state: { refresh_token: user.refresh_token, session_state: null },
+                    state: {
+                        refresh_token: user.refresh_token,
+                        session_state: null,
+                        "profile": { "nickname": "Nick", "sub": "sub" },
+                    },
                 }),
             );
         });
