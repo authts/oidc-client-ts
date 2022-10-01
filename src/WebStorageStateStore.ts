@@ -3,6 +3,8 @@
 
 import { Logger } from "./utils";
 import type { StateStore } from "./StateStore";
+import type { AsyncStorage } from "./AsyncStorage";
+import { AsyncLocalStorage } from "./AsyncLocalStorage";
 
 /**
  * @public
@@ -10,49 +12,52 @@ import type { StateStore } from "./StateStore";
 export class WebStorageStateStore implements StateStore {
     private readonly _logger = new Logger("WebStorageStateStore");
 
-    private readonly _store: Storage;
+    private readonly _store: AsyncStorage;
     private readonly _prefix: string;
 
-    public constructor({ prefix = "oidc.", store = localStorage } = {}) {
+    public constructor({
+        prefix = "oidc.",
+        store = new AsyncLocalStorage() as AsyncStorage,
+    } = {}) {
         this._store = store;
         this._prefix = prefix;
     }
 
-    public set(key: string, value: string): Promise<void> {
+    public async set(key: string, value: string): Promise<void> {
         this._logger.create(`set('${key}')`);
 
         key = this._prefix + key;
-        this._store.setItem(key, value);
-        return Promise.resolve();
+        await this._store.setItem(key, value);
     }
 
-    public get(key: string): Promise<string | null> {
+    public async get(key: string): Promise<string | null> {
         this._logger.create(`get('${key}')`);
 
         key = this._prefix + key;
-        const item = this._store.getItem(key);
-        return Promise.resolve(item);
+        const item = await this._store.getItem(key);
+        return item;
     }
 
-    public remove(key: string): Promise<string | null> {
+    public async remove(key: string): Promise<string | null> {
         this._logger.create(`remove('${key}')`);
 
         key = this._prefix + key;
-        const item = this._store.getItem(key);
-        this._store.removeItem(key);
-        return Promise.resolve(item);
+        const item = await this._store.getItem(key);
+        await this._store.removeItem(key);
+        return item;
     }
 
-    public getAllKeys(): Promise<string[]> {
+    public async getAllKeys(): Promise<string[]> {
         this._logger.create("getAllKeys");
+        const len = await this._store.length;
 
         const keys = [];
-        for (let index = 0; index < this._store.length; index++) {
-            const key = this._store.key(index);
+        for (let index = 0; index < len; index++) {
+            const key = await this._store.key(index);
             if (key && key.indexOf(this._prefix) === 0) {
                 keys.push(key.substr(this._prefix.length));
             }
         }
-        return Promise.resolve(keys);
+        return keys;
     }
 }

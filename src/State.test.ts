@@ -3,7 +3,7 @@
 
 import { State } from "./State";
 
-import { InMemoryWebStorage } from "./InMemoryWebStorage";
+import { AsyncInMemoryWebStorage } from "./AsyncInMemoryWebStorage";
 import { WebStorageStateStore } from "./WebStorageStateStore";
 
 describe("State", () => {
@@ -115,7 +115,7 @@ describe("State", () => {
             };
 
             const prefix = "prefix.";
-            const inMemStore = new InMemoryWebStorage();
+            const inMemStore = new AsyncInMemoryWebStorage();
             const store = new WebStorageStateStore({ prefix: prefix, store: inMemStore });
 
             const s1 = new State({ id: "s1", created: 5, request_type:"type" });
@@ -124,25 +124,25 @@ describe("State", () => {
             const s4 = new State({ id: "s4", created: 101, request_type:"type" });
             const s5 = new State({ id: "s5", created: 150, request_type:"type" });
 
-            inMemStore.setItem("junk0", "junk");
-            inMemStore.setItem(prefix + s1.id, s1.toStorageString());
-            inMemStore.setItem("junk1", "junk");
-            inMemStore.setItem(prefix + s2.id, s2.toStorageString());
-            inMemStore.setItem("junk2", "junk");
-            inMemStore.setItem(prefix + s3.id, s3.toStorageString());
-            inMemStore.setItem("junk3", "junk");
-            inMemStore.setItem(prefix + s4.id, s4.toStorageString());
-            inMemStore.setItem("junk4", "junk");
-            inMemStore.setItem(prefix + s5.id, s5.toStorageString());
-            inMemStore.setItem("junk5", "junk");
+            await inMemStore.setItem("junk0", "junk");
+            await inMemStore.setItem(prefix + s1.id, s1.toStorageString());
+            await inMemStore.setItem("junk1", "junk");
+            await inMemStore.setItem(prefix + s2.id, s2.toStorageString());
+            await inMemStore.setItem("junk2", "junk");
+            await inMemStore.setItem(prefix + s3.id, s3.toStorageString());
+            await inMemStore.setItem("junk3", "junk");
+            await inMemStore.setItem(prefix + s4.id, s4.toStorageString());
+            await inMemStore.setItem("junk4", "junk");
+            await inMemStore.setItem(prefix + s5.id, s5.toStorageString());
+            await inMemStore.setItem("junk5", "junk");
 
             // act
             await State.clearStaleState(store, 100);
 
             // assert
-            expect(inMemStore.length).toEqual(8);
-            expect(inMemStore.getItem(prefix + "s4")).toBeDefined();
-            expect(inMemStore.getItem(prefix + "s5")).toBeDefined();
+            expect(await inMemStore.length).toEqual(8);
+            expect(await inMemStore.getItem(prefix + "s4")).toBeDefined();
+            expect(await inMemStore.getItem(prefix + "s5")).toBeDefined();
             Date.now = oldNow;
         });
     });

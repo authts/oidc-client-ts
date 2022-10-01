@@ -4,7 +4,8 @@
 import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 import type { PopupWindowFeatures } from "./utils/PopupUtils";
 import { WebStorageStateStore } from "./WebStorageStateStore";
-import { InMemoryWebStorage } from "./InMemoryWebStorage";
+import { AsyncInMemoryWebStorage } from "./AsyncInMemoryWebStorage";
+import { AsyncLocalStorage } from "./AsyncLocalStorage";
 
 export const DefaultPopupWindowFeatures: PopupWindowFeatures = {
     location: false,
@@ -177,9 +178,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
         if (userStore) {
             this.userStore = userStore;
-        }
-        else {
-            const store = typeof window !== "undefined" ? window.sessionStorage : new InMemoryWebStorage();
+        } else {
+            const store = typeof window !== "undefined" ? new AsyncLocalStorage() : new AsyncInMemoryWebStorage();
             this.userStore = new WebStorageStateStore({ store });
         }
     }

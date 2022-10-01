@@ -24,6 +24,48 @@ export class AccessTokenEvents {
     unload(): void;
 }
 
+// @public (undocumented)
+export class AsyncInMemoryWebStorage implements AsyncStorage {
+    // (undocumented)
+    clear(): Promise<void>;
+    // (undocumented)
+    getItem(key: string): Promise<string>;
+    // (undocumented)
+    key(index: number): Promise<string>;
+    // (undocumented)
+    get length(): Promise<number>;
+    // (undocumented)
+    removeItem(key: string): Promise<void>;
+    // (undocumented)
+    setItem(key: string, value: string): Promise<void>;
+}
+
+// @public (undocumented)
+export class AsyncLocalStorage implements AsyncStorage {
+    // (undocumented)
+    clear(): Promise<void>;
+    // (undocumented)
+    getItem(key: string): Promise<string | null>;
+    // (undocumented)
+    key(index: number): Promise<string | null>;
+    // (undocumented)
+    get length(): Promise<number>;
+    // (undocumented)
+    removeItem(key: string): Promise<void>;
+    // (undocumented)
+    setItem(key: string, value: string): Promise<void>;
+}
+
+// @public (undocumented)
+export interface AsyncStorage {
+    clear(): Promise<void>;
+    getItem(key: string): Promise<string | null>;
+    key(index: number): Promise<string | null>;
+    readonly length: Promise<number>;
+    removeItem(key: string): Promise<void>;
+    setItem(key: string, value: string): Promise<void>;
+}
+
 // @internal (undocumented)
 export class CheckSessionIFrame {
     constructor(_callback: () => Promise<void>, _client_id: string, url: string, _intervalInSeconds: number, _stopOnError: boolean);
@@ -147,22 +189,6 @@ export interface ILogger {
     info(...args: unknown[]): void;
     // (undocumented)
     warn(...args: unknown[]): void;
-}
-
-// @public (undocumented)
-export class InMemoryWebStorage implements Storage {
-    // (undocumented)
-    clear(): void;
-    // (undocumented)
-    getItem(key: string): string;
-    // (undocumented)
-    key(index: number): string;
-    // (undocumented)
-    get length(): number;
-    // (undocumented)
-    removeItem(key: string): void;
-    // (undocumented)
-    setItem(key: string, value: string): void;
 }
 
 // @public
@@ -1068,9 +1094,9 @@ export const Version: string;
 
 // @public (undocumented)
 export class WebStorageStateStore implements StateStore {
-    constructor({ prefix, store }?: {
+    constructor({ prefix, store, }?: {
         prefix?: string | undefined;
-        store?: Storage | undefined;
+        store?: AsyncStorage | undefined;
     });
     // (undocumented)
     get(key: string): Promise<string | null>;

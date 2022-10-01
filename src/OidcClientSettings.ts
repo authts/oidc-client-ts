@@ -4,7 +4,8 @@
 import { WebStorageStateStore } from "./WebStorageStateStore";
 import type { OidcMetadata } from "./OidcMetadata";
 import type { StateStore } from "./StateStore";
-import { InMemoryWebStorage } from "./InMemoryWebStorage";
+import { AsyncInMemoryWebStorage } from "./AsyncInMemoryWebStorage";
+import { AsyncLocalStorage } from "./AsyncLocalStorage";
 
 const DefaultResponseType = "code";
 const DefaultScope = "openid";
@@ -180,7 +181,6 @@ export class OidcClientSettingsStore {
         extraQueryParams = {},
         extraTokenParams = {},
     }: OidcClientSettings) {
-
         this.authority = authority;
 
         if (metadataUrl) {
@@ -226,9 +226,8 @@ export class OidcClientSettingsStore {
 
         if (stateStore) {
             this.stateStore = stateStore;
-        }
-        else {
-            const store = typeof window !== "undefined" ? window.localStorage : new InMemoryWebStorage();
+        } else {
+            const store = typeof window !== "undefined" ? new AsyncLocalStorage() : new AsyncInMemoryWebStorage();
             this.stateStore = new WebStorageStateStore({ store });
         }
 
