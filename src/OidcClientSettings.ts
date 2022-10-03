@@ -185,8 +185,7 @@ export class OidcClientSettingsStore {
 
         if (metadataUrl) {
             this.metadataUrl = metadataUrl;
-        }
-        else {
+        } else {
             this.metadataUrl = authority;
             if (authority) {
                 if (!this.metadataUrl.endsWith("/")) {
@@ -227,7 +226,8 @@ export class OidcClientSettingsStore {
 
         if (stateStore) {
             this.stateStore = stateStore;
-        } else {
+        }
+        else {
             const store = typeof window !== "undefined" ? window.localStorage : new InMemoryWebStorage();
             this.stateStore = new WebStorageStateStore({ store });
         }
