@@ -177,7 +177,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
         if (userStore) {
             this.userStore = userStore;
-        } else {
+        }
+        else {
             const store = typeof window !== "undefined" ? window.sessionStorage : new InMemoryWebStorage();
             this.userStore = new WebStorageStateStore({ store });
         }

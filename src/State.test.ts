@@ -135,7 +135,7 @@ describe("State", () => {
             inMemStore.setItem("junk4", "junk");
             inMemStore.setItem(prefix + s5.id, s5.toStorageString());
             inMemStore.setItem("junk5", "junk");
-            
+
             // act
             await State.clearStaleState(store, 100);
 

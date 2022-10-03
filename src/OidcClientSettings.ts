@@ -180,11 +180,13 @@ export class OidcClientSettingsStore {
         extraQueryParams = {},
         extraTokenParams = {},
     }: OidcClientSettings) {
+
         this.authority = authority;
 
         if (metadataUrl) {
             this.metadataUrl = metadataUrl;
-        } else {
+        }
+        else {
             this.metadataUrl = authority;
             if (authority) {
                 if (!this.metadataUrl.endsWith("/")) {
