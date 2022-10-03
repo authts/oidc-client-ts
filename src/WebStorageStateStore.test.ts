@@ -2,17 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { WebStorageStateStore } from "./WebStorageStateStore";
-import { AsyncInMemoryWebStorage } from "./AsyncInMemoryWebStorage";
-import type { AsyncStorage } from "./AsyncStorage";
+import { InMemoryWebStorage } from "./InMemoryWebStorage";
 
 describe("WebStorageStateStore", () => {
     let prefix: string;
-    let store: AsyncStorage;
+    let store: Storage;
     let subject: WebStorageStateStore;
 
     beforeEach(() => {
         prefix = "";
-        store = new AsyncInMemoryWebStorage();
+        store = new InMemoryWebStorage();
         subject = new WebStorageStateStore({ prefix: prefix, store: store });
     });
 
@@ -31,7 +30,7 @@ describe("WebStorageStateStore", () => {
         it("should store item", async () => {
             // act
             await subject.set("key", "value");
-            const result = await store.getItem("key");
+            const result = store.getItem("key");
 
             // assert
             expect(result).toEqual("value");
@@ -46,7 +45,7 @@ describe("WebStorageStateStore", () => {
             await subject.set("key", "value");
 
             // assert
-            const result = await store.getItem(prefix + "key");
+            const result = store.getItem(prefix + "key");
             expect(result).toEqual("value");
         });
     });
@@ -65,11 +64,11 @@ describe("WebStorageStateStore", () => {
 
         it("should remove item", async () => {
             // arrange
-            await store.setItem("key", "value");
+            store.setItem("key", "value");
 
             // act
             await subject.remove("key");
-            const result = await store.getItem("key");
+            const result = store.getItem("key");
 
             // assert
             expect(result).toBeUndefined();
@@ -77,7 +76,7 @@ describe("WebStorageStateStore", () => {
 
         it("should return value if exists", async () => {
             // arrange
-            await store.setItem("key", "test");
+            store.setItem("key", "test");
 
             // act
             const result = await subject.remove("key");
@@ -123,7 +122,7 @@ describe("WebStorageStateStore", () => {
 
         it("should return value if exists", async () => {
             // arrange
-            await store.setItem("key", "test");
+            store.setItem("key", "test");
 
             // act
             const result = await subject.get("key");
@@ -144,7 +143,7 @@ describe("WebStorageStateStore", () => {
             // arrange
             prefix = "foo.";
             subject = new WebStorageStateStore({ prefix: prefix, store: store });
-            await store.setItem("foo.key", "value");
+            store.setItem("foo.key", "value");
 
             // act
             const result = await subject.get("key");
@@ -169,8 +168,8 @@ describe("WebStorageStateStore", () => {
 
         it("should return keys", async () => {
             // arrange
-            await store.setItem("key1", "test");
-            await store.setItem("key2", "test");
+            store.setItem("key1", "test");
+            store.setItem("key2", "test");
 
             // act
             const result = await subject.getAllKeys();
@@ -183,8 +182,8 @@ describe("WebStorageStateStore", () => {
             // arrange
             prefix = "foo.";
             subject = new WebStorageStateStore({ prefix: prefix, store: store });
-            await store.setItem("foo.key1", "test");
-            await store.setItem("foo.key2", "test");
+            store.setItem("foo.key1", "test");
+            store.setItem("foo.key2", "test");
 
             // act
             const result = await subject.getAllKeys();

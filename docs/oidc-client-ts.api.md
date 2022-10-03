@@ -25,38 +25,6 @@ export class AccessTokenEvents {
 }
 
 // @public (undocumented)
-export class AsyncInMemoryWebStorage implements AsyncStorage {
-    // (undocumented)
-    clear(): Promise<void>;
-    // (undocumented)
-    getItem(key: string): Promise<string>;
-    // (undocumented)
-    key(index: number): Promise<string>;
-    // (undocumented)
-    get length(): Promise<number>;
-    // (undocumented)
-    removeItem(key: string): Promise<void>;
-    // (undocumented)
-    setItem(key: string, value: string): Promise<void>;
-}
-
-// @public (undocumented)
-export class AsyncLocalStorage implements AsyncStorage {
-    // (undocumented)
-    clear(): Promise<void>;
-    // (undocumented)
-    getItem(key: string): Promise<string | null>;
-    // (undocumented)
-    key(index: number): Promise<string | null>;
-    // (undocumented)
-    get length(): Promise<number>;
-    // (undocumented)
-    removeItem(key: string): Promise<void>;
-    // (undocumented)
-    setItem(key: string, value: string): Promise<void>;
-}
-
-// @public (undocumented)
 export interface AsyncStorage {
     clear(): Promise<void>;
     getItem(key: string): Promise<string | null>;
@@ -189,6 +157,22 @@ export interface ILogger {
     info(...args: unknown[]): void;
     // (undocumented)
     warn(...args: unknown[]): void;
+}
+
+// @public (undocumented)
+export class InMemoryWebStorage implements Storage {
+    // (undocumented)
+    clear(): void;
+    // (undocumented)
+    getItem(key: string): string;
+    // (undocumented)
+    key(index: number): string;
+    // (undocumented)
+    get length(): number;
+    // (undocumented)
+    removeItem(key: string): void;
+    // (undocumented)
+    setItem(key: string, value: string): void;
 }
 
 // @public
@@ -1095,8 +1079,8 @@ export const Version: string;
 // @public (undocumented)
 export class WebStorageStateStore implements StateStore {
     constructor({ prefix, store, }?: {
-        prefix?: string | undefined;
-        store?: AsyncStorage | undefined;
+        prefix?: string;
+        store?: AsyncStorage | Storage;
     });
     // (undocumented)
     get(key: string): Promise<string | null>;

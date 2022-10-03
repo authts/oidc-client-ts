@@ -10,8 +10,7 @@ export type { OidcAddressClaim, OidcStandardClaims, IdTokenClaims, JwtClaims } f
 export { AccessTokenEvents } from "./AccessTokenEvents";
 export type { AccessTokenCallback } from "./AccessTokenEvents";
 export { CheckSessionIFrame } from "./CheckSessionIFrame";
-export { AsyncInMemoryWebStorage } from "./AsyncInMemoryWebStorage";
-export { AsyncLocalStorage } from "./AsyncLocalStorage";
+export { InMemoryWebStorage } from "./InMemoryWebStorage";
 export type { AsyncStorage } from "./AsyncStorage";
 export { MetadataService } from "./MetadataService";
 export * from "./OidcClient";

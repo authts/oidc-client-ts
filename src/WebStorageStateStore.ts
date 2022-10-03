@@ -4,7 +4,6 @@
 import { Logger } from "./utils";
 import type { StateStore } from "./StateStore";
 import type { AsyncStorage } from "./AsyncStorage";
-import { AsyncLocalStorage } from "./AsyncLocalStorage";
 
 /**
  * @public
@@ -12,13 +11,13 @@ import { AsyncLocalStorage } from "./AsyncLocalStorage";
 export class WebStorageStateStore implements StateStore {
     private readonly _logger = new Logger("WebStorageStateStore");
 
-    private readonly _store: AsyncStorage;
+    private readonly _store: AsyncStorage | Storage;
     private readonly _prefix: string;
 
     public constructor({
         prefix = "oidc.",
-        store = new AsyncLocalStorage() as AsyncStorage,
-    } = {}) {
+        store = localStorage,
+    }: { prefix?: string; store?: AsyncStorage | Storage } = {}) {
         this._store = store;
         this._prefix = prefix;
     }
