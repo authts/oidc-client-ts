@@ -11,6 +11,7 @@ export { AccessTokenEvents } from "./AccessTokenEvents";
 export type { AccessTokenCallback } from "./AccessTokenEvents";
 export { CheckSessionIFrame } from "./CheckSessionIFrame";
 export { InMemoryWebStorage } from "./InMemoryWebStorage";
+export type { AsyncStorage } from "./AsyncStorage";
 export { MetadataService } from "./MetadataService";
 export * from "./OidcClient";
 export { OidcClientSettingsStore } from "./OidcClientSettings";

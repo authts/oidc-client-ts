@@ -24,6 +24,16 @@ export class AccessTokenEvents {
     unload(): void;
 }
 
+// @public (undocumented)
+export interface AsyncStorage {
+    clear(): Promise<void>;
+    getItem(key: string): Promise<string | null>;
+    key(index: number): Promise<string | null>;
+    readonly length: Promise<number>;
+    removeItem(key: string): Promise<void>;
+    setItem(key: string, value: string): Promise<void>;
+}
+
 // @internal (undocumented)
 export class CheckSessionIFrame {
     constructor(_callback: () => Promise<void>, _client_id: string, url: string, _intervalInSeconds: number, _stopOnError: boolean);
@@ -1068,9 +1078,9 @@ export const Version: string;
 
 // @public (undocumented)
 export class WebStorageStateStore implements StateStore {
-    constructor({ prefix, store }?: {
-        prefix?: string | undefined;
-        store?: Storage | undefined;
+    constructor({ prefix, store, }?: {
+        prefix?: string;
+        store?: AsyncStorage | Storage;
     });
     // (undocumented)
     get(key: string): Promise<string | null>;
