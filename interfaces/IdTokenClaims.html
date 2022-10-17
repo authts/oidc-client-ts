@@ -23,15 +23,13 @@
 <ul class="tsd-hierarchy">
 <li><span class="tsd-signature-type">Mandatory</span><span class="tsd-signature-symbol">&lt;</span><a href="OidcStandardClaims.html" class="tsd-signature-type" data-tsd-kind="Interface">OidcStandardClaims</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">&quot;sub&quot;</span><span class="tsd-signature-symbol">&gt;</span></li>
 <li><span class="tsd-signature-type">Mandatory</span><span class="tsd-signature-symbol">&lt;</span><a href="JwtClaims.html" class="tsd-signature-type" data-tsd-kind="Interface">JwtClaims</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">&quot;iss&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;sub&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;aud&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;exp&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;iat&quot;</span><span class="tsd-signature-symbol">&gt;</span>
-<section class="tsd-panel tsd-hierarchy">
-<h4>Hierarchy</h4>
 <ul class="tsd-hierarchy">
-<li><span class="target">IdTokenClaims</span></li></ul></section></li></ul></section>
+<li><span class="target">IdTokenClaims</span></li></ul></li></ul></section>
 <section class="tsd-panel tsd-kind-interface">
 <h4 class="tsd-before-signature">Indexable</h4>
 <div class="tsd-signature"><span class="tsd-signature-symbol">[</span>claim: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">unknown</span></div></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L109">src/Claims.ts:109</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L109">src/Claims.ts:109</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -78,7 +76,7 @@
 <div class="tsd-comment tsd-typography"><p>Authentication Context Class Reference. String specifying an Authentication Context Class Reference value that identifies the Authentication Context Class that the authentication performed satisfied. The value &quot;0&quot; indicates the End-User authentication did not meet the requirements of ISO/IEC 29115 [ISO29115] level 1. Authentication using a long-lived browser cookie, for instance, is one example where the use of &quot;level 0&quot; is appropriate. Authentications with level 0 SHOULD NOT be used to authorize access to any resource of any monetary value. (This corresponds to the OpenID 2.0 PAPE [OpenID.PAPE] nist_auth_level 0.) An absolute URI or an RFC 6711 [RFC6711] registered name SHOULD be used as the acr value; registered names MUST NOT be used with a different meaning than that which is registered. Parties using this claim will need to agree upon the meanings of the values used, which may be context-specific. The acr value is a case sensitive string.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L117">src/Claims.ts:117</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L117">src/Claims.ts:117</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="address" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>address</span><a href="#address" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">address<span class="tsd-signature-symbol">?:</span> <a href="OidcAddressClaim.html" class="tsd-signature-type" data-tsd-kind="Interface">OidcAddressClaim</a></div>
@@ -86,14 +84,14 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.address</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L73">src/Claims.ts:73</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L73">src/Claims.ts:73</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="amr" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>amr</span><a href="#amr" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">amr<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">unknown</span></div>
 <div class="tsd-comment tsd-typography"><p>Authentication Methods References. JSON array of strings that are identifiers for authentication methods used in the authentication. For instance, values might indicate that both password and OTP authentication methods were used. The definition of particular values to be used in the amr Claim is beyond the scope of this specification. Parties using this claim will need to agree upon the meanings of the values used, which may be context-specific. The amr value is an array of case sensitive strings.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L119">src/Claims.ts:119</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L119">src/Claims.ts:119</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="aud" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>aud</span><a href="#aud" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">aud<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
@@ -101,21 +99,21 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.aud</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L92">src/Claims.ts:92</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L92">src/Claims.ts:92</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="auth_time" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>auth_<wbr/>time</span><a href="#auth_time" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">auth_<wbr/>time<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
 <div class="tsd-comment tsd-typography"><p>Time when the End-User authentication occurred. Its value is a JSON number representing the number of seconds from 1970-01-01T0:0:0Z as measured in UTC until the date/time. When a max_age request is made or when auth_time is requested as an Essential Claim, then this Claim is REQUIRED; otherwise, its inclusion is OPTIONAL. (The auth_time Claim semantically corresponds to the OpenID 2.0 PAPE [OpenID.PAPE] auth_time response parameter.)</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L113">src/Claims.ts:113</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L113">src/Claims.ts:113</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="azp" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>azp</span><a href="#azp" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">azp<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
 <div class="tsd-comment tsd-typography"><p>Authorized party - the party to which the ID Token was issued. If present, it MUST contain the OAuth 2.0 Client ID of this party. This Claim is only needed when the ID Token has a single audience value and that audience is different than the authorized party. It MAY be included even when the authorized party is the same as the sole audience. The azp value is a case sensitive string containing a StringOrURI value.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L121">src/Claims.ts:121</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L121">src/Claims.ts:121</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="birthdate" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>birthdate</span><a href="#birthdate" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">birthdate<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
@@ -123,7 +121,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.birthdate</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L63">src/Claims.ts:63</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L63">src/Claims.ts:63</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="email" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>email</span><a href="#email" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">email<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
@@ -131,7 +129,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.email</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L57">src/Claims.ts:57</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L57">src/Claims.ts:57</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="email_verified" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>email_<wbr/>verified</span><a href="#email_verified" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">email_<wbr/>verified<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span></div>
@@ -139,7 +137,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.email_verified</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L59">src/Claims.ts:59</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L59">src/Claims.ts:59</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="exp" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>exp</span><a href="#exp" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">exp<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
@@ -147,7 +145,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.exp</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L94">src/Claims.ts:94</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L94">src/Claims.ts:94</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="family_name" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>family_<wbr/>name</span><a href="#family_name" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">family_<wbr/>name<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
@@ -155,7 +153,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.family_name</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L43">src/Claims.ts:43</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L43">src/Claims.ts:43</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="gender" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>gender</span><a href="#gender" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">gender<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
@@ -163,7 +161,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.gender</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L61">src/Claims.ts:61</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L61">src/Claims.ts:61</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="given_name" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>given_<wbr/>name</span><a href="#given_name" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">given_<wbr/>name<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
@@ -171,7 +169,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.given_name</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L41">src/Claims.ts:41</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L41">src/Claims.ts:41</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="iat" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>iat</span><a href="#iat" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">iat<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
@@ -179,7 +177,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.iat</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L98">src/Claims.ts:98</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L98">src/Claims.ts:98</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="iss" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>iss</span><a href="#iss" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">iss<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
@@ -187,7 +185,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.iss</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L88">src/Claims.ts:88</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L88">src/Claims.ts:88</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="locale" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>locale</span><a href="#locale" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">locale<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
@@ -195,7 +193,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.locale</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L67">src/Claims.ts:67</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L67">src/Claims.ts:67</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="middle_name" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>middle_<wbr/>name</span><a href="#middle_name" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">middle_<wbr/>name<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
@@ -203,7 +201,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.middle_name</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L45">src/Claims.ts:45</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L45">src/Claims.ts:45</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="name" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>name</span><a href="#name" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">name<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
@@ -211,7 +209,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.name</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L39">src/Claims.ts:39</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L39">src/Claims.ts:39</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="nickname" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>nickname</span><a href="#nickname" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">nickname<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
@@ -219,14 +217,14 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.nickname</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L47">src/Claims.ts:47</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L47">src/Claims.ts:47</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="nonce" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>nonce</span><a href="#nonce" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">nonce<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
 <div class="tsd-comment tsd-typography"><p>String value used to associate a Client session with an ID Token, and to mitigate replay attacks. The value is passed through unmodified from the Authentication Request to the ID Token. If present in the ID Token, Clients MUST verify that the nonce Claim Value is equal to the value of the nonce parameter sent in the Authentication Request. If present in the Authentication Request, Authorization Servers MUST include a nonce Claim in the ID Token with the Claim Value being the nonce value sent in the Authentication Request. Authorization Servers SHOULD perform no other processing on nonce values used. The nonce value is a case sensitive string.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L115">src/Claims.ts:115</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L115">src/Claims.ts:115</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="phone_number" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>phone_<wbr/>number</span><a href="#phone_number" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">phone_<wbr/>number<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
@@ -234,7 +232,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.phone_number</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L69">src/Claims.ts:69</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L69">src/Claims.ts:69</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="phone_number_verified" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>phone_<wbr/>number_<wbr/>verified</span><a href="#phone_number_verified" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">phone_<wbr/>number_<wbr/>verified<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span></div>
@@ -242,7 +240,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.phone_number_verified</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L71">src/Claims.ts:71</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L71">src/Claims.ts:71</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="picture" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>picture</span><a href="#picture" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">picture<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
@@ -250,7 +248,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.picture</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L53">src/Claims.ts:53</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L53">src/Claims.ts:53</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="preferred_username" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>preferred_<wbr/>username</span><a href="#preferred_username" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">preferred_<wbr/>username<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
@@ -258,7 +256,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.preferred_username</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L49">src/Claims.ts:49</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L49">src/Claims.ts:49</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="profile" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>profile</span><a href="#profile" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">profile<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
@@ -266,7 +264,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.profile</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L51">src/Claims.ts:51</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L51">src/Claims.ts:51</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="sid" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>sid</span><a href="#sid" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">sid<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
@@ -275,7 +273,7 @@
 <h3>See</h3><p><a href="https://openid.net/specs/openid-connect-frontchannel-1_0.html#OPLogout">https://openid.net/specs/openid-connect-frontchannel-1_0.html#OPLogout</a></p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L126">src/Claims.ts:126</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L126">src/Claims.ts:126</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="sub" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>sub</span><a href="#sub" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">sub<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
@@ -283,7 +281,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.sub</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L37">src/Claims.ts:37</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L37">src/Claims.ts:37</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="updated_at" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>updated_<wbr/>at</span><a href="#updated_at" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">updated_<wbr/>at<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
@@ -291,7 +289,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.updated_at</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L75">src/Claims.ts:75</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L75">src/Claims.ts:75</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="website" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>website</span><a href="#website" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">website<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
@@ -299,7 +297,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.website</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L55">src/Claims.ts:55</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L55">src/Claims.ts:55</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a id="zoneinfo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>zoneinfo</span><a href="#zoneinfo" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">zoneinfo<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
@@ -307,7 +305,7 @@
 </div><aside class="tsd-sources">
 <p>Inherited from Mandatory.zoneinfo</p>
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/61bb01d/src/Claims.ts#L65">src/Claims.ts:65</a></li></ul></aside></section></section></div>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/8b5a9e7/src/Claims.ts#L65">src/Claims.ts:65</a></li></ul></aside></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
