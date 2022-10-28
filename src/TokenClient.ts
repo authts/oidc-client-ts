@@ -53,7 +53,7 @@ export class TokenClient {
         private readonly _settings: OidcClientSettingsStore,
         private readonly _metadataService: MetadataService,
     ) {
-        this._jsonService = new JsonService(this._settings.revokeTokenContentTypes);
+        this._jsonService = new JsonService(this._settings.revokeTokenAdditionalContentTypes);
     }
 
     public async exchangeCode({
