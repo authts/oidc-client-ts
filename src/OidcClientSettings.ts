@@ -107,6 +107,11 @@ export interface OidcClientSettings {
      * Credentials used by fetch with the refresh request. (default: "same-origin")
      */
     refreshTokenCredentials?: "same-origin" | "include" | "omit";
+
+    /**
+     * Will check the content type header of the response of the revocation endpoint to match these passed values (default: [])
+     */
+    revokeTokenAdditionalContentTypes?: string[];
 }
 
 /**
@@ -156,6 +161,7 @@ export class OidcClientSettingsStore {
     public readonly extraTokenParams: Record<string, unknown>;
 
     public readonly refreshTokenCredentials: "same-origin" | "include" | "omit";
+    public readonly revokeTokenAdditionalContentTypes?: string[];
 
     public constructor({
         // metadata related
@@ -176,6 +182,7 @@ export class OidcClientSettingsStore {
         // other behavior
         stateStore,
         refreshTokenCredentials = "same-origin",
+        revokeTokenAdditionalContentTypes,
         // extra query params
         extraQueryParams = {},
         extraTokenParams = {},
@@ -223,6 +230,7 @@ export class OidcClientSettingsStore {
         this.mergeClaims = !!mergeClaims;
 
         this.refreshTokenCredentials = refreshTokenCredentials;
+        this.revokeTokenAdditionalContentTypes = revokeTokenAdditionalContentTypes;
 
         if (stateStore) {
             this.stateStore = stateStore;

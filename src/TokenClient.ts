@@ -47,12 +47,14 @@ export interface RevokeArgs {
  */
 export class TokenClient {
     private readonly _logger = new Logger("TokenClient");
-    private readonly _jsonService = new JsonService();
+    private readonly _jsonService;
 
     public constructor(
         private readonly _settings: OidcClientSettingsStore,
         private readonly _metadataService: MetadataService,
-    ) {}
+    ) {
+        this._jsonService = new JsonService(this._settings.revokeTokenAdditionalContentTypes);
+    }
 
     public async exchangeCode({
         grant_type = "authorization_code",
