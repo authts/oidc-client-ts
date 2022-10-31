@@ -138,8 +138,8 @@ export class OidcClient {
 
     public async readSigninResponseState(url: string, removeState = false): Promise<{ state: SigninState; response: SigninResponse }> {
         const logger = this._logger.create("readSigninResponseState");
-        const unHashUrl = url.replace('#/', ''); // https://github.com/authts/oidc-client-ts/issues/734
-        const response = new SigninResponse(UrlUtils.readParams(unHashUrl, this.settings.response_mode));
+
+        const response = new SigninResponse(UrlUtils.readParams(url, this.settings.response_mode));
         if (!response.state) {
             logger.throw(new Error("No state in response"));
             // need to throw within this function's body for type narrowing to work
@@ -224,8 +224,8 @@ export class OidcClient {
 
     public async readSignoutResponseState(url: string, removeState = false): Promise<{ state: State | undefined; response: SignoutResponse }> {
         const logger = this._logger.create("readSignoutResponseState");
-        const unHashUrl = url.replace('#/', ''); // https://github.com/authts/oidc-client-ts/issues/734
-        const response = new SignoutResponse(UrlUtils.readParams(unHashUrl, this.settings.response_mode));
+
+        const response = new SignoutResponse(UrlUtils.readParams(url, this.settings.response_mode));
         if (!response.state) {
             logger.debug("No state in response");
 

@@ -34,6 +34,16 @@ describe("UrlUtils", () => {
             expect(resultObj).toHaveProperty("foo", "test");
         });
 
+        it("should return query params when hash routes are used", () => {
+            // act
+            const result = UrlUtils.readParams("http://app/#/path?code=foo&status=bar");
+            const resultObj = Object.fromEntries(result);
+
+            // assert
+            expect(resultObj).toHaveProperty("code", "foo");
+            expect(resultObj).toHaveProperty("status", "bar");
+        });
+
         it("should return fragment params for response_mode=fragment when path is relative", () => {
             // act
             const result = UrlUtils.readParams("/app/?foo=test#bar=test_fragment", "fragment");
