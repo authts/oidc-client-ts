@@ -9,7 +9,7 @@ export class UrlUtils {
         if (!url) throw new TypeError("Invalid URL");
 
         // if we're doing query, then strip off hash fragment before we parse
-        if (responseMode == "query") {
+        if (responseMode === "query") {
             const hashIdx = url.indexOf("#");
             if (hashIdx >= 0) {
                 url = url.substr(hashIdx + 1);
