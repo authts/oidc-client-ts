@@ -12,7 +12,7 @@ export class UrlUtils {
         if (responseMode === "query") {
             const hashIdx = url.indexOf("#");
             if (hashIdx >= 0) {
-                url = url.substr(hashIdx + 1);
+                url = url.substring(hashIdx + 1);
             }
         }
 
