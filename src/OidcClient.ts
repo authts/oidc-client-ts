@@ -165,6 +165,18 @@ export class OidcClient {
         return response;
     }
 
+    public async processResourceOwnerPasswordCredentials(
+        username: string,
+        password: string,
+        skipUserInfo: boolean,
+    ): Promise<SigninResponse> {
+        const tokenResponse: Record<string, unknown> = await this._tokenClient.exchangeCredentials({ username, password });
+        const signinResponse: SigninResponse = new SigninResponse(new URLSearchParams());
+        Object.assign(signinResponse, tokenResponse);
+        await this._validator.validateCredentialsResponse(signinResponse, skipUserInfo);
+        return signinResponse;
+    }
+
     public async useRefreshToken({
         state,
         timeoutInSeconds,

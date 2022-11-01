@@ -24,6 +24,7 @@ Implements the following OAuth 2.0 protocols and supports
 
 - [Authorization Code Grant](https://oauth.net/2/grant-types/authorization-code/)
   with [PKCE](https://oauth.net/2/pkce/)
+- [Resource Owner Password Credentials Grant](https://www.rfc-editor.org/rfc/rfc6749#section-1.3.3); This flow must be used only when the Client Application is fully trusted by the Authorization Server / Identity Provider; [See more info](https://auth0.com/docs/get-started/authentication-and-authorization-flow/resource-owner-password-flow)
 - [Refresh Token Grant](https://oauth.net/2/grant-types/refresh-token/)
 
 ## Table of Contents

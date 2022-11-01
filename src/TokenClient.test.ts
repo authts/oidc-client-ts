@@ -144,6 +144,106 @@ describe("TokenClient", () => {
         });
     });
 
+    describe("exchangeCredentials", () => {
+
+        it("should have client_id", async () => {
+            // arrange
+            settings.client_id = "";
+            subject = new TokenClient(new OidcClientSettingsStore(settings), metadataService);
+
+            // act
+            await expect(subject.exchangeCredentials({ username: "u", password: "p" }))
+                // assert
+                .rejects.toThrow(Error);
+        });
+
+        it("should have client_secret when using client_secret_basic", async () => {
+            // arrange
+            delete settings.client_secret;
+            settings.client_authentication = "client_secret_basic";
+            subject = new TokenClient(new OidcClientSettingsStore(settings), metadataService);
+
+            // act
+            await expect(subject.exchangeCredentials({ username: "u", password: "p" }))
+                // assert
+                .rejects.toThrow(Error);
+        });
+
+        it("should calculate basic auth when using client_secret_basic", async () => {
+            // arrange
+            settings.client_authentication = "client_secret_basic";
+            settings.client_secret = "client_secret";
+            subject = new TokenClient(new OidcClientSettingsStore(settings), metadataService);
+            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+                .mockResolvedValue("http://sts/token_endpoint");
+            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+                .mockResolvedValue({});
+            const generateBasicAuthSpy = jest.spyOn(CryptoUtils, "generateBasicAuth");
+
+            // act
+            await subject.exchangeCredentials({ username: "u", password: "p" });
+
+            // assert
+            expect(generateBasicAuthSpy).toHaveBeenCalledWith("client_id", "client_secret");
+            expect(getTokenEndpointMock).toBeCalledWith(false);
+            expect(postFormMock).toBeCalledWith(
+                "http://sts/token_endpoint",
+                expect.objectContaining({
+                    body: expect.any(URLSearchParams),
+                    basicAuth: expect.stringContaining("Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ="),
+                }),
+            );
+        });
+
+        it("should include client secret when using client_secret_post", async () => {
+            // arrange
+            settings.client_authentication = "client_secret_post";
+            settings.client_secret = "client_secret";
+            subject = new TokenClient(new OidcClientSettingsStore(settings), metadataService);
+            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+                .mockResolvedValue("http://sts/token_endpoint");
+            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+                .mockResolvedValue({});
+
+            // act
+            await subject.exchangeCredentials({ username: "u", password: "p" });
+
+            // assert
+            expect(getTokenEndpointMock).toBeCalledWith(false);
+            expect(postFormMock).toBeCalledWith(
+                "http://sts/token_endpoint",
+                expect.objectContaining({
+                    body: expect.any(URLSearchParams),
+                    basicAuth: undefined,
+                }),
+            );
+            const opts = postFormMock.mock.calls[0][1];
+            const params = Object.fromEntries(opts.body);
+            expect(params).toHaveProperty("client_secret", "client_secret");
+        });
+
+        it("should call postForm", async () => {
+            // arrange
+            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+                .mockResolvedValue("http://sts/token_endpoint");
+            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+                .mockResolvedValue({});
+
+            // act
+            await subject.exchangeCredentials({ username: "u", password: "p" });
+
+            // assert
+            expect(getTokenEndpointMock).toBeCalledWith(false);
+            expect(postFormMock).toBeCalledWith(
+                "http://sts/token_endpoint",
+                expect.objectContaining({
+                    body: expect.any(URLSearchParams),
+                    basicAuth: undefined,
+                }),
+            );
+        });
+    });
+
     describe("exchangeRefreshToken", () => {
         it("should have client_id", async () => {
             // arrange

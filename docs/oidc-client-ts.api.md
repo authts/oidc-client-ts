@@ -298,6 +298,8 @@ export class OidcClient {
     // (undocumented)
     readonly metadataService: MetadataService;
     // (undocumented)
+    processResourceOwnerPasswordCredentials(username: string, password: string, skipUserInfo: boolean): Promise<SigninResponse>;
+    // (undocumented)
     processSigninResponse(url: string): Promise<SigninResponse>;
     // (undocumented)
     processSignoutResponse(url: string): Promise<SignoutResponse>;
@@ -594,6 +596,13 @@ export interface SessionStatus {
 }
 
 // @public (undocumented)
+export type SigninCredentialsArgs = {
+    username: string;
+    password: string;
+    skipUserInfo?: boolean;
+};
+
+// @public (undocumented)
 export type SigningKey = Record<string, string | string[]>;
 
 // @public (undocumented)
@@ -874,6 +883,8 @@ export type UserLoadedCallback = (user: User) => Promise<void> | void;
 // @public
 export class UserManager {
     constructor(settings: UserManagerSettings);
+    // (undocumented)
+    protected _buildUser(signinResponse: SigninResponse, verifySub?: string): Promise<User>;
     clearStaleState(): Promise<void>;
     // (undocumented)
     protected readonly _client: OidcClient;
@@ -919,6 +930,7 @@ export class UserManager {
     signinPopupCallback(url?: string, keepOpen?: boolean): Promise<void>;
     signinRedirect(args?: SigninRedirectArgs): Promise<void>;
     signinRedirectCallback(url?: string): Promise<User>;
+    signinResourceOwnerCredentials({ username, password, skipUserInfo, }: SigninCredentialsArgs): Promise<User>;
     signinSilent(args?: SigninSilentArgs): Promise<User | null>;
     signinSilentCallback(url?: string): Promise<void>;
     // Warning: (ae-forgotten-export) The symbol "NavigateResponse" needs to be exported by the entry point index.d.ts

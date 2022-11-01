@@ -22,6 +22,20 @@ export interface ExchangeCodeArgs {
 /**
  * @internal
  */
+export interface ExchangeCredentialsArgs {
+    client_id?: string;
+    client_secret?: string;
+
+    grant_type?: string;
+    scope?: string;
+
+    username: string;
+    password: string;
+}
+
+/**
+ * @internal
+ */
 export interface ExchangeRefreshTokenArgs {
     client_id?: string;
     client_secret?: string;
@@ -83,6 +97,48 @@ export class TokenClient {
                 params.set(key, value);
             }
         }
+        let basicAuth: string | undefined;
+        switch (this._settings.client_authentication) {
+            case "client_secret_basic":
+                if (!client_secret) {
+                    logger.throw(new Error("A client_secret is required"));
+                    throw null; // https://github.com/microsoft/TypeScript/issues/46972
+                }
+                basicAuth = CryptoUtils.generateBasicAuth(client_id, client_secret);
+                break;
+            case "client_secret_post":
+                params.append("client_id", client_id);
+                if (client_secret) {
+                    params.append("client_secret", client_secret);
+                }
+                break;
+        }
+
+        const url = await this._metadataService.getTokenEndpoint(false);
+        logger.debug("got token endpoint");
+
+        const response = await this._jsonService.postForm(url, { body: params, basicAuth });
+        logger.debug("got response");
+
+        return response;
+    }
+
+    public async exchangeCredentials({
+        grant_type = "password",
+        client_id = this._settings.client_id,
+        client_secret = this._settings.client_secret,
+        scope = this._settings.scope,
+        username,
+        password,
+    }: ExchangeCredentialsArgs): Promise<Record<string, unknown>> {
+        const logger = this._logger.create("exchangeCredentials");
+
+        if (!client_id) {
+            logger.throw(new Error("A client_id is required"));
+        }
+
+        const params = new URLSearchParams({ grant_type, username, password, scope });
+
         let basicAuth: string | undefined;
         switch (this._settings.client_authentication) {
             case "client_secret_basic":
