@@ -5,7 +5,7 @@ import { Logger } from "./utils";
 import { ErrorResponse } from "./errors";
 import { IFrameNavigator, NavigateResponse, PopupNavigator, RedirectNavigator, PopupWindowParams,
     IWindow, IFrameWindowParams, RedirectParams } from "./navigators";
-import { OidcClient, CreateSigninRequestArgs, CreateSignoutRequestArgs } from "./OidcClient";
+import { OidcClient, CreateSigninRequestArgs, CreateSignoutRequestArgs, ProcessResourceOwnerPasswordCredentialsArgs } from "./OidcClient";
 import { UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
 import { User } from "./User";
 import { UserManagerEvents } from "./UserManagerEvents";
@@ -49,11 +49,7 @@ export type SigninSilentArgs = IFrameWindowParams & ExtraSigninRequestArgs;
 /**
  * @public
  */
-export type SigninCredentialsArgs = {
-    username: string;
-    password: string;
-    skipUserInfo?: boolean;
-};
+export type SigninResourceOwnerCredentialsArgs = ProcessResourceOwnerPasswordCredentialsArgs;
 
 /**
  * @public
@@ -190,14 +186,13 @@ export class UserManager {
         username,
         password,
         skipUserInfo = false,
-    }: SigninCredentialsArgs) {
+    }: SigninResourceOwnerCredentialsArgs ) {
         const logger = this._logger.create("signinResourceOwnerCredential");
 
-        const signinResponse = await this._client.processResourceOwnerPasswordCredentials(username, password, skipUserInfo);
+        const signinResponse = await this._client.processResourceOwnerPasswordCredentials({ username, password, skipUserInfo });
         logger.debug("got signin response");
 
         const user = await this._buildUser(signinResponse);
-
         if (user.profile && user.profile.sub) {
             logger.info("success, signed in subject", user.profile.sub);
         } else {
@@ -440,7 +435,6 @@ export class UserManager {
         logger.debug("got signin response");
 
         const user = await this._buildUser(signinResponse, verifySub);
-
         return user;
     }
 

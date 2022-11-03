@@ -59,6 +59,15 @@ export interface UseRefreshTokenArgs {
 export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url" | "state_data"> & { state?: unknown };
 
 /**
+ * @public
+ */
+export type ProcessResourceOwnerPasswordCredentialsArgs = {
+    username: string;
+    password: string;
+    skipUserInfo?: boolean;
+};
+
+/**
  * Provides the raw OIDC/OAuth2 protocol support for the authorization endpoint and the end session endpoint in the
  * authorization server. It provides a bare-bones protocol implementation and is used by the UserManager class.
  * Only use this class if you simply want protocol support without the additional management features of the
@@ -165,11 +174,11 @@ export class OidcClient {
         return response;
     }
 
-    public async processResourceOwnerPasswordCredentials(
-        username: string,
-        password: string,
-        skipUserInfo: boolean,
-    ): Promise<SigninResponse> {
+    public async processResourceOwnerPasswordCredentials({
+        username,
+        password,
+        skipUserInfo = false,
+    }: ProcessResourceOwnerPasswordCredentialsArgs): Promise<SigninResponse> {
         const tokenResponse: Record<string, unknown> = await this._tokenClient.exchangeCredentials({ username, password });
         const signinResponse: SigninResponse = new SigninResponse(new URLSearchParams());
         Object.assign(signinResponse, tokenResponse);

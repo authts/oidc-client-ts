@@ -298,7 +298,7 @@ export class OidcClient {
     // (undocumented)
     readonly metadataService: MetadataService;
     // (undocumented)
-    processResourceOwnerPasswordCredentials(username: string, password: string, skipUserInfo: boolean): Promise<SigninResponse>;
+    processResourceOwnerPasswordCredentials({ username, password, skipUserInfo, }: ProcessResourceOwnerPasswordCredentialsArgs): Promise<SigninResponse>;
     // (undocumented)
     processSigninResponse(url: string): Promise<SigninResponse>;
     // (undocumented)
@@ -556,6 +556,13 @@ export interface PopupWindowParams {
 }
 
 // @public (undocumented)
+export type ProcessResourceOwnerPasswordCredentialsArgs = {
+    username: string;
+    password: string;
+    skipUserInfo?: boolean;
+};
+
+// @public (undocumented)
 export type QuerySessionStatusArgs = IFrameWindowParams & ExtraSigninRequestArgs;
 
 // @public (undocumented)
@@ -594,13 +601,6 @@ export interface SessionStatus {
     sid?: string;
     sub?: string;
 }
-
-// @public (undocumented)
-export type SigninCredentialsArgs = {
-    username: string;
-    password: string;
-    skipUserInfo?: boolean;
-};
 
 // @public (undocumented)
 export type SigningKey = Record<string, string | string[]>;
@@ -670,6 +670,9 @@ export interface SigninRequestArgs {
     // (undocumented)
     url: string;
 }
+
+// @public (undocumented)
+export type SigninResourceOwnerCredentialsArgs = ProcessResourceOwnerPasswordCredentialsArgs;
 
 // @public (undocumented)
 export class SigninResponse {
@@ -930,7 +933,7 @@ export class UserManager {
     signinPopupCallback(url?: string, keepOpen?: boolean): Promise<void>;
     signinRedirect(args?: SigninRedirectArgs): Promise<void>;
     signinRedirectCallback(url?: string): Promise<User>;
-    signinResourceOwnerCredentials({ username, password, skipUserInfo, }: SigninCredentialsArgs): Promise<User>;
+    signinResourceOwnerCredentials({ username, password, skipUserInfo, }: SigninResourceOwnerCredentialsArgs): Promise<User>;
     signinSilent(args?: SigninSilentArgs): Promise<User | null>;
     signinSilentCallback(url?: string): Promise<void>;
     // Warning: (ae-forgotten-export) The symbol "NavigateResponse" needs to be exported by the entry point index.d.ts
