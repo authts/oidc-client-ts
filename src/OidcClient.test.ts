@@ -342,7 +342,7 @@ describe("OidcClient", () => {
             jest.spyOn(subject["_tokenClient"], "exchangeCredentials").mockRejectedValue(new Error("Wrong credentials"));
 
             // act
-            await expect(subject.processResourceOwnerPasswordCredentials("u", "p", false))
+            await expect(subject.processResourceOwnerPasswordCredentials({ username: "u", password: "p", skipUserInfo: false }))
                 // assert
                 .rejects.toThrow(Error);
         });
@@ -353,7 +353,7 @@ describe("OidcClient", () => {
             jest.spyOn(subject["_validator"], "validateCredentialsResponse").mockRejectedValue(new Error("Wrong response"));
 
             // act
-            await expect(subject.processResourceOwnerPasswordCredentials("u", "p", false))
+            await expect(subject.processResourceOwnerPasswordCredentials({ username: "u", password: "p", skipUserInfo: false }))
                 // assert
                 .rejects.toThrow(Error);
         });
@@ -372,7 +372,7 @@ describe("OidcClient", () => {
             );
 
             // act
-            const signinResponse: SigninResponse = await subject.processResourceOwnerPasswordCredentials("u", "p", false);
+            const signinResponse: SigninResponse = await subject.processResourceOwnerPasswordCredentials({ username: "u", password: "p", skipUserInfo: false });
 
             // assert
             expect(signinResponse).toHaveProperty("access_token", "access_token");
