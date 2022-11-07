@@ -34,7 +34,6 @@ Implements the following OAuth 2.0 protocols and supports
 - [Building the Source](#building-the-source)
 - [Contributing](#contributing)
 - [License](#license)
-- [Security concerns on Resource Owner Password Credentials flow](#security-concerns-on-resource-owner-password-credentials-flow)
 
 ## Installation
 
