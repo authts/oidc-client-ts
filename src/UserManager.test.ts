@@ -263,6 +263,49 @@ describe("UserManager", () => {
         });
     });
 
+    describe("signinResourceOwnerCredentials", () => {
+        it("should fail on wrong credentials", async () => {
+            // arrange
+            jest.spyOn(subject["_client"], "processResourceOwnerPasswordCredentials").mockRejectedValue(new Error("Wrong credentials"));
+
+            // act
+            await expect(subject.signinResourceOwnerCredentials({ username: "u", password: "p" }))
+                // assert
+                .rejects.toThrow(Error);
+        });
+
+        it("should convert and store received response", async () => {
+            // arrange
+            const mockUser = {
+                access_token: "access_token",
+                token_type: "Bearer",
+                profile: {
+                    sub: "subsub",
+                    iss: "ississ",
+                    aud: "aud",
+                    exp: 0,
+                    iat: 0,
+                    nickname: "Nick",
+                },
+                session_state: "ssss",
+                expires_at: 0,
+                refresh_token: "refresh_token",
+                id_token: "id_token",
+                scope: "openid profile email",
+            };
+            jest.spyOn(subject["_client"], "processResourceOwnerPasswordCredentials").mockResolvedValue(mockUser as SigninResponse);
+            jest.spyOn(subject["_events"], "load").mockReturnValue();
+
+            // act
+            const user:User = await subject.signinResourceOwnerCredentials({ username: "u", password: "p" });
+
+            // assert
+            await expect(subject.getUser()).resolves.toEqual(mockUser);
+            expect(subject["_events"].load).toHaveBeenCalledWith(mockUser);
+            expect(user).toEqual(mockUser);
+        });
+    });
+
     describe("signinPopup", () => {
         it("should pass navigator params to navigator", async () => {
             // arrange

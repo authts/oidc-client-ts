@@ -5,7 +5,7 @@ import { Logger } from "./utils";
 import { ErrorResponse } from "./errors";
 import { IFrameNavigator, NavigateResponse, PopupNavigator, RedirectNavigator, PopupWindowParams,
     IWindow, IFrameWindowParams, RedirectParams } from "./navigators";
-import { OidcClient, CreateSigninRequestArgs, CreateSignoutRequestArgs } from "./OidcClient";
+import { OidcClient, CreateSigninRequestArgs, CreateSignoutRequestArgs, ProcessResourceOwnerPasswordCredentialsArgs } from "./OidcClient";
 import { UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
 import { User } from "./User";
 import { UserManagerEvents } from "./UserManagerEvents";
@@ -15,6 +15,7 @@ import type { SessionStatus } from "./SessionStatus";
 import type { SignoutResponse } from "./SignoutResponse";
 import type { MetadataService } from "./MetadataService";
 import { RefreshState } from "./RefreshState";
+import type { SigninResponse } from "./SigninResponse";
 
 /**
  * @public
@@ -44,6 +45,11 @@ export type SigninPopupArgs = PopupWindowParams & ExtraSigninRequestArgs;
  * @public
  */
 export type SigninSilentArgs = IFrameWindowParams & ExtraSigninRequestArgs;
+
+/**
+ * @public
+ */
+export type SigninResourceOwnerCredentialsArgs = ProcessResourceOwnerPasswordCredentialsArgs;
 
 /**
  * @public
@@ -168,6 +174,30 @@ export class UserManager {
             logger.info("no subject");
         }
 
+        return user;
+    }
+
+    /**
+     * Returns promise to process the signin with user/password. The result of the promise is the authenticated `User`.
+     *
+     * Throws an ErrorResponse in case of wrong authentication.
+     */
+    public async signinResourceOwnerCredentials({
+        username,
+        password,
+        skipUserInfo = false,
+    }: SigninResourceOwnerCredentialsArgs ) {
+        const logger = this._logger.create("signinResourceOwnerCredential");
+
+        const signinResponse = await this._client.processResourceOwnerPasswordCredentials({ username, password, skipUserInfo });
+        logger.debug("got signin response");
+
+        const user = await this._buildUser(signinResponse);
+        if (user.profile && user.profile.sub) {
+            logger.info("success, signed in subject", user.profile.sub);
+        } else {
+            logger.info("no subject");
+        }
         return user;
     }
 
@@ -404,6 +434,12 @@ export class UserManager {
         const signinResponse = await this._client.processSigninResponse(url);
         logger.debug("got signin response");
 
+        const user = await this._buildUser(signinResponse, verifySub);
+        return user;
+    }
+
+    protected async _buildUser(signinResponse: SigninResponse, verifySub?: string) {
+        const logger = this._logger.create("_buildUser");
         const user = new User(signinResponse);
         if (verifySub) {
             if (verifySub !== user.profile.sub) {

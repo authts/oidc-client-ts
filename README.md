@@ -24,6 +24,7 @@ Implements the following OAuth 2.0 protocols and supports
 
 - [Authorization Code Grant](https://oauth.net/2/grant-types/authorization-code/)
   with [PKCE](https://oauth.net/2/pkce/)
+- [Resource Owner Password Credentials Grant](https://www.rfc-editor.org/rfc/rfc6749#section-1.3.3); however, read the [security concerns](docs/ropc.md) before using this flow
 - [Refresh Token Grant](https://oauth.net/2/grant-types/refresh-token/)
 
 ## Table of Contents
@@ -82,3 +83,4 @@ We appreciate feedback and contribution to this repo!
 This project is licensed under the Apache-2.0 license. See the
 [LICENSE](https://github.com/authts/oidc-client-ts/blob/main/LICENSE) file for
 more info.
+

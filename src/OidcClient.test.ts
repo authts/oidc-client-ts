@@ -335,6 +335,54 @@ describe("OidcClient", () => {
         });
     });
 
+    describe("processResourceOwnerPasswordCredentials", () => {
+
+        it("should fail on wrong credentials", async () => {
+            // arrange
+            jest.spyOn(subject["_tokenClient"], "exchangeCredentials").mockRejectedValue(new Error("Wrong credentials"));
+
+            // act
+            await expect(subject.processResourceOwnerPasswordCredentials({ username: "u", password: "p", skipUserInfo: false }))
+                // assert
+                .rejects.toThrow(Error);
+        });
+
+        it("should fail on invalid response", async () => {
+            // arrange
+            jest.spyOn(subject["_tokenClient"], "exchangeCredentials").mockResolvedValue({});
+            jest.spyOn(subject["_validator"], "validateCredentialsResponse").mockRejectedValue(new Error("Wrong response"));
+
+            // act
+            await expect(subject.processResourceOwnerPasswordCredentials({ username: "u", password: "p", skipUserInfo: false }))
+                // assert
+                .rejects.toThrow(Error);
+        });
+
+        it("should return response on success", async () => {
+            // arrange
+            jest.spyOn(subject["_tokenClient"], "exchangeCredentials").mockResolvedValue({
+                access_token: "access_token",
+                id_token: "id_token",
+                scope: "openid profile email",
+            });
+            jest.spyOn(subject["_validator"], "validateCredentialsResponse").mockImplementation(
+                async (response: SigninResponse): Promise<void> => {
+                    Object.assign(response, { profile: { sub: "subsub" } });
+                },
+            );
+
+            // act
+            const signinResponse: SigninResponse = await subject.processResourceOwnerPasswordCredentials({ username: "u", password: "p", skipUserInfo: false });
+
+            // assert
+            expect(signinResponse).toHaveProperty("access_token", "access_token");
+            expect(signinResponse).toHaveProperty("id_token", "id_token");
+            expect(signinResponse).toHaveProperty("scope", "openid profile email");
+            expect(signinResponse).toHaveProperty("profile", { sub: "subsub" });
+        });
+
+    });
+
     describe("useRefreshToken", () => {
         it("should return a SigninResponse", async () => {
             // arrange

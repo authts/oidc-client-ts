@@ -71,6 +71,18 @@ export class ResponseValidator {
         logger.debug("claims processed");
     }
 
+    public async validateCredentialsResponse(response: SigninResponse, skipUserInfo: boolean): Promise<void> {
+        const logger = this._logger.create("validateCredentialsResponse");
+
+        if (response.isOpenId) {
+            this._validateIdTokenAttributes(response);
+        }
+        logger.debug("tokens validated");
+
+        await this._processClaims(response, skipUserInfo, response.isOpenId);
+        logger.debug("claims processed");
+    }
+
     public async validateRefreshResponse(response: SigninResponse, state: RefreshState): Promise<void> {
         const logger = this._logger.create("validateRefreshResponse");
 

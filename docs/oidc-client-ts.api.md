@@ -298,6 +298,8 @@ export class OidcClient {
     // (undocumented)
     readonly metadataService: MetadataService;
     // (undocumented)
+    processResourceOwnerPasswordCredentials({ username, password, skipUserInfo, }: ProcessResourceOwnerPasswordCredentialsArgs): Promise<SigninResponse>;
+    // (undocumented)
     processSigninResponse(url: string): Promise<SigninResponse>;
     // (undocumented)
     processSignoutResponse(url: string): Promise<SignoutResponse>;
@@ -554,6 +556,13 @@ export interface PopupWindowParams {
 }
 
 // @public (undocumented)
+export type ProcessResourceOwnerPasswordCredentialsArgs = {
+    username: string;
+    password: string;
+    skipUserInfo?: boolean;
+};
+
+// @public (undocumented)
 export type QuerySessionStatusArgs = IFrameWindowParams & ExtraSigninRequestArgs;
 
 // @public (undocumented)
@@ -661,6 +670,9 @@ export interface SigninRequestArgs {
     // (undocumented)
     url: string;
 }
+
+// @public (undocumented)
+export type SigninResourceOwnerCredentialsArgs = ProcessResourceOwnerPasswordCredentialsArgs;
 
 // @public (undocumented)
 export class SigninResponse {
@@ -874,6 +886,8 @@ export type UserLoadedCallback = (user: User) => Promise<void> | void;
 // @public
 export class UserManager {
     constructor(settings: UserManagerSettings);
+    // (undocumented)
+    protected _buildUser(signinResponse: SigninResponse, verifySub?: string): Promise<User>;
     clearStaleState(): Promise<void>;
     // (undocumented)
     protected readonly _client: OidcClient;
@@ -919,6 +933,7 @@ export class UserManager {
     signinPopupCallback(url?: string, keepOpen?: boolean): Promise<void>;
     signinRedirect(args?: SigninRedirectArgs): Promise<void>;
     signinRedirectCallback(url?: string): Promise<User>;
+    signinResourceOwnerCredentials({ username, password, skipUserInfo, }: SigninResourceOwnerCredentialsArgs): Promise<User>;
     signinSilent(args?: SigninSilentArgs): Promise<User | null>;
     signinSilentCallback(url?: string): Promise<void>;
     // Warning: (ae-forgotten-export) The symbol "NavigateResponse" needs to be exported by the entry point index.d.ts
