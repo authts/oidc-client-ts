@@ -71,6 +71,9 @@ export interface UserManagerSettings extends OidcClientSettings {
     revokeTokenTypes?: ("access_token" | "refresh_token")[];
     /** Will invoke the revocation endpoint on signout if there is an access token for the user (default: false) */
     revokeTokensOnSignout?: boolean;
+    /** Flag to control if id_token is included as id_token_hint in silent signout calls (default: false) */
+    includeIdTokenInSilentSignout?: boolean;
+
     /** The number of seconds before an access token is to expire to raise the accessTokenExpiring event (default: 60) */
     accessTokenExpiringNotificationTimeInSeconds?: number;
 
@@ -112,6 +115,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
     public readonly revokeTokenTypes: ("access_token" | "refresh_token")[];
     public readonly revokeTokensOnSignout: boolean;
+    public readonly includeIdTokenInSilentSignout: boolean;
+
     public readonly accessTokenExpiringNotificationTimeInSeconds: number;
 
     public readonly userStore: WebStorageStateStore;
@@ -142,6 +147,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
             revokeTokenTypes = ["access_token", "refresh_token"],
             revokeTokensOnSignout = false,
+            includeIdTokenInSilentSignout = false,
+
             accessTokenExpiringNotificationTimeInSeconds = DefaultAccessTokenExpiringNotificationTimeInSeconds,
 
             userStore,
@@ -173,6 +180,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
         this.revokeTokenTypes = revokeTokenTypes;
         this.revokeTokensOnSignout = revokeTokensOnSignout;
+        this.includeIdTokenInSilentSignout = includeIdTokenInSilentSignout;
+
         this.accessTokenExpiringNotificationTimeInSeconds = accessTokenExpiringNotificationTimeInSeconds;
 
         if (userStore) {

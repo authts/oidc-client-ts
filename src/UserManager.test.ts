@@ -5,7 +5,7 @@ import { once } from "events";
 import type { PopupWindow } from "./navigators";
 import type { SigninResponse } from "./SigninResponse";
 import type { SignoutResponse } from "./SignoutResponse";
-import { UserManager, SigninPopupArgs, SigninRedirectArgs, SigninSilentArgs } from "./UserManager";
+import { UserManager, SigninPopupArgs, SigninRedirectArgs, SigninSilentArgs, SignoutSilentArgs } from "./UserManager";
 import { UserManagerSettingsStore } from "./UserManagerSettings";
 import { User } from "./User";
 import type { UserProfile } from "./User";
@@ -654,6 +654,132 @@ describe("UserManager", () => {
             await expect(subject.signoutCallback())
                 // assert
                 .rejects.toThrow(Error);
+        });
+    });
+
+    describe("signoutSilent", () => {
+        it("should pass silentRequestTimeout from settings", async () => {
+            // arrange
+            Object.assign(subject.settings, {
+                silentRequestTimeoutInSeconds: 123,
+                silent_redirect_uri: "http://client/silent_callback",
+            });
+            subject["_signout"] = jest.fn();
+
+            // act
+            await subject.signoutSilent();
+            const [, navInstance] = mocked(subject["_signout"]).mock.calls[0];
+
+            // assert
+            expect(navInstance).toHaveProperty("_timeoutInSeconds", 123);
+        });
+
+        it("should pass navigator params to navigator", async () => {
+            // arrange
+            const prepareMock = jest.spyOn(subject["_iframeNavigator"], "prepare");
+            subject["_signout"] = jest.fn();
+            const navParams: SignoutSilentArgs = {
+                silentRequestTimeoutInSeconds: 234,
+            };
+
+            // act
+            await subject.signoutSilent(navParams);
+
+            // assert
+            expect(prepareMock).toBeCalledWith(navParams);
+        });
+
+        it("should pass extra args to _signoutStart", async () => {
+            // arrange
+            jest.spyOn(subject["_popupNavigator"], "prepare");
+            subject["_signout"] = jest.fn();
+            const extraArgs: SignoutSilentArgs = {
+                extraQueryParams: { q : "q" },
+                state: "state",
+                post_logout_redirect_uri: "http://app/extra_callback",
+            };
+
+            // act
+            await subject.signoutSilent(extraArgs);
+
+            // assert
+            expect(subject["_signout"]).toBeCalledWith(
+                {
+                    request_type: "so:s",
+                    id_token_hint: undefined,
+                    ...extraArgs,
+                },
+                expect.objectContaining({
+                    close: expect.any(Function),
+                    navigate: expect.any(Function),
+                }),
+            );
+        });
+
+        it("should pass id_token as id_token_hint when user present and setting enabled", async () => {
+            // arrange
+            const user = new User({
+                id_token: "id_token",
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {} as UserProfile,
+            });
+            subject["_loadUser"] = jest.fn().mockResolvedValue(user);
+            Object.assign(subject.settings, {
+                includeIdTokenInSilentSignout: true,
+            });
+            subject["_signout"] = jest.fn().mockResolvedValue(user);
+
+            // act
+            await subject.signoutSilent();
+
+            // assert
+            expect(subject["_signout"]).toBeCalledWith(
+                expect.objectContaining({
+                    id_token_hint: "id_token",
+                }),
+                expect.anything(),
+            );
+        });
+
+        it("should not pass id_token as id_token_hint when user present but setting disabled", async () => {
+            // arrange
+            const user = new User({
+                id_token: "id_token",
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {} as UserProfile,
+            });
+            subject["_loadUser"] = jest.fn().mockResolvedValue(user);
+            Object.assign(subject.settings, {
+                includeIdTokenInSilentSignout: false,
+            });
+            subject["_signout"] = jest.fn().mockResolvedValue(user);
+
+            // act
+            await subject.signoutSilent();
+
+            // assert
+            expect(subject["_signout"]).toBeCalledWith(
+                expect.objectContaining({
+                    id_token_hint: undefined,
+                }),
+                expect.anything(),
+            );
+        });
+    });
+
+    describe("signoutSilentCallback", () => {
+        it("should call navigator callback", async () => {
+            // arrange
+            const callbackMock = jest.spyOn(subject["_iframeNavigator"], "callback");
+            const url = "http://app/cb?state=test&code=code";
+
+            // act
+            await subject.signoutSilentCallback(url);
+
+            // assert
+            expect(callbackMock).toBeCalledWith(url);
         });
     });
 
