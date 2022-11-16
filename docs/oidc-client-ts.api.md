@@ -801,6 +801,9 @@ export class SignoutResponse {
 }
 
 // @public (undocumented)
+export type SignoutSilentArgs = IFrameWindowParams & ExtraSignoutRequestArgs;
+
+// @public (undocumented)
 export type SilentRenewErrorCallback = (error: Error) => Promise<void> | void;
 
 // @public (undocumented)
@@ -950,6 +953,8 @@ export class UserManager {
     signoutPopupCallback(url?: string, keepOpen?: boolean): Promise<void>;
     signoutRedirect(args?: SignoutRedirectArgs): Promise<void>;
     signoutRedirectCallback(url?: string): Promise<SignoutResponse>;
+    signoutSilent(args?: SignoutSilentArgs): Promise<void>;
+    signoutSilentCallback(url?: string): Promise<void>;
     // (undocumented)
     protected _signoutStart(args: CreateSignoutRequestArgs | undefined, handle: IWindow): Promise<NavigateResponse>;
     // Warning: (ae-forgotten-export) The symbol "SilentRenewService" needs to be exported by the entry point index.d.ts
@@ -1005,6 +1010,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     iframeNotifyParentOrigin?: string;
     iframeScriptOrigin?: string;
     includeIdTokenInSilentRenew?: boolean;
+    includeIdTokenInSilentSignout?: boolean;
     // (undocumented)
     monitorAnonymousSession?: boolean;
     monitorSession?: boolean;
@@ -1042,6 +1048,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     readonly iframeScriptOrigin: string | undefined;
     // (undocumented)
     readonly includeIdTokenInSilentRenew: boolean;
+    // (undocumented)
+    readonly includeIdTokenInSilentSignout: boolean;
     // (undocumented)
     readonly monitorAnonymousSession: boolean;
     // (undocumented)

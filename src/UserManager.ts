@@ -67,6 +67,11 @@ export type SignoutRedirectArgs = RedirectParams & ExtraSignoutRequestArgs;
 export type SignoutPopupArgs = PopupWindowParams & ExtraSignoutRequestArgs;
 
 /**
+ * @public
+ */
+export type SignoutSilentArgs = IFrameWindowParams & ExtraSignoutRequestArgs;
+
+/**
  * Provides a higher level API for signing a user in, signing out, managing the user's claims returned from the OIDC provider,
  * and managing an access token returned from the OIDC/OAuth2 provider.
  *
@@ -340,6 +345,9 @@ export class UserManager {
             case "so:p":
                 await this.signoutPopupCallback(url, keepOpen);
                 break;
+            case "so:s":
+                await this.signoutSilentCallback(url);
+                break;
             default:
                 throw new Error("invalid response_type in state");
         }
@@ -564,6 +572,41 @@ export class UserManager {
         logger.debug("got signout response");
 
         return signoutResponse;
+    }
+
+    /**
+     * Returns promise to trigger a silent request (via an iframe) to the end session endpoint.
+     */
+    public async signoutSilent(args: SignoutSilentArgs = {}): Promise<void> {
+        const logger = this._logger.create("signoutSilent");
+        const {
+            silentRequestTimeoutInSeconds,
+            ...requestArgs
+        } = args;
+
+        const id_token_hint = this.settings.includeIdTokenInSilentSignout
+            ? (await this._loadUser())?.id_token
+            : undefined;
+
+        const url = this.settings.popup_post_logout_redirect_uri;
+        const handle = await this._iframeNavigator.prepare({ silentRequestTimeoutInSeconds });
+        await this._signout({
+            request_type: "so:s",
+            post_logout_redirect_uri: url,
+            id_token_hint: id_token_hint,
+            ...requestArgs,
+        }, handle);
+
+        logger.info("success");
+    }
+
+    /**
+     * Returns promise to notify the parent window of response from the end session endpoint.
+     */
+    public async signoutSilentCallback(url = window.location.href): Promise<void> {
+        const logger = this._logger.create("signoutSilentCallback");
+        await this._iframeNavigator.callback(url);
+        logger.info("success");
     }
 
     public async revokeTokens(types?: RevokeTokensTypes): Promise<void> {
