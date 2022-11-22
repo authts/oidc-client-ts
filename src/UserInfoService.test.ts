@@ -19,7 +19,7 @@ describe("UserInfoService", () => {
         });
         metadataService = new MetadataService(settings);
 
-        subject = new UserInfoService(metadataService);
+        subject = new UserInfoService(metadataService, settings);
 
         // access private members
         jsonService = subject["_jsonService"];

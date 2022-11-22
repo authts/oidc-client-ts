@@ -432,7 +432,6 @@ describe("OidcClient", () => {
                 refresh_token: "refresh_token",
                 scope: "openid",
                 timeoutInSeconds: undefined,
-                refreshTokenCredentials: "same-origin",
             });
             expect(response).toBeInstanceOf(SigninResponse);
             expect(response).toMatchObject(tokenResponse);
