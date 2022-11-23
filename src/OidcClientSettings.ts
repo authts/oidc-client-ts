@@ -104,7 +104,7 @@ export interface OidcClientSettings {
     extraTokenParams?: Record<string, unknown>;
 
     /**
-     * Credentials used by fetch with the refresh request. (default: "same-origin")
+     * @deprecated since version 2.1.0. Use fetchRequestCredentials instead.
      */
     refreshTokenCredentials?: "same-origin" | "include" | "omit";
 
