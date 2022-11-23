@@ -355,6 +355,7 @@ export interface OidcClientSettings {
     post_logout_redirect_uri?: string;
     prompt?: string;
     redirect_uri: string;
+    refreshTokenCredentials?: "same-origin" | "include" | "omit";
     resource?: string;
     response_mode?: "query" | "fragment";
     response_type?: string;

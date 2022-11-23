@@ -104,6 +104,11 @@ export interface OidcClientSettings {
     extraTokenParams?: Record<string, unknown>;
 
     /**
+     * Credentials used by fetch with the refresh request. (default: "same-origin")
+     */
+    refreshTokenCredentials?: "same-origin" | "include" | "omit";
+
+    /**
      * Will check the content type header of the response of the revocation endpoint to match these passed values (default: [])
      */
     revokeTokenAdditionalContentTypes?: string[];
