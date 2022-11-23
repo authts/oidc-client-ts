@@ -187,8 +187,9 @@ export class OidcClientSettingsStore {
         mergeClaims = false,
         // other behavior
         stateStore,
-        fetchRequestCredentials = "same-origin",
+        refreshTokenCredentials,
         revokeTokenAdditionalContentTypes,
+        fetchRequestCredentials,
         // extra query params
         extraQueryParams = {},
         extraTokenParams = {},
@@ -236,7 +237,12 @@ export class OidcClientSettingsStore {
         this.mergeClaims = !!mergeClaims;
 
         this.revokeTokenAdditionalContentTypes = revokeTokenAdditionalContentTypes;
-        this.fetchRequestCredentials = fetchRequestCredentials;
+
+        if (fetchRequestCredentials && refreshTokenCredentials) {
+            console.warn("Both fetchRequestCredentials and refreshTokenCredentials is set. Only fetchRequestCredentials will be used.");
+        }
+        this.fetchRequestCredentials = fetchRequestCredentials ? fetchRequestCredentials
+            : refreshTokenCredentials ? refreshTokenCredentials : "same-origin";
 
         if (stateStore) {
             this.stateStore = stateStore;
