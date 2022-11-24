@@ -10,14 +10,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 16.x
           cache: npm
 
       - name: Cache incremental builds
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             lib/
@@ -41,14 +41,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 16.x
           cache: npm
 
       - name: Cache incremental builds
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             .eslintcache
@@ -62,7 +62,7 @@ jobs:
       - run: npm run lint
       - run: npm test
 
-      - uses: codecov/codecov-action@v2
+      - uses: codecov/codecov-action@v3
         with:
           files: ./coverage/lcov.info
           flags: unittests
