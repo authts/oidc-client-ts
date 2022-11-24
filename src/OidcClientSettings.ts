@@ -104,7 +104,7 @@ export interface OidcClientSettings {
     extraTokenParams?: Record<string, unknown>;
 
     /**
-     * Credentials used by fetch with the refresh request. (default: "same-origin")
+     * @deprecated since version 2.1.0. Use fetchRequestCredentials instead.
      */
     refreshTokenCredentials?: "same-origin" | "include" | "omit";
 
@@ -112,6 +112,12 @@ export interface OidcClientSettings {
      * Will check the content type header of the response of the revocation endpoint to match these passed values (default: [])
      */
     revokeTokenAdditionalContentTypes?: string[];
+
+    /**
+     * Sets the credentials for fetch requests. (default: "same-origin")
+     * Use this if you need to send cookies to the OIDC/OAuth2 provider or if you are using a proxy that requires cookies
+     */
+    fetchRequestCredentials?: RequestCredentials;
 }
 
 /**
@@ -160,8 +166,8 @@ export class OidcClientSettingsStore {
     public readonly extraQueryParams: Record<string, string | number | boolean>;
     public readonly extraTokenParams: Record<string, unknown>;
 
-    public readonly refreshTokenCredentials: "same-origin" | "include" | "omit";
     public readonly revokeTokenAdditionalContentTypes?: string[];
+    public readonly fetchRequestCredentials: RequestCredentials;
 
     public constructor({
         // metadata related
@@ -181,8 +187,9 @@ export class OidcClientSettingsStore {
         mergeClaims = false,
         // other behavior
         stateStore,
-        refreshTokenCredentials = "same-origin",
+        refreshTokenCredentials,
         revokeTokenAdditionalContentTypes,
+        fetchRequestCredentials,
         // extra query params
         extraQueryParams = {},
         extraTokenParams = {},
@@ -229,8 +236,13 @@ export class OidcClientSettingsStore {
         this.userInfoJwtIssuer = userInfoJwtIssuer;
         this.mergeClaims = !!mergeClaims;
 
-        this.refreshTokenCredentials = refreshTokenCredentials;
         this.revokeTokenAdditionalContentTypes = revokeTokenAdditionalContentTypes;
+
+        if (fetchRequestCredentials && refreshTokenCredentials) {
+            console.warn("Both fetchRequestCredentials and refreshTokenCredentials is set. Only fetchRequestCredentials will be used.");
+        }
+        this.fetchRequestCredentials = fetchRequestCredentials ? fetchRequestCredentials
+            : refreshTokenCredentials ? refreshTokenCredentials : "same-origin";
 
         if (stateStore) {
             this.stateStore = stateStore;

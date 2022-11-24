@@ -14,6 +14,7 @@ export type JwtHandler = (text: string) => Promise<Record<string, unknown>>;
  */
 export interface GetJsonOpts {
     token?: string;
+    credentials?: RequestCredentials;
 }
 
 /**
@@ -73,6 +74,7 @@ export class JsonService {
 
     public async getJson(url: string, {
         token,
+        credentials,
     }: GetJsonOpts = {}): Promise<Record<string, unknown>> {
         const logger = this._logger.create("getJson");
         const headers: HeadersInit = {
@@ -86,7 +88,7 @@ export class JsonService {
         let response: Response;
         try {
             logger.debug("url:", url);
-            response = await this.fetchWithTimeout(url, { method: "GET", headers });
+            response = await this.fetchWithTimeout(url, { method: "GET", headers, credentials });
         }
         catch (err) {
             logger.error("Network Error");

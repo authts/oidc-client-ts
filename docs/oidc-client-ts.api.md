@@ -343,6 +343,7 @@ export interface OidcClientSettings {
     extraQueryParams?: Record<string, string | number | boolean>;
     // (undocumented)
     extraTokenParams?: Record<string, unknown>;
+    fetchRequestCredentials?: RequestCredentials;
     filterProtocolClaims?: boolean;
     loadUserInfo?: boolean;
     max_age?: number;
@@ -354,6 +355,7 @@ export interface OidcClientSettings {
     post_logout_redirect_uri?: string;
     prompt?: string;
     redirect_uri: string;
+    // @deprecated (undocumented)
     refreshTokenCredentials?: "same-origin" | "include" | "omit";
     resource?: string;
     response_mode?: "query" | "fragment";
@@ -370,7 +372,7 @@ export interface OidcClientSettings {
 
 // @public
 export class OidcClientSettingsStore {
-    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, clockSkewInSeconds, userInfoJwtIssuer, mergeClaims, stateStore, refreshTokenCredentials, revokeTokenAdditionalContentTypes, extraQueryParams, extraTokenParams, }: OidcClientSettings);
+    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, clockSkewInSeconds, userInfoJwtIssuer, mergeClaims, stateStore, refreshTokenCredentials, revokeTokenAdditionalContentTypes, fetchRequestCredentials, extraQueryParams, extraTokenParams, }: OidcClientSettings);
     // (undocumented)
     readonly acr_values: string | undefined;
     // (undocumented)
@@ -389,6 +391,8 @@ export class OidcClientSettingsStore {
     readonly extraQueryParams: Record<string, string | number | boolean>;
     // (undocumented)
     readonly extraTokenParams: Record<string, unknown>;
+    // (undocumented)
+    readonly fetchRequestCredentials: RequestCredentials;
     // (undocumented)
     readonly filterProtocolClaims: boolean;
     // (undocumented)
@@ -409,8 +413,6 @@ export class OidcClientSettingsStore {
     readonly prompt: string | undefined;
     // (undocumented)
     readonly redirect_uri: string;
-    // (undocumented)
-    readonly refreshTokenCredentials: "same-origin" | "include" | "omit";
     // (undocumented)
     readonly resource: string | undefined;
     // (undocumented)

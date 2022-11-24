@@ -16,10 +16,11 @@ describe("UserInfoService", () => {
             authority: "authority",
             client_id: "client",
             redirect_uri: "redirect",
+            fetchRequestCredentials: "include",
         });
         metadataService = new MetadataService(settings);
 
-        subject = new UserInfoService(metadataService);
+        subject = new UserInfoService(settings, metadataService);
 
         // access private members
         jsonService = subject["_jsonService"];
@@ -100,6 +101,23 @@ describe("UserInfoService", () => {
 
             // assert
             expect(claims).toEqual(expectedClaims);
+        });
+
+        it("should use settings fetchRequestCredentials to set credentials on user info request", async () => {
+            // arrange
+            jest.spyOn(metadataService, "getUserInfoEndpoint").mockImplementation(() => Promise.resolve("http://sts/userinfo"));
+            const getJsonMock = jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({}));
+
+            // act
+            await subject.getClaims("token");
+
+            // assert
+            expect(getJsonMock).toBeCalledWith(
+                "http://sts/userinfo",
+                expect.objectContaining({
+                    credentials: "include",
+                }),
+            );
         });
     });
 });

@@ -45,7 +45,7 @@ const ProtocolClaims = [
  */
 export class ResponseValidator {
     protected readonly _logger = new Logger("ResponseValidator");
-    protected readonly _userInfoService = new UserInfoService(this._metadataService);
+    protected readonly _userInfoService = new UserInfoService(this._settings, this._metadataService);
     protected readonly _tokenClient = new TokenClient(this._settings, this._metadataService);
 
     public constructor(
