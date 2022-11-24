@@ -17,7 +17,7 @@ export class MetadataService {
     private _metadataUrl: string;
     private _signingKeys: SigningKey[] | null = null;
     private _metadata: Partial<OidcMetadata> | null = null;
-    private fetchRequestCredentials: RequestCredentials | undefined;
+    private _fetchRequestCredentials: RequestCredentials | undefined;
 
     public constructor(private readonly _settings: OidcClientSettingsStore) {
         this._metadataUrl = this._settings.metadataUrl;
@@ -34,7 +34,7 @@ export class MetadataService {
 
         if (this._settings.fetchRequestCredentials) {
             this._logger.debug("using fetchRequestCredentials from settings");
-            this.fetchRequestCredentials = this._settings.fetchRequestCredentials;
+            this._fetchRequestCredentials = this._settings.fetchRequestCredentials;
         }
     }
 
@@ -55,7 +55,7 @@ export class MetadataService {
         }
 
         logger.debug("getting metadata from", this._metadataUrl);
-        const metadata = await this._jsonService.getJson(this._metadataUrl, { credentials: this.fetchRequestCredentials });
+        const metadata = await this._jsonService.getJson(this._metadataUrl, { credentials: this._fetchRequestCredentials });
 
         logger.debug("merging remote JSON with seed metadata");
         this._metadata = Object.assign({}, this._settings.metadataSeed, metadata);
