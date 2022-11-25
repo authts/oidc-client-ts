@@ -34,7 +34,7 @@ export interface CreateSigninRequestArgs {
     id_token_hint?: string;
     login_hint?: string;
     acr_values?: string;
-    resource?: string;
+    resource?: string | string[];
     response_mode?: "query" | "fragment";
     request?: string;
     request_uri?: string;

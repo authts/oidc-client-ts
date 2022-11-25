@@ -76,7 +76,7 @@ export interface CreateSigninRequestArgs {
     // (undocumented)
     request_uri?: string;
     // (undocumented)
-    resource?: string;
+    resource?: string | string[];
     // (undocumented)
     response_mode?: "query" | "fragment";
     // (undocumented)
@@ -357,7 +357,7 @@ export interface OidcClientSettings {
     redirect_uri: string;
     // @deprecated (undocumented)
     refreshTokenCredentials?: "same-origin" | "include" | "omit";
-    resource?: string;
+    resource?: string | string[];
     response_mode?: "query" | "fragment";
     response_type?: string;
     revokeTokenAdditionalContentTypes?: string[];
@@ -414,7 +414,7 @@ export class OidcClientSettingsStore {
     // (undocumented)
     readonly redirect_uri: string;
     // (undocumented)
-    readonly resource: string | undefined;
+    readonly resource: string | string[] | undefined;
     // (undocumented)
     readonly response_mode: "query" | "fragment";
     // (undocumented)
@@ -615,7 +615,7 @@ export type SigninRedirectArgs = RedirectParams & ExtraSigninRequestArgs;
 
 // @public (undocumented)
 export class SigninRequest {
-    constructor({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, skipUserInfo, extraQueryParams, extraTokenParams, ...optionalParams }: SigninRequestArgs);
+    constructor({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, resource, skipUserInfo, extraQueryParams, extraTokenParams, ...optionalParams }: SigninRequestArgs);
     // (undocumented)
     readonly state: SigninState;
     // (undocumented)
@@ -657,7 +657,7 @@ export interface SigninRequestArgs {
     // (undocumented)
     request_uri?: string;
     // (undocumented)
-    resource?: string;
+    resource?: string | string[];
     // (undocumented)
     response_mode?: "query" | "fragment";
     // (undocumented)
