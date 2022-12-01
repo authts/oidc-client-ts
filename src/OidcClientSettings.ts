@@ -75,7 +75,7 @@ export interface OidcClientSettings {
     filterProtocolClaims?: boolean;
     /** Flag to control if additional identity data is loaded from the user info endpoint in order to populate the user's profile (default: false) */
     loadUserInfo?: boolean;
-    /** Number (in seconds) indicating the age of state entries in storage for authorize requests that are considered abandoned and thus can be cleaned up (default: 300) */
+    /** Number (in seconds) indicating the age of state entries in storage for authorize requests that are considered abandoned and thus can be cleaned up (default: 900) */
     staleStateAgeInSeconds?: number;
 
     /** @deprecated Unused */
