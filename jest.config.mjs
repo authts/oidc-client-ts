@@ -10,10 +10,13 @@ export default {
     testEnvironment: "jsdom",
     collectCoverage,
     coverageReporters: collectCoverage ? ["lcov"] : ["lcov", "text"],
-    globals: {
-        "ts-jest": {
-            // skip ts-jest type checking, incremental compilation with tsc is much faster
-            isolatedModules: true,
-        },
+    transform: {
+        "^.+\\.tsx?$": [
+            "ts-jest",
+            {
+                // skip ts-jest type checking, incremental compilation with tsc is much faster
+                isolatedModules: true,
+            },
+        ],
     },
 };
