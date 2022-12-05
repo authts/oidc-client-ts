@@ -15,7 +15,7 @@ removed.
 - removed `ResponseValidatorCtor` and `MetadataServiceCtor`
   - if necessary `OidcClient` / `UserManager` classes may be extended to alter
     their behavior
-- restricted `response_type` to `code` flow only (PKCE remains optional)
+- restricted `response_type` to `code` flow only. As per [OAuth 2.1](https://oauth.net/2.1/): **PKCE is required** for all OAuth clients using the authorization `code` flow
   - as in oidc-client 1.x, OAuth 2.0 hybrid flows are not supported
 - the property `signingKeys` is unused, unless the MetaDataService with this feature is used
   outside of this library.
