@@ -142,7 +142,7 @@ describe("SigninRequest", () => {
             expect(subject.url).toContain("acr_values=foo");
         });
 
-        it("should include resource", () => {
+        it("should include a resource", () => {
             // arrange
             settings.resource = "foo";
 
@@ -151,6 +151,17 @@ describe("SigninRequest", () => {
 
             // assert
             expect(subject.url).toContain("resource=foo");
+        });
+
+        it("should include multiple resources", () => {
+            // arrange
+            settings.resource = ["foo", "bar"];
+
+            // act
+            subject = new SigninRequest(settings);
+
+            // assert
+            expect(subject.url).toContain("resource=foo&resource=bar");
         });
 
         it("should include response_mode", () => {

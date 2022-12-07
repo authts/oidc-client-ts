@@ -24,7 +24,7 @@ export interface SigninRequestArgs {
     id_token_hint?: string;
     login_hint?: string;
     acr_values?: string;
-    resource?: string;
+    resource?: string | string[];
     response_mode?: "query" | "fragment" ;
     request?: string;
     request_uri?: string;
@@ -33,7 +33,7 @@ export interface SigninRequestArgs {
     client_secret?: string;
     extraTokenParams?: Record<string, unknown>;
     skipUserInfo?: boolean;
-    nonce?: string; 
+    nonce?: string;
 
     /** custom "state", which can be used by a caller to have "data" round tripped */
     state_data?: unknown;
@@ -53,6 +53,7 @@ export class SigninRequest {
         url, authority, client_id, redirect_uri, response_type, scope,
         // optional
         state_data, response_mode, request_type, client_secret, nonce,
+        resource,
         skipUserInfo,
         extraQueryParams,
         extraTokenParams,
@@ -106,6 +107,13 @@ export class SigninRequest {
         if (this.state.code_challenge) {
             parsedUrl.searchParams.append("code_challenge", this.state.code_challenge);
             parsedUrl.searchParams.append("code_challenge_method", "S256");
+        }
+
+        if (resource) {
+            // https://datatracker.ietf.org/doc/html/rfc8707
+            const resources = Array.isArray(resource) ? resource : [resource];
+            resources
+                .forEach(r => parsedUrl.searchParams.append("resource", r));
         }
 
         for (const [key, value] of Object.entries({ response_mode, ...optionalParams, ...extraQueryParams })) {

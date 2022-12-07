@@ -66,7 +66,7 @@ export interface OidcClientSettings {
     /** optional protocol param */
     acr_values?: string;
     /** optional protocol param */
-    resource?: string;
+    resource?: string | string[];
 
     /** optional protocol param (default: "query") */
     response_mode?: "query" | "fragment";
@@ -149,7 +149,7 @@ export class OidcClientSettingsStore {
     public readonly max_age: number | undefined;
     public readonly ui_locales: string | undefined;
     public readonly acr_values: string | undefined;
-    public readonly resource: string | undefined;
+    public readonly resource: string | string[] | undefined;
     public readonly response_mode: "query" | "fragment";
 
     // behavior flags
