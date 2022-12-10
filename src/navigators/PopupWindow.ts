@@ -36,6 +36,12 @@ export class PopupWindow extends AbstractChildWindow {
     public async navigate(params: NavigateParams): Promise<NavigateResponse> {
         this._window?.focus();
 
+        setTimeout(() => {
+            if (!this._window || typeof this._window.closed !== "boolean" || this._window.closed) {
+                this._abort.raise(new Error("Popup blocked by user"));
+            }
+        }, 100);
+
         const popupClosedInterval = setInterval(() => {
             if (!this._window || this._window.closed) {
                 this._abort.raise(new Error("Popup closed by user"));
