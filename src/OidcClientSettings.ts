@@ -118,6 +118,11 @@ export interface OidcClientSettings {
      * Use this if you need to send cookies to the OIDC/OAuth2 provider or if you are using a proxy that requires cookies
      */
     fetchRequestCredentials?: RequestCredentials;
+
+    /**
+     * Only scopes in this list will be passed in the token refresh request.
+     */
+    refreshTokenAllowableScopes?: string | undefined;
 }
 
 /**
@@ -168,6 +173,7 @@ export class OidcClientSettingsStore {
 
     public readonly revokeTokenAdditionalContentTypes?: string[];
     public readonly fetchRequestCredentials: RequestCredentials;
+    public readonly refreshTokenAllowableScopes: string | undefined;
 
     public constructor({
         // metadata related
@@ -190,6 +196,7 @@ export class OidcClientSettingsStore {
         refreshTokenCredentials,
         revokeTokenAdditionalContentTypes,
         fetchRequestCredentials,
+        refreshTokenAllowableScopes,
         // extra query params
         extraQueryParams = {},
         extraTokenParams = {},
@@ -251,6 +258,8 @@ export class OidcClientSettingsStore {
             const store = typeof window !== "undefined" ? window.localStorage : new InMemoryWebStorage();
             this.stateStore = new WebStorageStateStore({ store });
         }
+
+        this.refreshTokenAllowableScopes = refreshTokenAllowableScopes;
 
         this.extraQueryParams = extraQueryParams;
         this.extraTokenParams = extraTokenParams;
