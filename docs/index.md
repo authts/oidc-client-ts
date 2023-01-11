@@ -118,9 +118,12 @@ After successful sign-in the custom state is part of the [User](classes/User.htm
 This custom state should not be confused with the URL state parameter. The latter is internally used to match against the authentication state object to finish the authentication process.
 
 
-## Samples using oidc-client
+## Projects using oidc-client
 
-- [React Helper Library](https://github.com/authts/react-oidc-context)
+- [React context provider](https://github.com/authts/react-oidc-context)
+- [Angular sample](https://github.com/authts/sample-angular-oidc-client-ts)
+- [Chrome service worker](https://github.com/Alino/OIDC-client-ts-chromium-sample)
+
 
 ## Training
 
