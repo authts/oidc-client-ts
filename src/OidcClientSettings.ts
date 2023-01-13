@@ -71,8 +71,12 @@ export interface OidcClientSettings {
     /** optional protocol param (default: "query") */
     response_mode?: "query" | "fragment";
 
-    /** Should OIDC protocol claims be removed from profile (default: true) */
-    filterProtocolClaims?: boolean;
+    /**
+     * Should optional OIDC protocol claims be removed from profile or specify the ones to be removed (default: true)
+     * When true, the following claims are removed by default: ["nbf", "jti", "auth_time", "nonce", "acr", "amr", "azp", "at_hash"]
+     * When specifying claims, the following claims are not allowed: ["sub", "iss", "aud", "exp", "iat"]
+    */
+    filterProtocolClaims?: boolean | string[];
     /** Flag to control if additional identity data is loaded from the user info endpoint in order to populate the user's profile (default: false) */
     loadUserInfo?: boolean;
     /** Number (in seconds) indicating the age of state entries in storage for authorize requests that are considered abandoned and thus can be cleaned up (default: 900) */
@@ -153,7 +157,7 @@ export class OidcClientSettingsStore {
     public readonly response_mode: "query" | "fragment";
 
     // behavior flags
-    public readonly filterProtocolClaims: boolean;
+    public readonly filterProtocolClaims: boolean | string[];
     public readonly loadUserInfo: boolean;
     public readonly staleStateAgeInSeconds: number;
     public readonly clockSkewInSeconds: number;
@@ -229,7 +233,7 @@ export class OidcClientSettingsStore {
         this.resource = resource;
         this.response_mode = response_mode;
 
-        this.filterProtocolClaims = !!filterProtocolClaims;
+        this.filterProtocolClaims = filterProtocolClaims ?? true;
         this.loadUserInfo = !!loadUserInfo;
         this.staleStateAgeInSeconds = staleStateAgeInSeconds;
         this.clockSkewInSeconds = clockSkewInSeconds;
