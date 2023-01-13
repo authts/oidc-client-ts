@@ -127,8 +127,7 @@ export class TokenClient {
         client_id = this._settings.client_id,
         client_secret = this._settings.client_secret,
         scope = this._settings.scope,
-        username,
-        password,
+        ...args
     }: ExchangeCredentialsArgs): Promise<Record<string, unknown>> {
         const logger = this._logger.create("exchangeCredentials");
 
@@ -136,7 +135,12 @@ export class TokenClient {
             logger.throw(new Error("A client_id is required"));
         }
 
-        const params = new URLSearchParams({ grant_type, username, password, scope });
+        const params = new URLSearchParams({ grant_type, scope });
+        for (const [key, value] of Object.entries(args)) {
+            if (value != null) {
+                params.set(key, value);
+            }
+        }
 
         let basicAuth: string | undefined;
         switch (this._settings.client_authentication) {
