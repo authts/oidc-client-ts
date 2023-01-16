@@ -355,7 +355,7 @@ export interface OidcClientSettings {
     post_logout_redirect_uri?: string;
     prompt?: string;
     redirect_uri: string;
-    refreshTokenAllowableScopes?: string | undefined;
+    refreshTokenAllowedScope?: string | undefined;
     // @deprecated (undocumented)
     refreshTokenCredentials?: "same-origin" | "include" | "omit";
     resource?: string | string[];
@@ -373,7 +373,7 @@ export interface OidcClientSettings {
 
 // @public
 export class OidcClientSettingsStore {
-    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, clockSkewInSeconds, userInfoJwtIssuer, mergeClaims, stateStore, refreshTokenCredentials, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowableScopes, extraQueryParams, extraTokenParams, }: OidcClientSettings);
+    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, clockSkewInSeconds, userInfoJwtIssuer, mergeClaims, stateStore, refreshTokenCredentials, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, }: OidcClientSettings);
     // (undocumented)
     readonly acr_values: string | undefined;
     // (undocumented)
@@ -415,7 +415,7 @@ export class OidcClientSettingsStore {
     // (undocumented)
     readonly redirect_uri: string;
     // (undocumented)
-    readonly refreshTokenAllowableScopes: string | undefined;
+    readonly refreshTokenAllowedScope: string | undefined;
     // (undocumented)
     readonly resource: string | string[] | undefined;
     // (undocumented)

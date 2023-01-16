@@ -122,7 +122,7 @@ export interface OidcClientSettings {
     /**
      * Only scopes in this list will be passed in the token refresh request.
      */
-    refreshTokenAllowableScopes?: string | undefined;
+    refreshTokenAllowedScope?: string | undefined;
 }
 
 /**
@@ -173,7 +173,7 @@ export class OidcClientSettingsStore {
 
     public readonly revokeTokenAdditionalContentTypes?: string[];
     public readonly fetchRequestCredentials: RequestCredentials;
-    public readonly refreshTokenAllowableScopes: string | undefined;
+    public readonly refreshTokenAllowedScope: string | undefined;
 
     public constructor({
         // metadata related
@@ -196,7 +196,7 @@ export class OidcClientSettingsStore {
         refreshTokenCredentials,
         revokeTokenAdditionalContentTypes,
         fetchRequestCredentials,
-        refreshTokenAllowableScopes,
+        refreshTokenAllowedScope,
         // extra query params
         extraQueryParams = {},
         extraTokenParams = {},
@@ -259,7 +259,7 @@ export class OidcClientSettingsStore {
             this.stateStore = new WebStorageStateStore({ store });
         }
 
-        this.refreshTokenAllowableScopes = refreshTokenAllowableScopes;
+        this.refreshTokenAllowedScope = refreshTokenAllowedScope;
 
         this.extraQueryParams = extraQueryParams;
         this.extraTokenParams = extraTokenParams;

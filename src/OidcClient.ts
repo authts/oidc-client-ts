@@ -196,10 +196,10 @@ export class OidcClient {
         // In some cases (e.g. AzureAD), not all granted scopes are allowed on token refresh requests.
         // Therefore, we filter all granted scopes by a list of allowable scopes.
         let scope;
-        if (this.settings.refreshTokenAllowableScopes === undefined) {
+        if (this.settings.refreshTokenAllowedScope === undefined) {
             scope = state.scope;
         } else {
-            const allowableScopes = this.settings.refreshTokenAllowableScopes.split(" ");
+            const allowableScopes = this.settings.refreshTokenAllowedScope.split(" ");
             const providedScopes = state.scope?.split(" ") || [];
 
             scope = providedScopes.filter(s => allowableScopes.includes(s)).join(" ");

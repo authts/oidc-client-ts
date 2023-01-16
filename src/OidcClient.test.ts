@@ -446,7 +446,7 @@ describe("OidcClient", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 post_logout_redirect_uri: "http://app",
-                refreshTokenAllowableScopes: "allowed_scope",
+                refreshTokenAllowedScope: "allowed_scope",
             };
             subject = new OidcClient(settings);
 
