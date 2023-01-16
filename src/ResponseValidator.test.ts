@@ -235,6 +235,7 @@ describe("ResponseValidator", () => {
             jest.spyOn(JwtUtils, "decode").mockReturnValue({
                 sub: "sub",
                 iss: "iss",
+                acr: "acr",
                 a: "apple",
                 b: "banana",
             });
@@ -244,7 +245,7 @@ describe("ResponseValidator", () => {
             await subject.validateSigninResponse(stubResponse, stubState);
 
             // assert
-            expect(stubResponse.profile).not.toHaveProperty("iss");
+            expect(stubResponse.profile).not.toHaveProperty("acr");
         });
 
         it("should not filter protocol claims if not OIDC", async () => {
@@ -718,8 +719,8 @@ describe("ResponseValidator", () => {
                 aud: "some_aud", iss: "issuer",
                 sub: "123", email: "foo@gmail.com",
                 role: ["admin", "dev"],
-                at_hash: "athash",
-                iat: 5, nbf: 10, exp: 20,
+                iat: 5, exp: 20,
+                nbf: 10, at_hash: "athash",
             };
 
             // act
@@ -728,8 +729,10 @@ describe("ResponseValidator", () => {
             // assert
             expect(result).toEqual({
                 foo: 1, bar: "test",
+                aud: "some_aud", iss: "issuer",
                 sub: "123", email: "foo@gmail.com",
                 role: ["admin", "dev"],
+                iat: 5, exp: 20,
             });
         });
 
@@ -757,6 +760,96 @@ describe("ResponseValidator", () => {
                 at_hash: "athash",
                 iat: 5, nbf: 10, exp: 20,
             });
+        });
+
+        it("should filter protocol claims if specified in settings", () => {
+            // arrange
+            Object.assign(settings, { filterProtocolClaims: ["foo", "bar", "role", "nbf", "email"] });
+            const claims = {
+                foo: 1, bar: "test",
+                aud: "some_aud", iss: "issuer",
+                sub: "123", email: "foo@gmail.com",
+                role: ["admin", "dev"],
+                iat: 5, exp: 20,
+                nbf: 10, at_hash: "athash",
+            };
+
+            // act
+            const result = subject["_filterProtocolClaims"](claims);
+
+            // assert
+            expect(result).toEqual({
+                aud: "some_aud", iss: "issuer",
+                sub: "123",
+                iat: 5, exp: 20,
+                at_hash: "athash",
+            });
+        });
+
+        it("should filter only protocol claims defined by default by the library", () => {
+            // arrange
+            Object.assign(settings, { filterProtocolClaims: true });
+            const defaultProtocolClaims = {
+                nbf: 3, jti: "jti",
+                auth_time: 123,
+                nonce: "nonce",
+                acr: "acr",
+                amr: "amr",
+                azp: "azp",
+                at_hash: "athash",
+            };
+            const claims = {
+                foo: 1, bar: "test",
+                aud: "some_aud", iss: "issuer",
+                sub: "123", email: "foo@gmail.com",
+                role: ["admin", "dev"],
+                iat: 5, exp: 20,
+            };
+
+            // act
+            const result = subject["_filterProtocolClaims"]({ ...defaultProtocolClaims, ...claims });
+
+            // assert
+            expect(result).toEqual(claims);
+        });
+
+        it("should not filter protocol claims that are required by the library", () => {
+            // arrange
+            Object.assign(settings, { filterProtocolClaims: true });
+            const internalRequiredProtocolClaims = {
+                sub: "sub",
+                iss: "issuer",
+                aud: "some_aud",
+                exp: 20,
+                iat: 5,
+            };
+            const claims = {
+                foo: 1, bar: "test",
+                email: "foo@gmail.com",
+                role: ["admin", "dev"],
+                nbf: 10,
+            };
+
+            // act
+            let items = { ...internalRequiredProtocolClaims, ...claims };
+            let result = subject["_filterProtocolClaims"](items);
+
+            // assert
+            // nbf is part of the claims that should be filtered by the library by default, so we need to remove it
+            delete (items as Partial<typeof items>).nbf;
+            expect(result).toEqual(items);
+
+            // ... even if specified in settings
+
+            // arrange
+            Object.assign(settings, { filterProtocolClaims: ["sub", "iss", "aud", "exp", "iat"] });
+
+            // act
+            items = { ...internalRequiredProtocolClaims, ...claims };
+            result = subject["_filterProtocolClaims"](items);
+
+            // assert
+            expect(result).toEqual(items);
         });
     });
 });

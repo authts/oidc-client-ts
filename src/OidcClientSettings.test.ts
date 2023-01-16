@@ -320,6 +320,17 @@ describe("OidcClientSettings", () => {
 
             // assert
             expect(subject.filterProtocolClaims).toEqual(false);
+
+            // act
+            subject = new OidcClientSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                filterProtocolClaims: ["a", "b", "c"],
+            });
+
+            // assert
+            expect(subject.filterProtocolClaims).toEqual(["a", "b", "c"]);
         });
     });
 

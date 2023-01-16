@@ -16,6 +16,7 @@ import type { RefreshState } from "./RefreshState";
 import type { JwtClaims, IdTokenClaims } from "./Claims";
 
 /**
+ * Protocol claims that could be removed by default from profile.
  * Derived from the following sets of claims:
  * - {@link https://datatracker.ietf.org/doc/html/rfc7519.html#section-4.1}
  * - {@link https://openid.net/specs/openid-connect-core-1_0.html#IDToken}
@@ -23,22 +24,24 @@ import type { JwtClaims, IdTokenClaims } from "./Claims";
  *
  * @internal
  */
-const ProtocolClaims = [
-    "iss",
-    // "sub" should never be excluded, we need access to it internally
-    "aud",
-    "exp",
+const DefaultProtocolClaims = [
     "nbf",
-    "iat",
     "jti",
     "auth_time",
     "nonce",
     "acr",
     "amr",
     "azp",
-    // https://openid.net/specs/openid-connect-core-1_0.html#CodeIDToken
-    "at_hash",
+    "at_hash", // https://openid.net/specs/openid-connect-core-1_0.html#CodeIDToken
 ] as const;
+
+/**
+ * Protocol claims that should never be removed from profile.
+ * "sub" is needed internally and others should remain required as per the OIDC specs.
+ *
+ * @internal
+ */
+const InternalRequiredProtocolClaims = ["sub", "iss", "aud", "exp", "iat"];
 
 /**
  * @internal
@@ -226,8 +229,17 @@ export class ResponseValidator {
         const result = { ...claims };
 
         if (this._settings.filterProtocolClaims) {
-            for (const type of ProtocolClaims) {
-                delete result[type];
+            let protocolClaims;
+            if (Array.isArray(this._settings.filterProtocolClaims)) {
+                protocolClaims = this._settings.filterProtocolClaims;
+            } else {
+                protocolClaims = DefaultProtocolClaims;
+            }
+
+            for (const claim of protocolClaims) {
+                if (!InternalRequiredProtocolClaims.includes(claim)) {
+                    delete result[claim];
+                }
             }
         }
 

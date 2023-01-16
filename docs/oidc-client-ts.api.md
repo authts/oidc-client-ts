@@ -130,7 +130,7 @@ export type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQuery
 // Warning: (ae-forgotten-export) The symbol "Mandatory" needs to be exported by the entry point index.d.ts
 //
 // @public
-export interface IdTokenClaims extends Mandatory<OidcStandardClaims, "sub">, Mandatory<JwtClaims, "iss" | "sub" | "aud" | "exp" | "iat"> {
+export interface IdTokenClaims extends Mandatory<OidcStandardClaims, "sub">, Mandatory<JwtClaims, "iss" | "sub" | "aud" | "exp" | "iat">, Pick<JwtClaims, "nbf" | "jti"> {
     // (undocumented)
     [claim: string]: unknown;
     acr?: string;
@@ -344,7 +344,7 @@ export interface OidcClientSettings {
     // (undocumented)
     extraTokenParams?: Record<string, unknown>;
     fetchRequestCredentials?: RequestCredentials;
-    filterProtocolClaims?: boolean;
+    filterProtocolClaims?: boolean | string[];
     loadUserInfo?: boolean;
     max_age?: number;
     mergeClaims?: boolean;
@@ -394,7 +394,7 @@ export class OidcClientSettingsStore {
     // (undocumented)
     readonly fetchRequestCredentials: RequestCredentials;
     // (undocumented)
-    readonly filterProtocolClaims: boolean;
+    readonly filterProtocolClaims: boolean | string[];
     // (undocumented)
     readonly loadUserInfo: boolean;
     // (undocumented)

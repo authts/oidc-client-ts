@@ -106,7 +106,7 @@ export interface JwtClaims {
  * @public
  * @see https://openid.net/specs/openid-connect-core-1_0.html#IDToken
  */
-export interface IdTokenClaims extends Mandatory<OidcStandardClaims, "sub">, Mandatory<JwtClaims, "iss" | "sub" | "aud" | "exp" | "iat"> {
+export interface IdTokenClaims extends Mandatory<OidcStandardClaims, "sub">, Mandatory<JwtClaims, "iss" | "sub" | "aud" | "exp" | "iat">, Pick<JwtClaims, "nbf" | "jti"> {
     [claim: string]: unknown;
 
     /** Time when the End-User authentication occurred. Its value is a JSON number representing the number of seconds from 1970-01-01T0:0:0Z as measured in UTC until the date/time. When a max_age request is made or when auth_time is requested as an Essential Claim, then this Claim is REQUIRED; otherwise, its inclusion is OPTIONAL. (The auth_time Claim semantically corresponds to the OpenID 2.0 PAPE [OpenID.PAPE] auth_time response parameter.) */
