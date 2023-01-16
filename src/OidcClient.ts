@@ -65,6 +65,7 @@ export type ProcessResourceOwnerPasswordCredentialsArgs = {
     username: string;
     password: string;
     skipUserInfo?: boolean;
+    extraTokenParams?: Record<string, unknown>;
 };
 
 /**
@@ -178,8 +179,9 @@ export class OidcClient {
         username,
         password,
         skipUserInfo = false,
+        extraTokenParams = {},
     }: ProcessResourceOwnerPasswordCredentialsArgs): Promise<SigninResponse> {
-        const tokenResponse: Record<string, unknown> = await this._tokenClient.exchangeCredentials({ username, password });
+        const tokenResponse: Record<string, unknown> = await this._tokenClient.exchangeCredentials({ username, password, ...extraTokenParams });
         const signinResponse: SigninResponse = new SigninResponse(new URLSearchParams());
         Object.assign(signinResponse, tokenResponse);
         await this._validator.validateCredentialsResponse(signinResponse, skipUserInfo);

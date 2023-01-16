@@ -298,7 +298,7 @@ export class OidcClient {
     // (undocumented)
     readonly metadataService: MetadataService;
     // (undocumented)
-    processResourceOwnerPasswordCredentials({ username, password, skipUserInfo, }: ProcessResourceOwnerPasswordCredentialsArgs): Promise<SigninResponse>;
+    processResourceOwnerPasswordCredentials({ username, password, skipUserInfo, extraTokenParams, }: ProcessResourceOwnerPasswordCredentialsArgs): Promise<SigninResponse>;
     // (undocumented)
     processSigninResponse(url: string): Promise<SigninResponse>;
     // (undocumented)
@@ -562,6 +562,7 @@ export type ProcessResourceOwnerPasswordCredentialsArgs = {
     username: string;
     password: string;
     skipUserInfo?: boolean;
+    extraTokenParams?: Record<string, unknown>;
 };
 
 // @public (undocumented)

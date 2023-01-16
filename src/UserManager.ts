@@ -194,7 +194,7 @@ export class UserManager {
     }: SigninResourceOwnerCredentialsArgs ) {
         const logger = this._logger.create("signinResourceOwnerCredential");
 
-        const signinResponse = await this._client.processResourceOwnerPasswordCredentials({ username, password, skipUserInfo });
+        const signinResponse = await this._client.processResourceOwnerPasswordCredentials({ username, password, skipUserInfo, extraTokenParams: this.settings.extraTokenParams });
         logger.debug("got signin response");
 
         const user = await this._buildUser(signinResponse);
