@@ -5,7 +5,7 @@ import { JwtUtils } from "./utils";
 import type { ErrorResponse } from "./errors";
 import type { JwtClaims } from "./Claims";
 import { OidcClient } from "./OidcClient";
-import { OidcClientSettingsStore } from "./OidcClientSettings";
+import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 import { SigninState } from "./SigninState";
 import { State } from "./State";
 import { SigninRequest } from "./SigninRequest";
@@ -437,6 +437,47 @@ describe("OidcClient", () => {
             expect(response).toMatchObject(tokenResponse);
             expect(response).toHaveProperty("session_state", state.session_state);
             expect(response).toHaveProperty("scope", state.scope);
+        });
+
+        it("should filter allowable scopes", async () => {
+            // arrange
+            const settings: OidcClientSettings = {
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                post_logout_redirect_uri: "http://app",
+                refreshTokenAllowedScope: "allowed_scope",
+            };
+            subject = new OidcClient(settings);
+
+            const tokenResponse = {
+                access_token: "new_access_token",
+            };
+            const exchangeRefreshTokenMock =
+                jest.spyOn(subject["_tokenClient"], "exchangeRefreshToken")
+                    .mockResolvedValue(tokenResponse);
+            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
+            const state = new RefreshState({
+                refresh_token: "refresh_token",
+                id_token: "id_token",
+                session_state: "session_state",
+                scope: "unallowed_scope allowed_scope unallowed_scope_2",
+                profile: {} as UserProfile,
+            });
+
+            // act
+            const response = await subject.useRefreshToken({ state });
+
+            // assert
+            expect(exchangeRefreshTokenMock).toHaveBeenCalledWith( {
+                refresh_token: "refresh_token",
+                scope: "allowed_scope",
+                timeoutInSeconds: undefined,
+            });
+            expect(response).toBeInstanceOf(SigninResponse);
+            expect(response).toMatchObject(tokenResponse);
+            expect(response).toHaveProperty("session_state", state.session_state);
+            expect(response).toHaveProperty("scope", "allowed_scope");
         });
 
         it("should enforce a matching sub claim", async () => {

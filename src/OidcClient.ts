@@ -194,15 +194,34 @@ export class OidcClient {
     }: UseRefreshTokenArgs): Promise<SigninResponse> {
         const logger = this._logger.create("useRefreshToken");
 
+        // https://github.com/authts/oidc-client-ts/issues/695
+        // In some cases (e.g. AzureAD), not all granted scopes are allowed on token refresh requests.
+        // Therefore, we filter all granted scopes by a list of allowable scopes.
+        let scope;
+        if (this.settings.refreshTokenAllowedScope === undefined) {
+            scope = state.scope;
+        } else {
+            const allowableScopes = this.settings.refreshTokenAllowedScope.split(" ");
+            const providedScopes = state.scope?.split(" ") || [];
+
+            scope = providedScopes.filter(s => allowableScopes.includes(s)).join(" ");
+        }
+
         const result = await this._tokenClient.exchangeRefreshToken({
             refresh_token: state.refresh_token,
-            scope: state.scope,
+            // provide the (possible filtered) scope list
+            scope,
             timeoutInSeconds,
         });
         const response = new SigninResponse(new URLSearchParams());
         Object.assign(response, result);
         logger.debug("validating response", response);
-        await this._validator.validateRefreshResponse(response, state);
+        await this._validator.validateRefreshResponse(response, {
+            ...state,
+            // overide the scope in the state handed over to the validator
+            // so it can set the granted scope to the requested scope in case none is included in the response
+            scope,
+        });
         return response;
     }
 
