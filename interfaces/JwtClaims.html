@@ -28,7 +28,7 @@
 <h4 class="tsd-before-signature">Indexable</h4>
 <div class="tsd-signature"><span class="tsd-signature-symbol">[</span>claim: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">unknown</span></div></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/85225fa/src/Claims.ts#L84">src/Claims.ts:84</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/74b6b96/src/Claims.ts#L84">src/Claims.ts:84</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -52,49 +52,49 @@
 <div class="tsd-comment tsd-typography"><p>The &quot;aud&quot; (audience) claim identifies the recipients that the JWT is intended for. Each principal intended to process the JWT MUST identify itself with a value in the audience claim. If the principal processing the claim does not identify itself with a value in the &quot;aud&quot; claim when this claim is present, then the JWT MUST be rejected. In the general case, the &quot;aud&quot; value is an array of case-sensitive strings, each containing a StringOrURI value. In the special case when the JWT has one audience, the &quot;aud&quot; value MAY be a single case-sensitive string containing a StringOrURI value. The interpretation of audience values is generally application specific.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/85225fa/src/Claims.ts#L92">src/Claims.ts:92</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/74b6b96/src/Claims.ts#L92">src/Claims.ts:92</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="exp" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>exp</span><a href="#exp" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">exp<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
 <div class="tsd-comment tsd-typography"><p>The &quot;exp&quot; (expiration time) claim identifies the expiration time on or after which the JWT MUST NOT be accepted for processing. The processing of the &quot;exp&quot; claim requires that the current date/time MUST be before the expiration date/time listed in the &quot;exp&quot; claim. Implementers MAY provide for some small leeway, usually no more than a few minutes, to account for clock skew. Its value MUST be a number containing a NumericDate value.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/85225fa/src/Claims.ts#L94">src/Claims.ts:94</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/74b6b96/src/Claims.ts#L94">src/Claims.ts:94</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="iat" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>iat</span><a href="#iat" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">iat<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
 <div class="tsd-comment tsd-typography"><p>The &quot;iat&quot; (issued at) claim identifies the time at which the JWT was issued. This claim can be used to determine the age of the JWT. Its value MUST be a number containing a NumericDate value.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/85225fa/src/Claims.ts#L98">src/Claims.ts:98</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/74b6b96/src/Claims.ts#L98">src/Claims.ts:98</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="iss" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>iss</span><a href="#iss" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">iss<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
 <div class="tsd-comment tsd-typography"><p>The &quot;iss&quot; (issuer) claim identifies the principal that issued the JWT. The processing of this claim is generally application specific. The &quot;iss&quot; value is a case-sensitive string containing a StringOrURI value.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/85225fa/src/Claims.ts#L88">src/Claims.ts:88</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/74b6b96/src/Claims.ts#L88">src/Claims.ts:88</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="jti" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>jti</span><a href="#jti" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">jti<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
 <div class="tsd-comment tsd-typography"><p>The &quot;jti&quot; (JWT ID) claim provides a unique identifier for the JWT. The identifier value MUST be assigned in a manner that ensures that there is a negligible probability that the same value will be accidentally assigned to a different data object; if the application uses multiple issuers, collisions MUST be prevented among values produced by different issuers as well. The &quot;jti&quot; claim can be used to prevent the JWT from being replayed. The &quot;jti&quot; value is a case-sensitive string.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/85225fa/src/Claims.ts#L100">src/Claims.ts:100</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/74b6b96/src/Claims.ts#L100">src/Claims.ts:100</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="nbf" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>nbf</span><a href="#nbf" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">nbf<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
 <div class="tsd-comment tsd-typography"><p>The &quot;nbf&quot; (not before) claim identifies the time before which the JWT MUST NOT be accepted for processing. The processing of the &quot;nbf&quot; claim requires that the current date/time MUST be after or equal to the not-before date/time listed in the &quot;nbf&quot; claim. Implementers MAY provide for some small leeway, usually no more than a few minutes, to account for clock skew. Its value MUST be a number containing a NumericDate value.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/85225fa/src/Claims.ts#L96">src/Claims.ts:96</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/74b6b96/src/Claims.ts#L96">src/Claims.ts:96</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface"><a id="sub" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>sub</span><a href="#sub" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">sub<span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
 <div class="tsd-comment tsd-typography"><p>The &quot;sub&quot; (subject) claim identifies the principal that is the subject of the JWT. The claims in a JWT are normally statements about the subject. The subject value MUST either be scoped to be locally unique in the context of the issuer or be globally unique. The processing of this claim is generally application specific. The &quot;sub&quot; value is a case-sensitive string containing a StringOrURI value.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/85225fa/src/Claims.ts#L90">src/Claims.ts:90</a></li></ul></aside></section></section></div>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/74b6b96/src/Claims.ts#L90">src/Claims.ts:90</a></li></ul></aside></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
