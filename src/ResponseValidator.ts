@@ -4,7 +4,7 @@
 import { Logger, JwtUtils } from "./utils";
 import { ErrorResponse } from "./errors";
 import type { MetadataService } from "./MetadataService";
-import { UserInfoService } from "./UserInfoService";
+import type { UserInfoService } from "./UserInfoService";
 import { TokenClient } from "./TokenClient";
 import type { OidcClientSettingsStore } from "./OidcClientSettings";
 import type { SigninState } from "./SigninState";
@@ -20,13 +20,13 @@ import type { ClaimsService } from "./ClaimsService";
  */
 export class ResponseValidator {
     protected readonly _logger = new Logger("ResponseValidator");
-    protected readonly _userInfoService = new UserInfoService(this._settings, this._metadataService);
     protected readonly _tokenClient = new TokenClient(this._settings, this._metadataService);
 
     public constructor(
         protected readonly _settings: OidcClientSettingsStore,
         protected readonly _metadataService: MetadataService,
         protected readonly _claimsService: ClaimsService,
+        protected readonly _userInfoService: UserInfoService,
     ) {}
 
     public async validateSigninResponse(response: SigninResponse, state: SigninState): Promise<void> {
@@ -159,14 +159,7 @@ export class ResponseValidator {
         }
 
         logger.debug("loading user info");
-        const claims = await this._userInfoService.getClaims(response.access_token);
-        logger.debug("user info claims received from user info endpoint");
-
-        if (validateSub && claims.sub !== response.profile.sub) {
-            logger.throw(new Error("subject from UserInfo response does not match subject in ID Token"));
-        }
-
-        response.profile = this._claimsService.mergeClaims(response.profile, this._claimsService.filterProtocolClaims(claims));
+        response.profile = await this._userInfoService.getClaims(response.access_token, response.profile, validateSub);
         logger.debug("user info claims received, updated profile:", response.profile);
     }
 

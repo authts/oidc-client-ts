@@ -14,6 +14,9 @@ import { SignoutResponse } from "./SignoutResponse";
 import { SigninState } from "./SigninState";
 import { State } from "./State";
 import { TokenClient } from "./TokenClient";
+import { UserInfoService } from "./UserInfoService";
+import { ClaimsService } from "./ClaimsService";
+import type { IdTokenClaims } from "./Claims";
 
 /**
  * @public
@@ -83,12 +86,16 @@ export class OidcClient {
     public readonly metadataService: MetadataService;
     protected readonly _validator: ResponseValidator;
     protected readonly _tokenClient: TokenClient;
+    protected readonly  _userInfoService: UserInfoService;
+    protected readonly _claimsService: ClaimsService;
 
     public constructor(settings: OidcClientSettings) {
         this.settings = new OidcClientSettingsStore(settings);
 
         this.metadataService = new MetadataService(this.settings);
-        this._validator = new ResponseValidator(this.settings, this.metadataService);
+        this._claimsService = new ClaimsService(this.settings, this. _logger);
+        this._userInfoService = new UserInfoService(this.settings, this.metadataService, this._claimsService);
+        this._validator = new ResponseValidator(this.settings, this.metadataService, this._claimsService, this._userInfoService);
         this._tokenClient = new TokenClient(this.settings, this.metadataService);
     }
 
