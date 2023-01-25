@@ -12,10 +12,12 @@ import type { OidcClientSettingsStore } from "./OidcClientSettings";
 import { mocked } from "jest-mock";
 import { ClaimsService } from "./ClaimsService";
 import { UserInfoService } from "./UserInfoService";
+import type { IdTokenClaims } from "./Claims";
 
 describe("ResponseValidator", () => {
     let stubState: SigninState;
     let stubResponse: SigninResponse & SignoutResponse;
+    let stubClaimsResponse: IdTokenClaims;
     let settings: OidcClientSettingsStore;
     let metadataService: MetadataService;
     let claimsService: ClaimsService;
@@ -39,6 +41,7 @@ describe("ResponseValidator", () => {
             client_id: "client",
             loadUserInfo: true,
         } as OidcClientSettingsStore;
+        stubClaimsResponse = { nickname: "Nick", sub: "sub", iss: "iss", aud: "aud", exp: 0, iat: 0 };
         metadataService = new MetadataService(settings);
         claimsService = new ClaimsService(settings);
         userInfoService = new UserInfoService(settings, metadataService, claimsService);
@@ -46,7 +49,7 @@ describe("ResponseValidator", () => {
         subject = new ResponseValidator(settings, metadataService, claimsService, userInfoService);
 
         jest.spyOn(subject["_tokenClient"], "exchangeCode").mockResolvedValue({});
-        jest.spyOn(subject["_userInfoService"], "getClaims").mockResolvedValue({ nickname: "Nick" });
+        jest.spyOn(subject["_userInfoService"], "getClaims").mockResolvedValue(stubClaimsResponse);
     });
 
     afterEach(() => {
@@ -117,14 +120,15 @@ describe("ResponseValidator", () => {
                 access_token: "access_token",
                 id_token: "id_token",
             });
+            const claims = { sub: "sub", iss: "iss", aud: "aud", exp: 0, iat: 0 };
             jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
-            mocked(subject["_userInfoService"].getClaims).mockResolvedValue({ sub: "sub" });
+            mocked(subject["_userInfoService"].getClaims).mockResolvedValue(claims);
 
             // act
             await subject.validateSigninResponse(stubResponse, stubState);
 
             // assert
-            expect(subject["_userInfoService"].getClaims).toHaveBeenCalledWith("access_token");
+            expect(subject["_userInfoService"].getClaims).toHaveBeenCalledWith("access_token", { sub: "sub" }, true);
         });
 
         it("should not process claims if state fails", async () => {
@@ -266,55 +270,6 @@ describe("ResponseValidator", () => {
 
             // assert
             expect(stubResponse.profile).toHaveProperty("iss", "foo");
-        });
-
-        it("should fail if sub from user info endpoint does not match sub in id_token", async () => {
-            // arrange
-            Object.assign(settings, { loadUserInfo: true });
-            Object.assign(stubResponse, {
-                isOpenId: true,
-                access_token: "access_token",
-                id_token: "id_token",
-            });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({
-                sub: "sub",
-                a: "apple",
-                b: "banana",
-            });
-            mocked(subject["_userInfoService"].getClaims).mockResolvedValue({ sub: "sub different" });
-
-            // act
-            await expect(subject.validateSigninResponse(stubResponse, stubState))
-                // assert
-                .rejects.toThrow("subject from UserInfo response does not match subject in ID Token");
-        });
-
-        it("should load and merge user info claims when loadUserInfo configured", async () => {
-            // arrange
-            Object.assign(settings, { loadUserInfo: true });
-            Object.assign(stubResponse, {
-                isOpenId: true,
-                access_token: "access_token",
-                id_token: "id_token",
-            });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({
-                sub: "sub",
-                a: "apple",
-                b: "banana",
-            });
-            mocked(subject["_userInfoService"].getClaims).mockResolvedValue({ sub: "sub", c: "carrot" });
-
-            // act
-            await subject.validateSigninResponse(stubResponse, stubState);
-
-            // assert
-            expect(subject["_userInfoService"].getClaims).toHaveBeenCalledWith("access_token");
-            expect(stubResponse.profile).toEqual({
-                sub: "sub",
-                a: "apple",
-                b: "banana",
-                c: "carrot",
-            });
         });
 
         it("should run if request was not openid", async () => {
@@ -572,38 +527,24 @@ describe("ResponseValidator", () => {
 
             // assert
             expect(JwtUtils.decode).not.toHaveBeenCalledWith("id_token");
-            expect(subject["_userInfoService"].getClaims).toHaveBeenCalledWith("access_token");
-            expect(stubResponse).toHaveProperty("profile", { nickname: "Nick" });
-        });
-
-        it("should not process a valid openid signin response with wrong userInfo", async () => {
-            // arrange
-            Object.assign(stubResponse, { id_token: "id_token", isOpenId: true, access_token: "access_token" });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
-            jest.spyOn(subject["_userInfoService"], "getClaims").mockResolvedValue({ sub: "anotherSub", nickname: "Nick" });
-
-            // act
-            await expect(subject.validateCredentialsResponse(stubResponse, false))
-                // assert
-                .rejects.toThrow(Error);
-            expect(JwtUtils.decode).toHaveBeenCalledWith("id_token");
-            expect(subject["_userInfoService"].getClaims).toHaveBeenCalledWith("access_token");
-            expect(stubResponse).toHaveProperty("profile", { sub: "subsub" });
+            expect(subject["_userInfoService"].getClaims).toHaveBeenCalledWith("access_token", {}, false);
+            expect(stubResponse).toHaveProperty("profile", stubClaimsResponse);
         });
 
         it("should process a valid openid signin response with correct userInfo", async () => {
             // arrange
             Object.assign(stubResponse, { id_token: "id_token", isOpenId: true, access_token: "access_token" });
             jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
-            jest.spyOn(subject["_userInfoService"], "getClaims").mockResolvedValue({ sub: "subsub", nickname: "Nick" });
+            const claimResponse = { sub: "subsub", nickname: "Nick", iss: "iss", aud: "aud", exp: 0, iat: 0 };
+            jest.spyOn(subject["_userInfoService"], "getClaims").mockResolvedValue(claimResponse);
 
             // act
             await subject.validateCredentialsResponse(stubResponse, false);
 
             // assert
             expect(JwtUtils.decode).toHaveBeenCalledWith("id_token");
-            expect(subject["_userInfoService"].getClaims).toHaveBeenCalledWith("access_token");
-            expect(stubResponse).toHaveProperty("profile", { sub: "subsub", nickname: "Nick" });
+            expect(subject["_userInfoService"].getClaims).toHaveBeenCalledWith("access_token", { sub: "subsub" }, true);
+            expect(stubResponse).toHaveProperty("profile", claimResponse);
         });
 
     });
