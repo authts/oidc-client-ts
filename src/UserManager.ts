@@ -126,11 +126,20 @@ export class UserManager {
 
     /**
      * Returns promise to load the `User` object for the currently authenticated user.
+     * Can optionally refresh userInfo data
      */
-    public async getUser(): Promise<User | null> {
+    public async getUser(refreshUserInfo?: boolean): Promise<User | null> {
         const logger = this._logger.create("getUser");
         const user = await this._loadUser();
         if (user) {
+            if (refreshUserInfo) {
+                // TODO: refresh token
+
+                logger.debug("refreshing user info");
+                user.profile = await this._client.getUserInfo(user.access_token, user.profile);
+                logger.debug("user info refreshed");
+            }
+
             logger.info("user loaded");
             this._events.load(user, false);
             return user;

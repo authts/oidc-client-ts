@@ -86,14 +86,14 @@ export class OidcClient {
     public readonly metadataService: MetadataService;
     protected readonly _validator: ResponseValidator;
     protected readonly _tokenClient: TokenClient;
-    protected readonly  _userInfoService: UserInfoService;
+    protected readonly _userInfoService: UserInfoService;
     protected readonly _claimsService: ClaimsService;
 
     public constructor(settings: OidcClientSettings) {
         this.settings = new OidcClientSettingsStore(settings);
 
         this.metadataService = new MetadataService(this.settings);
-        this._claimsService = new ClaimsService(this.settings, this. _logger);
+        this._claimsService = new ClaimsService(this.settings);
         this._userInfoService = new UserInfoService(this.settings, this.metadataService, this._claimsService);
         this._validator = new ResponseValidator(this.settings, this.metadataService, this._claimsService, this._userInfoService);
         this._tokenClient = new TokenClient(this.settings, this.metadataService);
@@ -320,5 +320,9 @@ export class OidcClient {
             token,
             token_type_hint: type,
         });
+    }
+
+    public getUserInfo(token: string, profile: IdTokenClaims): Promise<IdTokenClaims> {
+        return this._userInfoService.getClaims(token, profile);
     }
 }
