@@ -4,7 +4,7 @@
 import type { JwtClaims } from "./Claims";
 import type { OidcClientSettingsStore } from "./OidcClientSettings";
 import type { UserProfile } from "./User";
-import type { Logger } from "./utils";
+import { Logger } from "./utils";
 
 /**
  * Protocol claims that could be removed by default from profile.
@@ -38,9 +38,9 @@ const InternalRequiredProtocolClaims = ["sub", "iss", "aud", "exp", "iat"];
  * @internal
  */
 export class ClaimsService {
+    protected readonly _logger = new Logger("ClaimsService");
     public constructor(
         protected readonly _settings: OidcClientSettingsStore,
-        protected readonly _logger: Logger,
     ) {}
 
     public filterProtocolClaims(claims: UserProfile): UserProfile {
