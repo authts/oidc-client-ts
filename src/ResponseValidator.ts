@@ -149,7 +149,7 @@ export class ResponseValidator {
         }
     }
 
-    protected async _processClaims(response: SigninResponse, skipUserInfo = false, validateSub = true): Promise<void> {
+    protected async _processClaims(response: SigninResponse, skipUserInfo = false, validateSub?: boolean): Promise<void> {
         const logger = this._logger.create("_processClaims");
         response.profile = this._claimsService.filterProtocolClaims(response.profile);
 

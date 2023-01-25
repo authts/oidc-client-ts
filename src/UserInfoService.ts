@@ -22,10 +22,10 @@ export class UserInfoService {
         this._jsonService = new JsonService(undefined, this._getClaimsFromJwt);
     }
 
-    public async getClaims(token: string, profile?: IdTokenClaims, validateSub = true): Promise<IdTokenClaims> {
+    public async getClaims(token: string, profile: IdTokenClaims, validateSub = true): Promise<IdTokenClaims> {
         const logger = this._logger.create("getClaims");
         if (!token) {
-            this._logger.throw(new Error("No token passed"));
+            logger.throw(new Error("No token passed"));
         }
 
         const url = await this._metadataService.getUserInfoEndpoint();
@@ -43,11 +43,7 @@ export class UserInfoService {
 
         const filteredClaims = this._claimsService.filterProtocolClaims(claims as IdTokenClaims);
 
-        if (profile) {
-            return this._claimsService.mergeClaims(profile, filteredClaims);
-        }
-
-        return filteredClaims;
+        return this._claimsService.mergeClaims(profile, filteredClaims);
     }
 
     protected _getClaimsFromJwt = async (responseText: string): Promise<JwtClaims> => {
