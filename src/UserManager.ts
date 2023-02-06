@@ -132,12 +132,17 @@ export class UserManager {
         const logger = this._logger.create("getUser");
         const user = await this._loadUser();
         if (user) {
-            if (refreshUserInfo) {
-                // TODO: refresh token
+            if (this.settings.loadUserInfo && refreshUserInfo) {
+                // Refresh
+                if (user.expired) {
+                    await this.signinSilent();
+                }
 
                 logger.debug("refreshing user info");
                 user.profile = await this._client.getUserInfo(user.access_token, user.profile);
                 logger.debug("user info refreshed");
+                await this.storeUser(user);
+                logger.debug("user updated in storage");
             }
 
             logger.info("user loaded");
