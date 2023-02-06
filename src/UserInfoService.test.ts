@@ -12,13 +12,14 @@ describe("UserInfoService", () => {
     let stubProfile: IdTokenClaims;
     let stubToken: string;
 
+    let settings: OidcClientSettingsStore;
     let subject: UserInfoService;
     let metadataService: MetadataService;
     let claimsService: ClaimsService;
     let jsonService: JsonService;
 
     beforeEach(() => {
-        const settings = new OidcClientSettingsStore({
+        settings = new OidcClientSettingsStore({
             authority: "authority",
             client_id: "client",
             redirect_uri: "redirect",
@@ -93,7 +94,30 @@ describe("UserInfoService", () => {
             }
         });
 
-        // TODO: test non_removal of filtered claims
+        it("should return claims respecting claims filtering rules", async () => {
+            // arrange
+            jest.spyOn(metadataService, "getUserInfoEndpoint").mockImplementation(() => Promise.resolve("http://sts/userinfo"));
+            Object.assign(settings, { filterProtocolClaims: ["a", "b", "c"] });
+
+            const expectedClaims = {
+                foo: 1, bar: "test",
+                aud:"some_aud", iss:"issuer",
+                sub:"123", email:"foo@gmail.com",
+                role:["admin", "dev"],
+                iat:5, exp:20,
+                nonce:"nonce", at_hash:"athash", nbf:10,
+            };
+
+            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(
+                { ...expectedClaims, a: "apple" },
+            ));
+
+            // act
+            const claims = await subject.getClaims("token", { sub: "123", aud: "some_aud", iss: "issuer", exp: 0, iat: 0 });
+
+            // assert
+            expect(claims).toEqual(expectedClaims);
+        });
 
         it("should return claims removing filtered claims", async () => {
             // arrange
