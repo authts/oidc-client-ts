@@ -323,6 +323,6 @@ export class OidcClient {
     }
 
     public getUserInfo(token: string, profile: IdTokenClaims): Promise<IdTokenClaims> {
-        return this._userInfoService.getClaims(token, profile);
+        return this._userInfoService.getClaims(token, profile, true);
     }
 }
