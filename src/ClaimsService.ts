@@ -91,18 +91,23 @@ export class ClaimsService {
         return result;
     }
 
-    public mergeClaims(claims1: UserProfile, claims2: JwtClaims): UserProfile {
+    public mergeClaims(claims1: UserProfile, claims2: JwtClaims): UserProfile;
+    public mergeClaims(claims1: JwtClaims, claims2: JwtClaims): JwtClaims;
+    public mergeClaims(claims1: JwtClaims | UserProfile, claims2: JwtClaims): JwtClaims | UserProfile {
         // TODO: remove on next major version
         if (this._settings.legacyMergeClaimsBehavior) {
-            return this.legacyMergeClaims(claims1, claims2);
+            return this.legacyMergeClaims(claims1 as UserProfile, claims2);
         }
 
         const result = { ...claims1 };
 
         for (const [claim, value] of Object.entries(claims2)) {
             if (result[claim] !== value) {
-                if (typeof value === "object" && this._settings.mergeClaims) {
-                    result[claim] = this.mergeClaims(result[claim] as UserProfile, value as JwtClaims);
+                if (typeof result[claim] === "object"
+                    && typeof value === "object"
+                    && this._settings.mergeClaims
+                ) {
+                    result[claim] = this.mergeClaims(result[claim] as JwtClaims, value as JwtClaims);
                 } else {
                     result[claim] = value;
                 }

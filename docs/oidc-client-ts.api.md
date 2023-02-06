@@ -355,6 +355,7 @@ export interface OidcClientSettings {
     extraTokenParams?: Record<string, unknown>;
     fetchRequestCredentials?: RequestCredentials;
     filterProtocolClaims?: boolean | string[];
+    legacyMergeClaimsBehavior?: boolean;
     loadUserInfo?: boolean;
     max_age?: number;
     mergeClaims?: boolean;
@@ -383,7 +384,7 @@ export interface OidcClientSettings {
 
 // @public
 export class OidcClientSettingsStore {
-    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, clockSkewInSeconds, userInfoJwtIssuer, mergeClaims, stateStore, refreshTokenCredentials, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, }: OidcClientSettings);
+    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, clockSkewInSeconds, userInfoJwtIssuer, mergeClaims, legacyMergeClaimsBehavior, stateStore, refreshTokenCredentials, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, }: OidcClientSettings);
     // (undocumented)
     readonly acr_values: string | undefined;
     // (undocumented)
@@ -406,6 +407,7 @@ export class OidcClientSettingsStore {
     readonly fetchRequestCredentials: RequestCredentials;
     // (undocumented)
     readonly filterProtocolClaims: boolean | string[];
+    readonly legacyMergeClaimsBehavior: boolean;
     // (undocumented)
     readonly loadUserInfo: boolean;
     // (undocumented)
