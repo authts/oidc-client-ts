@@ -169,37 +169,29 @@ describe("UserManager", () => {
                     iat: 543,
                 } as UserProfile,
             });
+
             subject["_loadUser"] = jest.fn().mockReturnValue(user);
-            const updateUserInfo = jest.spyOn(subject["_client"], "getUserInfo").mockResolvedValue({
-                sub: "my sub",
-                iss: "issuer",
-                aud: "audience",
-                a: "orange",
-                b: "banana",
-                exp: 456,
-                iat: 789,
-            });
 
             const useRefreshMock = jest.spyOn(subject["_client"], "useRefreshToken").mockResolvedValue({
                 access_token: "new_access_token",
                 profile: {
-                    sub: "sub",
-                    nickname: "Nicholas",
+                    sub: "my sub",
+                    iss: "issuer",
+                    aud: "audience",
+                    exp: 123,
+                    iat: 543,
+
+                    a: "orange",
                 },
             } as unknown as SigninResponse);
-
-            const loadMock = jest.spyOn(subject["_events"], "load");
 
             // act
             const result = await subject.getUser(true);
 
             // assert
-            expect(result).toEqual(user);
             expect(result?.profile).toHaveProperty("a", "orange");
-            expect(result?.profile).toHaveProperty("b", "banana");
-            expect(updateUserInfo).toHaveBeenCalled();
+            expect(result?.profile).not.toHaveProperty("b");
             expect(useRefreshMock).toHaveBeenCalled();
-            expect(loadMock).toBeCalledWith(user, false);
         });
         it("should retrieve updated userinfo and persist it", async () => {
             Object.assign(subject.settings, {
