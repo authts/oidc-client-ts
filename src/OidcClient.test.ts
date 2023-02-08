@@ -814,4 +814,36 @@ describe("OidcClient", () => {
             });
         });
     });
+
+    describe("getUserInfo", () => {
+        it("gets user info", async () => {
+            // arrange
+            const claims = {
+                aud: "aud",
+                exp: 0,
+                iat: 0,
+                iss: "iss",
+                sub: "sub",
+            };
+
+            const getClaimsSpy = jest.spyOn(subject["_userInfoService"], "getClaims").mockResolvedValue({
+                aud: "aud",
+                exp: 0,
+                iat: 0,
+                iss: "iss",
+                sub: "sub",
+                a: "apple",
+            });
+
+            // act
+            await subject.getUserInfo("access_token", claims);
+
+            // assert
+            expect(getClaimsSpy).toHaveBeenCalledWith(
+                "access_token",
+                claims,
+                true,
+            );
+        });
+    });
 });

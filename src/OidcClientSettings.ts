@@ -94,6 +94,12 @@ export interface OidcClientSettings {
     mergeClaims?: boolean;
 
     /**
+     * Indicates if the library should use the legacy merge behavior, which mutates string claims into arrays whenever the data is updated on the remote.
+     * This behavior is enabled by default on v2 and will be removed on v3, since it's not a deterministic way of handling claims.
+     */
+    legacyMergeClaimsBehavior?: boolean;
+
+    /**
      * Storage object used to persist interaction state (default: window.localStorage, InMemoryWebStorage iff no window).
      * E.g. `stateStore: new WebStorageStateStore({ store: window.localStorage })`
      */
@@ -168,6 +174,10 @@ export class OidcClientSettingsStore {
     public readonly clockSkewInSeconds: number;
     public readonly userInfoJwtIssuer: "ANY" | "OP" | string;
     public readonly mergeClaims: boolean;
+    /**
+     * TODO: remove me on v3
+     */
+    public readonly legacyMergeClaimsBehavior: boolean;
 
     public readonly stateStore: StateStore;
 
@@ -195,6 +205,7 @@ export class OidcClientSettingsStore {
         clockSkewInSeconds = DefaultClockSkewInSeconds,
         userInfoJwtIssuer = "OP",
         mergeClaims = false,
+        legacyMergeClaimsBehavior = true,
         // other behavior
         stateStore,
         refreshTokenCredentials,
@@ -246,6 +257,7 @@ export class OidcClientSettingsStore {
         this.clockSkewInSeconds = clockSkewInSeconds;
         this.userInfoJwtIssuer = userInfoJwtIssuer;
         this.mergeClaims = !!mergeClaims;
+        this.legacyMergeClaimsBehavior = !!legacyMergeClaimsBehavior;
 
         this.revokeTokenAdditionalContentTypes = revokeTokenAdditionalContentTypes;
 

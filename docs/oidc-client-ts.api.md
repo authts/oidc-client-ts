@@ -287,12 +287,18 @@ export interface OidcAddressClaim {
 // @public
 export class OidcClient {
     constructor(settings: OidcClientSettings);
+    // Warning: (ae-forgotten-export) The symbol "ClaimsService" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    protected readonly _claimsService: ClaimsService;
     // (undocumented)
     clearStaleState(): Promise<void>;
     // (undocumented)
     createSigninRequest({ state, request, request_uri, request_type, id_token_hint, login_hint, skipUserInfo, nonce, response_type, scope, redirect_uri, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, extraQueryParams, extraTokenParams, }: CreateSigninRequestArgs): Promise<SigninRequest>;
     // (undocumented)
     createSignoutRequest({ state, id_token_hint, request_type, post_logout_redirect_uri, extraQueryParams, }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
+    // (undocumented)
+    getUserInfo(token: string, profile: IdTokenClaims): Promise<IdTokenClaims>;
     // (undocumented)
     protected readonly _logger: Logger;
     // (undocumented)
@@ -323,6 +329,10 @@ export class OidcClient {
     protected readonly _tokenClient: TokenClient;
     // (undocumented)
     useRefreshToken({ state, timeoutInSeconds, }: UseRefreshTokenArgs): Promise<SigninResponse>;
+    // Warning: (ae-forgotten-export) The symbol "UserInfoService" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    protected readonly _userInfoService: UserInfoService;
     // Warning: (ae-forgotten-export) The symbol "ResponseValidator" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -345,6 +355,7 @@ export interface OidcClientSettings {
     extraTokenParams?: Record<string, unknown>;
     fetchRequestCredentials?: RequestCredentials;
     filterProtocolClaims?: boolean | string[];
+    legacyMergeClaimsBehavior?: boolean;
     loadUserInfo?: boolean;
     max_age?: number;
     mergeClaims?: boolean;
@@ -373,7 +384,7 @@ export interface OidcClientSettings {
 
 // @public
 export class OidcClientSettingsStore {
-    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, clockSkewInSeconds, userInfoJwtIssuer, mergeClaims, stateStore, refreshTokenCredentials, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, }: OidcClientSettings);
+    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, clockSkewInSeconds, userInfoJwtIssuer, mergeClaims, legacyMergeClaimsBehavior, stateStore, refreshTokenCredentials, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, }: OidcClientSettings);
     // (undocumented)
     readonly acr_values: string | undefined;
     // (undocumented)
@@ -396,6 +407,7 @@ export class OidcClientSettingsStore {
     readonly fetchRequestCredentials: RequestCredentials;
     // (undocumented)
     readonly filterProtocolClaims: boolean | string[];
+    readonly legacyMergeClaimsBehavior: boolean;
     // (undocumented)
     readonly loadUserInfo: boolean;
     // (undocumented)
@@ -903,7 +915,7 @@ export class UserManager {
     get events(): UserManagerEvents;
     // (undocumented)
     protected readonly _events: UserManagerEvents;
-    getUser(): Promise<User | null>;
+    getUser(refreshUserInfo?: boolean): Promise<User | null>;
     // Warning: (ae-forgotten-export) The symbol "IFrameNavigator" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)

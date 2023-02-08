@@ -4,8 +4,9 @@
 import { Logger, JwtUtils } from "./utils";
 import { JsonService } from "./JsonService";
 import type { MetadataService } from "./MetadataService";
-import type { JwtClaims } from "./Claims";
+import type { IdTokenClaims, JwtClaims } from "./Claims";
 import type { OidcClientSettingsStore } from "./OidcClientSettings";
+import type { ClaimsService } from "./ClaimsService";
 
 /**
  * @internal
@@ -16,14 +17,15 @@ export class UserInfoService {
 
     public constructor(private readonly _settings: OidcClientSettingsStore,
         private readonly _metadataService: MetadataService,
+        private readonly _claimsService: ClaimsService,
     ) {
         this._jsonService = new JsonService(undefined, this._getClaimsFromJwt);
     }
 
-    public async getClaims(token: string): Promise<JwtClaims> {
+    public async getClaims(token: string, profile: IdTokenClaims, validateSub = true): Promise<IdTokenClaims> {
         const logger = this._logger.create("getClaims");
         if (!token) {
-            this._logger.throw(new Error("No token passed"));
+            logger.throw(new Error("No token passed"));
         }
 
         const url = await this._metadataService.getUserInfoEndpoint();
@@ -33,9 +35,15 @@ export class UserInfoService {
             token,
             credentials: this._settings.fetchRequestCredentials,
         });
-        logger.debug("got claims", claims);
+        logger.debug("user info claims received from user info endpoint");
 
-        return claims;
+        if (validateSub && profile && claims.sub !== profile.sub) {
+            logger.throw(new Error("subject from UserInfo response does not match subject in ID Token"));
+        }
+
+        const filteredClaims = this._claimsService.filterProtocolClaims(claims as IdTokenClaims);
+
+        return this._claimsService.mergeClaims(profile, filteredClaims);
     }
 
     protected _getClaimsFromJwt = async (responseText: string): Promise<JwtClaims> => {

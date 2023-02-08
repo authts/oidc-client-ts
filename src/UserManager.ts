@@ -126,11 +126,30 @@ export class UserManager {
 
     /**
      * Returns promise to load the `User` object for the currently authenticated user.
+     * Can optionally refresh userInfo data
      */
-    public async getUser(): Promise<User | null> {
+    public async getUser(refreshUserInfo?: boolean): Promise<User | null> {
         const logger = this._logger.create("getUser");
-        const user = await this._loadUser();
+        let user = await this._loadUser();
         if (user) {
+            if (this.settings.loadUserInfo && refreshUserInfo) {
+                if (user.expired) {
+                    logger.debug("refreshing token");
+                    user = await this.signinSilent();
+
+                    if (!user) {
+                        logger.info("after refresh, user is not logged anymore");
+                        return null;
+                    }
+                } else {
+                    logger.debug("refreshing user info");
+                    user.profile = await this._client.getUserInfo(user.access_token, user.profile);
+                    await this.storeUser(user);
+                    logger.debug("user updated in storage");
+                }
+                logger.debug("user info refreshed");
+            }
+
             logger.info("user loaded");
             this._events.load(user, false);
             return user;

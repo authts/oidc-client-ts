@@ -109,6 +109,131 @@ describe("UserManager", () => {
             expect(result).toBeNull();
             expect(loadMock).not.toBeCalled();
         });
+
+        it("should refresh the userinfo", async () => {
+            Object.assign(subject.settings, {
+                loadUserInfo: true,
+            });
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {
+                    sub: "my sub",
+                    iss: "issuer",
+                    aud: "audience",
+                    a: "apple",
+                    exp: 123,
+                    iat: 543,
+                } as UserProfile,
+            });
+            subject["_loadUser"] = jest.fn().mockReturnValue(user);
+            const updateUserInfo = jest.spyOn(subject["_client"], "getUserInfo").mockResolvedValue({
+                sub: "my sub",
+                iss: "issuer",
+                aud: "audience",
+                a: "orange",
+                b: "banana",
+                exp: 456,
+                iat: 789,
+            });
+            const loadMock = jest.spyOn(subject["_events"], "load");
+
+            // act
+            const result = await subject.getUser(true);
+
+            // assert
+            expect(result).toEqual(user);
+            expect(result?.profile).toHaveProperty("a", "orange");
+            expect(result?.profile).toHaveProperty("b", "banana");
+            expect(updateUserInfo).toHaveBeenCalled();
+            expect(loadMock).toBeCalledWith(user, false);
+        });
+
+        it("while refreshing userinfo, should refresh token if expired", async () => {
+            Object.assign(subject.settings, {
+                loadUserInfo: true,
+            });
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                expires_at: 100,
+                refresh_token: "refresh_token",
+                profile: {
+                    sub: "my sub",
+                    iss: "issuer",
+                    aud: "audience",
+                    a: "apple",
+                    exp: 123,
+                    iat: 543,
+                } as UserProfile,
+            });
+
+            subject["_loadUser"] = jest.fn().mockReturnValue(user);
+
+            const useRefreshMock = jest.spyOn(subject["_client"], "useRefreshToken").mockResolvedValue({
+                access_token: "new_access_token",
+                profile: {
+                    sub: "my sub",
+                    iss: "issuer",
+                    aud: "audience",
+                    exp: 123,
+                    iat: 543,
+
+                    a: "orange",
+                },
+            } as unknown as SigninResponse);
+
+            // act
+            const result = await subject.getUser(true);
+
+            // assert
+            expect(result?.profile).toHaveProperty("a", "orange");
+            expect(result?.profile).not.toHaveProperty("b");
+            expect(useRefreshMock).toHaveBeenCalled();
+        });
+        it("should retrieve updated userinfo and persist it", async () => {
+            Object.assign(subject.settings, {
+                loadUserInfo: true,
+            });
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {
+                    sub: "my sub",
+                    iss: "issuer",
+                    aud: "audience",
+                    a: "apple",
+                    exp: 123,
+                    iat: 543,
+                } as UserProfile,
+            });
+            subject["_loadUser"] = jest.fn().mockReturnValue(user);
+            const updateUserInfo = jest.spyOn(subject["_client"], "getUserInfo").mockResolvedValue({
+                sub: "my sub",
+                iss: "issuer",
+                aud: "audience",
+                a: "orange",
+                exp: 456,
+                iat: 789,
+            });
+            const loadMock = jest.spyOn(subject["_events"], "load");
+
+            // act
+            const result = await subject.getUser(true);
+            const result2 = await subject.getUser();
+
+            // assert
+            expect(result).toEqual(user);
+            expect(result?.profile).toHaveProperty("a", "orange");
+            expect(updateUserInfo).toHaveBeenCalledTimes(1);
+            expect(loadMock).toBeCalledWith(user, false);
+
+            expect(result2?.profile).toHaveProperty("a", "orange");
+            expect(result2?.profile).toEqual(result?.profile);
+        });
     });
 
     describe("removeUser", () => {
