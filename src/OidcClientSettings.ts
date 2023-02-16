@@ -116,6 +116,9 @@ export interface OidcClientSettings {
      * Will check the content type header of the response of the revocation endpoint to match these passed values (default: [])
      */
     revokeTokenAdditionalContentTypes?: string[];
+    /**
+     * Will disable pkce validation, changing to true will not append to sign in request code_challenge and code_challenge_method. (default: false)
+     */
     disablePKCE?: boolean;
     /**
      * Sets the credentials for fetch requests. (default: "same-origin")

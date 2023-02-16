@@ -339,7 +339,6 @@ export interface OidcClientSettings {
     client_secret?: string;
     // @deprecated (undocumented)
     clockSkewInSeconds?: number;
-    // (undocumented)
     disablePKCE?: boolean;
     display?: string;
     extraQueryParams?: Record<string, string | number | boolean>;
