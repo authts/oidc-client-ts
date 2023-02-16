@@ -171,9 +171,6 @@ export class ResponseValidator {
             logger.throw(new Error("Expected code in response"));
         }
 
-        if (!state.code_verifier && response.code) {
-            logger.throw(new Error("Unexpected code in response"));
-        }
     }
 
     protected async _processClaims(response: SigninResponse, skipUserInfo = false, validateSub = true): Promise<void> {

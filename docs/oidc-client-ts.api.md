@@ -339,6 +339,8 @@ export interface OidcClientSettings {
     client_secret?: string;
     // @deprecated (undocumented)
     clockSkewInSeconds?: number;
+    // (undocumented)
+    disablePKCE?: boolean;
     display?: string;
     extraQueryParams?: Record<string, string | number | boolean>;
     // (undocumented)
@@ -373,7 +375,7 @@ export interface OidcClientSettings {
 
 // @public
 export class OidcClientSettingsStore {
-    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, clockSkewInSeconds, userInfoJwtIssuer, mergeClaims, stateStore, refreshTokenCredentials, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, }: OidcClientSettings);
+    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, clockSkewInSeconds, userInfoJwtIssuer, mergeClaims, disablePKCE, stateStore, refreshTokenCredentials, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, }: OidcClientSettings);
     // (undocumented)
     readonly acr_values: string | undefined;
     // (undocumented)
@@ -386,6 +388,8 @@ export class OidcClientSettingsStore {
     readonly client_secret: string | undefined;
     // (undocumented)
     readonly clockSkewInSeconds: number;
+    // (undocumented)
+    readonly disablePKCE: boolean;
     // (undocumented)
     readonly display: string | undefined;
     // (undocumented)
@@ -636,6 +640,8 @@ export interface SigninRequestArgs {
     client_id: string;
     // (undocumented)
     client_secret?: string;
+    // (undocumented)
+    disablePKCE?: boolean;
     // (undocumented)
     display?: string;
     // (undocumented)

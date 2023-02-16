@@ -116,7 +116,7 @@ export interface OidcClientSettings {
      * Will check the content type header of the response of the revocation endpoint to match these passed values (default: [])
      */
     revokeTokenAdditionalContentTypes?: string[];
-
+    disablePKCE?: boolean;
     /**
      * Sets the credentials for fetch requests. (default: "same-origin")
      * Use this if you need to send cookies to the OIDC/OAuth2 provider or if you are using a proxy that requires cookies
@@ -178,7 +178,7 @@ export class OidcClientSettingsStore {
     public readonly revokeTokenAdditionalContentTypes?: string[];
     public readonly fetchRequestCredentials: RequestCredentials;
     public readonly refreshTokenAllowedScope: string | undefined;
-
+    public readonly disablePKCE: boolean;
     public constructor({
         // metadata related
         authority, metadataUrl, metadata, signingKeys, metadataSeed,
@@ -195,6 +195,7 @@ export class OidcClientSettingsStore {
         clockSkewInSeconds = DefaultClockSkewInSeconds,
         userInfoJwtIssuer = "OP",
         mergeClaims = false,
+        disablePKCE = false,
         // other behavior
         stateStore,
         refreshTokenCredentials,
@@ -246,7 +247,7 @@ export class OidcClientSettingsStore {
         this.clockSkewInSeconds = clockSkewInSeconds;
         this.userInfoJwtIssuer = userInfoJwtIssuer;
         this.mergeClaims = !!mergeClaims;
-
+        this.disablePKCE = !!disablePKCE;
         this.revokeTokenAdditionalContentTypes = revokeTokenAdditionalContentTypes;
 
         if (fetchRequestCredentials && refreshTokenCredentials) {

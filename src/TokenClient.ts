@@ -86,9 +86,6 @@ export class TokenClient {
         if (!args.code) {
             logger.throw(new Error("A code is required"));
         }
-        if (!args.code_verifier) {
-            logger.throw(new Error("A code_verifier is required"));
-        }
 
         const params = new URLSearchParams({ grant_type, redirect_uri });
         for (const [key, value] of Object.entries(args)) {
