@@ -57,6 +57,7 @@ export class SigninRequest {
         skipUserInfo,
         extraQueryParams,
         extraTokenParams,
+        disablePKCE,
         ...optionalParams
     }: SigninRequestArgs) {
         if (!url) {
@@ -87,7 +88,7 @@ export class SigninRequest {
         this.state = new SigninState({
             data: state_data,
             request_type,
-            code_verifier: !optionalParams.disablePKCE,
+            code_verifier: !disablePKCE,
             client_id, authority, redirect_uri,
             response_mode,
             client_secret, scope, extraTokenParams,
@@ -104,7 +105,7 @@ export class SigninRequest {
         }
 
         parsedUrl.searchParams.append("state", this.state.id);
-        if (this.state.code_challenge && !optionalParams.disablePKCE) {
+        if (this.state.code_challenge) {
             parsedUrl.searchParams.append("code_challenge", this.state.code_challenge);
             parsedUrl.searchParams.append("code_challenge_method", "S256");
         }

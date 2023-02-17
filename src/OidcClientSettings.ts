@@ -182,6 +182,7 @@ export class OidcClientSettingsStore {
     public readonly fetchRequestCredentials: RequestCredentials;
     public readonly refreshTokenAllowedScope: string | undefined;
     public readonly disablePKCE: boolean;
+    
     public constructor({
         // metadata related
         authority, metadataUrl, metadata, signingKeys, metadataSeed,
