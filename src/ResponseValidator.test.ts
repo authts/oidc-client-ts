@@ -39,8 +39,12 @@ describe("ResponseValidator", () => {
         metadataService = new MetadataService(settings);
 
         subject = new ResponseValidator(settings, metadataService);
-        jest.spyOn(subject["_tokenClient"], "exchangeCode").mockResolvedValue({});
-        jest.spyOn(subject["_userInfoService"], "getClaims").mockResolvedValue({ nickname: "Nick" });
+        jest.spyOn(subject["_tokenClient"], "exchangeCode").mockResolvedValue(
+            {},
+        );
+        jest.spyOn(subject["_userInfoService"], "getClaims").mockResolvedValue({
+            nickname: "Nick",
+        });
     });
 
     afterEach(() => {
@@ -53,7 +57,9 @@ describe("ResponseValidator", () => {
             Object.assign(stubResponse, { state: "not_the_id" });
 
             // act
-            expect(() => subject.validateSignoutResponse(stubResponse, stubState))
+            expect(() =>
+                subject.validateSignoutResponse(stubResponse, stubState),
+            )
                 // assert
                 .toThrow("State does not match");
         });
@@ -63,7 +69,9 @@ describe("ResponseValidator", () => {
             Object.assign(stubResponse, { error: "some_error" });
 
             // act
-            expect(() => subject.validateSignoutResponse(stubResponse, stubState))
+            expect(() =>
+                subject.validateSignoutResponse(stubResponse, stubState),
+            )
                 // assert
                 .toThrow(ErrorResponse);
         });
@@ -95,10 +103,14 @@ describe("ResponseValidator", () => {
         it("should not process code if state fails", async () => {
             // arrange
             Object.assign(stubResponse, { code: "code", state: "not_the_id" });
-            const exchangeCodeSpy = jest.spyOn(subject["_tokenClient"], "exchangeCode").mockRejectedValue(new Error("should not come here"));
+            const exchangeCodeSpy = jest
+                .spyOn(subject["_tokenClient"], "exchangeCode")
+                .mockRejectedValue(new Error("should not come here"));
 
             // act
-            await expect(subject.validateSigninResponse(stubResponse, stubState))
+            await expect(
+                subject.validateSigninResponse(stubResponse, stubState),
+            )
                 // assert
                 .rejects.toThrow("State does not match");
             expect(exchangeCodeSpy).not.toHaveBeenCalled();
@@ -112,24 +124,36 @@ describe("ResponseValidator", () => {
                 id_token: "id_token",
             });
             jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
-            mocked(subject["_userInfoService"].getClaims).mockResolvedValue({ sub: "sub" });
+            mocked(subject["_userInfoService"].getClaims).mockResolvedValue({
+                sub: "sub",
+            });
 
             // act
             await subject.validateSigninResponse(stubResponse, stubState);
 
             // assert
-            expect(subject["_userInfoService"].getClaims).toHaveBeenCalledWith("access_token");
+            expect(subject["_userInfoService"].getClaims).toHaveBeenCalledWith(
+                "access_token",
+            );
         });
 
         it("should not process claims if state fails", async () => {
             // arrange
-            Object.assign(stubResponse, { state: "not_the_id", access_token: "access_token", isOpenId: true });
+            Object.assign(stubResponse, {
+                state: "not_the_id",
+                access_token: "access_token",
+                isOpenId: true,
+            });
 
             // act
-            await expect(subject.validateSigninResponse(stubResponse, stubState))
+            await expect(
+                subject.validateSigninResponse(stubResponse, stubState),
+            )
                 // assert
                 .rejects.toThrow("State does not match");
-            expect(subject["_userInfoService"].getClaims).not.toHaveBeenCalled();
+            expect(
+                subject["_userInfoService"].getClaims,
+            ).not.toHaveBeenCalled();
         });
 
         it("should validate that the client state matches response state", async () => {
@@ -137,7 +161,9 @@ describe("ResponseValidator", () => {
             Object.assign(stubResponse, { state: "not_the_id" });
 
             // act
-            await expect(subject.validateSigninResponse(stubResponse, stubState))
+            await expect(
+                subject.validateSigninResponse(stubResponse, stubState),
+            )
                 // assert
                 .rejects.toThrow("State does not match");
         });
@@ -147,7 +173,9 @@ describe("ResponseValidator", () => {
             Object.assign(stubState, { client_id: undefined });
 
             // act
-            await expect(subject.validateSigninResponse(stubResponse, stubState))
+            await expect(
+                subject.validateSigninResponse(stubResponse, stubState),
+            )
                 // assert
                 .rejects.toThrow("No client_id on state");
         });
@@ -157,7 +185,9 @@ describe("ResponseValidator", () => {
             Object.assign(stubState, { authority: undefined });
 
             // act
-            await expect(subject.validateSigninResponse(stubResponse, stubState))
+            await expect(
+                subject.validateSigninResponse(stubResponse, stubState),
+            )
                 // assert
                 .rejects.toThrow("No authority on state");
         });
@@ -167,7 +197,9 @@ describe("ResponseValidator", () => {
             Object.assign(stubState, { authority: "something different" });
 
             // act
-            await expect(subject.validateSigninResponse(stubResponse, stubState))
+            await expect(
+                subject.validateSigninResponse(stubResponse, stubState),
+            )
                 // assert
                 .rejects.toThrow(/authority mismatch/);
         });
@@ -177,7 +209,9 @@ describe("ResponseValidator", () => {
             Object.assign(stubState, { client_id: "something different" });
 
             // act
-            await expect(subject.validateSigninResponse(stubResponse, stubState))
+            await expect(
+                subject.validateSigninResponse(stubResponse, stubState),
+            )
                 // assert
                 .rejects.toThrow(/client_id mismatch/);
         });
@@ -187,7 +221,9 @@ describe("ResponseValidator", () => {
             Object.assign(stubResponse, { error: "some_error" });
 
             // act
-            await expect(subject.validateSigninResponse(stubResponse, stubState))
+            await expect(
+                subject.validateSigninResponse(stubResponse, stubState),
+            )
                 // assert
                 .rejects.toThrow(ErrorResponse);
         });
@@ -198,20 +234,11 @@ describe("ResponseValidator", () => {
             Object.assign(stubResponse, { code: undefined });
 
             // act
-            await expect(subject.validateSigninResponse(stubResponse, stubState))
+            await expect(
+                subject.validateSigninResponse(stubResponse, stubState),
+            )
                 // assert
                 .rejects.toThrow("Expected code in response");
-        });
-
-        it("should fail if request was not code flow but code in response", async () => {
-            // arrange
-            Object.assign(stubState, { code_verifier: undefined });
-            Object.assign(stubResponse, { code: "code" });
-
-            // act
-            await expect(subject.validateSigninResponse(stubResponse, stubState))
-                // assert
-                .rejects.toThrow(/Unexpected code/);
         });
 
         it("should return data for successful responses", async () => {
@@ -275,12 +302,18 @@ describe("ResponseValidator", () => {
                 a: "apple",
                 b: "banana",
             });
-            mocked(subject["_userInfoService"].getClaims).mockResolvedValue({ sub: "sub different" });
+            mocked(subject["_userInfoService"].getClaims).mockResolvedValue({
+                sub: "sub different",
+            });
 
             // act
-            await expect(subject.validateSigninResponse(stubResponse, stubState))
+            await expect(
+                subject.validateSigninResponse(stubResponse, stubState),
+            )
                 // assert
-                .rejects.toThrow("subject from UserInfo response does not match subject in ID Token");
+                .rejects.toThrow(
+                    "subject from UserInfo response does not match subject in ID Token",
+                );
         });
 
         it("should load and merge user info claims when loadUserInfo configured", async () => {
@@ -296,13 +329,18 @@ describe("ResponseValidator", () => {
                 a: "apple",
                 b: "banana",
             });
-            mocked(subject["_userInfoService"].getClaims).mockResolvedValue({ sub: "sub", c: "carrot" });
+            mocked(subject["_userInfoService"].getClaims).mockResolvedValue({
+                sub: "sub",
+                c: "carrot",
+            });
 
             // act
             await subject.validateSigninResponse(stubResponse, stubState);
 
             // assert
-            expect(subject["_userInfoService"].getClaims).toHaveBeenCalledWith("access_token");
+            expect(subject["_userInfoService"].getClaims).toHaveBeenCalledWith(
+                "access_token",
+            );
             expect(stubResponse.profile).toEqual({
                 sub: "sub",
                 a: "apple",
@@ -344,7 +382,9 @@ describe("ResponseValidator", () => {
             await subject.validateSigninResponse(stubResponse, stubState);
 
             // assert
-            expect(subject["_userInfoService"].getClaims).not.toHaveBeenCalled();
+            expect(
+                subject["_userInfoService"].getClaims,
+            ).not.toHaveBeenCalled();
         });
 
         it("should not load user info claims if no access token", async () => {
@@ -364,7 +404,9 @@ describe("ResponseValidator", () => {
             await subject.validateSigninResponse(stubResponse, stubState);
 
             // assert
-            expect(subject["_userInfoService"].getClaims).not.toHaveBeenCalled();
+            expect(
+                subject["_userInfoService"].getClaims,
+            ).not.toHaveBeenCalled();
         });
 
         it("should not process code if response has no code", async () => {
@@ -432,7 +474,9 @@ describe("ResponseValidator", () => {
                 scope: "scope",
                 expires_at: "expires_at",
             };
-            mocked(subject["_tokenClient"].exchangeCode).mockResolvedValue(tokenResponse);
+            mocked(subject["_tokenClient"].exchangeCode).mockResolvedValue(
+                tokenResponse,
+            );
             jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
 
             // act
@@ -447,7 +491,9 @@ describe("ResponseValidator", () => {
             Object.assign(stubResponse, { code: "code" });
             Object.assign(stubState, { code_verifier: "code_verifier" });
             const tokenResponse = { expires_in: 42 };
-            mocked(subject["_tokenClient"].exchangeCode).mockResolvedValue(tokenResponse);
+            mocked(subject["_tokenClient"].exchangeCode).mockResolvedValue(
+                tokenResponse,
+            );
 
             // act
             await subject.validateSigninResponse(stubResponse, stubState);
@@ -458,7 +504,10 @@ describe("ResponseValidator", () => {
 
         it("should validate and decode id_token if response has id_token", async () => {
             // arrange
-            Object.assign(stubResponse, { id_token: "id_token", isOpenId: true });
+            Object.assign(stubResponse, {
+                id_token: "id_token",
+                isOpenId: true,
+            });
             const profile = { sub: "sub" };
             jest.spyOn(JwtUtils, "decode").mockReturnValue(profile);
 
@@ -472,11 +521,16 @@ describe("ResponseValidator", () => {
 
         it("should fail if id_token does not contain sub", async () => {
             // arrange
-            Object.assign(stubResponse, { id_token: "id_token", isOpenId: true });
+            Object.assign(stubResponse, {
+                id_token: "id_token",
+                isOpenId: true,
+            });
             jest.spyOn(JwtUtils, "decode").mockReturnValue({ a: "a" });
 
             // act
-            await expect(subject.validateSigninResponse(stubResponse, stubState))
+            await expect(
+                subject.validateSigninResponse(stubResponse, stubState),
+            )
                 // assert
                 .rejects.toThrow("ID Token is missing a subject claim");
             expect(JwtUtils.decode).toHaveBeenCalledWith("id_token");
@@ -485,10 +539,12 @@ describe("ResponseValidator", () => {
     });
 
     describe("validateCredentialsResponse", () => {
-
         it("should process a valid openid signin response (skipping userInfo)", async () => {
             // arrange
-            Object.assign(stubResponse, { id_token: "id_token", isOpenId: true });
+            Object.assign(stubResponse, {
+                id_token: "id_token",
+                isOpenId: true,
+            });
             jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
 
             // act
@@ -496,17 +552,24 @@ describe("ResponseValidator", () => {
 
             // assert
             expect(JwtUtils.decode).toHaveBeenCalledWith("id_token");
-            expect(subject["_userInfoService"].getClaims).not.toHaveBeenCalledWith();
+            expect(
+                subject["_userInfoService"].getClaims,
+            ).not.toHaveBeenCalledWith();
             expect(stubResponse).toHaveProperty("profile", { sub: "subsub" });
         });
 
         it("should not process an invalid openid signin response", async () => {
             // arrange
-            Object.assign(stubResponse, { id_token: "id_token", isOpenId: true });
+            Object.assign(stubResponse, {
+                id_token: "id_token",
+                isOpenId: true,
+            });
             jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: undefined });
 
             // act
-            await expect(subject.validateCredentialsResponse(stubResponse, true))
+            await expect(
+                subject.validateCredentialsResponse(stubResponse, true),
+            )
                 // assert
                 .rejects.toThrow(Error);
             expect(JwtUtils.decode).toHaveBeenCalledWith("id_token");
@@ -515,7 +578,10 @@ describe("ResponseValidator", () => {
 
         it("should process a valid non-openid signin response skipping userInfo", async () => {
             // arrange
-            Object.assign(stubResponse, { id_token: "id_token", isOpenId: false });
+            Object.assign(stubResponse, {
+                id_token: "id_token",
+                isOpenId: false,
+            });
             jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
 
             // act
@@ -523,14 +589,19 @@ describe("ResponseValidator", () => {
 
             // assert
             expect(JwtUtils.decode).not.toHaveBeenCalledWith("id_token");
-            expect(subject["_userInfoService"].getClaims).not.toHaveBeenCalledWith();
-            expect(stubResponse).toHaveProperty("profile", { });
+            expect(
+                subject["_userInfoService"].getClaims,
+            ).not.toHaveBeenCalledWith();
+            expect(stubResponse).toHaveProperty("profile", {});
         });
 
         it("should process a valid non-openid signin response (not loading userInfo)", async () => {
             // arrange
             Object.assign(settings, { loadUserInfo: false });
-            Object.assign(stubResponse, { id_token: "id_token", isOpenId: false });
+            Object.assign(stubResponse, {
+                id_token: "id_token",
+                isOpenId: false,
+            });
             jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
 
             // act
@@ -538,13 +609,19 @@ describe("ResponseValidator", () => {
 
             // assert
             expect(JwtUtils.decode).not.toHaveBeenCalledWith("id_token");
-            expect(subject["_userInfoService"].getClaims).not.toHaveBeenCalledWith();
-            expect(stubResponse).toHaveProperty("profile", { });
+            expect(
+                subject["_userInfoService"].getClaims,
+            ).not.toHaveBeenCalledWith();
+            expect(stubResponse).toHaveProperty("profile", {});
         });
 
         it("should process a valid non-openid signin response without access_token", async () => {
             // arrange
-            Object.assign(stubResponse, { id_token: "id_token", isOpenId: false, access_token: "" });
+            Object.assign(stubResponse, {
+                id_token: "id_token",
+                isOpenId: false,
+                access_token: "",
+            });
             jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
 
             // act
@@ -552,13 +629,19 @@ describe("ResponseValidator", () => {
 
             // assert
             expect(JwtUtils.decode).not.toHaveBeenCalledWith("id_token");
-            expect(subject["_userInfoService"].getClaims).not.toHaveBeenCalledWith();
-            expect(stubResponse).toHaveProperty("profile", { });
+            expect(
+                subject["_userInfoService"].getClaims,
+            ).not.toHaveBeenCalledWith();
+            expect(stubResponse).toHaveProperty("profile", {});
         });
 
         it("should process a valid non-openid signin response with userInfo", async () => {
             // arrange
-            Object.assign(stubResponse, { id_token: "id_token", isOpenId: false, access_token: "access_token" });
+            Object.assign(stubResponse, {
+                id_token: "id_token",
+                isOpenId: false,
+                access_token: "access_token",
+            });
             jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
 
             // act
@@ -566,40 +649,66 @@ describe("ResponseValidator", () => {
 
             // assert
             expect(JwtUtils.decode).not.toHaveBeenCalledWith("id_token");
-            expect(subject["_userInfoService"].getClaims).toHaveBeenCalledWith("access_token");
-            expect(stubResponse).toHaveProperty("profile", { nickname: "Nick" });
+            expect(subject["_userInfoService"].getClaims).toHaveBeenCalledWith(
+                "access_token",
+            );
+            expect(stubResponse).toHaveProperty("profile", {
+                nickname: "Nick",
+            });
         });
 
         it("should not process a valid openid signin response with wrong userInfo", async () => {
             // arrange
-            Object.assign(stubResponse, { id_token: "id_token", isOpenId: true, access_token: "access_token" });
+            Object.assign(stubResponse, {
+                id_token: "id_token",
+                isOpenId: true,
+                access_token: "access_token",
+            });
             jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
-            jest.spyOn(subject["_userInfoService"], "getClaims").mockResolvedValue({ sub: "anotherSub", nickname: "Nick" });
+            jest.spyOn(
+                subject["_userInfoService"],
+                "getClaims",
+            ).mockResolvedValue({ sub: "anotherSub", nickname: "Nick" });
 
             // act
-            await expect(subject.validateCredentialsResponse(stubResponse, false))
+            await expect(
+                subject.validateCredentialsResponse(stubResponse, false),
+            )
                 // assert
                 .rejects.toThrow(Error);
             expect(JwtUtils.decode).toHaveBeenCalledWith("id_token");
-            expect(subject["_userInfoService"].getClaims).toHaveBeenCalledWith("access_token");
+            expect(subject["_userInfoService"].getClaims).toHaveBeenCalledWith(
+                "access_token",
+            );
             expect(stubResponse).toHaveProperty("profile", { sub: "subsub" });
         });
 
         it("should process a valid openid signin response with correct userInfo", async () => {
             // arrange
-            Object.assign(stubResponse, { id_token: "id_token", isOpenId: true, access_token: "access_token" });
+            Object.assign(stubResponse, {
+                id_token: "id_token",
+                isOpenId: true,
+                access_token: "access_token",
+            });
             jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
-            jest.spyOn(subject["_userInfoService"], "getClaims").mockResolvedValue({ sub: "subsub", nickname: "Nick" });
+            jest.spyOn(
+                subject["_userInfoService"],
+                "getClaims",
+            ).mockResolvedValue({ sub: "subsub", nickname: "Nick" });
 
             // act
             await subject.validateCredentialsResponse(stubResponse, false);
 
             // assert
             expect(JwtUtils.decode).toHaveBeenCalledWith("id_token");
-            expect(subject["_userInfoService"].getClaims).toHaveBeenCalledWith("access_token");
-            expect(stubResponse).toHaveProperty("profile", { sub: "subsub", nickname: "Nick" });
+            expect(subject["_userInfoService"].getClaims).toHaveBeenCalledWith(
+                "access_token",
+            );
+            expect(stubResponse).toHaveProperty("profile", {
+                sub: "subsub",
+                nickname: "Nick",
+            });
         });
-
     });
 
     describe("_mergeClaims", () => {
@@ -617,28 +726,47 @@ describe("ResponseValidator", () => {
 
         it("should not merge claims when claim types are objects", () => {
             // arrange
-            const c1 = { custom: { "apple": "foo", "pear": "bar" } } as unknown as UserProfile;
-            const c2 = { custom: { "apple": "foo", "orange": "peel" }, b: "banana" };
+            const c1 = {
+                custom: { apple: "foo", pear: "bar" },
+            } as unknown as UserProfile;
+            const c2 = {
+                custom: { apple: "foo", orange: "peel" },
+                b: "banana",
+            };
 
             // act
             const result = subject["_mergeClaims"](c1, c2);
 
             // assert
-            expect(result).toEqual({ custom: [{ "apple": "foo", "pear": "bar" }, { "apple": "foo", "orange": "peel" }], b: "banana" });
+            expect(result).toEqual({
+                custom: [
+                    { apple: "foo", pear: "bar" },
+                    { apple: "foo", orange: "peel" },
+                ],
+                b: "banana",
+            });
         });
 
         it("should merge claims when claim types are objects when mergeClaims settings is true", () => {
             // arrange
             Object.assign(settings, { mergeClaims: true });
 
-            const c1 = { custom: { "apple": "foo", "pear": "bar" } } as unknown as UserProfile;
-            const c2 = { custom: { "apple": "foo", "orange": "peel" }, b: "banana" };
+            const c1 = {
+                custom: { apple: "foo", pear: "bar" },
+            } as unknown as UserProfile;
+            const c2 = {
+                custom: { apple: "foo", orange: "peel" },
+                b: "banana",
+            };
 
             // act
             const result = subject["_mergeClaims"](c1, c2);
 
             // assert
-            expect(result).toEqual({ custom: { "apple": "foo", "pear": "bar", "orange": "peel" }, b: "banana" });
+            expect(result).toEqual({
+                custom: { apple: "foo", pear: "bar", orange: "peel" },
+                b: "banana",
+            });
         });
 
         it("should merge same claim types into array", () => {
@@ -662,27 +790,42 @@ describe("ResponseValidator", () => {
             let result = subject["_mergeClaims"](c1, c2);
 
             // assert
-            expect(result).toEqual({ a: ["apple", "carrot", "durian"], b: "banana" });
+            expect(result).toEqual({
+                a: ["apple", "carrot", "durian"],
+                b: "banana",
+            });
 
             // arrange
-            const d1 = { a: ["apple", "carrot"], b: "banana" } as unknown as UserProfile;
+            const d1 = {
+                a: ["apple", "carrot"],
+                b: "banana",
+            } as unknown as UserProfile;
             const d2 = { a: ["durian"] };
 
             // act
             result = subject["_mergeClaims"](d1, d2);
 
             // assert
-            expect(result).toEqual({ a: ["apple", "carrot", "durian"], b: "banana" });
+            expect(result).toEqual({
+                a: ["apple", "carrot", "durian"],
+                b: "banana",
+            });
 
             // arrange
-            const e1 = { a: ["apple", "carrot"], b: "banana" } as unknown as UserProfile;
+            const e1 = {
+                a: ["apple", "carrot"],
+                b: "banana",
+            } as unknown as UserProfile;
             const e2 = { a: "durian" };
 
             // act
             result = subject["_mergeClaims"](e1, e2);
 
             // assert
-            expect(result).toEqual({ a: ["apple", "carrot", "durian"], b: "banana" });
+            expect(result).toEqual({
+                a: ["apple", "carrot", "durian"],
+                b: "banana",
+            });
         });
 
         it("should remove duplicates when producing arrays", () => {
@@ -699,7 +842,10 @@ describe("ResponseValidator", () => {
 
         it("should not add if already present in array", () => {
             // arrange
-            const c1 = { a: ["apple", "durian"], b: "banana" } as unknown as UserProfile;
+            const c1 = {
+                a: ["apple", "durian"],
+                b: "banana",
+            } as unknown as UserProfile;
             const c2 = { a: "apple" };
 
             // act
@@ -715,12 +861,17 @@ describe("ResponseValidator", () => {
             // arrange
             Object.assign(settings, { filterProtocolClaims: true });
             const claims = {
-                foo: 1, bar: "test",
-                aud: "some_aud", iss: "issuer",
-                sub: "123", email: "foo@gmail.com",
+                foo: 1,
+                bar: "test",
+                aud: "some_aud",
+                iss: "issuer",
+                sub: "123",
+                email: "foo@gmail.com",
                 role: ["admin", "dev"],
-                iat: 5, exp: 20,
-                nbf: 10, at_hash: "athash",
+                iat: 5,
+                exp: 20,
+                nbf: 10,
+                at_hash: "athash",
             };
 
             // act
@@ -728,11 +879,15 @@ describe("ResponseValidator", () => {
 
             // assert
             expect(result).toEqual({
-                foo: 1, bar: "test",
-                aud: "some_aud", iss: "issuer",
-                sub: "123", email: "foo@gmail.com",
+                foo: 1,
+                bar: "test",
+                aud: "some_aud",
+                iss: "issuer",
+                sub: "123",
+                email: "foo@gmail.com",
                 role: ["admin", "dev"],
-                iat: 5, exp: 20,
+                iat: 5,
+                exp: 20,
             });
         });
 
@@ -740,12 +895,17 @@ describe("ResponseValidator", () => {
             // arrange
             Object.assign(settings, { filterProtocolClaims: false });
             const claims = {
-                foo: 1, bar: "test",
-                aud: "some_aud", iss: "issuer",
-                sub: "123", email: "foo@gmail.com",
+                foo: 1,
+                bar: "test",
+                aud: "some_aud",
+                iss: "issuer",
+                sub: "123",
+                email: "foo@gmail.com",
                 role: ["admin", "dev"],
                 at_hash: "athash",
-                iat: 5, nbf: 10, exp: 20,
+                iat: 5,
+                nbf: 10,
+                exp: 20,
             };
 
             // act
@@ -753,25 +913,37 @@ describe("ResponseValidator", () => {
 
             // assert
             expect(result).toEqual({
-                foo: 1, bar: "test",
-                aud: "some_aud", iss: "issuer",
-                sub: "123", email: "foo@gmail.com",
+                foo: 1,
+                bar: "test",
+                aud: "some_aud",
+                iss: "issuer",
+                sub: "123",
+                email: "foo@gmail.com",
                 role: ["admin", "dev"],
                 at_hash: "athash",
-                iat: 5, nbf: 10, exp: 20,
+                iat: 5,
+                nbf: 10,
+                exp: 20,
             });
         });
 
         it("should filter protocol claims if specified in settings", () => {
             // arrange
-            Object.assign(settings, { filterProtocolClaims: ["foo", "bar", "role", "nbf", "email"] });
+            Object.assign(settings, {
+                filterProtocolClaims: ["foo", "bar", "role", "nbf", "email"],
+            });
             const claims = {
-                foo: 1, bar: "test",
-                aud: "some_aud", iss: "issuer",
-                sub: "123", email: "foo@gmail.com",
+                foo: 1,
+                bar: "test",
+                aud: "some_aud",
+                iss: "issuer",
+                sub: "123",
+                email: "foo@gmail.com",
                 role: ["admin", "dev"],
-                iat: 5, exp: 20,
-                nbf: 10, at_hash: "athash",
+                iat: 5,
+                exp: 20,
+                nbf: 10,
+                at_hash: "athash",
             };
 
             // act
@@ -779,9 +951,11 @@ describe("ResponseValidator", () => {
 
             // assert
             expect(result).toEqual({
-                aud: "some_aud", iss: "issuer",
+                aud: "some_aud",
+                iss: "issuer",
                 sub: "123",
-                iat: 5, exp: 20,
+                iat: 5,
+                exp: 20,
                 at_hash: "athash",
             });
         });
@@ -790,7 +964,8 @@ describe("ResponseValidator", () => {
             // arrange
             Object.assign(settings, { filterProtocolClaims: true });
             const defaultProtocolClaims = {
-                nbf: 3, jti: "jti",
+                nbf: 3,
+                jti: "jti",
                 auth_time: 123,
                 nonce: "nonce",
                 acr: "acr",
@@ -799,15 +974,22 @@ describe("ResponseValidator", () => {
                 at_hash: "athash",
             };
             const claims = {
-                foo: 1, bar: "test",
-                aud: "some_aud", iss: "issuer",
-                sub: "123", email: "foo@gmail.com",
+                foo: 1,
+                bar: "test",
+                aud: "some_aud",
+                iss: "issuer",
+                sub: "123",
+                email: "foo@gmail.com",
                 role: ["admin", "dev"],
-                iat: 5, exp: 20,
+                iat: 5,
+                exp: 20,
             };
 
             // act
-            const result = subject["_filterProtocolClaims"]({ ...defaultProtocolClaims, ...claims });
+            const result = subject["_filterProtocolClaims"]({
+                ...defaultProtocolClaims,
+                ...claims,
+            });
 
             // assert
             expect(result).toEqual(claims);
@@ -824,7 +1006,8 @@ describe("ResponseValidator", () => {
                 iat: 5,
             };
             const claims = {
-                foo: 1, bar: "test",
+                foo: 1,
+                bar: "test",
                 email: "foo@gmail.com",
                 role: ["admin", "dev"],
                 nbf: 10,
@@ -842,7 +1025,9 @@ describe("ResponseValidator", () => {
             // ... even if specified in settings
 
             // arrange
-            Object.assign(settings, { filterProtocolClaims: ["sub", "iss", "aud", "exp", "iat"] });
+            Object.assign(settings, {
+                filterProtocolClaims: ["sub", "iss", "aud", "exp", "iat"],
+            });
 
             // act
             items = { ...internalRequiredProtocolClaims, ...claims };

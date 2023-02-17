@@ -34,7 +34,7 @@ export interface SigninRequestArgs {
     extraTokenParams?: Record<string, unknown>;
     skipUserInfo?: boolean;
     nonce?: string;
-
+    disablePKCE?: boolean;
     /** custom "state", which can be used by a caller to have "data" round tripped */
     state_data?: unknown;
 }
@@ -57,6 +57,7 @@ export class SigninRequest {
         skipUserInfo,
         extraQueryParams,
         extraTokenParams,
+        disablePKCE,
         ...optionalParams
     }: SigninRequestArgs) {
         if (!url) {
@@ -87,7 +88,7 @@ export class SigninRequest {
         this.state = new SigninState({
             data: state_data,
             request_type,
-            code_verifier: true,
+            code_verifier: !disablePKCE,
             client_id, authority, redirect_uri,
             response_mode,
             client_secret, scope, extraTokenParams,

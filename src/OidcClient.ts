@@ -136,6 +136,7 @@ export class OidcClient {
             client_secret: this.settings.client_secret,
             skipUserInfo,
             nonce,
+            disablePKCE: this.settings.disablePKCE,
         });
 
         // house cleaning
