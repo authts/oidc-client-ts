@@ -287,6 +287,10 @@ export interface OidcAddressClaim {
 // @public
 export class OidcClient {
     constructor(settings: OidcClientSettings);
+    // Warning: (ae-forgotten-export) The symbol "ClaimsService" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    protected readonly _claimsService: ClaimsService;
     // (undocumented)
     clearStaleState(): Promise<void>;
     // (undocumented)
@@ -348,7 +352,10 @@ export interface OidcClientSettings {
     filterProtocolClaims?: boolean | string[];
     loadUserInfo?: boolean;
     max_age?: number;
+    // @deprecated
     mergeClaims?: boolean;
+    // @deprecated
+    mergeClaimsLegacyBehavior?: boolean;
     metadata?: Partial<OidcMetadata>;
     metadataSeed?: Partial<OidcMetadata>;
     // (undocumented)
@@ -374,7 +381,7 @@ export interface OidcClientSettings {
 
 // @public
 export class OidcClientSettingsStore {
-    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, clockSkewInSeconds, userInfoJwtIssuer, mergeClaims, disablePKCE, stateStore, refreshTokenCredentials, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, }: OidcClientSettings);
+    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, clockSkewInSeconds, userInfoJwtIssuer, mergeClaims, mergeClaimsLegacyBehavior, disablePKCE, stateStore, refreshTokenCredentials, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, }: OidcClientSettings);
     // (undocumented)
     readonly acr_values: string | undefined;
     // (undocumented)
@@ -405,6 +412,8 @@ export class OidcClientSettingsStore {
     readonly max_age: number | undefined;
     // (undocumented)
     readonly mergeClaims: boolean;
+    // (undocumented)
+    readonly mergeClaimsLegacyBehavior: boolean;
     // (undocumented)
     readonly metadata: Partial<OidcMetadata> | undefined;
     // (undocumented)

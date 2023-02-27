@@ -90,8 +90,14 @@ export interface OidcClientSettings {
     /**
      * Indicates if objects returned from the user info endpoint as claims (e.g. `address`) are merged into the claims from the id token as a single object.
      * Otherwise, they are added to an array as distinct objects for the claim type. (default: false)
+     * @deprecated since version 2.3.0. It's not a deterministic way of handling claims.
      */
     mergeClaims?: boolean;
+    /**
+     * Indicates if the library should use the legacy merge behavior, which mutates string claims into arrays whenever the data is updated on the remote. (default: false)
+     * @deprecated since version 2.3.0. It's not a deterministic way of handling claims.
+     */
+    mergeClaimsLegacyBehavior?: boolean;
 
     /**
      * Storage object used to persist interaction state (default: window.localStorage, InMemoryWebStorage iff no window).
@@ -171,6 +177,7 @@ export class OidcClientSettingsStore {
     public readonly clockSkewInSeconds: number;
     public readonly userInfoJwtIssuer: "ANY" | "OP" | string;
     public readonly mergeClaims: boolean;
+    public readonly mergeClaimsLegacyBehavior: boolean;
 
     public readonly stateStore: StateStore;
 
@@ -199,6 +206,7 @@ export class OidcClientSettingsStore {
         clockSkewInSeconds = DefaultClockSkewInSeconds,
         userInfoJwtIssuer = "OP",
         mergeClaims = false,
+        mergeClaimsLegacyBehavior = false,
         disablePKCE = false,
         // other behavior
         stateStore,
@@ -251,6 +259,7 @@ export class OidcClientSettingsStore {
         this.clockSkewInSeconds = clockSkewInSeconds;
         this.userInfoJwtIssuer = userInfoJwtIssuer;
         this.mergeClaims = !!mergeClaims;
+        this.mergeClaimsLegacyBehavior = !!mergeClaimsLegacyBehavior;
         this.disablePKCE = !!disablePKCE;
         this.revokeTokenAdditionalContentTypes = revokeTokenAdditionalContentTypes;
 
