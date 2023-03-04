@@ -70,7 +70,7 @@ describe("SigninState", () => {
             expect(subject.code_verifier).toBeDefined();
         });
 
-        it("should generate code_challenge", () => {
+        it("should generate code_challenge", async () => {
             // arrange
 
             // act
@@ -84,7 +84,7 @@ describe("SigninState", () => {
             });
 
             // assert
-            expect(subject.code_challenge).toBeDefined();
+            expect(await subject.getChallenge()).toBeDefined();
         });
 
         it("should accept client_id", () => {

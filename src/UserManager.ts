@@ -424,8 +424,10 @@ export class UserManager {
             const signinRequest = await this._client.createSigninRequest(args);
             logger.debug("got signin request");
 
+            const url = await signinRequest.getUrl();
+
             return await handle.navigate({
-                url: signinRequest.url,
+                url,
                 state: signinRequest.state.id,
                 response_mode: signinRequest.state.response_mode,
                 scriptOrigin: this.settings.iframeScriptOrigin,

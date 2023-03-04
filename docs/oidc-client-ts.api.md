@@ -629,11 +629,13 @@ export type SigninRedirectArgs = RedirectParams & ExtraSigninRequestArgs;
 
 // @public (undocumented)
 export class SigninRequest {
-    constructor({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, resource, skipUserInfo, extraQueryParams, extraTokenParams, disablePKCE, ...optionalParams }: SigninRequestArgs);
+    constructor(options: SigninRequestArgs);
+    // (undocumented)
+    getUrl(): Promise<string>;
+    // (undocumented)
+    protected _options: SigninRequestArgs;
     // (undocumented)
     readonly state: SigninState;
-    // (undocumented)
-    readonly url: string;
 }
 
 // @public (undocumented)
@@ -755,12 +757,14 @@ export class SigninState extends State {
     readonly client_id: string;
     // (undocumented)
     readonly client_secret: string | undefined;
-    readonly code_challenge: string | undefined;
+    protected readonly _code_challenge: string | undefined;
     readonly code_verifier: string | undefined;
     // (undocumented)
     readonly extraTokenParams: Record<string, unknown> | undefined;
     // (undocumented)
     static fromStorageString(storageString: string): SigninState;
+    // (undocumented)
+    getChallenge(): Promise<string | undefined>;
     // (undocumented)
     readonly redirect_uri: string;
     // (undocumented)

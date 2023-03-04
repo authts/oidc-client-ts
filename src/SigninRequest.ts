@@ -50,21 +50,20 @@ export interface SigninRequestArgs {
 export class SigninRequest {
     private readonly _logger = new Logger("SigninRequest");
 
-    public readonly url: string;
     public readonly state: SigninState;
+    protected _options: SigninRequestArgs;
 
-    public constructor({
-        // mandatory
-        url, authority, client_id, redirect_uri, response_type, scope,
-        // optional
-        state_data, response_mode, request_type, client_secret, nonce,
-        resource,
-        skipUserInfo,
-        extraQueryParams,
-        extraTokenParams,
-        disablePKCE,
-        ...optionalParams
-    }: SigninRequestArgs) {
+    public constructor(options: SigninRequestArgs) {
+        this._options = options;
+
+        const {
+            url, authority, client_id, redirect_uri, response_type, scope,
+            state_data, response_mode, request_type, client_secret,
+            skipUserInfo,
+            extraTokenParams,
+            disablePKCE,
+        } = options;
+
         if (!url) {
             this._logger.error("ctor: No url passed");
             throw new Error("url");
@@ -99,6 +98,21 @@ export class SigninRequest {
             client_secret, scope, extraTokenParams,
             skipUserInfo,
         });
+    }
+
+    public async getUrl(): Promise<string> {
+        /* eslint-disable @typescript-eslint/no-unused-vars */
+        const {
+            url, authority, client_id, redirect_uri, response_type, scope,
+            state_data, response_mode, request_type, client_secret, nonce,
+            resource,
+            skipUserInfo,
+            extraQueryParams,
+            extraTokenParams,
+            disablePKCE,
+            ...optionalParams
+        } = this._options;
+        /* eslint-enable @typescript-eslint/no-unused-vars */
 
         const parsedUrl = new URL(url);
         parsedUrl.searchParams.append("client_id", client_id);
@@ -110,8 +124,11 @@ export class SigninRequest {
         }
 
         parsedUrl.searchParams.append("state", this.state.id);
-        if (this.state.code_challenge) {
-            parsedUrl.searchParams.append("code_challenge", this.state.code_challenge);
+
+        const challenge = await this.state.getChallenge();
+
+        if (challenge) {
+            parsedUrl.searchParams.append("code_challenge", challenge);
             parsedUrl.searchParams.append("code_challenge_method", "S256");
         }
 
@@ -128,6 +145,6 @@ export class SigninRequest {
             }
         }
 
-        this.url = parsedUrl.href;
+        return parsedUrl.href;
     }
 }

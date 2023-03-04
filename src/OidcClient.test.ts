@@ -91,7 +91,7 @@ describe("OidcClient", () => {
 
             // assert
             expect(request.state.data).toEqual("foo");
-            const url = request.url;
+            const url = await request.getUrl();
             expect(url).toContain("http://sts/authorize");
             expect(url).toContain("response_type=code");
             expect(url).toContain("scope=baz");
@@ -132,7 +132,7 @@ describe("OidcClient", () => {
 
             // assert
             expect(request.state.data).toEqual("foo");
-            const url = request.url;
+            const url = await request.getUrl();
             expect(url).toContain("http://sts/authorize");
             expect(url).toContain("response_type=code");
             expect(url).toContain("scope=baz");
