@@ -7,7 +7,7 @@ import { type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSe
 import { ResponseValidator } from "./ResponseValidator";
 import { MetadataService } from "./MetadataService";
 import type { RefreshState } from "./RefreshState";
-import { SigninRequest, type SigninRequestArgs } from "./SigninRequest";
+import { SigninRequest, type SigninRequestCreateArgs } from "./SigninRequest";
 import { SigninResponse } from "./SigninResponse";
 import { SignoutRequest, type SignoutRequestArgs } from "./SignoutRequest";
 import { SignoutResponse } from "./SignoutResponse";
@@ -20,7 +20,7 @@ import { ClaimsService } from "./ClaimsService";
  * @public
  */
 export interface CreateSigninRequestArgs
-    extends Omit<SigninRequestArgs, "url" | "authority" | "client_id" | "redirect_uri" | "response_type" | "scope" | "state_data"> {
+    extends Omit<SigninRequestCreateArgs, "url" | "authority" | "client_id" | "redirect_uri" | "response_type" | "scope" | "state_data"> {
     redirect_uri?: string;
     response_type?: string;
     scope?: string;
@@ -73,7 +73,7 @@ export class OidcClient {
     protected readonly _tokenClient: TokenClient;
 
     public constructor(settings: OidcClientSettings);
-    public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService); 
+    public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService);
     public constructor(settings: OidcClientSettings | OidcClientSettingsStore, metadataService?: MetadataService) {
         this.settings = settings instanceof OidcClientSettingsStore ? settings : new OidcClientSettingsStore(settings);
 
@@ -115,7 +115,7 @@ export class OidcClient {
         const url = await this.metadataService.getAuthorizationEndpoint();
         logger.debug("Received authorization endpoint", url);
 
-        const signinRequest = new SigninRequest({
+        const signinRequest = await SigninRequest.create({
             url,
             authority: this.settings.authority,
             client_id: this.settings.client_id,
@@ -156,7 +156,7 @@ export class OidcClient {
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
-        const state = SigninState.fromStorageString(storedStateString);
+        const state = await SigninState.fromStorageString(storedStateString);
         return { state, response };
     }
 
@@ -286,7 +286,7 @@ export class OidcClient {
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
-        const state = State.fromStorageString(storedStateString);
+        const state = await State.fromStorageString(storedStateString);
         return { state, response };
     }
 

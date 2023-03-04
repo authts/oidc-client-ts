@@ -101,7 +101,7 @@ describe("State", () => {
         });
     });
 
-    it("can serialize and then deserialize", () => {
+    it("can serialize and then deserialize", async () => {
         // arrange
         const subject1 = new State({
             data: { foo: "test" }, created: 1000, request_type:"type", url_state: "foo",
@@ -109,7 +109,7 @@ describe("State", () => {
 
         // act
         const storage = subject1.toStorageString();
-        const subject2 = State.fromStorageString(storage);
+        const subject2 = await State.fromStorageString(storage);
 
         // assert
         expect(subject2).toEqual(subject1);

@@ -263,15 +263,15 @@ describe("OidcClient", () => {
 
         it("should deserialize stored state and return state and response", async () => {
             // arrange
-            const item = new SigninState({
+            const item = await SigninState.create({
                 id: "1",
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "http://app/cb",
                 scope: "scope",
                 request_type: "type",
-            }).toStorageString();
-            jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item));
+            });
+            jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item.toStorageString()));
 
             // act
             const { state, response } = await subject.readSigninResponseState("http://app/cb?state=1");
@@ -318,7 +318,7 @@ describe("OidcClient", () => {
 
         it("should deserialize stored state and call validator", async () => {
             // arrange
-            const item = new SigninState({
+            const item = await SigninState.create({
                 id: "1",
                 authority: "authority",
                 client_id: "client",
