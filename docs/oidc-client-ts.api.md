@@ -443,65 +443,35 @@ export class OidcClientSettingsStore {
 
 // @public (undocumented)
 export interface OidcMetadata {
-    // (undocumented)
     acr_values_supported: string[];
-    // (undocumented)
     authorization_endpoint: string;
-    // (undocumented)
     backchannel_logout_session_supported: boolean;
-    // (undocumented)
     backchannel_logout_supported: boolean;
-    // (undocumented)
     check_session_iframe: string;
-    // (undocumented)
     claim_types_supported: string[];
-    // (undocumented)
     claims_parameter_supported: boolean;
-    // (undocumented)
     claims_supported: string[];
-    // (undocumented)
     code_challenge_methods_supported: string[];
-    // (undocumented)
     display_values_supported: string[];
-    // (undocumented)
     end_session_endpoint: string;
-    // (undocumented)
     frontchannel_logout_session_supported: boolean;
-    // (undocumented)
     frontchannel_logout_supported: boolean;
-    // (undocumented)
     grant_types_supported: string[];
-    // (undocumented)
     introspection_endpoint: string;
-    // (undocumented)
     issuer: string;
-    // (undocumented)
     jwks_uri: string;
-    // (undocumented)
     registration_endpoint: string;
-    // (undocumented)
     request_object_signing_alg_values_supported: string[];
-    // (undocumented)
     response_modes_supported: string[];
-    // (undocumented)
     response_types_supported: string[];
-    // (undocumented)
     revocation_endpoint: string;
-    // (undocumented)
     scopes_supported: string[];
-    // (undocumented)
     service_documentation: string;
-    // (undocumented)
     subject_types_supported: string[];
-    // (undocumented)
     token_endpoint: string;
-    // (undocumented)
     token_endpoint_auth_methods_supported: string[];
-    // (undocumented)
     token_endpoint_auth_signing_alg_values_supported: string[];
-    // (undocumented)
     ui_locales_supported: string[];
-    // (undocumented)
     userinfo_endpoint: string;
 }
 
