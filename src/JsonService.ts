@@ -55,7 +55,9 @@ function appendCustomHeaders(
         const content = (typeof customs[headerName] === "function") ?
             (customs[headerName] as ()=>string)() :
             customs[headerName];
-        headers[headerName] = content as string;
+        if (content && content !== "") {
+            headers[headerName] = content as string;
+        }
     });
 }
 
