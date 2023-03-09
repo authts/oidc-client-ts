@@ -11,7 +11,7 @@ import type { OidcMetadata } from "./OidcMetadata";
  */
 export class MetadataService {
     private readonly _logger = new Logger("MetadataService");
-    private readonly _jsonService = new JsonService(["application/jwk-set+json"]);
+    private readonly _jsonService;
 
     // cache
     private _metadataUrl: string;
@@ -21,7 +21,11 @@ export class MetadataService {
 
     public constructor(private readonly _settings: OidcClientSettingsStore) {
         this._metadataUrl = this._settings.metadataUrl;
-
+        this._jsonService = new JsonService(
+            ["application/jwk-set+json"],
+            null,
+            this._settings.customHeaders,
+        );
         if (this._settings.signingKeys) {
             this._logger.debug("using signingKeys from settings");
             this._signingKeys = this._settings.signingKeys;

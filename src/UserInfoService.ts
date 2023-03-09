@@ -17,7 +17,11 @@ export class UserInfoService {
     public constructor(private readonly _settings: OidcClientSettingsStore,
         private readonly _metadataService: MetadataService,
     ) {
-        this._jsonService = new JsonService(undefined, this._getClaimsFromJwt);
+        this._jsonService = new JsonService(
+            undefined,
+            this._getClaimsFromJwt,
+            this._settings.customHeaders,
+        );
     }
 
     public async getClaims(token: string): Promise<JwtClaims> {

@@ -5,6 +5,7 @@ import { WebStorageStateStore } from "./WebStorageStateStore";
 import type { OidcMetadata } from "./OidcMetadata";
 import type { StateStore } from "./StateStore";
 import { InMemoryWebStorage } from "./InMemoryWebStorage";
+import type { CustomHeader } from "./JsonService";
 
 const DefaultResponseType = "code";
 const DefaultScope = "openid";
@@ -130,6 +131,11 @@ export interface OidcClientSettings {
      * Only scopes in this list will be passed in the token refresh request.
      */
     refreshTokenAllowedScope?: string | undefined;
+
+    /**
+     * Set additional custom headers to be passed to the client
+     */
+    customHeaders?: Record<string, CustomHeader>;
 }
 
 /**
@@ -182,6 +188,9 @@ export class OidcClientSettingsStore {
     public readonly fetchRequestCredentials: RequestCredentials;
     public readonly refreshTokenAllowedScope: string | undefined;
     public readonly disablePKCE: boolean;
+
+    // headers
+    public readonly customHeaders: Record<string, CustomHeader>;
     
     public constructor({
         // metadata related
@@ -209,6 +218,8 @@ export class OidcClientSettingsStore {
         // extra query params
         extraQueryParams = {},
         extraTokenParams = {},
+        // custom headers
+        customHeaders = {},
     }: OidcClientSettings) {
 
         this.authority = authority;
@@ -272,5 +283,6 @@ export class OidcClientSettingsStore {
 
         this.extraQueryParams = extraQueryParams;
         this.extraTokenParams = extraTokenParams;
+        this.customHeaders = customHeaders;
     }
 }

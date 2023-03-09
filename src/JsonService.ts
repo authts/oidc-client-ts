@@ -10,6 +10,11 @@ import { Logger } from "./utils";
 export type JwtHandler = (text: string) => Promise<Record<string, unknown>>;
 
 /**
+ * @public
+ */
+export type CustomHeader = string | (() => string);
+
+/**
  * @internal
  */
 export interface GetJsonOpts {
@@ -30,6 +35,33 @@ export interface PostFormOpts {
 /**
  * @internal
  */
+function appendCustomHeaders(
+    headers: Record<string, string>,
+    customs: Record<string, CustomHeader>,
+): void {
+    const customKeys = Object.keys(customs);
+    const protectedHeaders = [
+        "authorization",
+        "accept",
+        "content-type",
+    ];
+    if (customKeys.length === 0) {
+        return;
+    }
+    customKeys.forEach((headerName) => {
+        if (protectedHeaders.includes(headerName.toLocaleLowerCase())) {
+            return;
+        }
+        const content = (typeof customs[headerName] === "function") ?
+            (customs[headerName] as ()=>string)() :
+            customs[headerName];
+        headers[headerName] = content as string;
+    });
+}
+
+/**
+ * @internal
+ */
 export class JsonService {
     private readonly _logger = new Logger("JsonService");
 
@@ -38,6 +70,7 @@ export class JsonService {
     public constructor(
         additionalContentTypes: string[] = [],
         private _jwtHandler: JwtHandler | null = null,
+        private _customHeaders: Record<string, CustomHeader> = {},
     ) {
         this._contentTypes.push(...additionalContentTypes, "application/json");
         if (_jwtHandler) {
@@ -84,6 +117,8 @@ export class JsonService {
             logger.debug("token passed, setting Authorization header");
             headers["Authorization"] = "Bearer " + token;
         }
+
+        appendCustomHeaders(headers, this._customHeaders);
 
         let response: Response;
         try {
@@ -136,6 +171,7 @@ export class JsonService {
         if (basicAuth !== undefined) {
             headers["Authorization"] = "Basic " + basicAuth;
         }
+        appendCustomHeaders(headers, this._customHeaders);
 
         let response: Response;
         try {

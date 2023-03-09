@@ -8,9 +8,30 @@ import { mocked } from "jest-mock";
 
 describe("JsonService", () => {
     let subject: JsonService;
+    let customStaticHeaderSubject: JsonService;
+    let customDynamicHeaderSubject: JsonService;
+
+    const staticCustomHeaders = {
+        "Custom-Header-1": "this-is-header-1",
+        "Custom-Header-2": "this-is-header-2",
+        "acCept" : "application/fake",
+        "AuthoriZation" : "not good",
+        "Content-Type": "application/fail",
+    };
+    const dynamicCustomHeaders = {
+        "Custom-Header-1": () => "my-name-is-header-1",
+        "Custom-Header-2": () => {
+            return "my-name-is-header-2";
+        },
+        "acCept" : () => "nothing",
+        "AuthoriZation" : () => "not good",
+        "Content-Type": "application/fail",
+    };
 
     beforeEach(() =>{
         subject = new JsonService();
+        customStaticHeaderSubject = new JsonService(undefined, null, staticCustomHeaders);
+        customDynamicHeaderSubject = new JsonService(undefined, null, dynamicCustomHeaders);
     });
 
     describe("getJson", () => {
@@ -28,6 +49,42 @@ describe("JsonService", () => {
             );
         });
 
+        it("should make GET request to url with static custom headers", async () => {
+            // act
+            await expect(customStaticHeaderSubject.getJson("http://test")).rejects.toThrow();
+
+            // assert
+            expect(fetch).toBeCalledWith(
+                "http://test",
+                expect.objectContaining({
+                    headers: { 
+                        Accept: "application/json",
+                        "Custom-Header-1": "this-is-header-1",
+                        "Custom-Header-2": "this-is-header-2",
+                    },
+                    method: "GET",
+                }),
+            );
+        });
+
+        it("should make GET request to url with dynamic custom headers", async () => {
+            // act
+            await expect(customDynamicHeaderSubject.getJson("http://test")).rejects.toThrow();
+
+            // assert
+            expect(fetch).toBeCalledWith(
+                "http://test",
+                expect.objectContaining({
+                    headers: { 
+                        Accept: "application/json",
+                        "Custom-Header-1": "my-name-is-header-1",
+                        "Custom-Header-2": "my-name-is-header-2",
+                    },
+                    method: "GET",
+                }),
+            );
+        });
+
         it("should set token as authorization header", async () => {
             // act
             await expect(subject.getJson("http://test", { token: "token" })).rejects.toThrow();
@@ -37,6 +94,44 @@ describe("JsonService", () => {
                 "http://test",
                 expect.objectContaining({
                     headers: { Accept: "application/json", Authorization: "Bearer token" },
+                    method: "GET",
+                }),
+            );
+        });
+
+        it("should set token as authorization header with static custom headers", async () => {
+            // act
+            await expect(customStaticHeaderSubject.getJson("http://test", { token: "token" })).rejects.toThrow();
+
+            // assert
+            expect(fetch).toBeCalledWith(
+                "http://test",
+                expect.objectContaining({
+                    headers: { 
+                        Accept: "application/json",
+                        Authorization: "Bearer token",
+                        "Custom-Header-1": "this-is-header-1",
+                        "Custom-Header-2": "this-is-header-2",
+                    },
+                    method: "GET",
+                }),
+            );
+        });
+
+        it("should set token as authorization header with dynamic custom headers", async () => {
+            // act
+            await expect(customDynamicHeaderSubject.getJson("http://test", { token: "token" })).rejects.toThrow();
+
+            // assert
+            expect(fetch).toBeCalledWith(
+                "http://test",
+                expect.objectContaining({
+                    headers: { 
+                        Accept: "application/json", 
+                        Authorization: "Bearer token",
+                        "Custom-Header-1": "my-name-is-header-1",
+                        "Custom-Header-2": "my-name-is-header-2",
+                    },
                     method: "GET",
                 }),
             );
@@ -178,6 +273,46 @@ describe("JsonService", () => {
                     headers: {
                         Accept: "application/json",
                         "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    method: "POST",
+                    body: new URLSearchParams(),
+                }),
+            );
+        });
+
+        it("should make POST request to url with custom static headers", async () => {
+            // act
+            await expect(customStaticHeaderSubject.postForm("http://test", { body: new URLSearchParams("a=b") })).rejects.toThrow();
+
+            // assert
+            expect(fetch).toBeCalledWith(
+                "http://test",
+                expect.objectContaining({
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "Custom-Header-1": "this-is-header-1",
+                        "Custom-Header-2": "this-is-header-2",
+                    },
+                    method: "POST",
+                    body: new URLSearchParams(),
+                }),
+            );
+        });
+
+        it("should make POST request to url with custom dynamic headers", async () => {
+            // act
+            await expect(customDynamicHeaderSubject.postForm("http://test", { body: new URLSearchParams("a=b") })).rejects.toThrow();
+
+            // assert
+            expect(fetch).toBeCalledWith(
+                "http://test",
+                expect.objectContaining({
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "Custom-Header-1": "my-name-is-header-1",
+                        "Custom-Header-2": "my-name-is-header-2",
                     },
                     method: "POST",
                     body: new URLSearchParams(),

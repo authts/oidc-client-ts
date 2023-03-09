@@ -16,6 +16,7 @@ export { MetadataService } from "./MetadataService";
 export * from "./OidcClient";
 export { OidcClientSettingsStore } from "./OidcClientSettings";
 export type { OidcClientSettings, SigningKey } from "./OidcClientSettings";
+export type { CustomHeader } from "./JsonService";
 export type { OidcMetadata } from "./OidcMetadata";
 export { SessionMonitor } from "./SessionMonitor";
 export type { SessionStatus } from "./SessionStatus";
