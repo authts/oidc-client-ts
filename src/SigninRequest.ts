@@ -57,7 +57,9 @@ export class SigninRequest {
         this._options = options;
 
         const {
+            // mandatory
             url, authority, client_id, redirect_uri, response_type, scope,
+            // optional
             state_data, response_mode, request_type, client_secret,
             skipUserInfo,
             extraTokenParams,
@@ -101,18 +103,35 @@ export class SigninRequest {
     }
 
     public async getUrl(): Promise<string> {
-        /* eslint-disable @typescript-eslint/no-unused-vars */
+        const nonOptionalParams: Array<keyof SigninRequestArgs> = [
+            "url",
+            "authority",
+            "client_id",
+            "redirect_uri",
+            "response_type",
+            "scope",
+            "state_data",
+            "response_mode",
+            "request_type",
+            "client_secret",
+            "nonce",
+            "resource",
+            "skipUserInfo",
+            "extraQueryParams",
+            "extraTokenParams",
+            "disablePKCE",
+        ];
         const {
-            url, authority, client_id, redirect_uri, response_type, scope,
-            state_data, response_mode, request_type, client_secret, nonce,
+            url,
+            client_id,
+            redirect_uri,
+            response_type,
+            scope,
+            response_mode,
+            nonce,
             resource,
-            skipUserInfo,
             extraQueryParams,
-            extraTokenParams,
-            disablePKCE,
-            ...optionalParams
         } = this._options;
-        /* eslint-enable @typescript-eslint/no-unused-vars */
 
         const parsedUrl = new URL(url);
         parsedUrl.searchParams.append("client_id", client_id);
@@ -126,7 +145,6 @@ export class SigninRequest {
         parsedUrl.searchParams.append("state", this.state.id);
 
         const challenge = await this.state.getChallenge();
-
         if (challenge) {
             parsedUrl.searchParams.append("code_challenge", challenge);
             parsedUrl.searchParams.append("code_challenge_method", "S256");
@@ -139,7 +157,13 @@ export class SigninRequest {
                 .forEach(r => parsedUrl.searchParams.append("resource", r));
         }
 
-        for (const [key, value] of Object.entries({ response_mode, ...optionalParams, ...extraQueryParams })) {
+        for (const [key, val] of Object.entries(this._options)) {
+            if (!nonOptionalParams.includes(key as keyof SigninRequestArgs)) {
+                parsedUrl.searchParams.append(key, val);
+            }
+        }
+
+        for (const [key, value] of Object.entries({ response_mode, ...extraQueryParams })) {
             if (value != null) {
                 parsedUrl.searchParams.append(key, value.toString());
             }

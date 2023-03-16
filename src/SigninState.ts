@@ -74,7 +74,6 @@ export class SigninState extends State {
         }
 
         let challenge = this._code_challenge;
-
         if (!this._code_challenge) {
             challenge = await CryptoUtils.generateCodeChallenge(this.code_verifier);
         }
