@@ -5,7 +5,7 @@ import { WebStorageStateStore } from "./WebStorageStateStore";
 import type { OidcMetadata } from "./OidcMetadata";
 import type { StateStore } from "./StateStore";
 import { InMemoryWebStorage } from "./InMemoryWebStorage";
-import type { CustomHeader } from "./JsonService";
+import type { ExtraHeader } from "./JsonService";
 
 const DefaultResponseType = "code";
 const DefaultScope = "openid";
@@ -109,6 +109,11 @@ export interface OidcClientSettings {
     extraTokenParams?: Record<string, unknown>;
 
     /**
+     * An object containing additional header to be including in request.
+     */
+    extraHeaders?: Record<string, ExtraHeader>;
+
+    /**
      * @deprecated since version 2.1.0. Use fetchRequestCredentials instead.
      */
     refreshTokenCredentials?: "same-origin" | "include" | "omit";
@@ -131,11 +136,6 @@ export interface OidcClientSettings {
      * Only scopes in this list will be passed in the token refresh request.
      */
     refreshTokenAllowedScope?: string | undefined;
-
-    /**
-     * Set additional custom headers to be passed to the client
-     */
-    customHeaders?: Record<string, CustomHeader>;
 }
 
 /**
@@ -183,14 +183,12 @@ export class OidcClientSettingsStore {
     // extra
     public readonly extraQueryParams: Record<string, string | number | boolean>;
     public readonly extraTokenParams: Record<string, unknown>;
-
+    public readonly extraHeaders: Record<string, ExtraHeader>;
+    
     public readonly revokeTokenAdditionalContentTypes?: string[];
     public readonly fetchRequestCredentials: RequestCredentials;
     public readonly refreshTokenAllowedScope: string | undefined;
     public readonly disablePKCE: boolean;
-
-    // headers
-    public readonly customHeaders: Record<string, CustomHeader>;
     
     public constructor({
         // metadata related
@@ -218,8 +216,7 @@ export class OidcClientSettingsStore {
         // extra query params
         extraQueryParams = {},
         extraTokenParams = {},
-        // custom headers
-        customHeaders = {},
+        extraHeaders = {},
     }: OidcClientSettings) {
 
         this.authority = authority;
@@ -283,6 +280,6 @@ export class OidcClientSettingsStore {
 
         this.extraQueryParams = extraQueryParams;
         this.extraTokenParams = extraTokenParams;
-        this.customHeaders = customHeaders;
+        this.extraHeaders = extraHeaders;
     }
 }

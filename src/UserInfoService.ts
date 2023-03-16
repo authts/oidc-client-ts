@@ -20,7 +20,7 @@ export class UserInfoService {
         this._jsonService = new JsonService(
             undefined,
             this._getClaimsFromJwt,
-            this._settings.customHeaders,
+            this._settings.extraHeaders,
         );
     }
 

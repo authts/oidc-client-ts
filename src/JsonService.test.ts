@@ -11,14 +11,14 @@ describe("JsonService", () => {
     let customStaticHeaderSubject: JsonService;
     let customDynamicHeaderSubject: JsonService;
 
-    const staticCustomHeaders = {
+    const staticExtraHeaders = {
         "Custom-Header-1": "this-is-header-1",
         "Custom-Header-2": "this-is-header-2",
         "acCept" : "application/fake",
         "AuthoriZation" : "not good",
         "Content-Type": "application/fail",
     };
-    const dynamicCustomHeaders = {
+    const dynamicExtraHeaders = {
         "Custom-Header-1": () => "my-name-is-header-1",
         "Custom-Header-2": () => {
             return "my-name-is-header-2";
@@ -30,8 +30,8 @@ describe("JsonService", () => {
 
     beforeEach(() =>{
         subject = new JsonService();
-        customStaticHeaderSubject = new JsonService(undefined, null, staticCustomHeaders);
-        customDynamicHeaderSubject = new JsonService(undefined, null, dynamicCustomHeaders);
+        customStaticHeaderSubject = new JsonService(undefined, null, staticExtraHeaders);
+        customDynamicHeaderSubject = new JsonService(undefined, null, dynamicExtraHeaders);
     });
 
     describe("getJson", () => {

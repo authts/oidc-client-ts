@@ -527,7 +527,7 @@ describe("OidcClientSettings", () => {
         });
     });
 
-    describe("customHeaders", () => {
+    describe("extraHeaders", () => {
 
         it("should use default value", () => {
             // act
@@ -538,12 +538,12 @@ describe("OidcClientSettings", () => {
             });
 
             // assert
-            expect(subject.customHeaders).toEqual({});
+            expect(subject.extraHeaders).toEqual({});
         });
 
         it("should return value from initial settings", () => {
             // act
-            const customHeaders = {
+            const extraHeaders = {
                 "Header-1": "this-is-a-test",
                 "Header-3": () => "dynamic header",
             };
@@ -551,11 +551,11 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                customHeaders: customHeaders,
+                extraHeaders: extraHeaders,
             });
 
             // assert
-            expect(subject.customHeaders).toEqual(customHeaders);
+            expect(subject.extraHeaders).toEqual(extraHeaders);
         });
     });
 });

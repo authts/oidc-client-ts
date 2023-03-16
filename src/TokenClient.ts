@@ -69,7 +69,7 @@ export class TokenClient {
         this._jsonService = new JsonService(
             this._settings.revokeTokenAdditionalContentTypes,
             null,
-            this._settings.customHeaders,
+            this._settings.extraHeaders,
         );
     }
 

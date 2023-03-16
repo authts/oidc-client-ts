@@ -12,7 +12,7 @@ export type JwtHandler = (text: string) => Promise<Record<string, unknown>>;
 /**
  * @public
  */
-export type CustomHeader = string | (() => string);
+export type ExtraHeader = string | (() => string);
 
 /**
  * @internal
@@ -35,35 +35,6 @@ export interface PostFormOpts {
 /**
  * @internal
  */
-function appendCustomHeaders(
-    headers: Record<string, string>,
-    customs: Record<string, CustomHeader>,
-): void {
-    const customKeys = Object.keys(customs);
-    const protectedHeaders = [
-        "authorization",
-        "accept",
-        "content-type",
-    ];
-    if (customKeys.length === 0) {
-        return;
-    }
-    customKeys.forEach((headerName) => {
-        if (protectedHeaders.includes(headerName.toLocaleLowerCase())) {
-            return;
-        }
-        const content = (typeof customs[headerName] === "function") ?
-            (customs[headerName] as ()=>string)() :
-            customs[headerName];
-        if (content && content !== "") {
-            headers[headerName] = content as string;
-        }
-    });
-}
-
-/**
- * @internal
- */
 export class JsonService {
     private readonly _logger = new Logger("JsonService");
 
@@ -72,7 +43,7 @@ export class JsonService {
     public constructor(
         additionalContentTypes: string[] = [],
         private _jwtHandler: JwtHandler | null = null,
-        private _customHeaders: Record<string, CustomHeader> = {},
+        private _extraHeaders: Record<string, ExtraHeader> = {},
     ) {
         this._contentTypes.push(...additionalContentTypes, "application/json");
         if (_jwtHandler) {
@@ -120,7 +91,7 @@ export class JsonService {
             headers["Authorization"] = "Bearer " + token;
         }
 
-        appendCustomHeaders(headers, this._customHeaders);
+        this.appendExtraHeaders(headers);
 
         let response: Response;
         try {
@@ -173,7 +144,7 @@ export class JsonService {
         if (basicAuth !== undefined) {
             headers["Authorization"] = "Basic " + basicAuth;
         }
-        appendCustomHeaders(headers, this._customHeaders);
+        this.appendExtraHeaders(headers);
 
         let response: Response;
         try {
@@ -214,5 +185,30 @@ export class JsonService {
         }
 
         return json;
+    }
+
+    private appendExtraHeaders(
+        headers: Record<string, string>,
+    ): void {
+        const customKeys = Object.keys(this._extraHeaders);
+        const protectedHeaders = [
+            "authorization",
+            "accept",
+            "content-type",
+        ];
+        if (customKeys.length === 0) {
+            return;
+        }
+        customKeys.forEach((headerName) => {
+            if (protectedHeaders.includes(headerName.toLocaleLowerCase())) {
+                return;
+            }
+            const content = (typeof this._extraHeaders[headerName] === "function") ?
+                (this._extraHeaders[headerName] as ()=>string)() :
+                this._extraHeaders[headerName];
+            if (content && content !== "") {
+                headers[headerName] = content as string;
+            }
+        });
     }
 }

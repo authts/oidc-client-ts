@@ -24,7 +24,7 @@ export class MetadataService {
         this._jsonService = new JsonService(
             ["application/jwk-set+json"],
             null,
-            this._settings.customHeaders,
+            this._settings.extraHeaders,
         );
         if (this._settings.signingKeys) {
             this._logger.debug("using signingKeys from settings");
