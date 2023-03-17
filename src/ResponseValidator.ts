@@ -13,35 +13,8 @@ import type { State } from "./State";
 import type { SignoutResponse } from "./SignoutResponse";
 import type { UserProfile } from "./User";
 import type { RefreshState } from "./RefreshState";
-import type { JwtClaims, IdTokenClaims } from "./Claims";
-
-/**
- * Protocol claims that could be removed by default from profile.
- * Derived from the following sets of claims:
- * - {@link https://datatracker.ietf.org/doc/html/rfc7519.html#section-4.1}
- * - {@link https://openid.net/specs/openid-connect-core-1_0.html#IDToken}
- * - {@link https://openid.net/specs/openid-connect-core-1_0.html#CodeIDToken}
- *
- * @internal
- */
-const DefaultProtocolClaims = [
-    "nbf",
-    "jti",
-    "auth_time",
-    "nonce",
-    "acr",
-    "amr",
-    "azp",
-    "at_hash", // https://openid.net/specs/openid-connect-core-1_0.html#CodeIDToken
-] as const;
-
-/**
- * Protocol claims that should never be removed from profile.
- * "sub" is needed internally and others should remain required as per the OIDC specs.
- *
- * @internal
- */
-const InternalRequiredProtocolClaims = ["sub", "iss", "aud", "exp", "iat"];
+import type { IdTokenClaims } from "./Claims";
+import type { ClaimsService } from "./ClaimsService";
 
 /**
  * @internal
@@ -54,6 +27,7 @@ export class ResponseValidator {
     public constructor(
         protected readonly _settings: OidcClientSettingsStore,
         protected readonly _metadataService: MetadataService,
+        protected readonly _claimsService: ClaimsService,
     ) {}
 
     public async validateSigninResponse(response: SigninResponse, state: SigninState): Promise<void> {
@@ -175,7 +149,7 @@ export class ResponseValidator {
 
     protected async _processClaims(response: SigninResponse, skipUserInfo = false, validateSub = true): Promise<void> {
         const logger = this._logger.create("_processClaims");
-        response.profile = this._filterProtocolClaims(response.profile);
+        response.profile = this._claimsService.filterProtocolClaims(response.profile);
 
         if (skipUserInfo || !this._settings.loadUserInfo || !response.access_token) {
             logger.debug("not loading user info");
@@ -190,57 +164,8 @@ export class ResponseValidator {
             logger.throw(new Error("subject from UserInfo response does not match subject in ID Token"));
         }
 
-        response.profile = this._mergeClaims(response.profile, this._filterProtocolClaims(claims as IdTokenClaims));
+        response.profile = this._claimsService.mergeClaims(response.profile, this._claimsService.filterProtocolClaims(claims as IdTokenClaims));
         logger.debug("user info claims received, updated profile:", response.profile);
-    }
-
-    protected _mergeClaims(claims1: UserProfile, claims2: JwtClaims): UserProfile {
-        const result = { ...claims1 };
-
-        for (const [claim, values] of Object.entries(claims2)) {
-            for (const value of Array.isArray(values) ? values : [values]) {
-                const previousValue = result[claim];
-                if (!previousValue) {
-                    result[claim] = value;
-                }
-                else if (Array.isArray(previousValue)) {
-                    if (!previousValue.includes(value)) {
-                        previousValue.push(value);
-                    }
-                }
-                else if (result[claim] !== value) {
-                    if (typeof value === "object" && this._settings.mergeClaims) {
-                        result[claim] = this._mergeClaims(previousValue as UserProfile, value);
-                    }
-                    else {
-                        result[claim] = [previousValue, value];
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
-
-    protected _filterProtocolClaims(claims: UserProfile): UserProfile {
-        const result = { ...claims };
-
-        if (this._settings.filterProtocolClaims) {
-            let protocolClaims;
-            if (Array.isArray(this._settings.filterProtocolClaims)) {
-                protocolClaims = this._settings.filterProtocolClaims;
-            } else {
-                protocolClaims = DefaultProtocolClaims;
-            }
-
-            for (const claim of protocolClaims) {
-                if (!InternalRequiredProtocolClaims.includes(claim)) {
-                    delete result[claim];
-                }
-            }
-        }
-
-        return result;
     }
 
     protected async _processCode(response: SigninResponse, state: SigninState): Promise<void> {

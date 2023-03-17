@@ -287,6 +287,10 @@ export interface OidcAddressClaim {
 // @public
 export class OidcClient {
     constructor(settings: OidcClientSettings);
+    // Warning: (ae-forgotten-export) The symbol "ClaimsService" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    protected readonly _claimsService: ClaimsService;
     // (undocumented)
     clearStaleState(): Promise<void>;
     // (undocumented)
