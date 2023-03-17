@@ -11,7 +11,6 @@ const DefaultScope = "openid";
 const DefaultClientAuthentication = "client_secret_post";
 const DefaultResponseMode = "query";
 const DefaultStaleStateAgeInSeconds = 60 * 15;
-const DefaultClockSkewInSeconds = 60 * 5;
 
 /**
  * @public
@@ -87,11 +86,6 @@ export interface OidcClientSettings {
     /** Number (in seconds) indicating the age of state entries in storage for authorize requests that are considered abandoned and thus can be cleaned up (default: 900) */
     staleStateAgeInSeconds?: number;
 
-    /** @deprecated Unused */
-    clockSkewInSeconds?: number;
-    /** @deprecated Unused */
-    userInfoJwtIssuer?: /*"ANY" | "OP" |*/ string;
-
     /**
      * Indicates if objects returned from the user info endpoint as claims (e.g. `address`) are merged into the claims from the id token as a single object.
      * Otherwise, they are added to an array as distinct objects for the claim type. (default: false)
@@ -116,11 +110,6 @@ export interface OidcClientSettings {
      * An object containing additional header to be including in request.
      */
     extraHeaders?: Record<string, ExtraHeader>;
-
-    /**
-     * @deprecated since version 2.1.0. Use fetchRequestCredentials instead.
-     */
-    refreshTokenCredentials?: "same-origin" | "include" | "omit";
 
     /**
      * Will check the content type header of the response of the revocation endpoint to match these passed values (default: [])
@@ -178,8 +167,6 @@ export class OidcClientSettingsStore {
     public readonly filterProtocolClaims: boolean | string[];
     public readonly loadUserInfo: boolean;
     public readonly staleStateAgeInSeconds: number;
-    public readonly clockSkewInSeconds: number;
-    public readonly userInfoJwtIssuer: /*"ANY" | "OP" |*/ string;
     public readonly mergeClaims: boolean;
 
     public readonly stateStore: StateStore;
@@ -207,13 +194,10 @@ export class OidcClientSettingsStore {
         filterProtocolClaims = true,
         loadUserInfo = false,
         staleStateAgeInSeconds = DefaultStaleStateAgeInSeconds,
-        clockSkewInSeconds = DefaultClockSkewInSeconds,
-        userInfoJwtIssuer = "OP",
         mergeClaims = false,
         disablePKCE = false,
         // other behavior
         stateStore,
-        refreshTokenCredentials,
         revokeTokenAdditionalContentTypes,
         fetchRequestCredentials,
         refreshTokenAllowedScope,
@@ -260,17 +244,11 @@ export class OidcClientSettingsStore {
         this.filterProtocolClaims = filterProtocolClaims ?? true;
         this.loadUserInfo = !!loadUserInfo;
         this.staleStateAgeInSeconds = staleStateAgeInSeconds;
-        this.clockSkewInSeconds = clockSkewInSeconds;
-        this.userInfoJwtIssuer = userInfoJwtIssuer;
         this.mergeClaims = !!mergeClaims;
         this.disablePKCE = !!disablePKCE;
         this.revokeTokenAdditionalContentTypes = revokeTokenAdditionalContentTypes;
 
-        if (fetchRequestCredentials && refreshTokenCredentials) {
-            console.warn("Both fetchRequestCredentials and refreshTokenCredentials is set. Only fetchRequestCredentials will be used.");
-        }
-        this.fetchRequestCredentials = fetchRequestCredentials ? fetchRequestCredentials
-            : refreshTokenCredentials ? refreshTokenCredentials : "same-origin";
+        this.fetchRequestCredentials = fetchRequestCredentials ? fetchRequestCredentials : "same-origin";
 
         if (stateStore) {
             this.stateStore = stateStore;

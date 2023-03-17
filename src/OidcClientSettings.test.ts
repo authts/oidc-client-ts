@@ -401,34 +401,6 @@ describe("OidcClientSettings", () => {
         });
     });
 
-    describe("clockSkew", () => {
-
-        it("should use default value", () => {
-            // act
-            const subject = new OidcClientSettingsStore({
-                authority: "authority",
-                client_id: "client",
-                redirect_uri: "redirect",
-            });
-
-            // assert
-            expect(subject.clockSkewInSeconds).toEqual(5 * 60); // 5 mins
-        });
-
-        it("should return value from initial settings", () => {
-            // act
-            const subject = new OidcClientSettingsStore({
-                authority: "authority",
-                client_id: "client",
-                redirect_uri: "redirect",
-                clockSkewInSeconds: 10,
-            });
-
-            // assert
-            expect(subject.clockSkewInSeconds).toEqual(10);
-        });
-    });
-
     describe("stateStore", () => {
 
         it("should return value from initial settings", () => {
