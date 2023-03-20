@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { ErrorResponse, ErrorTimeout } from "./errors";
+import type { ExtraHeader } from "./OidcClientSettings";
 import { Logger } from "./utils";
 
 /**
@@ -38,6 +39,7 @@ export class JsonService {
     public constructor(
         additionalContentTypes: string[] = [],
         private _jwtHandler: JwtHandler | null = null,
+        private _extraHeaders: Record<string, ExtraHeader> = {},
     ) {
         this._contentTypes.push(...additionalContentTypes, "application/json");
         if (_jwtHandler) {
@@ -84,6 +86,8 @@ export class JsonService {
             logger.debug("token passed, setting Authorization header");
             headers["Authorization"] = "Bearer " + token;
         }
+
+        this.appendExtraHeaders(headers);
 
         let response: Response;
         try {
@@ -137,6 +141,8 @@ export class JsonService {
             headers["Authorization"] = "Basic " + basicAuth;
         }
 
+        this.appendExtraHeaders(headers);
+
         let response: Response;
         try {
             logger.debug("url:", url);
@@ -176,5 +182,32 @@ export class JsonService {
         }
 
         return json;
+    }
+
+    private appendExtraHeaders(
+        headers: Record<string, string>,
+    ): void {
+        const logger = this._logger.create("appendExtraHeaders");
+        const customKeys = Object.keys(this._extraHeaders);
+        const protectedHeaders = [
+            "authorization",
+            "accept",
+            "content-type",
+        ];
+        if (customKeys.length === 0) {
+            return;
+        }
+        customKeys.forEach((headerName) => {
+            if (protectedHeaders.includes(headerName.toLocaleLowerCase())) {
+                logger.warn("Protected header could not be overridden", headerName, protectedHeaders);
+                return;
+            }
+            const content = (typeof this._extraHeaders[headerName] === "function") ?
+                (this._extraHeaders[headerName] as ()=>string)() :
+                this._extraHeaders[headerName];
+            if (content && content !== "") {
+                headers[headerName] = content as string;
+            }
+        });
     }
 }

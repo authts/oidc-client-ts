@@ -19,6 +19,11 @@ const DefaultClockSkewInSeconds = 60 * 5;
 export type SigningKey = Record<string, string | string[]>;
 
 /**
+ * @public
+ */
+export type ExtraHeader = string | (() => string);
+
+/**
  * The settings used to configure the {@link OidcClient}.
  *
  * @public
@@ -108,6 +113,11 @@ export interface OidcClientSettings {
     extraTokenParams?: Record<string, unknown>;
 
     /**
+     * An object containing additional header to be including in request.
+     */
+    extraHeaders?: Record<string, ExtraHeader>;
+
+    /**
      * @deprecated since version 2.1.0. Use fetchRequestCredentials instead.
      */
     refreshTokenCredentials?: "same-origin" | "include" | "omit";
@@ -177,7 +187,8 @@ export class OidcClientSettingsStore {
     // extra
     public readonly extraQueryParams: Record<string, string | number | boolean>;
     public readonly extraTokenParams: Record<string, unknown>;
-
+    public readonly extraHeaders: Record<string, ExtraHeader>;
+    
     public readonly revokeTokenAdditionalContentTypes?: string[];
     public readonly fetchRequestCredentials: RequestCredentials;
     public readonly refreshTokenAllowedScope: string | undefined;
@@ -206,9 +217,10 @@ export class OidcClientSettingsStore {
         revokeTokenAdditionalContentTypes,
         fetchRequestCredentials,
         refreshTokenAllowedScope,
-        // extra query params
+        // extra
         extraQueryParams = {},
         extraTokenParams = {},
+        extraHeaders = {},
     }: OidcClientSettings) {
 
         this.authority = authority;
@@ -272,5 +284,6 @@ export class OidcClientSettingsStore {
 
         this.extraQueryParams = extraQueryParams;
         this.extraTokenParams = extraTokenParams;
+        this.extraHeaders = extraHeaders;
     }
 }

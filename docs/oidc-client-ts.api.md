@@ -122,6 +122,9 @@ export class ErrorTimeout extends Error {
 }
 
 // @public (undocumented)
+export type ExtraHeader = string | (() => string);
+
+// @public (undocumented)
 export type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "nonce" | "extraQueryParams" | "extraTokenParams" | "state" | "redirect_uri" | "prompt" | "acr_values" | "login_hint" | "scope">;
 
 // @public (undocumented)
@@ -345,6 +348,7 @@ export interface OidcClientSettings {
     clockSkewInSeconds?: number;
     disablePKCE?: boolean;
     display?: string;
+    extraHeaders?: Record<string, ExtraHeader>;
     extraQueryParams?: Record<string, string | number | boolean>;
     // (undocumented)
     extraTokenParams?: Record<string, unknown>;
@@ -378,7 +382,7 @@ export interface OidcClientSettings {
 
 // @public
 export class OidcClientSettingsStore {
-    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, clockSkewInSeconds, userInfoJwtIssuer, mergeClaims, disablePKCE, stateStore, refreshTokenCredentials, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, }: OidcClientSettings);
+    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, clockSkewInSeconds, userInfoJwtIssuer, mergeClaims, disablePKCE, stateStore, refreshTokenCredentials, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, extraHeaders, }: OidcClientSettings);
     // (undocumented)
     readonly acr_values: string | undefined;
     // (undocumented)
@@ -395,6 +399,8 @@ export class OidcClientSettingsStore {
     readonly disablePKCE: boolean;
     // (undocumented)
     readonly display: string | undefined;
+    // (undocumented)
+    readonly extraHeaders: Record<string, ExtraHeader>;
     // (undocumented)
     readonly extraQueryParams: Record<string, string | number | boolean>;
     // (undocumented)

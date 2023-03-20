@@ -526,4 +526,36 @@ describe("OidcClientSettings", () => {
             expect(subject.extraTokenParams).toEqual({ "resourceServer": "abc" });
         });
     });
+
+    describe("extraHeaders", () => {
+
+        it("should use default value", () => {
+            // act
+            const subject = new OidcClientSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+            });
+
+            // assert
+            expect(subject.extraHeaders).toEqual({});
+        });
+
+        it("should return value from initial settings", () => {
+            // act
+            const extraHeaders = {
+                "Header-1": "this-is-a-test",
+                "Header-3": () => "dynamic header",
+            };
+            const subject = new OidcClientSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                extraHeaders: extraHeaders,
+            });
+
+            // assert
+            expect(subject.extraHeaders).toEqual(extraHeaders);
+        });
+    });
 });
