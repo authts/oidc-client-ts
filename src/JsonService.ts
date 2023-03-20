@@ -2,17 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { ErrorResponse, ErrorTimeout } from "./errors";
+import type { ExtraHeader } from "./OidcClientSettings";
 import { Logger } from "./utils";
 
 /**
  * @internal
  */
 export type JwtHandler = (text: string) => Promise<Record<string, unknown>>;
-
-/**
- * @public
- */
-export type ExtraHeader = string | (() => string);
 
 /**
  * @internal
@@ -144,6 +140,7 @@ export class JsonService {
         if (basicAuth !== undefined) {
             headers["Authorization"] = "Basic " + basicAuth;
         }
+
         this.appendExtraHeaders(headers);
 
         let response: Response;
@@ -190,6 +187,7 @@ export class JsonService {
     private appendExtraHeaders(
         headers: Record<string, string>,
     ): void {
+        const logger = this._logger.create("appendExtraHeaders");
         const customKeys = Object.keys(this._extraHeaders);
         const protectedHeaders = [
             "authorization",
@@ -201,6 +199,7 @@ export class JsonService {
         }
         customKeys.forEach((headerName) => {
             if (protectedHeaders.includes(headerName.toLocaleLowerCase())) {
+                logger.warn("Protected header could not be overridden", headerName, protectedHeaders);
                 return;
             }
             const content = (typeof this._extraHeaders[headerName] === "function") ?

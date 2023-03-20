@@ -5,7 +5,6 @@ import { WebStorageStateStore } from "./WebStorageStateStore";
 import type { OidcMetadata } from "./OidcMetadata";
 import type { StateStore } from "./StateStore";
 import { InMemoryWebStorage } from "./InMemoryWebStorage";
-import type { ExtraHeader } from "./JsonService";
 
 const DefaultResponseType = "code";
 const DefaultScope = "openid";
@@ -18,6 +17,11 @@ const DefaultClockSkewInSeconds = 60 * 5;
  * @public
  */
 export type SigningKey = Record<string, string | string[]>;
+
+/**
+ * @public
+ */
+export type ExtraHeader = string | (() => string);
 
 /**
  * The settings used to configure the {@link OidcClient}.
@@ -213,7 +217,7 @@ export class OidcClientSettingsStore {
         revokeTokenAdditionalContentTypes,
         fetchRequestCredentials,
         refreshTokenAllowedScope,
-        // extra query params
+        // extra
         extraQueryParams = {},
         extraTokenParams = {},
         extraHeaders = {},
