@@ -6,6 +6,7 @@ import { SigninState } from "./SigninState";
 
 /**
  * @public
+ * @see https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
  */
 export interface SigninRequestArgs {
     // mandatory
@@ -17,23 +18,27 @@ export interface SigninRequestArgs {
     scope: string;
 
     // optional
-    prompt?: string;
+    response_mode?: "query" | "fragment";
+    nonce?: string;
     display?: string;
+    prompt?: string;
     max_age?: number;
     ui_locales?: string;
     id_token_hint?: string;
     login_hint?: string;
     acr_values?: string;
+
+    // other
     resource?: string | string[];
-    response_mode?: "query" | "fragment" ;
     request?: string;
     request_uri?: string;
-    extraQueryParams?: Record<string, string | number | boolean>;
     request_type?: string;
-    client_secret?: string;
+    extraQueryParams?: Record<string, string | number | boolean>;
+
+    // special
     extraTokenParams?: Record<string, unknown>;
+    client_secret?: string;
     skipUserInfo?: boolean;
-    nonce?: string;
     disablePKCE?: boolean;
     /** custom "state", which can be used by a caller to have "data" round tripped */
     state_data?: unknown;

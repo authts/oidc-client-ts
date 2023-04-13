@@ -8,6 +8,8 @@ const OidcScope = "openid";
 
 /**
  * @public
+ * @see https://openid.net/specs/openid-connect-core-1_0.html#AuthResponse
+ * @see https://openid.net/specs/openid-connect-core-1_0.html#AuthError
  */
 export class SigninResponse {
     // props present in the initial callback response regardless of success

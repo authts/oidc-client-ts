@@ -8,6 +8,7 @@ import type { OidcMetadata } from "./OidcMetadata";
 
 /**
  * @public
+ * @see https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata
  */
 export class MetadataService {
     private readonly _logger = new Logger("MetadataService");

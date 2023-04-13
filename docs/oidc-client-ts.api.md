@@ -765,7 +765,6 @@ export interface SignoutRequestArgs {
     post_logout_redirect_uri?: string;
     // (undocumented)
     request_type?: string;
-    // (undocumented)
     state_data?: unknown;
     // (undocumented)
     url: string;

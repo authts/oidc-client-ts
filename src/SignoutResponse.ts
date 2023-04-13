@@ -3,6 +3,7 @@
 
 /**
  * @public
+ * @see https://openid.net/specs/openid-connect-core-1_0.html#AuthError
  */
 export class SignoutResponse {
     public readonly state: string | null;
