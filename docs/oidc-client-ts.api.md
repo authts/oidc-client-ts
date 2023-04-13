@@ -46,48 +46,14 @@ export class CheckSessionIFrame {
 }
 
 // @public (undocumented)
-export interface CreateSigninRequestArgs {
-    // (undocumented)
-    acr_values?: string;
-    // (undocumented)
-    client_secret?: string;
-    // (undocumented)
-    display?: string;
-    // (undocumented)
-    extraQueryParams?: Record<string, string | number | boolean>;
-    // (undocumented)
-    extraTokenParams?: Record<string, unknown>;
-    // (undocumented)
-    id_token_hint?: string;
-    // (undocumented)
-    login_hint?: string;
-    // (undocumented)
-    max_age?: number;
-    // (undocumented)
-    nonce?: string;
-    // (undocumented)
-    prompt?: string;
+export interface CreateSigninRequestArgs extends Omit<SigninRequestArgs, "url" | "authority" | "client_id" | "redirect_uri" | "response_type" | "scope" | "state_data"> {
     // (undocumented)
     redirect_uri?: string;
-    // (undocumented)
-    request?: string;
-    // (undocumented)
-    request_type?: string;
-    // (undocumented)
-    request_uri?: string;
-    // (undocumented)
-    resource?: string | string[];
-    // (undocumented)
-    response_mode?: "query" | "fragment";
     // (undocumented)
     response_type?: string;
     // (undocumented)
     scope?: string;
-    // (undocumented)
-    skipUserInfo?: boolean;
     state?: unknown;
-    // (undocumented)
-    ui_locales?: string;
 }
 
 // @public (undocumented)
