@@ -6,17 +6,21 @@ import { State } from "./State";
 
 /**
  * @public
+ * @see https://openid.net/specs/openid-connect-rpinitiated-1_0.html#RPLogout
  */
 export interface SignoutRequestArgs {
     // mandatory
     url: string;
 
     // optional
-    state_data?: unknown;
     id_token_hint?: string;
     post_logout_redirect_uri?: string;
     extraQueryParams?: Record<string, string | number | boolean>;
+
+    // special
     request_type?: string;
+    /** custom "state", which can be used by a caller to have "data" round tripped */
+    state_data?: unknown;
 }
 
 /**

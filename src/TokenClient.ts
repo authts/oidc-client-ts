@@ -73,6 +73,11 @@ export class TokenClient {
         );
     }
 
+    /**
+     * Exchange code.
+     *
+     * @see https://www.rfc-editor.org/rfc/rfc6749#section-4.1.3
+     */
     public async exchangeCode({
         grant_type = "authorization_code",
         redirect_uri = this._settings.redirect_uri,
@@ -123,6 +128,11 @@ export class TokenClient {
         return response;
     }
 
+    /**
+     * Exchange credentials.
+     *
+     * @see https://www.rfc-editor.org/rfc/rfc6749#section-4.3.2
+     */
     public async exchangeCredentials({
         grant_type = "password",
         client_id = this._settings.client_id,
@@ -169,6 +179,11 @@ export class TokenClient {
         return response;
     }
 
+    /**
+     * Exchange a refresh token.
+     *
+     * @see https://www.rfc-editor.org/rfc/rfc6749#section-6
+     */
     public async exchangeRefreshToken({
         grant_type = "refresh_token",
         client_id = this._settings.client_id,

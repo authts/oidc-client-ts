@@ -7,7 +7,7 @@ import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSetting
 import { ResponseValidator } from "./ResponseValidator";
 import { MetadataService } from "./MetadataService";
 import type { RefreshState } from "./RefreshState";
-import { SigninRequest } from "./SigninRequest";
+import { SigninRequest, SigninRequestArgs } from "./SigninRequest";
 import { SigninResponse } from "./SigninResponse";
 import { SignoutRequest, SignoutRequestArgs } from "./SignoutRequest";
 import { SignoutResponse } from "./SignoutResponse";
@@ -19,31 +19,14 @@ import { ClaimsService } from "./ClaimsService";
 /**
  * @public
  */
-export interface CreateSigninRequestArgs {
+export interface CreateSigninRequestArgs
+    extends Omit<SigninRequestArgs, "url" | "authority" | "client_id" | "redirect_uri" | "response_type" | "scope" | "state_data"> {
     redirect_uri?: string;
     response_type?: string;
     scope?: string;
-    nonce?: string;
 
     /** custom "state", which can be used by a caller to have "data" round tripped */
     state?: unknown;
-
-    prompt?: string;
-    display?: string;
-    max_age?: number;
-    ui_locales?: string;
-    id_token_hint?: string;
-    login_hint?: string;
-    acr_values?: string;
-    resource?: string | string[];
-    response_mode?: "query" | "fragment";
-    request?: string;
-    request_uri?: string;
-    extraQueryParams?: Record<string, string | number | boolean>;
-    request_type?: string;
-    client_secret?: string;
-    extraTokenParams?: Record<string, unknown>;
-    skipUserInfo?: boolean;
 }
 
 /**
@@ -57,7 +40,10 @@ export interface UseRefreshTokenArgs {
 /**
  * @public
  */
-export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url" | "state_data"> & { state?: unknown };
+export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url" | "state_data"> & {
+    /** custom "state", which can be used by a caller to have "data" round tripped */
+    state?: unknown;
+};
 
 /**
  * @public
