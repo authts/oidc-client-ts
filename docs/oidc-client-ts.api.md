@@ -629,11 +629,9 @@ export type SigninRedirectArgs = RedirectParams & ExtraSigninRequestArgs;
 
 // @public (undocumented)
 export class SigninRequest {
-    constructor(options: SigninRequestArgs);
+    constructor({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, resource, skipUserInfo, extraQueryParams, extraTokenParams, disablePKCE, ...optionalParams }: SigninRequestArgs);
     // (undocumented)
     getUrl(): Promise<string>;
-    // (undocumented)
-    protected _options: SigninRequestArgs;
     // (undocumented)
     readonly state: SigninState;
 }

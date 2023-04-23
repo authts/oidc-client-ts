@@ -51,21 +51,31 @@ export class SigninRequest {
     private readonly _logger = new Logger("SigninRequest");
 
     public readonly state: SigninState;
-    protected _options: SigninRequestArgs;
 
-    public constructor(options: SigninRequestArgs) {
-        this._options = options;
+    private readonly _url: string;
+    private readonly _authority: string;
+    private readonly _client_id: string;
+    private readonly _redirect_uri: string;
+    private readonly _response_type: string;
+    private readonly _scope: string;
+    private readonly _nonce: string|undefined;
+    private readonly _resource: string|string[]|undefined;
+    private readonly _optionalParams: Partial<SigninRequestArgs>;
+    private readonly _extraQueryParams: SigninRequestArgs["extraQueryParams"];
+    private readonly _response_mode: string|undefined;
 
-        const {
-            // mandatory
-            url, authority, client_id, redirect_uri, response_type, scope,
-            // optional
-            state_data, response_mode, request_type, client_secret,
-            skipUserInfo,
-            extraTokenParams,
-            disablePKCE,
-        } = options;
-
+    public constructor({
+        // mandatory
+        url, authority, client_id, redirect_uri, response_type, scope,
+        // optional
+        state_data, response_mode, request_type, client_secret, nonce,
+        resource,
+        skipUserInfo,
+        extraQueryParams,
+        extraTokenParams,
+        disablePKCE,
+        ...optionalParams
+    }: SigninRequestArgs) {
         if (!url) {
             this._logger.error("ctor: No url passed");
             throw new Error("url");
@@ -91,6 +101,18 @@ export class SigninRequest {
             throw new Error("authority");
         }
 
+        this._url = url;
+        this._authority = authority;
+        this._client_id = client_id;
+        this._redirect_uri = redirect_uri;
+        this._response_type = response_type;
+        this._scope = scope;
+        this._nonce = nonce;
+        this._resource = resource;
+        this._optionalParams = optionalParams;
+        this._extraQueryParams = extraQueryParams;
+        this._response_mode = response_mode;
+
         this.state = new SigninState({
             data: state_data,
             request_type,
@@ -103,43 +125,13 @@ export class SigninRequest {
     }
 
     public async getUrl(): Promise<string> {
-        const nonOptionalParams: Array<keyof SigninRequestArgs> = [
-            "url",
-            "authority",
-            "client_id",
-            "redirect_uri",
-            "response_type",
-            "scope",
-            "state_data",
-            "response_mode",
-            "request_type",
-            "client_secret",
-            "nonce",
-            "resource",
-            "skipUserInfo",
-            "extraQueryParams",
-            "extraTokenParams",
-            "disablePKCE",
-        ];
-        const {
-            url,
-            client_id,
-            redirect_uri,
-            response_type,
-            scope,
-            response_mode,
-            nonce,
-            resource,
-            extraQueryParams,
-        } = this._options;
-
-        const parsedUrl = new URL(url);
-        parsedUrl.searchParams.append("client_id", client_id);
-        parsedUrl.searchParams.append("redirect_uri", redirect_uri);
-        parsedUrl.searchParams.append("response_type", response_type);
-        parsedUrl.searchParams.append("scope", scope);
-        if (nonce) {
-            parsedUrl.searchParams.append("nonce", nonce);
+        const parsedUrl = new URL(this._url);
+        parsedUrl.searchParams.append("client_id", this._client_id);
+        parsedUrl.searchParams.append("redirect_uri", this._redirect_uri);
+        parsedUrl.searchParams.append("response_type", this._response_type);
+        parsedUrl.searchParams.append("scope", this._scope);
+        if (this._nonce) {
+            parsedUrl.searchParams.append("nonce", this._nonce);
         }
 
         parsedUrl.searchParams.append("state", this.state.id);
@@ -150,20 +142,20 @@ export class SigninRequest {
             parsedUrl.searchParams.append("code_challenge_method", "S256");
         }
 
-        if (resource) {
+        if (this._resource) {
             // https://datatracker.ietf.org/doc/html/rfc8707
-            const resources = Array.isArray(resource) ? resource : [resource];
-            resources
-                .forEach(r => parsedUrl.searchParams.append("resource", r));
-        }
-
-        for (const [key, val] of Object.entries(this._options)) {
-            if (!nonOptionalParams.includes(key as keyof SigninRequestArgs)) {
-                parsedUrl.searchParams.append(key, val);
+            const resources = Array.isArray(this._resource) ? this._resource : [this._resource];
+            for (const r of resources) {
+                parsedUrl.searchParams.append("resource", r);
             }
         }
 
-        for (const [key, value] of Object.entries({ response_mode, ...extraQueryParams })) {
+        const extraParams = Object.entries({
+            response_mode: this._response_mode,
+            ...this._optionalParams,
+            ...this._extraQueryParams,
+        });
+        for (const [key, value] of extraParams) {
             if (value != null) {
                 parsedUrl.searchParams.append(key, value.toString());
             }
