@@ -201,7 +201,7 @@ export class ResponseValidator {
             if (current.sub !== profile.sub) {
                 logger.throw(new Error("sub in id_token does not match current sub"));
             }
-            if (current.auth_time && current.auth_time !== profile.auth_time) {
+            if (profile.auth_time !== undefined && current.auth_time && current.auth_time !== profile.auth_time) {
                 logger.throw(new Error("auth_time in id_token does not match original auth_time"));
             }
             if (current.azp && current.azp !== profile.azp) {
