@@ -212,6 +212,6 @@ export class ResponseValidator {
             }
         }
 
-        response.profile = profile as UserProfile;
+        response.profile = incoming as UserProfile;
     }
 }
