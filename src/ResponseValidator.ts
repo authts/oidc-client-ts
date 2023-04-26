@@ -186,32 +186,32 @@ export class ResponseValidator {
         }
     }
 
-    protected _validateIdTokenAttributes(response: SigninResponse, currentToken?: string): void {
+    protected _validateIdTokenAttributes(response: SigninResponse, existingToken?: string): void {
         const logger = this._logger.create("_validateIdTokenAttributes");
 
         logger.debug("decoding ID Token JWT");
-        const profile = JwtUtils.decode(response.id_token ?? "");
+        const incoming = JwtUtils.decode(response.id_token ?? "");
 
-        if (!profile.sub) {
+        if (!incoming.sub) {
             logger.throw(new Error("ID Token is missing a subject claim"));
         }
 
-        if (currentToken) {
-            const current = JwtUtils.decode(currentToken);
-            if (current.sub !== profile.sub) {
+        if (existingToken) {
+            const existing = JwtUtils.decode(existingToken);
+            if (incoming.sub !== existing.sub) {
                 logger.throw(new Error("sub in id_token does not match current sub"));
             }
-            if (current.auth_time && current.auth_time !== profile.auth_time) {
+            if (incoming.auth_time && incoming.auth_time !== existing.auth_time) {
                 logger.throw(new Error("auth_time in id_token does not match original auth_time"));
             }
-            if (current.azp && current.azp !== profile.azp) {
+            if (incoming.azp && incoming.azp !== existing.azp) {
                 logger.throw(new Error("azp in id_token does not match original azp"));
             }
-            if (!current.azp && profile.azp) {
+            if (!incoming.azp && existing.azp) {
                 logger.throw(new Error("azp not in id_token, but present in original id_token"));
             }
         }
 
-        response.profile = profile as UserProfile;
+        response.profile = incoming as UserProfile;
     }
 }
