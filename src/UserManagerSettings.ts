@@ -48,7 +48,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     silent_redirect_uri?: string;
     /** Number of seconds to wait for the silent renew to return before assuming it has failed or timed out (default: 10) */
     silentRequestTimeoutInSeconds?: number;
-    /** Flag to indicate if there should be an automatic attempt to renew the access token prior to its expiration (default: true) */
+    /** Flag to indicate if there should be an automatic attempt to renew the access token prior to its expiration. The automatic renew attempt starts 1 minute before the access token expires (default: true) */
     automaticSilentRenew?: boolean;
     /** Flag to validate user.profile.sub in silent renew calls (default: true) */
     validateSubOnSilentRenew?: boolean;
