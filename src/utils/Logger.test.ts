@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Log, Logger, ILogger } from "./Logger";
+import { Log, Logger, type ILogger } from "./Logger";
 
 let subject: Logger;
 let testLogger: ILogger;

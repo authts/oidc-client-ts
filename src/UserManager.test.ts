@@ -5,7 +5,7 @@ import { once } from "events";
 import type { PopupWindow } from "./navigators";
 import type { SigninResponse } from "./SigninResponse";
 import type { SignoutResponse } from "./SignoutResponse";
-import { UserManager, SigninPopupArgs, SigninRedirectArgs, SigninSilentArgs, SignoutSilentArgs } from "./UserManager";
+import { UserManager, type SigninPopupArgs, type SigninRedirectArgs, type SigninSilentArgs, type SignoutSilentArgs } from "./UserManager";
 import { UserManagerSettingsStore } from "./UserManagerSettings";
 import { User } from "./User";
 import type { UserProfile } from "./User";

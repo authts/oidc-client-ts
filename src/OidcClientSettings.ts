@@ -188,12 +188,12 @@ export class OidcClientSettingsStore {
     public readonly extraQueryParams: Record<string, string | number | boolean>;
     public readonly extraTokenParams: Record<string, unknown>;
     public readonly extraHeaders: Record<string, ExtraHeader>;
-    
+
     public readonly revokeTokenAdditionalContentTypes?: string[];
     public readonly fetchRequestCredentials: RequestCredentials;
     public readonly refreshTokenAllowedScope: string | undefined;
     public readonly disablePKCE: boolean;
-    
+
     public constructor({
         // metadata related
         authority, metadataUrl, metadata, signingKeys, metadataSeed,
