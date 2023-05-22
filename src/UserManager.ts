@@ -3,10 +3,10 @@
 
 import { Logger } from "./utils";
 import { ErrorResponse } from "./errors";
-import { IFrameNavigator, NavigateResponse, PopupNavigator, RedirectNavigator, PopupWindowParams,
-    IWindow, IFrameWindowParams, RedirectParams } from "./navigators";
-import { OidcClient, CreateSigninRequestArgs, CreateSignoutRequestArgs, ProcessResourceOwnerPasswordCredentialsArgs } from "./OidcClient";
-import { UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
+import { IFrameNavigator, type NavigateResponse, PopupNavigator, RedirectNavigator, type PopupWindowParams,
+    type IWindow, type IFrameWindowParams, type RedirectParams } from "./navigators";
+import { OidcClient, type CreateSigninRequestArgs, type CreateSignoutRequestArgs, type ProcessResourceOwnerPasswordCredentialsArgs } from "./OidcClient";
+import { type UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
 import { User } from "./User";
 import { UserManagerEvents } from "./UserManagerEvents";
 import { SilentRenewService } from "./SilentRenewService";

@@ -5,7 +5,7 @@ import { JwtUtils } from "./utils";
 import type { ErrorResponse } from "./errors";
 import type { JwtClaims } from "./Claims";
 import { OidcClient } from "./OidcClient";
-import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
+import { type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 import { SigninState } from "./SigninState";
 import { State } from "./State";
 import { SigninRequest } from "./SigninRequest";

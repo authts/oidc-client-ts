@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { MetadataService } from "./MetadataService";
-import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
+import { type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 
 describe("MetadataService", () => {
     let settings: OidcClientSettings;

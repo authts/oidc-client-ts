@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Logger } from "../utils";
-import { PopupWindow, PopupWindowParams } from "./PopupWindow";
+import { PopupWindow, type PopupWindowParams } from "./PopupWindow";
 import type { INavigator } from "./INavigator";
 import type { UserManagerSettingsStore } from "../UserManagerSettings";
 

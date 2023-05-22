@@ -3,13 +3,13 @@
 
 import { Logger, UrlUtils } from "./utils";
 import { ErrorResponse } from "./errors";
-import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
+import { type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 import { ResponseValidator } from "./ResponseValidator";
 import { MetadataService } from "./MetadataService";
 import type { RefreshState } from "./RefreshState";
-import { SigninRequest, SigninRequestArgs } from "./SigninRequest";
+import { SigninRequest, type SigninRequestArgs } from "./SigninRequest";
 import { SigninResponse } from "./SigninResponse";
-import { SignoutRequest, SignoutRequestArgs } from "./SignoutRequest";
+import { SignoutRequest, type SignoutRequestArgs } from "./SignoutRequest";
 import { SignoutResponse } from "./SignoutResponse";
 import { SigninState } from "./SigninState";
 import { State } from "./State";

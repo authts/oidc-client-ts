@@ -1,7 +1,7 @@
 import { CryptoUtils } from "./utils";
 import { TokenClient } from "./TokenClient";
 import { MetadataService } from "./MetadataService";
-import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
+import { type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 
 describe("TokenClient", () => {
     let settings: OidcClientSettings;
