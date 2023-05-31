@@ -42,7 +42,6 @@ export class IFrameWindow extends AbstractChildWindow {
         iframe.style.top = "0";
         iframe.width = "0";
         iframe.height = "0";
-        iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms");
 
         window.document.body.appendChild(iframe);
         return iframe;

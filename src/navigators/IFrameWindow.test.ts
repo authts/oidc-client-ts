@@ -33,11 +33,6 @@ describe("IFrameWindow", () => {
             expect(width).toBe("0");
             expect(height).toBe("0");
         });
-
-        it("should set correct sandbox attribute", () => {
-            const sandboxAttr = frameWindow["_frame"]!.attributes.getNamedItem("sandbox");
-            expect(sandboxAttr?.value).toBe("allow-scripts allow-same-origin allow-forms");
-        });
     });
 
     describe("close", () => {
