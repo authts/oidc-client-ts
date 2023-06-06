@@ -48,8 +48,8 @@ function signin() {
 }
 
 var signinResponse;
-function processSigninResponse() {
-    client.processSigninResponse().then(function(response) {
+function processSigninResponse(url) {
+    client.processSigninResponse(url).then(function(response) {
         signinResponse = response;
         log("signin response", signinResponse);
     }).catch(function(err) {
@@ -59,7 +59,7 @@ function processSigninResponse() {
 }
 
 function signout() {
-    client.createSignoutRequest({ state: { foo: 5 } }).then(function(req) {
+    client.createSignoutRequest({ state: { foo: 5 }, client_id: settings.client_id }).then(function(req) {
         log("signout request", req, "<a href='" + req.url + "'>go signout</a>");
         if (followLinks()) {
             window.location = req.url;
@@ -67,8 +67,8 @@ function signout() {
     });
 }
 
-function processSignoutResponse() {
-    client.processSignoutResponse().then(function(response) {
+function processSignoutResponse(url) {
+    client.processSignoutResponse(url).then(function(response) {
         signinResponse = null;
         log("signout response", response);
     }).catch(function(err) {
@@ -99,10 +99,10 @@ document.getElementById("processSignout").style.display = display;
 
 if (followLinks()) {
     if (window.location.href.indexOf("#") >= 0) {
-        processSigninResponse();
+        processSigninResponse(window.location.href);
     }
     else if (window.location.href.indexOf("?") >= 0) {
-        processSignoutResponse();
+        processSignoutResponse(window.location.href);
     }
 }
 

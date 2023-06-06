@@ -218,6 +218,7 @@ export class OidcClient {
     public async createSignoutRequest({
         state,
         id_token_hint,
+        client_id,
         request_type,
         post_logout_redirect_uri = this.settings.post_logout_redirect_uri,
         extraQueryParams = this.settings.extraQueryParams,
@@ -235,6 +236,7 @@ export class OidcClient {
         const request = new SignoutRequest({
             url,
             id_token_hint,
+            client_id,
             post_logout_redirect_uri,
             state_data: state,
             extraQueryParams,
