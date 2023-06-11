@@ -558,7 +558,6 @@ describe("OidcClient", () => {
             expect(request.state).toBeDefined();
             expect(request.state?.data).toEqual("foo");
             const url = request.url;
-            console.log("url", url);
             expect(url).toContain("http://sts/signout");
             expect(url).toContain("post_logout_redirect_uri=bar");
             expect(url).toContain("id_token_hint=baz");
@@ -578,7 +577,6 @@ describe("OidcClient", () => {
             expect(request.state).toBeDefined();
             expect(request.state?.data).toEqual("foo");
             const url = request.url;
-            console.log("url", url);
             expect(url).toContain("http://sts/signout");
             expect(url).toContain("post_logout_redirect_uri=bar");
             expect(url).toContain("client_id=client");
@@ -599,7 +597,6 @@ describe("OidcClient", () => {
             expect(request.state).toBeDefined();
             expect(request.state?.data).toEqual("foo");
             const url = request.url;
-            console.log("url", url);
             expect(url).toContain("http://sts/signout");
             expect(url).toContain("post_logout_redirect_uri=bar");
             expect(url).toContain("client_id=baz");
