@@ -48,8 +48,8 @@ function signin() {
 }
 
 var signinResponse;
-function processSigninResponse(url) {
-    client.processSigninResponse(url).then(function(response) {
+function processSigninResponse() {
+    client.processSigninResponse(window.location.href).then(function(response) {
         signinResponse = response;
         log("signin response", signinResponse);
     }).catch(function(err) {
@@ -67,8 +67,8 @@ function signout() {
     });
 }
 
-function processSignoutResponse(url) {
-    client.processSignoutResponse(url).then(function(response) {
+function processSignoutResponse() {
+    client.processSignoutResponse(window.location.href).then(function(response) {
         signinResponse = null;
         log("signout response", response);
     }).catch(function(err) {
@@ -99,10 +99,10 @@ document.getElementById("processSignout").style.display = display;
 
 if (followLinks()) {
     if (window.location.href.indexOf("#") >= 0) {
-        processSigninResponse(window.location.href);
+        processSigninResponse();
     }
     else if (window.location.href.indexOf("?") >= 0) {
-        processSignoutResponse(window.location.href);
+        processSignoutResponse();
     }
 }
 
