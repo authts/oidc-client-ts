@@ -265,7 +265,7 @@ export class OidcClient {
     // (undocumented)
     createSigninRequest({ state, request, request_uri, request_type, id_token_hint, login_hint, skipUserInfo, nonce, response_type, scope, redirect_uri, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, extraQueryParams, extraTokenParams, }: CreateSigninRequestArgs): Promise<SigninRequest>;
     // (undocumented)
-    createSignoutRequest({ state, id_token_hint, request_type, post_logout_redirect_uri, extraQueryParams, }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
+    createSignoutRequest({ state, id_token_hint, client_id, request_type, post_logout_redirect_uri, extraQueryParams, }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
     // (undocumented)
     protected readonly _logger: Logger;
     // (undocumented)
@@ -720,7 +720,7 @@ export type SignoutRedirectArgs = RedirectParams & ExtraSignoutRequestArgs;
 
 // @public (undocumented)
 export class SignoutRequest {
-    constructor({ url, state_data, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type, }: SignoutRequestArgs);
+    constructor({ url, state_data, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type, client_id, }: SignoutRequestArgs);
     // (undocumented)
     readonly state?: State;
     // (undocumented)
@@ -729,6 +729,8 @@ export class SignoutRequest {
 
 // @public (undocumented)
 export interface SignoutRequestArgs {
+    // (undocumented)
+    client_id?: string;
     // (undocumented)
     extraQueryParams?: Record<string, string | number | boolean>;
     // (undocumented)

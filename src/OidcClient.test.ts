@@ -563,6 +563,45 @@ describe("OidcClient", () => {
             expect(url).toContain("id_token_hint=baz");
         });
 
+        it("should pass params to SignoutRequest w/o id_token_hint and client_id", async () => {
+            // arrange
+            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
+
+            // act
+            const request = await subject.createSignoutRequest({
+                state: "foo",
+                post_logout_redirect_uri: "bar",
+            });
+
+            // assert
+            expect(request.state).toBeDefined();
+            expect(request.state?.data).toEqual("foo");
+            const url = request.url;
+            expect(url).toContain("http://sts/signout");
+            expect(url).toContain("post_logout_redirect_uri=bar");
+            expect(url).toContain("client_id=client");
+        });
+
+        it("should pass params to SignoutRequest with client_id", async () => {
+            // arrange
+            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
+
+            // act
+            const request = await subject.createSignoutRequest({
+                state: "foo",
+                post_logout_redirect_uri: "bar",
+                client_id: "baz",
+            });
+
+            // assert
+            expect(request.state).toBeDefined();
+            expect(request.state?.data).toEqual("foo");
+            const url = request.url;
+            expect(url).toContain("http://sts/signout");
+            expect(url).toContain("post_logout_redirect_uri=bar");
+            expect(url).toContain("client_id=baz");
+        });
+
         it("should fail if metadata fails", async () => {
             // arrange
             jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockRejectedValue(new Error("test"));

@@ -218,6 +218,7 @@ export class OidcClient {
     public async createSignoutRequest({
         state,
         id_token_hint,
+        client_id,
         request_type,
         post_logout_redirect_uri = this.settings.post_logout_redirect_uri,
         extraQueryParams = this.settings.extraQueryParams,
@@ -232,9 +233,15 @@ export class OidcClient {
 
         logger.debug("Received end session endpoint", url);
 
+        // specify the client identifier when post_logout_redirect_uri is used but id_token_hint is not
+        if (!client_id && post_logout_redirect_uri && !id_token_hint) {
+            client_id = this.settings.client_id;
+        }
+
         const request = new SignoutRequest({
             url,
             id_token_hint,
+            client_id,
             post_logout_redirect_uri,
             state_data: state,
             extraQueryParams,

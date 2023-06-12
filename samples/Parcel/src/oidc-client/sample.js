@@ -49,7 +49,7 @@ function signin() {
 
 var signinResponse;
 function processSigninResponse() {
-    client.processSigninResponse().then(function(response) {
+    client.processSigninResponse(window.location.href).then(function(response) {
         signinResponse = response;
         log("signin response", signinResponse);
     }).catch(function(err) {
@@ -59,7 +59,7 @@ function processSigninResponse() {
 }
 
 function signout() {
-    client.createSignoutRequest({ state: { foo: 5 } }).then(function(req) {
+    client.createSignoutRequest({ state: { foo: 5 }, client_id: settings.client_id }).then(function(req) {
         log("signout request", req, "<a href='" + req.url + "'>go signout</a>");
         if (followLinks()) {
             window.location = req.url;
@@ -68,7 +68,7 @@ function signout() {
 }
 
 function processSignoutResponse() {
-    client.processSignoutResponse().then(function(response) {
+    client.processSignoutResponse(window.location.href).then(function(response) {
         signinResponse = null;
         log("signout response", response);
     }).catch(function(err) {
