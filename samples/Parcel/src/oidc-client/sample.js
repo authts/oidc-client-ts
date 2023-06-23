@@ -36,7 +36,10 @@ var client = new OidcClient(settings);
 // functions for UI elements
 ///////////////////////////////
 function signin() {
-    client.createSigninRequest({ state: { bar: 15 } }).then(function(req) {
+    var optionalArgs = { 
+        state: { bar: 15 } // state is data that you want to roundtrip, it is not used by the protocol
+    };
+    client.createSigninRequest(optionalArgs).then(function(req) {
         log("signin request", req, "<a href='" + req.url + "'>go signin</a>");
         if (followLinks()) {
             window.location = req.url;
@@ -59,7 +62,12 @@ function processSigninResponse() {
 }
 
 function signout() {
-    client.createSignoutRequest({ state: { foo: 5 }, client_id: settings.client_id }).then(function(req) {
+    var optionalArgs = { 
+        state: { bar: 15 }, 
+        client_id: settings.client_id 
+    };
+
+    client.createSignoutRequest(optionalArgs).then(function(req) {
         log("signout request", req, "<a href='" + req.url + "'>go signout</a>");
         if (followLinks()) {
             window.location = req.url;
