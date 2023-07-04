@@ -256,6 +256,7 @@ export interface OidcAddressClaim {
 // @public
 export class OidcClient {
     constructor(settings: OidcClientSettings);
+    constructor(settings: OidcClientSettingsStore, metadataService: MetadataService);
     // Warning: (ae-forgotten-export) The symbol "ClaimsService" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)

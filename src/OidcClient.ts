@@ -72,10 +72,12 @@ export class OidcClient {
     protected readonly _validator: ResponseValidator;
     protected readonly _tokenClient: TokenClient;
 
-    public constructor(settings: OidcClientSettings) {
-        this.settings = new OidcClientSettingsStore(settings);
+    public constructor(settings: OidcClientSettings);
+    public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService); 
+    public constructor(settings: OidcClientSettings | OidcClientSettingsStore, metadataService?: MetadataService) {
+        this.settings = settings instanceof OidcClientSettingsStore ? settings : new OidcClientSettingsStore(settings);
 
-        this.metadataService = new MetadataService(this.settings);
+        this.metadataService = metadataService ?? new MetadataService(this.settings);
         this._claimsService = new ClaimsService(this.settings);
         this._validator = new ResponseValidator(this.settings, this.metadataService, this._claimsService);
         this._tokenClient = new TokenClient(this.settings, this.metadataService);
