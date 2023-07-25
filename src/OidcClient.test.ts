@@ -422,7 +422,7 @@ describe("OidcClient", () => {
                 session_state: "session_state",
                 scope: "openid",
                 profile: {} as UserProfile,
-            });
+            }, "resource");
 
             // act
             const response = await subject.useRefreshToken({ state });
@@ -432,6 +432,7 @@ describe("OidcClient", () => {
                 refresh_token: "refresh_token",
                 scope: "openid",
                 timeoutInSeconds: undefined,
+                resource: "resource",
             });
             expect(response).toBeInstanceOf(SigninResponse);
             expect(response).toMatchObject(tokenResponse);

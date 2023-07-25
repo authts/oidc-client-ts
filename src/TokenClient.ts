@@ -43,6 +43,7 @@ export interface ExchangeRefreshTokenArgs {
     grant_type?: string;
     refresh_token: string;
     scope?: string;
+    resource?: string | string[];
 
     timeoutInSeconds?: number;
 }
@@ -201,7 +202,10 @@ export class TokenClient {
 
         const params = new URLSearchParams({ grant_type });
         for (const [key, value] of Object.entries(args)) {
-            if (value != null) {
+            if (Array.isArray(value)) {
+                value.forEach(param => params.append(key, param));
+            }
+            else if (value != null) {
                 params.set(key, value);
             }
         }

@@ -505,6 +505,41 @@ describe("UserManager", () => {
                 }),
             );
         });
+
+        it("should use the resource from settings when a refresh token is present", async () => {
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                refresh_token: "refresh_token",
+                profile: {
+                    sub: "sub",
+                    nickname: "Nick",
+                } as UserProfile,
+            });
+
+            const useRefreshTokenSpy = jest.spyOn(subject["_client"], "useRefreshToken").mockResolvedValue({
+                access_token: "new_access_token",
+                profile: {
+                    sub: "sub",
+                    nickname: "Nicholas",
+                },
+            } as unknown as SigninResponse);
+            subject["_loadUser"] = jest.fn().mockResolvedValue(user);
+
+            // act
+            await subject.signinSilent({ resource: "resource" });
+            expect(useRefreshTokenSpy).toBeCalledWith(
+                expect.objectContaining({
+                    state: {
+                        resource: "resource",
+                        refresh_token: user.refresh_token,
+                        session_state: null,
+                        "profile": { "nickname": "Nick", "sub": "sub" },
+                    },
+                }),
+            );
+        });
     });
 
     describe("signinSilentCallback", () => {
