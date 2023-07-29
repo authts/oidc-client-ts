@@ -39,6 +39,8 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@capacitor/browser": "^5.0.6",
+    "@capacitor/core": "^5.2.2",
     "crypto-js": "^4.1.1",
     "jwt-decode": "^3.1.2"
   },
