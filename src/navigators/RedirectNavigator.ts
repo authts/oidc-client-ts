@@ -1,6 +1,8 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import { Capacitor } from '@capacitor/core';
+import { Browser } from '@capacitor/browser';
 import { Logger } from "../utils";
 import type { UserManagerSettingsStore } from "../UserManagerSettings";
 import type { INavigator } from "./INavigator";
@@ -42,7 +44,11 @@ export class RedirectNavigator implements INavigator {
                 const promise = new Promise((resolve, reject) => {
                     abort = reject;
                 });
-                redirect(params.url);
+                if (Capacitor.isNativePlatform()) {
+                    Browser.open({ url: params.url });
+                } else {
+                    redirect(params.url);
+                }
                 return await (promise as Promise<never>);
             },
             close: () => {
