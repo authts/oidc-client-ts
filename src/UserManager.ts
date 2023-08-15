@@ -20,7 +20,7 @@ import type { SigninResponse } from "./SigninResponse";
 /**
  * @public
  */
-export type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "nonce" | "extraQueryParams" | "extraTokenParams" | "state" | "redirect_uri" | "prompt" | "acr_values" | "login_hint" | "scope" | "max_age" | "ui_locales" >;
+export type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "nonce" | "extraQueryParams" | "extraTokenParams" | "state" | "redirect_uri" | "prompt" | "acr_values" | "login_hint" | "scope" | "max_age" | "ui_locales" | "resource">;
 /**
  * @public
  */
@@ -256,13 +256,14 @@ export class UserManager {
         const logger = this._logger.create("signinSilent");
         const {
             silentRequestTimeoutInSeconds,
+            resource,
             ...requestArgs
         } = args;
         // first determine if we have a refresh token, or need to use iframe
         let user = await this._loadUser();
         if (user?.refresh_token) {
             logger.debug("using refresh token");
-            const state = new RefreshState(user as Required<User>);
+            const state = new RefreshState(user as Required<User>, resource);
             return await this._useRefreshToken(state);
         }
 

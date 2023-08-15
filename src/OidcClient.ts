@@ -201,6 +201,7 @@ export class OidcClient {
 
         const result = await this._tokenClient.exchangeRefreshToken({
             refresh_token: state.refresh_token,
+            resource: state.resource,
             // provide the (possible filtered) scope list
             scope,
             timeoutInSeconds,
