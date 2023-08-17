@@ -56,3 +56,7 @@ removed.
 
 - The getter/setters for `Log.level` and `Log.logger` have been replaced by
   `Log.setLevel()` and `Log.setLogger()`.
+
+### [User](https://authts.github.io/oidc-client-ts/classes/User.html)
+
+- The getter for `User.expired` now returns `true` when `expires_at` is set to `0`. This was `false` in the previous version.
