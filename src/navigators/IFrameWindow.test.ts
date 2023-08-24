@@ -135,7 +135,7 @@ describe("IFrameWindow", () => {
                 const frameWindow = new IFrameWindow({});
                 const promise = frameWindow.navigate({ state: fakeState, url: fakeUrl, scriptOrigin: args.passedOrigin });
 
-                promise.finally(() => promiseDone = true);
+                void promise.finally(() => promiseDone = true);
                 await flushPromises();
 
                 expect(promiseDone).toBe(false);
@@ -154,7 +154,7 @@ describe("IFrameWindow", () => {
                 const frameWindow = new IFrameWindow({});
                 const promise = frameWindow.navigate({ state: "diff_state", url: fakeUrl });
 
-                promise.finally(() => promiseDone = true);
+                void promise.finally(() => promiseDone = true);
                 await flushPromises();
 
                 expect(promiseDone).toBe(false);

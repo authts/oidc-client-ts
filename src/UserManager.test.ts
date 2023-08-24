@@ -178,7 +178,7 @@ describe("UserManager", () => {
         it("should redirect the browser to the authorize url", async () => {
             // act
             const spy = jest.fn();
-            subject.signinRedirect().finally(spy);
+            void subject.signinRedirect().finally(spy);
 
             // signinRedirect is a promise that will never resolve (since we
             // want it to hold until the page has redirected), so we wait for

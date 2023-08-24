@@ -10,7 +10,7 @@ import type { UserProfile } from "./User";
  */
 export class RefreshState {
     /** custom "state", which can be used by a caller to have "data" round tripped */
-    public readonly data: unknown | undefined;
+    public readonly data?: unknown;
 
     public readonly refresh_token: string;
     public readonly id_token?: string;

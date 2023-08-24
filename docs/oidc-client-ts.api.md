@@ -344,7 +344,7 @@ export interface OidcClientSettings {
     stateStore?: StateStore;
     ui_locales?: string;
     // @deprecated (undocumented)
-    userInfoJwtIssuer?: "ANY" | "OP" | string;
+    userInfoJwtIssuer?: string;
 }
 
 // @public
@@ -415,7 +415,7 @@ export class OidcClientSettingsStore {
     // (undocumented)
     readonly ui_locales: string | undefined;
     // (undocumented)
-    readonly userInfoJwtIssuer: "ANY" | "OP" | string;
+    readonly userInfoJwtIssuer: string;
 }
 
 // @public (undocumented)
@@ -777,7 +777,7 @@ export class State {
     static clearStaleState(storage: StateStore, age: number): Promise<void>;
     // (undocumented)
     readonly created: number;
-    readonly data: unknown | undefined;
+    readonly data?: unknown;
     // (undocumented)
     static fromStorageString(storageString: string): State;
     // (undocumented)

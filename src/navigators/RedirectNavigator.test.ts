@@ -21,7 +21,7 @@ describe("RedirectNavigator", () => {
     it("should redirect to the authority server using a specific redirect method", async () => {
         const handle = await navigator.prepare({ redirectMethod: "replace" });
         const spy = jest.fn();
-        handle.navigate({ url: "http://sts/authorize" }).finally(spy);
+        void handle.navigate({ url: "http://sts/authorize" }).finally(spy);
 
         expect(window.location.replace).toHaveBeenCalledWith("http://sts/authorize");
 
@@ -32,7 +32,7 @@ describe("RedirectNavigator", () => {
     });
 
     it("should redirect to the authority server from window top", async () => {
- 
+
         Object.defineProperty(window, "top", {
             value: {
                 location: {
@@ -43,7 +43,7 @@ describe("RedirectNavigator", () => {
 
         const handle = await navigator.prepare({ redirectTarget: "top" });
         const spy = jest.fn();
-        handle.navigate({ url: "http://sts/authorize" }).finally(spy);
+        void handle.navigate({ url: "http://sts/authorize" }).finally(spy);
 
         expect(window.location.assign).toHaveBeenCalledTimes(0);
         expect(window.parent.location.assign).toHaveBeenCalledTimes(0);
