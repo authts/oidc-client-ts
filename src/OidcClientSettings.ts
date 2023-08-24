@@ -90,7 +90,7 @@ export interface OidcClientSettings {
     /** @deprecated Unused */
     clockSkewInSeconds?: number;
     /** @deprecated Unused */
-    userInfoJwtIssuer?: "ANY" | "OP" | string;
+    userInfoJwtIssuer?: /*"ANY" | "OP" |*/ string;
 
     /**
      * Indicates if objects returned from the user info endpoint as claims (e.g. `address`) are merged into the claims from the id token as a single object.
@@ -179,7 +179,7 @@ export class OidcClientSettingsStore {
     public readonly loadUserInfo: boolean;
     public readonly staleStateAgeInSeconds: number;
     public readonly clockSkewInSeconds: number;
-    public readonly userInfoJwtIssuer: "ANY" | "OP" | string;
+    public readonly userInfoJwtIssuer: /*"ANY" | "OP" |*/ string;
     public readonly mergeClaims: boolean;
 
     public readonly stateStore: StateStore;

@@ -68,6 +68,7 @@ export class Logger {
     private _method?: string;
     public constructor(private _name: string) {}
 
+    /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
     public debug(...args: unknown[]): void {
         if (level >= Log.DEBUG) {
             logger.debug(Logger._format(this._name, this._method), ...args);
@@ -88,6 +89,7 @@ export class Logger {
             logger.error(Logger._format(this._name, this._method), ...args);
         }
     }
+    /* eslint-enable @typescript-eslint/no-unsafe-enum-comparison */
 
     public throw(err: Error): never {
         this.error(err);
@@ -112,6 +114,7 @@ export class Logger {
         return method ? `${prefix} ${method}:` : prefix;
     }
 
+    /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
     // helpers for static class methods
     public static debug(name: string, ...args: unknown[]): void {
         if (level >= Log.DEBUG) {
@@ -133,6 +136,7 @@ export class Logger {
             logger.error(Logger._format(name), ...args);
         }
     }
+    /* eslint-enable @typescript-eslint/no-unsafe-enum-comparison */
 }
 
 Log.reset();

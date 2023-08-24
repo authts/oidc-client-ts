@@ -13,7 +13,7 @@ export class State {
     public readonly request_type: string | undefined;
 
     /** custom "state", which can be used by a caller to have "data" round tripped */
-    public readonly data: unknown | undefined;
+    public readonly data?: unknown;
 
     public constructor(args: {
         id?: string;
