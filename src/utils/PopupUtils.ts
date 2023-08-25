@@ -14,6 +14,8 @@ export interface PopupWindowFeatures {
     status?: boolean | string;
     resizable?: boolean | string;
     scrollbars?: boolean | string;
+    closeAutomaticallyPopupWindow?: boolean;
+    closePopupWindowAfter?: number;
 
     [k: string]: boolean | string | number | undefined;
 }
