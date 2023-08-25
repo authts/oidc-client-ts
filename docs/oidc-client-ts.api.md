@@ -481,6 +481,10 @@ export interface PopupWindowFeatures {
     // (undocumented)
     [k: string]: boolean | string | number | undefined;
     // (undocumented)
+    closeAutomaticallyPopupWindow?: boolean;
+    // (undocumented)
+    closePopupWindowAfter?: number;
+    // (undocumented)
     height?: number;
     // (undocumented)
     left?: number;

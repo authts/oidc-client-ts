@@ -31,6 +31,9 @@ export class PopupWindow extends AbstractChildWindow {
         super();
         const centeredPopup = PopupUtils.center({ ...DefaultPopupWindowFeatures, ...popupWindowFeatures });
         this._window = window.open(undefined, popupWindowTarget, PopupUtils.serialize(centeredPopup));
+        if (popupWindowFeatures.closeAutomaticallyPopupWindow) {
+            setTimeout(() => { this.close(); }, popupWindowFeatures.closePopupWindowAfter);
+        }
     }
 
     public async navigate(params: NavigateParams): Promise<NavigateResponse> {

@@ -10,6 +10,8 @@ export const DefaultPopupWindowFeatures: PopupWindowFeatures = {
     location: false,
     toolbar: false,
     height: 640,
+    closeAutomaticallyPopupWindow: false,
+    closePopupWindowAfter: 600000,
 };
 export const DefaultPopupTarget = "_blank";
 const DefaultAccessTokenExpiringNotificationTimeInSeconds = 60;
@@ -28,7 +30,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     /**
      * The features parameter to window.open for the popup signin window. By default, the popup is
      * placed centered in front of the window opener.
-     * (default: \{ location: false, menubar: false, height: 640 \})
+     * (default: \{ location: false, menubar: false, height: 640, closeAutomaticallyPopupWindow: false, closePopupWindowAfter: 600000 \})
      */
     popupWindowFeatures?: PopupWindowFeatures;
     /** The target parameter to window.open for the popup signin window (default: "_blank") */
@@ -158,6 +160,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
         this.popup_redirect_uri = popup_redirect_uri;
         this.popup_post_logout_redirect_uri = popup_post_logout_redirect_uri;
+        this.validatePopupWindowFeatures(popupWindowFeatures);
         this.popupWindowFeatures = popupWindowFeatures;
         this.popupWindowTarget = popupWindowTarget;
         this.redirectMethod = redirectMethod;
@@ -190,6 +193,15 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         else {
             const store = typeof window !== "undefined" ? window.sessionStorage : new InMemoryWebStorage();
             this.userStore = new WebStorageStateStore({ store });
+        }
+    }
+
+    private validatePopupWindowFeatures(popupWindowFeatures: PopupWindowFeatures): void {
+        if (popupWindowFeatures.closeAutomaticallyPopupWindow) {
+            if (popupWindowFeatures.closePopupWindowAfter !== undefined && popupWindowFeatures.closePopupWindowAfter !== null && popupWindowFeatures.closePopupWindowAfter <= 0) {
+                console.log("validatePopupWindowFeatures");
+                popupWindowFeatures.closePopupWindowAfter = DefaultPopupWindowFeatures.closePopupWindowAfter;
+            }
         }
     }
 }
