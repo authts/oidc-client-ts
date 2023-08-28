@@ -2,7 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 export { ErrorResponse, ErrorTimeout } from "./errors";
-export type { IFrameWindowParams, PopupWindowParams, RedirectParams } from "./navigators";
+export { AbstractChildWindow, IFrameNavigator, PopupNavigator, RedirectNavigator } from "./navigators";
+export type { IWindow, IFrameWindow, INavigator, IFrameWindowParams, NavigateParams, NavigateResponse, PopupWindow, PopupWindowParams, RedirectParams } from "./navigators";
 export { Log, Logger } from "./utils";
 export type { ILogger, PopupWindowFeatures } from "./utils";
 export type { OidcAddressClaim, OidcStandardClaims, IdTokenClaims, JwtClaims } from "./Claims";

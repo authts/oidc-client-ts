@@ -3,6 +3,7 @@
 
 import { UserManagerSettingsStore } from "./UserManagerSettings";
 import type { WebStorageStateStore } from "./WebStorageStateStore";
+import { IFrameNavigator, PopupNavigator, RedirectNavigator } from "./navigators";
 
 describe("UserManagerSettings", () => {
     describe("constructor", () => {
@@ -251,6 +252,57 @@ describe("UserManagerSettings", () => {
 
             // assert
             expect(subject.userStore).toEqual(temp);
+        });
+    });
+
+    describe("redirectNavigator", () => {
+        it("should return value from initial settings", () => {
+            const temp = {} as RedirectNavigator;
+
+            // act
+            const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                redirectNavigator: temp,
+            });
+
+            // assert
+            expect(subject.redirectNavigator).toEqual(temp);
+        });
+    });
+
+    describe("popupNavigator", () => {
+        it("should return value from initial settings", () => {
+            const temp = {} as PopupNavigator;
+
+            // act
+            const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                popupNavigator: temp,
+            });
+
+            // assert
+            expect(subject.popupNavigator).toEqual(temp);
+        });
+    });
+
+    describe("iframeNavigator", () => {
+        it("should return value from initial settings", () => {
+            const temp = {} as IFrameNavigator;
+
+            // act
+            const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                iframeNavigator: temp,
+            });
+
+            // assert
+            expect(subject.iframeNavigator).toEqual(temp);
         });
     });
 

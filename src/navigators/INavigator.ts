@@ -4,7 +4,7 @@
 import type { IWindow } from "./IWindow";
 
 /**
- * @internal
+ * @public
  */
 export interface INavigator {
     prepare(params: unknown): Promise<IWindow>;

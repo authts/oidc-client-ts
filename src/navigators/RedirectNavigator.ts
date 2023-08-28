@@ -15,7 +15,9 @@ export interface RedirectParams {
 }
 
 /**
- * @internal
+ * Default browser Window based RedirectNavigator
+ * 
+ * @public
  */
 export class RedirectNavigator implements INavigator {
     private readonly _logger = new Logger("RedirectNavigator");

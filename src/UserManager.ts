@@ -3,8 +3,7 @@
 
 import { Logger } from "./utils";
 import { ErrorResponse } from "./errors";
-import { IFrameNavigator, type NavigateResponse, PopupNavigator, RedirectNavigator, type PopupWindowParams,
-    type IWindow, type IFrameWindowParams, type RedirectParams } from "./navigators";
+import { type NavigateResponse, type PopupWindowParams, type IWindow, type IFrameWindowParams, type RedirectParams } from "./navigators";
 import { OidcClient, type CreateSigninRequestArgs, type CreateSignoutRequestArgs, type ProcessResourceOwnerPasswordCredentialsArgs } from "./OidcClient";
 import { type UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
 import { User } from "./User";
@@ -83,9 +82,6 @@ export class UserManager {
     protected readonly _logger = new Logger("UserManager");
 
     protected readonly _client: OidcClient;
-    protected readonly _redirectNavigator: RedirectNavigator;
-    protected readonly _popupNavigator: PopupNavigator;
-    protected readonly _iframeNavigator: IFrameNavigator;
     protected readonly _events: UserManagerEvents;
     protected readonly _silentRenewService: SilentRenewService;
     protected readonly _sessionMonitor: SessionMonitor | null;
@@ -94,10 +90,6 @@ export class UserManager {
         this.settings = new UserManagerSettingsStore(settings);
 
         this._client = new OidcClient(settings);
-
-        this._redirectNavigator = new RedirectNavigator(this.settings);
-        this._popupNavigator = new PopupNavigator(this.settings);
-        this._iframeNavigator = new IFrameNavigator(this.settings);
 
         this._events = new UserManagerEvents(this.settings);
         this._silentRenewService = new SilentRenewService(this);
@@ -159,7 +151,7 @@ export class UserManager {
             redirectMethod,
             ...requestArgs
         } = args;
-        const handle = await this._redirectNavigator.prepare({ redirectMethod });
+        const handle = await this.settings.redirectNavigator.prepare({ redirectMethod });
         await this._signinStart({
             request_type: "si:r",
             ...requestArgs,
@@ -221,7 +213,7 @@ export class UserManager {
             logger.throw(new Error("No popup_redirect_uri configured"));
         }
 
-        const handle = await this._popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget });
+        const handle = await this.settings.popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget });
         const user = await this._signin({
             request_type: "si:p",
             redirect_uri: url,
@@ -244,7 +236,7 @@ export class UserManager {
      */
     public async signinPopupCallback(url = window.location.href, keepOpen = false): Promise<void> {
         const logger = this._logger.create("signinPopupCallback");
-        await this._popupNavigator.callback(url, keepOpen);
+        await this.settings.popupNavigator.callback(url, keepOpen);
         logger.info("success");
     }
 
@@ -278,7 +270,7 @@ export class UserManager {
             verifySub = user.profile.sub;
         }
 
-        const handle = await this._iframeNavigator.prepare({ silentRequestTimeoutInSeconds });
+        const handle = await this.settings.iframeNavigator.prepare({ silentRequestTimeoutInSeconds });
         user = await this._signin({
             request_type: "si:s",
             redirect_uri: url,
@@ -315,7 +307,7 @@ export class UserManager {
      */
     public async signinSilentCallback(url = window.location.href): Promise<void> {
         const logger = this._logger.create("signinSilentCallback");
-        await this._iframeNavigator.callback(url);
+        await this.settings.iframeNavigator.callback(url);
         logger.info("success");
     }
 
@@ -369,7 +361,7 @@ export class UserManager {
         }
 
         const user = await this._loadUser();
-        const handle = await this._iframeNavigator.prepare({ silentRequestTimeoutInSeconds });
+        const handle = await this.settings.iframeNavigator.prepare({ silentRequestTimeoutInSeconds });
         const navResponse = await this._signinStart({
             request_type: "si:s", // this acts like a signin silent
             redirect_uri: url,
@@ -474,7 +466,7 @@ export class UserManager {
             redirectMethod,
             ...requestArgs
         } = args;
-        const handle = await this._redirectNavigator.prepare({ redirectMethod });
+        const handle = await this.settings.redirectNavigator.prepare({ redirectMethod });
         await this._signoutStart({
             request_type: "so:r",
             post_logout_redirect_uri: this.settings.post_logout_redirect_uri,
@@ -505,7 +497,7 @@ export class UserManager {
         } = args;
         const url = this.settings.popup_post_logout_redirect_uri;
 
-        const handle = await this._popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget });
+        const handle = await this.settings.popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget });
         await this._signout({
             request_type: "so:p",
             post_logout_redirect_uri: url,
@@ -525,7 +517,7 @@ export class UserManager {
      */
     public async signoutPopupCallback(url = window.location.href, keepOpen = false): Promise<void> {
         const logger = this._logger.create("signoutPopupCallback");
-        await this._popupNavigator.callback(url, keepOpen);
+        await this.settings.popupNavigator.callback(url, keepOpen);
         logger.info("success");
     }
 
@@ -578,7 +570,7 @@ export class UserManager {
     /**
      * Returns promise to trigger a silent request (via an iframe) to the end session endpoint.
      */
-    public async signoutSilent(args: SignoutSilentArgs = {}): Promise<void> {
+    public async signoutSilent(args: SignoutSilentArgs = { silentRequestTimeoutInSeconds: this.settings.silentRequestTimeoutInSeconds }): Promise<void> {
         const logger = this._logger.create("signoutSilent");
         const {
             silentRequestTimeoutInSeconds,
@@ -590,7 +582,7 @@ export class UserManager {
             : undefined;
 
         const url = this.settings.popup_post_logout_redirect_uri;
-        const handle = await this._iframeNavigator.prepare({ silentRequestTimeoutInSeconds });
+        const handle = await this.settings.iframeNavigator.prepare({ silentRequestTimeoutInSeconds });
         await this._signout({
             request_type: "so:s",
             post_logout_redirect_uri: url,
@@ -606,7 +598,7 @@ export class UserManager {
      */
     public async signoutSilentCallback(url = window.location.href): Promise<void> {
         const logger = this._logger.create("signoutSilentCallback");
-        await this._iframeNavigator.callback(url);
+        await this.settings.iframeNavigator.callback(url);
         logger.info("success");
     }
 

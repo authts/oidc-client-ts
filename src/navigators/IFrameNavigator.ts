@@ -7,7 +7,9 @@ import { IFrameWindow, type IFrameWindowParams } from "./IFrameWindow";
 import type { INavigator } from "./INavigator";
 
 /**
- * @internal
+ * Default browser Window based IFrameNavigator implementation
+ * 
+ * @public
  */
 export class IFrameNavigator implements INavigator {
     private readonly _logger = new Logger("IFrameNavigator");

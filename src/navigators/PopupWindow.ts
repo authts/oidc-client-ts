@@ -17,7 +17,7 @@ export interface PopupWindowParams {
 }
 
 /**
- * @internal
+ * @public
  */
 export class PopupWindow extends AbstractChildWindow {
     protected readonly _logger = new Logger("PopupWindow");
