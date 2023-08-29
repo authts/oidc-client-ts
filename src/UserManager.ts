@@ -570,7 +570,7 @@ export class UserManager {
     /**
      * Returns promise to trigger a silent request (via an iframe) to the end session endpoint.
      */
-    public async signoutSilent(args: SignoutSilentArgs = { }): Promise<void> {
+    public async signoutSilent(args: SignoutSilentArgs = {}): Promise<void> {
         const logger = this._logger.create("signoutSilent");
         const {
             silentRequestTimeoutInSeconds,
