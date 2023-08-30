@@ -14,7 +14,7 @@ export interface PopupWindowFeatures {
     status?: boolean | string;
     resizable?: boolean | string;
     scrollbars?: boolean | string;
-    closeAutomaticallyPopupWindow?: boolean;
+    /** Close popup window after time in milliseconds, by default it is 0. To enable this feature set value greater than 0 */
     closePopupWindowAfter?: number;
 
     [k: string]: boolean | string | number | undefined;

@@ -31,8 +31,12 @@ export class PopupWindow extends AbstractChildWindow {
         super();
         const centeredPopup = PopupUtils.center({ ...DefaultPopupWindowFeatures, ...popupWindowFeatures });
         this._window = window.open(undefined, popupWindowTarget, PopupUtils.serialize(centeredPopup));
-        if (popupWindowFeatures.closeAutomaticallyPopupWindow) {
-            setTimeout(() => { this.close(); }, popupWindowFeatures.closePopupWindowAfter);
+        if (popupWindowFeatures?.closePopupWindowAfter && popupWindowFeatures?.closePopupWindowAfter > 0) {
+            setTimeout(() => { 
+                if (!this._window || typeof this._window.closed !== "boolean" || this._window.closed) {
+                    this._abort.raise(new Error("Popup blocked by user"));
+                }
+            }, popupWindowFeatures.closePopupWindowAfter);
         }
     }
 

@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { DefaultPopupWindowFeatures, UserManagerSettingsStore } from "./UserManagerSettings";
+import { UserManagerSettingsStore } from "./UserManagerSettings";
 import type { WebStorageStateStore } from "./WebStorageStateStore";
 
 describe("UserManagerSettings", () => {
@@ -53,32 +53,19 @@ describe("UserManagerSettings", () => {
             expect(subject.popupWindowFeatures).toEqual({ status: true });
         });
 
-        it("should validate popup parameter when closePopupWindowAfter is equal to 0 and closeAutomaticallyPopupWindow is enabled should set default value", () => {
+        it("should set closePopupWindowAfter", () => {
             // act
+            const closePopupWindowAfter = 100;
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                popupWindowFeatures: { status: true, closeAutomaticallyPopupWindow: true, closePopupWindowAfter: 0 },
+                popupWindowFeatures: { status: true, closePopupWindowAfter },
             });
 
             // assert
-            expect(subject.popupWindowFeatures).toEqual({ status: true, closeAutomaticallyPopupWindow: true, closePopupWindowAfter: DefaultPopupWindowFeatures.closePopupWindowAfter });
+            expect(subject.popupWindowFeatures).toEqual({ status: true, closePopupWindowAfter });
         });
-
-        it("should validate popup parameter when closePopupWindowAfter is negative and closeAutomaticallyPopupWindow is enabled should set default value", () => {
-            // act
-            const subject = new UserManagerSettingsStore({
-                authority: "authority",
-                client_id: "client",
-                redirect_uri: "redirect",
-                popupWindowFeatures: { status: true, closeAutomaticallyPopupWindow: true, closePopupWindowAfter: -1 },
-            });
-
-            // assert
-            expect(subject.popupWindowFeatures).toEqual({ status: true, closeAutomaticallyPopupWindow: true, closePopupWindowAfter: DefaultPopupWindowFeatures.closePopupWindowAfter });
-        });
-
     });
 
     describe("popupWindowTarget", () => {
