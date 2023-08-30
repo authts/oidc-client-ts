@@ -35,6 +35,7 @@ export interface CreateSigninRequestArgs
 export interface UseRefreshTokenArgs {
     state: RefreshState;
     timeoutInSeconds?: number;
+    extraTokenParams?: Record<string, unknown>;
 }
 
 /**
@@ -183,6 +184,7 @@ export class OidcClient {
     public async useRefreshToken({
         state,
         timeoutInSeconds,
+        extraTokenParams
     }: UseRefreshTokenArgs): Promise<SigninResponse> {
         const logger = this._logger.create("useRefreshToken");
 
@@ -205,6 +207,7 @@ export class OidcClient {
             // provide the (possible filtered) scope list
             scope,
             timeoutInSeconds,
+            ...extraTokenParams
         });
         const response = new SigninResponse(new URLSearchParams());
         Object.assign(response, result);
