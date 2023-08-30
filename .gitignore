@@ -5,8 +5,6 @@
 /coverage/
 /docs/pages/
 
-/dist/esm/*
-!/dist/esm/package.json
 
 # caches
 .eslintcache
