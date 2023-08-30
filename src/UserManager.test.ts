@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { once } from "events";
-import type { PopupWindow } from "./navigators";
+import { RedirectNavigator, type PopupWindow, PopupNavigator, IFrameNavigator } from "./navigators";
 import type { SigninResponse } from "./SigninResponse";
 import type { SignoutResponse } from "./SignoutResponse";
 import { UserManager, type SigninPopupArgs, type SigninRedirectArgs, type SigninSilentArgs, type SignoutSilentArgs } from "./UserManager";
@@ -58,6 +58,30 @@ describe("UserManager", () => {
             } else {
                 expect(sessionMonitor).toBeNull();
             }
+        });
+
+        it("should accept redirectNavigator", () => {
+            const customRedirectNavigator = new RedirectNavigator(subject.settings);
+
+            const userManager = new UserManager(subject.settings, customRedirectNavigator);
+
+            expect(userManager["_redirectNavigator"]).toBe(customRedirectNavigator);
+        });
+
+        it("should accept popupNavigator", () => {
+            const customPopupNavigator = new PopupNavigator(subject.settings);
+
+            const userManager = new UserManager(subject.settings, undefined, customPopupNavigator);
+
+            expect(userManager["_popupNavigator"]).toBe(customPopupNavigator);
+        });
+
+        it("should accept iframeNavigator", () => {
+            const customiframeNavigator = new IFrameNavigator(subject.settings);
+
+            const userManager = new UserManager(subject.settings, undefined, undefined, customiframeNavigator);
+
+            expect(userManager["_iframeNavigator"]).toBe(customiframeNavigator);
         });
     });
 
@@ -200,7 +224,7 @@ describe("UserManager", () => {
 
         it("should pass navigator params to navigator", async () => {
             // arrange
-            const prepareMock = jest.spyOn(subject.settings.redirectNavigator, "prepare");
+            const prepareMock = jest.spyOn(subject["_redirectNavigator"], "prepare");
             subject["_signinStart"] = jest.fn();
             const navParams: SigninRedirectArgs = {
                 redirectMethod: "assign",
@@ -215,7 +239,7 @@ describe("UserManager", () => {
 
         it("should pass extra args to _signinStart", async () => {
             // arrange
-            jest.spyOn(subject.settings.redirectNavigator, "prepare");
+            jest.spyOn(subject["_redirectNavigator"], "prepare");
             subject["_signinStart"] = jest.fn();
             const extraArgs: SigninRedirectArgs = {
                 extraQueryParams: { q : "q" },
@@ -305,7 +329,7 @@ describe("UserManager", () => {
         it("should pass navigator params to navigator", async () => {
             // arrange
             const handle = { } as PopupWindow;
-            const prepareMock = jest.spyOn(subject.settings.popupNavigator, "prepare")
+            const prepareMock = jest.spyOn(subject["_popupNavigator"], "prepare")
                 .mockImplementation(() => Promise.resolve(handle));
             subject["_signin"] = jest.fn();
             const navParams: SigninPopupArgs = {
@@ -332,7 +356,7 @@ describe("UserManager", () => {
                 profile: {} as UserProfile,
             });
             const handle = { } as PopupWindow;
-            jest.spyOn(subject.settings.popupNavigator, "prepare")
+            jest.spyOn(subject["_popupNavigator"], "prepare")
                 .mockImplementation(() => Promise.resolve(handle));
             subject["_signin"] = jest.fn().mockResolvedValue(user);
             const extraArgs: SigninPopupArgs = {
@@ -362,7 +386,7 @@ describe("UserManager", () => {
     describe("signinPopupCallback", () => {
         it("should call navigator callback", async () => {
             // arrange
-            const callbackMock = jest.spyOn(subject.settings.popupNavigator, "callback").mockResolvedValue();
+            const callbackMock = jest.spyOn(subject["_popupNavigator"], "callback").mockResolvedValue();
             const url = "http://app/cb?state=test&code=code";
             const keepOpen = true;
 
@@ -400,7 +424,7 @@ describe("UserManager", () => {
 
         it("should pass navigator params to navigator", async () => {
             // arrange
-            const prepareMock = jest.spyOn(subject.settings.iframeNavigator, "prepare");
+            const prepareMock = jest.spyOn(subject["_iframeNavigator"], "prepare");
             subject["_signin"] = jest.fn();
             const navParams: SigninSilentArgs = {
                 silentRequestTimeoutInSeconds: 234,
@@ -420,7 +444,7 @@ describe("UserManager", () => {
                 token_type: "token_type",
                 profile: {} as UserProfile,
             });
-            jest.spyOn(subject.settings.popupNavigator, "prepare");
+            jest.spyOn(subject["_popupNavigator"], "prepare");
             subject["_signin"] = jest.fn().mockResolvedValue(user);
             const extraArgs: SigninSilentArgs = {
                 extraQueryParams: { q : "q" },
@@ -540,7 +564,7 @@ describe("UserManager", () => {
     describe("signinSilentCallback", () => {
         it("should call navigator callback", async () => {
             // arrange
-            const callbackMock = jest.spyOn(subject.settings.iframeNavigator, "callback");
+            const callbackMock = jest.spyOn(subject["_iframeNavigator"], "callback");
             const url = "http://app/cb?state=test&code=code";
 
             // act
@@ -706,7 +730,7 @@ describe("UserManager", () => {
 
         it("should pass navigator params to navigator", async () => {
             // arrange
-            const prepareMock = jest.spyOn(subject.settings.iframeNavigator, "prepare");
+            const prepareMock = jest.spyOn(subject["_iframeNavigator"], "prepare");
             subject["_signout"] = jest.fn();
             const navParams: SignoutSilentArgs = {
                 silentRequestTimeoutInSeconds: 234,
@@ -721,7 +745,7 @@ describe("UserManager", () => {
 
         it("should pass extra args to _signoutStart", async () => {
             // arrange
-            jest.spyOn(subject.settings.popupNavigator, "prepare");
+            jest.spyOn(subject["_popupNavigator"], "prepare");
             subject["_signout"] = jest.fn();
             const extraArgs: SignoutSilentArgs = {
                 extraQueryParams: { q : "q" },
@@ -802,7 +826,7 @@ describe("UserManager", () => {
     describe("signoutSilentCallback", () => {
         it("should call navigator callback", async () => {
             // arrange
-            const callbackMock = jest.spyOn(subject.settings.iframeNavigator, "callback");
+            const callbackMock = jest.spyOn(subject["_iframeNavigator"], "callback");
             const url = "http://app/cb?state=test&code=code";
 
             // act

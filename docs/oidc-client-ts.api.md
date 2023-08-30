@@ -952,7 +952,7 @@ export type UserLoadedCallback = (user: User) => Promise<void> | void;
 
 // @public
 export class UserManager {
-    constructor(settings: UserManagerSettings);
+    constructor(settings: UserManagerSettings, redirectNavigator?: RedirectNavigator, popupNavigator?: PopupNavigator, iframeNavigator?: IFrameNavigator);
     // (undocumented)
     protected _buildUser(signinResponse: SigninResponse, verifySub?: string): Promise<User>;
     clearStaleState(): Promise<void>;
@@ -963,11 +963,17 @@ export class UserManager {
     protected readonly _events: UserManagerEvents;
     getUser(): Promise<User | null>;
     // (undocumented)
+    protected readonly _iframeNavigator: IFrameNavigator;
+    // (undocumented)
     protected _loadUser(): Promise<User | null>;
     // (undocumented)
     protected readonly _logger: Logger;
     get metadataService(): MetadataService;
+    // (undocumented)
+    protected readonly _popupNavigator: PopupNavigator;
     querySessionStatus(args?: QuerySessionStatusArgs): Promise<SessionStatus | null>;
+    // (undocumented)
+    protected readonly _redirectNavigator: RedirectNavigator;
     removeUser(): Promise<void>;
     // (undocumented)
     protected _revokeInternal(user: User | null, types?: ("access_token" | "refresh_token")[]): Promise<void>;
@@ -1055,7 +1061,6 @@ export interface UserManagerSettings extends OidcClientSettings {
     accessTokenExpiringNotificationTimeInSeconds?: number;
     automaticSilentRenew?: boolean;
     checkSessionIntervalInSeconds?: number;
-    iframeNavigator?: IFrameNavigator;
     iframeNotifyParentOrigin?: string;
     iframeScriptOrigin?: string;
     includeIdTokenInSilentRenew?: boolean;
@@ -1066,13 +1071,11 @@ export interface UserManagerSettings extends OidcClientSettings {
     // (undocumented)
     popup_post_logout_redirect_uri?: string;
     popup_redirect_uri?: string;
-    popupNavigator?: PopupNavigator;
     popupWindowFeatures?: PopupWindowFeatures;
     popupWindowTarget?: string;
     // (undocumented)
     query_status_response_type?: string;
     redirectMethod?: "replace" | "assign";
-    redirectNavigator?: RedirectNavigator;
     redirectTarget?: "top" | "self";
     revokeTokensOnSignout?: boolean;
     revokeTokenTypes?: ("access_token" | "refresh_token")[];
@@ -1094,8 +1097,6 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     // (undocumented)
     readonly checkSessionIntervalInSeconds: number;
     // (undocumented)
-    readonly iframeNavigator: IFrameNavigator;
-    // (undocumented)
     readonly iframeNotifyParentOrigin: string | undefined;
     // (undocumented)
     readonly iframeScriptOrigin: string | undefined;
@@ -1112,8 +1113,6 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     // (undocumented)
     readonly popup_redirect_uri: string;
     // (undocumented)
-    readonly popupNavigator: PopupNavigator;
-    // (undocumented)
     readonly popupWindowFeatures: PopupWindowFeatures;
     // (undocumented)
     readonly popupWindowTarget: string;
@@ -1121,8 +1120,6 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     readonly query_status_response_type: string;
     // (undocumented)
     readonly redirectMethod: "replace" | "assign";
-    // (undocumented)
-    readonly redirectNavigator: RedirectNavigator;
     // (undocumented)
     readonly redirectTarget: "top" | "self";
     // (undocumented)

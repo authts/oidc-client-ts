@@ -5,7 +5,6 @@ import { type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSe
 import type { PopupWindowFeatures } from "./utils/PopupUtils";
 import { WebStorageStateStore } from "./WebStorageStateStore";
 import { InMemoryWebStorage } from "./InMemoryWebStorage";
-import { RedirectNavigator, IFrameNavigator, PopupNavigator } from "./navigators";
 
 export const DefaultPopupWindowFeatures: PopupWindowFeatures = {
     location: false,
@@ -83,20 +82,6 @@ export interface UserManagerSettings extends OidcClientSettings {
      *  E.g. `userStore: new WebStorageStateStore({ store: window.localStorage })`
      */
     userStore?: WebStorageStateStore;
-
-    /** Allows overriding RedirectNavigator object used in UserManager, helpful when not running in browser Window based environments.
-     *  Default to browser Window based RedirectNavigator.
-     */
-    redirectNavigator?: RedirectNavigator;
-    /** Allows overriding PopupNavigator object used in UserManager, helpful when not running in browser Window based environments.
-     *  Defaults to browser Window based PopupNavigator
-     */
-    popupNavigator?: PopupNavigator;
-    /**
-     * Allows overriding IFrameNavigator object used in UserManager, helpful when not running in browser Window based environments.
-     * Defaults to browser Window based IFrameNavigator
-     */
-    iframeNavigator?: IFrameNavigator;
 }
 
 /**
@@ -136,10 +121,6 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
     public readonly userStore: WebStorageStateStore;
 
-    public readonly redirectNavigator: RedirectNavigator;
-    public readonly popupNavigator: PopupNavigator;
-    public readonly iframeNavigator: IFrameNavigator;
-
     public constructor(args: UserManagerSettings) {
         const {
             popup_redirect_uri = args.redirect_uri,
@@ -171,10 +152,6 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             accessTokenExpiringNotificationTimeInSeconds = DefaultAccessTokenExpiringNotificationTimeInSeconds,
 
             userStore,
-
-            redirectNavigator,
-            popupNavigator,
-            iframeNavigator,
         } = args;
 
         super(args);
@@ -213,24 +190,6 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         else {
             const store = typeof window !== "undefined" ? window.sessionStorage : new InMemoryWebStorage();
             this.userStore = new WebStorageStateStore({ store });
-        }
-
-        if (redirectNavigator) {
-            this.redirectNavigator = redirectNavigator;
-        } else {
-            this.redirectNavigator = new RedirectNavigator(this);
-        }
-
-        if (popupNavigator) {
-            this.popupNavigator = popupNavigator;
-        } else {
-            this.popupNavigator = new PopupNavigator(this);
-        }
-
-        if (iframeNavigator) {
-            this.iframeNavigator = iframeNavigator;
-        } else {
-            this.iframeNavigator = new IFrameNavigator(this);
         }
     }
 }
