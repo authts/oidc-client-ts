@@ -15,7 +15,7 @@ export interface IFrameWindowParams {
 }
 
 /**
- * @public
+ * @internal
  */
 export class IFrameWindow extends AbstractChildWindow {
     protected readonly _logger = new Logger("IFrameWindow");

@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 /**
- * @public
+ * @internal
  */
 export interface NavigateParams {
     url: string;
@@ -14,14 +14,14 @@ export interface NavigateParams {
 }
 
 /**
- * @public
+ * @internal
  */
 export interface NavigateResponse {
     url: string;
 }
 
 /**
- * @public
+ * @internal
  */
 export interface IWindow {
     navigate(params: NavigateParams): Promise<NavigateResponse>;

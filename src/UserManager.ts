@@ -3,7 +3,7 @@
 
 import { Logger } from "./utils";
 import { ErrorResponse } from "./errors";
-import { type NavigateResponse, type PopupWindowParams, type IWindow, type IFrameWindowParams, type RedirectParams, RedirectNavigator, PopupNavigator, IFrameNavigator } from "./navigators";
+import { type NavigateResponse, type PopupWindowParams, type IWindow, type IFrameWindowParams, type RedirectParams, RedirectNavigator, PopupNavigator, IFrameNavigator, type INavigator } from "./navigators";
 import { OidcClient, type CreateSigninRequestArgs, type CreateSignoutRequestArgs, type ProcessResourceOwnerPasswordCredentialsArgs } from "./OidcClient";
 import { type UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
 import { User } from "./User";
@@ -82,14 +82,14 @@ export class UserManager {
     protected readonly _logger = new Logger("UserManager");
 
     protected readonly _client: OidcClient;
-    protected readonly _redirectNavigator: RedirectNavigator;
-    protected readonly _popupNavigator: PopupNavigator;
-    protected readonly _iframeNavigator: IFrameNavigator;
+    protected readonly _redirectNavigator: INavigator;
+    protected readonly _popupNavigator: INavigator;
+    protected readonly _iframeNavigator: INavigator;
     protected readonly _events: UserManagerEvents;
     protected readonly _silentRenewService: SilentRenewService;
     protected readonly _sessionMonitor: SessionMonitor | null;
 
-    public constructor(settings: UserManagerSettings, redirectNavigator?: RedirectNavigator, popupNavigator?: PopupNavigator, iframeNavigator?: IFrameNavigator) {
+    public constructor(settings: UserManagerSettings, redirectNavigator?: INavigator, popupNavigator?: INavigator, iframeNavigator?: INavigator) {
         this.settings = new UserManagerSettingsStore(settings);
 
         this._client = new OidcClient(settings);

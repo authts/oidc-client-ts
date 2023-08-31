@@ -15,9 +15,7 @@ export interface RedirectParams {
 }
 
 /**
- * Default browser Window based RedirectNavigator
- * 
- * @public
+ * @internal
  */
 export class RedirectNavigator implements INavigator {
     private readonly _logger = new Logger("RedirectNavigator");
@@ -53,5 +51,9 @@ export class RedirectNavigator implements INavigator {
                 targetWindow.stop();
             },
         };
+    }
+
+    public async callback(): Promise<void> {
+        return;
     }
 }

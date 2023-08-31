@@ -4,26 +4,6 @@
 
 ```ts
 
-// @public
-export abstract class AbstractChildWindow implements IWindow {
-    // Warning: (ae-forgotten-export) The symbol "Event_2" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
-    protected readonly _abort: Event_2<[reason: Error]>;
-    // (undocumented)
-    abstract close(): void;
-    // (undocumented)
-    protected readonly _disposeHandlers: Set<() => void>;
-    // (undocumented)
-    protected abstract readonly _logger: Logger;
-    // (undocumented)
-    navigate(params: NavigateParams): Promise<NavigateResponse>;
-    // (undocumented)
-    protected static _notifyParent(parent: Window, url: string, keepOpen?: boolean, targetOrigin?: string): void;
-    // (undocumented)
-    protected _window: WindowProxy | null;
-}
-
 // @public (undocumented)
 export type AccessTokenCallback = (...ev: unknown[]) => (Promise<void> | void);
 
@@ -130,28 +110,6 @@ export interface IdTokenClaims extends Mandatory<OidcStandardClaims, "sub">, Man
     sid?: string;
 }
 
-// @public
-export class IFrameNavigator implements INavigator {
-    constructor(_settings: UserManagerSettingsStore);
-    // (undocumented)
-    callback(url: string): Promise<void>;
-    // (undocumented)
-    prepare({ silentRequestTimeoutInSeconds, }: IFrameWindowParams): Promise<IFrameWindow>;
-}
-
-// @public (undocumented)
-export class IFrameWindow extends AbstractChildWindow {
-    constructor({ silentRequestTimeoutInSeconds, }: IFrameWindowParams);
-    // (undocumented)
-    close(): void;
-    // (undocumented)
-    protected readonly _logger: Logger;
-    // (undocumented)
-    navigate(params: NavigateParams): Promise<NavigateResponse>;
-    // (undocumented)
-    static notifyParent(url: string, targetOrigin?: string): void;
-}
-
 // @public (undocumented)
 export interface IFrameWindowParams {
     // (undocumented)
@@ -173,6 +131,10 @@ export interface ILogger {
 // @public (undocumented)
 export interface INavigator {
     // (undocumented)
+    callback(url: string, keepOpen?: boolean): Promise<void>;
+    // Warning: (ae-forgotten-export) The symbol "IWindow" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
     prepare(params: unknown): Promise<IWindow>;
 }
 
@@ -190,14 +152,6 @@ export class InMemoryWebStorage implements Storage {
     removeItem(key: string): void;
     // (undocumented)
     setItem(key: string, value: string): void;
-}
-
-// @public (undocumented)
-export interface IWindow {
-    // (undocumented)
-    close(): void;
-    // (undocumented)
-    navigate(params: NavigateParams): Promise<NavigateResponse>;
 }
 
 // @public
@@ -297,24 +251,6 @@ export class MetadataService {
     getUserInfoEndpoint(): Promise<string>;
     // (undocumented)
     resetSigningKeys(): void;
-}
-
-// @public (undocumented)
-export interface NavigateParams {
-    nonce?: string;
-    // (undocumented)
-    response_mode?: "query" | "fragment";
-    // (undocumented)
-    scriptOrigin?: string;
-    state?: string;
-    // (undocumented)
-    url: string;
-}
-
-// @public (undocumented)
-export interface NavigateResponse {
-    // (undocumented)
-    url: string;
 }
 
 // @public
@@ -550,30 +486,6 @@ export interface OidcStandardClaims {
     zoneinfo?: string;
 }
 
-// @public
-export class PopupNavigator implements INavigator {
-    constructor(_settings: UserManagerSettingsStore);
-    // (undocumented)
-    callback(url: string, keepOpen?: boolean): Promise<void>;
-    // (undocumented)
-    prepare({ popupWindowFeatures, popupWindowTarget, }: PopupWindowParams): Promise<PopupWindow>;
-}
-
-// @public (undocumented)
-export class PopupWindow extends AbstractChildWindow {
-    constructor({ popupWindowTarget, popupWindowFeatures, }: PopupWindowParams);
-    // (undocumented)
-    close(): void;
-    // (undocumented)
-    protected readonly _logger: Logger;
-    // (undocumented)
-    navigate(params: NavigateParams): Promise<NavigateResponse>;
-    // (undocumented)
-    static notifyOpener(url: string, keepOpen: boolean): void;
-    // (undocumented)
-    protected _window: WindowProxy | null;
-}
-
 // @public (undocumented)
 export interface PopupWindowFeatures {
     // (undocumented)
@@ -618,13 +530,6 @@ export type ProcessResourceOwnerPasswordCredentialsArgs = {
 
 // @public (undocumented)
 export type QuerySessionStatusArgs = IFrameWindowParams & ExtraSigninRequestArgs;
-
-// @public
-export class RedirectNavigator implements INavigator {
-    constructor(_settings: UserManagerSettingsStore);
-    // (undocumented)
-    prepare({ redirectMethod, redirectTarget, }: RedirectParams): Promise<IWindow>;
-}
 
 // @public (undocumented)
 export interface RedirectParams {
@@ -952,7 +857,7 @@ export type UserLoadedCallback = (user: User) => Promise<void> | void;
 
 // @public
 export class UserManager {
-    constructor(settings: UserManagerSettings, redirectNavigator?: RedirectNavigator, popupNavigator?: PopupNavigator, iframeNavigator?: IFrameNavigator);
+    constructor(settings: UserManagerSettings, redirectNavigator?: INavigator, popupNavigator?: INavigator, iframeNavigator?: INavigator);
     // (undocumented)
     protected _buildUser(signinResponse: SigninResponse, verifySub?: string): Promise<User>;
     clearStaleState(): Promise<void>;
@@ -963,17 +868,17 @@ export class UserManager {
     protected readonly _events: UserManagerEvents;
     getUser(): Promise<User | null>;
     // (undocumented)
-    protected readonly _iframeNavigator: IFrameNavigator;
+    protected readonly _iframeNavigator: INavigator;
     // (undocumented)
     protected _loadUser(): Promise<User | null>;
     // (undocumented)
     protected readonly _logger: Logger;
     get metadataService(): MetadataService;
     // (undocumented)
-    protected readonly _popupNavigator: PopupNavigator;
+    protected readonly _popupNavigator: INavigator;
     querySessionStatus(args?: QuerySessionStatusArgs): Promise<SessionStatus | null>;
     // (undocumented)
-    protected readonly _redirectNavigator: RedirectNavigator;
+    protected readonly _redirectNavigator: INavigator;
     removeUser(): Promise<void>;
     // (undocumented)
     protected _revokeInternal(user: User | null, types?: ("access_token" | "refresh_token")[]): Promise<void>;
@@ -995,6 +900,8 @@ export class UserManager {
     signinResourceOwnerCredentials({ username, password, skipUserInfo, }: SigninResourceOwnerCredentialsArgs): Promise<User>;
     signinSilent(args?: SigninSilentArgs): Promise<User | null>;
     signinSilentCallback(url?: string): Promise<void>;
+    // Warning: (ae-forgotten-export) The symbol "NavigateResponse" needs to be exported by the entry point index.d.ts
+    //
     // (undocumented)
     protected _signinStart(args: CreateSigninRequestArgs, handle: IWindow): Promise<NavigateResponse>;
     // (undocumented)

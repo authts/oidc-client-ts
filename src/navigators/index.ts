@@ -1,4 +1,3 @@
-export * from "./AbstractChildWindow";
 export * from "./IFrameNavigator";
 export * from "./IFrameWindow";
 export * from "./INavigator";

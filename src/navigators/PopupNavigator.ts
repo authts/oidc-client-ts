@@ -7,9 +7,7 @@ import type { INavigator } from "./INavigator";
 import type { UserManagerSettingsStore } from "../UserManagerSettings";
 
 /**
- * Default browser Window based PopupNavigator
- * 
- * @public
+ * @internal
  */
 export class PopupNavigator implements INavigator {
     private readonly _logger = new Logger("PopupNavigator");

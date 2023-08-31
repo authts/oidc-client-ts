@@ -16,7 +16,7 @@ interface MessageData {
  * Window implementation which resolves via communication from a child window
  * via the `Window.postMessage()` interface.
  *
- * @public
+ * @internal
  */
 export abstract class AbstractChildWindow implements IWindow {
     protected abstract readonly _logger: Logger;

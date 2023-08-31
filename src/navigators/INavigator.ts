@@ -8,4 +8,6 @@ import type { IWindow } from "./IWindow";
  */
 export interface INavigator {
     prepare(params: unknown): Promise<IWindow>;
+
+    callback(url: string, keepOpen?: boolean): Promise<void>;
 }
