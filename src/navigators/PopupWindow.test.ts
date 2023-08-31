@@ -146,7 +146,7 @@ describe("PopupWindow", () => {
     });
 
     it("should close the window after closePopupWindowAfter is greater than 0", async () => {
-        const popupWindow = new PopupWindow({ popupWindowFeatures: { closePopupWindowAfter: 1 } });
+        const popupWindow = new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: 1 } });
 
         const promise = popupWindow.navigate({ url: "http://sts/authorize?x=y", state: "someid" });
 
@@ -158,7 +158,7 @@ describe("PopupWindow", () => {
     it("shouldnt close the window after closePopupWindowAfter is equal to 0", async () => {
         jest.spyOn(global, "setTimeout");
         
-        new PopupWindow({ popupWindowFeatures: { closePopupWindowAfter: 0 } });
+        new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: 0 } });
 
         jest.runOnlyPendingTimers();
         expect(setTimeout).toHaveBeenCalledTimes(0);
@@ -167,7 +167,7 @@ describe("PopupWindow", () => {
     it("shouldnt close the window after closePopupWindowAfter is less than 0", async () => {
         jest.spyOn(global, "setTimeout");
         
-        new PopupWindow({ popupWindowFeatures: { closePopupWindowAfter: -120 } });
+        new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: -120 } });
 
         jest.runOnlyPendingTimers();
         expect(setTimeout).toHaveBeenCalledTimes(0);
