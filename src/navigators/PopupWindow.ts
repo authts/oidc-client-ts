@@ -36,7 +36,10 @@ export class PopupWindow extends AbstractChildWindow {
             setTimeout(() => { 
                 if (!this._window || typeof this._window.closed !== "boolean" || this._window.closed) {
                     this._abort.raise(new Error("Popup blocked by user"));
+                    return;
                 }
+
+                this.close();
             }, popupWindowFeatures.closePopupWindowAfterInSeconds * second);
         }
     }
