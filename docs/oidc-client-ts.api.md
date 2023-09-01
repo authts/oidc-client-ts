@@ -480,6 +480,7 @@ export interface OidcStandardClaims {
 export interface PopupWindowFeatures {
     // (undocumented)
     [k: string]: boolean | string | number | undefined;
+    closePopupWindowAfterInSeconds?: number;
     // (undocumented)
     height?: number;
     // (undocumented)

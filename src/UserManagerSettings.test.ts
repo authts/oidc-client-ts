@@ -53,6 +53,19 @@ describe("UserManagerSettings", () => {
             expect(subject.popupWindowFeatures).toEqual({ status: true });
         });
 
+        it("should set closePopupWindowAfterInMilliseconds", () => {
+            // act
+            const closePopupWindowAfterInSeconds = 100;
+            const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                popupWindowFeatures: { status: true, closePopupWindowAfterInSeconds },
+            });
+
+            // assert
+            expect(subject.popupWindowFeatures).toEqual({ status: true, closePopupWindowAfterInSeconds });
+        });
     });
 
     describe("popupWindowTarget", () => {
