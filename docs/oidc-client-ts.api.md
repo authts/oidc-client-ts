@@ -132,8 +132,6 @@ export interface ILogger {
 export interface INavigator {
     // (undocumented)
     callback(url: string, params?: unknown): Promise<void>;
-    // Warning: (ae-forgotten-export) The symbol "IWindow" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     prepare(params: unknown): Promise<IWindow>;
 }
@@ -152,6 +150,17 @@ export class InMemoryWebStorage implements Storage {
     removeItem(key: string): void;
     // (undocumented)
     setItem(key: string, value: string): void;
+}
+
+// @public (undocumented)
+export interface IWindow {
+    // (undocumented)
+    close(): void;
+    // Warning: (ae-forgotten-export) The symbol "NavigateParams" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "NavigateResponse" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    navigate(params: NavigateParams): Promise<NavigateResponse>;
 }
 
 // @public
@@ -900,8 +909,6 @@ export class UserManager {
     signinResourceOwnerCredentials({ username, password, skipUserInfo, }: SigninResourceOwnerCredentialsArgs): Promise<User>;
     signinSilent(args?: SigninSilentArgs): Promise<User | null>;
     signinSilentCallback(url?: string): Promise<void>;
-    // Warning: (ae-forgotten-export) The symbol "NavigateResponse" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     protected _signinStart(args: CreateSigninRequestArgs, handle: IWindow): Promise<NavigateResponse>;
     // (undocumented)
