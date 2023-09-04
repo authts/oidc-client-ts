@@ -131,7 +131,7 @@ export interface ILogger {
 // @public (undocumented)
 export interface INavigator {
     // (undocumented)
-    callback(url: string, keepOpen?: boolean): Promise<void>;
+    callback(url: string, params?: unknown): Promise<void>;
     // Warning: (ae-forgotten-export) The symbol "IWindow" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)

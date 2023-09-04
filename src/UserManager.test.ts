@@ -394,7 +394,7 @@ describe("UserManager", () => {
             await subject.signinPopupCallback(url, keepOpen);
 
             // assert
-            expect(callbackMock).toBeCalledWith(url, keepOpen);
+            expect(callbackMock).toBeCalledWith(url, { keepOpen });
         });
     });
 

@@ -243,7 +243,7 @@ export class UserManager {
      */
     public async signinPopupCallback(url = window.location.href, keepOpen = false): Promise<void> {
         const logger = this._logger.create("signinPopupCallback");
-        await this._popupNavigator.callback(url, keepOpen);
+        await this._popupNavigator.callback(url, { keepOpen });
         logger.info("success");
     }
 
@@ -524,7 +524,7 @@ export class UserManager {
      */
     public async signoutPopupCallback(url = window.location.href, keepOpen = false): Promise<void> {
         const logger = this._logger.create("signoutPopupCallback");
-        await this._popupNavigator.callback(url, keepOpen);
+        await this._popupNavigator.callback(url, { keepOpen });
         logger.info("success");
     }
 
