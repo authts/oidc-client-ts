@@ -156,9 +156,6 @@ export class InMemoryWebStorage implements Storage {
 export interface IWindow {
     // (undocumented)
     close(): void;
-    // Warning: (ae-forgotten-export) The symbol "NavigateParams" needs to be exported by the entry point index.d.ts
-    // Warning: (ae-forgotten-export) The symbol "NavigateResponse" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     navigate(params: NavigateParams): Promise<NavigateResponse>;
 }
@@ -260,6 +257,24 @@ export class MetadataService {
     getUserInfoEndpoint(): Promise<string>;
     // (undocumented)
     resetSigningKeys(): void;
+}
+
+// @public (undocumented)
+export interface NavigateParams {
+    nonce?: string;
+    // (undocumented)
+    response_mode?: "query" | "fragment";
+    // (undocumented)
+    scriptOrigin?: string;
+    state?: string;
+    // (undocumented)
+    url: string;
+}
+
+// @public (undocumented)
+export interface NavigateResponse {
+    // (undocumented)
+    url: string;
 }
 
 // @public
