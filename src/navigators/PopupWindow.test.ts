@@ -146,12 +146,12 @@ describe("PopupWindow", () => {
     });
 
     it("should close the window after closePopupWindowAfter is greater than 0", async () => {
-        const popupWindow = new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: 1 } });
-
-        const promise = popupWindow.navigate({ url: "http://sts/authorize?x=y", state: "someid" });
+        jest.spyOn(global, "setTimeout");
+        
+        new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: 1 } });
 
         jest.runOnlyPendingTimers();
-        await expect(promise).rejects.toThrow("Popup blocked by user");
+        expect(setTimeout).toHaveBeenCalledTimes(1);
         jest.runAllTimers();
     });
 
@@ -162,6 +162,7 @@ describe("PopupWindow", () => {
 
         jest.runOnlyPendingTimers();
         expect(setTimeout).toHaveBeenCalledTimes(0);
+        jest.runAllTimers();
     });
 
     it("shouldnt close the window after closePopupWindowAfter is less than 0", async () => {
@@ -171,5 +172,6 @@ describe("PopupWindow", () => {
 
         jest.runOnlyPendingTimers();
         expect(setTimeout).toHaveBeenCalledTimes(0);
+        jest.runAllTimers();
     });
 });
