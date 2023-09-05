@@ -564,6 +564,31 @@ export interface RedirectParams {
     redirectTarget?: "top" | "self";
 }
 
+// @public
+export class RefreshState {
+    constructor(args: {
+        refresh_token: string;
+        id_token?: string;
+        session_state: string | null;
+        scope?: string;
+        profile: UserProfile;
+        state?: unknown;
+    }, resource?: string | string[]);
+    readonly data?: unknown;
+    // (undocumented)
+    readonly id_token?: string;
+    // (undocumented)
+    readonly profile: UserProfile;
+    // (undocumented)
+    readonly refresh_token: string;
+    // (undocumented)
+    readonly resource?: string | string[];
+    // (undocumented)
+    readonly scope?: string;
+    // (undocumented)
+    readonly session_state: string | null;
+}
+
 // @public (undocumented)
 export type RevokeTokensTypes = UserManagerSettings["revokeTokenTypes"];
 
@@ -869,8 +894,6 @@ export class User {
 
 // @public (undocumented)
 export interface UseRefreshTokenArgs {
-    // Warning: (ae-forgotten-export) The symbol "RefreshState" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     state: RefreshState;
     // (undocumented)

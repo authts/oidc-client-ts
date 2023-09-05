@@ -20,6 +20,7 @@ export type { OidcMetadata } from "./OidcMetadata";
 export { SessionMonitor } from "./SessionMonitor";
 export type { SessionStatus } from "./SessionStatus";
 export type { SigninRequest, SigninRequestArgs } from "./SigninRequest";
+export type { RefreshState } from "./RefreshState";
 export { SigninResponse } from "./SigninResponse";
 export { SigninState } from "./SigninState";
 export type { SignoutRequest, SignoutRequestArgs } from "./SignoutRequest";
