@@ -52,4 +52,8 @@ export class RedirectNavigator implements INavigator {
             },
         };
     }
+
+    public async callback(): Promise<void> {
+        return;
+    }
 }

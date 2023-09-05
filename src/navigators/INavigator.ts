@@ -4,8 +4,10 @@
 import type { IWindow } from "./IWindow";
 
 /**
- * @internal
+ * @public
  */
 export interface INavigator {
     prepare(params: unknown): Promise<IWindow>;
+
+    callback(url: string, params?: unknown): Promise<void>;
 }

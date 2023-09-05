@@ -129,6 +129,14 @@ export interface ILogger {
 }
 
 // @public (undocumented)
+export interface INavigator {
+    // (undocumented)
+    callback(url: string, params?: unknown): Promise<void>;
+    // (undocumented)
+    prepare(params: unknown): Promise<IWindow>;
+}
+
+// @public (undocumented)
 export class InMemoryWebStorage implements Storage {
     // (undocumented)
     clear(): void;
@@ -142,6 +150,14 @@ export class InMemoryWebStorage implements Storage {
     removeItem(key: string): void;
     // (undocumented)
     setItem(key: string, value: string): void;
+}
+
+// @public (undocumented)
+export interface IWindow {
+    // (undocumented)
+    close(): void;
+    // (undocumented)
+    navigate(params: NavigateParams): Promise<NavigateResponse>;
 }
 
 // @public
@@ -241,6 +257,24 @@ export class MetadataService {
     getUserInfoEndpoint(): Promise<string>;
     // (undocumented)
     resetSigningKeys(): void;
+}
+
+// @public (undocumented)
+export interface NavigateParams {
+    nonce?: string;
+    // (undocumented)
+    response_mode?: "query" | "fragment";
+    // (undocumented)
+    scriptOrigin?: string;
+    state?: string;
+    // (undocumented)
+    url: string;
+}
+
+// @public (undocumented)
+export interface NavigateResponse {
+    // (undocumented)
+    url: string;
 }
 
 // @public
@@ -848,7 +882,7 @@ export type UserLoadedCallback = (user: User) => Promise<void> | void;
 
 // @public
 export class UserManager {
-    constructor(settings: UserManagerSettings);
+    constructor(settings: UserManagerSettings, redirectNavigator?: INavigator, popupNavigator?: INavigator, iframeNavigator?: INavigator);
     // (undocumented)
     protected _buildUser(signinResponse: SigninResponse, verifySub?: string): Promise<User>;
     clearStaleState(): Promise<void>;
@@ -858,24 +892,18 @@ export class UserManager {
     // (undocumented)
     protected readonly _events: UserManagerEvents;
     getUser(): Promise<User | null>;
-    // Warning: (ae-forgotten-export) The symbol "IFrameNavigator" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
-    protected readonly _iframeNavigator: IFrameNavigator;
+    protected readonly _iframeNavigator: INavigator;
     // (undocumented)
     protected _loadUser(): Promise<User | null>;
     // (undocumented)
     protected readonly _logger: Logger;
     get metadataService(): MetadataService;
-    // Warning: (ae-forgotten-export) The symbol "PopupNavigator" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
-    protected readonly _popupNavigator: PopupNavigator;
+    protected readonly _popupNavigator: INavigator;
     querySessionStatus(args?: QuerySessionStatusArgs): Promise<SessionStatus | null>;
-    // Warning: (ae-forgotten-export) The symbol "RedirectNavigator" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
-    protected readonly _redirectNavigator: RedirectNavigator;
+    protected readonly _redirectNavigator: INavigator;
     removeUser(): Promise<void>;
     // (undocumented)
     protected _revokeInternal(user: User | null, types?: ("access_token" | "refresh_token")[]): Promise<void>;
@@ -884,8 +912,6 @@ export class UserManager {
     // (undocumented)
     protected readonly _sessionMonitor: SessionMonitor | null;
     readonly settings: UserManagerSettingsStore;
-    // Warning: (ae-forgotten-export) The symbol "IWindow" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     protected _signin(args: CreateSigninRequestArgs, handle: IWindow, verifySub?: string): Promise<User>;
     // (undocumented)
@@ -899,8 +925,6 @@ export class UserManager {
     signinResourceOwnerCredentials({ username, password, skipUserInfo, }: SigninResourceOwnerCredentialsArgs): Promise<User>;
     signinSilent(args?: SigninSilentArgs): Promise<User | null>;
     signinSilentCallback(url?: string): Promise<void>;
-    // Warning: (ae-forgotten-export) The symbol "NavigateResponse" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     protected _signinStart(args: CreateSigninRequestArgs, handle: IWindow): Promise<NavigateResponse>;
     // (undocumented)

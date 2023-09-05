@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { once } from "events";
-import type { PopupWindow } from "./navigators";
+import { RedirectNavigator, type PopupWindow, PopupNavigator, IFrameNavigator } from "./navigators";
 import type { SigninResponse } from "./SigninResponse";
 import type { SignoutResponse } from "./SignoutResponse";
 import { UserManager, type SigninPopupArgs, type SigninRedirectArgs, type SigninSilentArgs, type SignoutSilentArgs } from "./UserManager";
@@ -58,6 +58,30 @@ describe("UserManager", () => {
             } else {
                 expect(sessionMonitor).toBeNull();
             }
+        });
+
+        it("should accept redirectNavigator", () => {
+            const customRedirectNavigator = new RedirectNavigator(subject.settings);
+
+            const userManager = new UserManager(subject.settings, customRedirectNavigator);
+
+            expect(userManager["_redirectNavigator"]).toBe(customRedirectNavigator);
+        });
+
+        it("should accept popupNavigator", () => {
+            const customPopupNavigator = new PopupNavigator(subject.settings);
+
+            const userManager = new UserManager(subject.settings, undefined, customPopupNavigator);
+
+            expect(userManager["_popupNavigator"]).toBe(customPopupNavigator);
+        });
+
+        it("should accept iframeNavigator", () => {
+            const customiframeNavigator = new IFrameNavigator(subject.settings);
+
+            const userManager = new UserManager(subject.settings, undefined, undefined, customiframeNavigator);
+
+            expect(userManager["_iframeNavigator"]).toBe(customiframeNavigator);
         });
     });
 
@@ -248,11 +272,6 @@ describe("UserManager", () => {
             // arrange
             const spy = jest.spyOn(subject["_client"], "processSigninResponse")
                 .mockResolvedValue({} as SigninResponse);
-            await userStoreMock.set("test", JSON.stringify({
-                id: "test",
-                request_type: "si:r",
-                ...subject.settings,
-            }));
 
             // act
             const user = await subject.signinRedirectCallback("http://app/cb?state=test&code=code");
@@ -375,7 +394,7 @@ describe("UserManager", () => {
             await subject.signinPopupCallback(url, keepOpen);
 
             // assert
-            expect(callbackMock).toBeCalledWith(url, keepOpen);
+            expect(callbackMock).toBeCalledWith(url, { keepOpen });
         });
     });
 
