@@ -33,7 +33,7 @@ export class PopupWindow extends AbstractChildWindow {
         const centeredPopup = PopupUtils.center({ ...DefaultPopupWindowFeatures, ...popupWindowFeatures });
         this._window = window.open(undefined, popupWindowTarget, PopupUtils.serialize(centeredPopup));
         if (popupWindowFeatures.closePopupWindowAfterInSeconds && popupWindowFeatures.closePopupWindowAfterInSeconds > 0) {
-            setTimeout(() => { 
+            setTimeout(() => {
                 if (!this._window || typeof this._window.closed !== "boolean" || this._window.closed) {
                     this._abort.raise(new Error("Popup blocked by user"));
                     return;

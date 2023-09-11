@@ -1,9 +1,18 @@
 import { mocked } from "jest-mock";
 import { PopupWindow } from "./PopupWindow";
+import { Log } from "../utils";
 
 function firstSuccessfulResult<T>(fn: () => T): T {
     expect(fn).toHaveReturned();
     return mocked(fn).mock.results[0].value as T;
+}
+
+function definePopupWindowClosedProperty(closed: boolean) {
+    const popupFromWindowOpen = firstSuccessfulResult(window.open);
+    Object.defineProperty(popupFromWindowOpen, "closed", {
+        enumerable: true,
+        value: closed,
+    });
 }
 
 describe("PopupWindow", () => {
@@ -115,11 +124,7 @@ describe("PopupWindow", () => {
         const popupWindow = new PopupWindow({});
 
         const promise = popupWindow.navigate({ url: "http://sts/authorize?x=y", state: "someid" });
-        const popupFromWindowOpen = firstSuccessfulResult(window.open);
-        Object.defineProperty(popupFromWindowOpen, "closed", {
-            enumerable: true,
-            value: true,
-        });
+        definePopupWindowClosedProperty(true);
 
         jest.runOnlyPendingTimers();
         await expect(promise).rejects.toThrow("Popup closed by user");
@@ -145,7 +150,7 @@ describe("PopupWindow", () => {
         }, window.location.origin);
     });
 
-    it("should close the window after closePopupWindowAfter is greater than 0", async () => {
+    it("should run setTimeout when closePopupWindowAfterInSeconds is greater than 0", async () => {
         jest.spyOn(global, "setTimeout");
         
         new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: 1 } });
@@ -155,7 +160,7 @@ describe("PopupWindow", () => {
         jest.runAllTimers();
     });
 
-    it("shouldnt close the window after closePopupWindowAfter is equal to 0", async () => {
+    it("shouldn't run setTimeout when closePopupWindowAfterInSeconds is equal to 0", async () => {
         jest.spyOn(global, "setTimeout");
         
         new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: 0 } });
@@ -165,13 +170,48 @@ describe("PopupWindow", () => {
         jest.runAllTimers();
     });
 
-    it("shouldnt close the window after closePopupWindowAfter is less than 0", async () => {
+    it("shouldn't run setTimeout when closePopupWindowAfterInSeconds is less than 0", async () => {
         jest.spyOn(global, "setTimeout");
         
         new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: -120 } });
 
         jest.runOnlyPendingTimers();
         expect(setTimeout).toHaveBeenCalledTimes(0);
+        jest.runAllTimers();
+    });
+
+    it("should invoke close popup window when closePopupWindowAfterInSeconds is greater than 0 and window is open", async () => {
+        const popupWindow = new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: 1 } });
+        definePopupWindowClosedProperty(false);
+        const closeWindowSpy = jest.spyOn(popupWindow, "close");
+
+        jest.runOnlyPendingTimers();
+
+        expect(closeWindowSpy).toHaveBeenCalledTimes(1);
+        jest.runAllTimers();
+    });
+
+    it("shouldn't invoke close popup window when closePopupWindowAfterInSeconds is greater than 0 and window is not open", async () => {
+        const popupWindow = new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: 1 } });
+        definePopupWindowClosedProperty(true);
+        const closeWindowSpy = jest.spyOn(popupWindow, "close");
+
+        jest.runOnlyPendingTimers();
+
+        expect(closeWindowSpy).not.toBeCalled();
+        jest.runAllTimers();
+    });
+
+    it("should show error when closePopupWindowAfterInSeconds is greater than 0 and window is not open", async () => {
+        Log.setLevel(Log.DEBUG);
+        const popupWindow = new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: 1 } });
+        const consoleDebugSpy = jest.spyOn(console, "debug");
+        const promise = popupWindow.navigate({ url: "http://sts/authorize?x=y", state: "someid" });
+
+        jest.runOnlyPendingTimers();
+
+        await expect(promise).rejects.toThrow("Popup blocked by user");
+        expect(consoleDebugSpy).toHaveBeenCalled();
         jest.runAllTimers();
     });
 });
