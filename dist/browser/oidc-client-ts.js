@@ -4035,6 +4035,18 @@ var oidc = (() => {
       logger2.info("user removed from storage");
       this._events.unload();
     }
+    async signupRedirect(args = {}) {
+      this._logger.create("signupRedirect");
+      const {
+        redirectMethod,
+        ...requestArgs
+      } = args;
+      const handle = await this._redirectNavigator.prepare({ redirectMethod });
+      await this._signupStart({
+        request_type: "si:r",
+        ...requestArgs
+      }, handle);
+    }
     /**
      * Returns promise to trigger a redirect of the current window to the authorization endpoint.
      */
@@ -4268,6 +4280,23 @@ var oidc = (() => {
               };
           }
         }
+        throw err;
+      }
+    }
+    async _signupStart(args, handle) {
+      const logger2 = this._logger.create("_signupStart");
+      try {
+        const signinRequest = await this._client.createSigninRequest(args);
+        logger2.debug("got signup request");
+        return await handle.navigate({
+          url: signinRequest.url.replace("/auth", "/registrations"),
+          state: signinRequest.state.id,
+          response_mode: signinRequest.state.response_mode,
+          scriptOrigin: this.settings.iframeScriptOrigin
+        });
+      } catch (err) {
+        logger2.debug("error after preparing navigator, closing navigator window");
+        handle.close();
         throw err;
       }
     }

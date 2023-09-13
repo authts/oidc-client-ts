@@ -1440,6 +1440,7 @@ export declare class UserManager {
      * Returns promise to remove from any storage the currently authenticated user.
      */
     removeUser(): Promise<void>;
+    signupRedirect(args?: SigninRedirectArgs): Promise<void>;
     /**
      * Returns promise to trigger a redirect of the current window to the authorization endpoint.
      */
@@ -1478,6 +1479,7 @@ export declare class UserManager {
      * Returns promise to query OP for user's current signin status. Returns object with session_state and subject identifier.
      */
     querySessionStatus(args?: QuerySessionStatusArgs): Promise<SessionStatus | null>;
+    protected _signupStart(args: CreateSigninRequestArgs, handle: IWindow): Promise<NavigateResponse>;
     protected _signin(args: CreateSigninRequestArgs, handle: IWindow, verifySub?: string): Promise<User>;
     protected _signinStart(args: CreateSigninRequestArgs, handle: IWindow): Promise<NavigateResponse>;
     protected _signinEnd(url: string, verifySub?: string): Promise<User>;
