@@ -883,8 +883,6 @@ export class UserManager {
     // (undocumented)
     protected readonly _sessionMonitor: SessionMonitor | null;
     readonly settings: UserManagerSettingsStore;
-    // Warning: (ae-forgotten-export) The symbol "IWindow" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     protected _signin(args: CreateSigninRequestArgs, handle: IWindow, verifySub?: string): Promise<User>;
     // (undocumented)
@@ -898,8 +896,6 @@ export class UserManager {
     signinResourceOwnerCredentials({ username, password, skipUserInfo, }: SigninResourceOwnerCredentialsArgs): Promise<User>;
     signinSilent(args?: SigninSilentArgs): Promise<User | null>;
     signinSilentCallback(url?: string): Promise<void>;
-    // Warning: (ae-forgotten-export) The symbol "NavigateResponse" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     protected _signinStart(args: CreateSigninRequestArgs, handle: IWindow): Promise<NavigateResponse>;
     // (undocumented)
@@ -916,6 +912,13 @@ export class UserManager {
     signoutSilentCallback(url?: string): Promise<void>;
     // (undocumented)
     protected _signoutStart(args: CreateSignoutRequestArgs | undefined, handle: IWindow): Promise<NavigateResponse>;
+    // (undocumented)
+    signupRedirect(args?: SigninRedirectArgs): Promise<void>;
+    // Warning: (ae-forgotten-export) The symbol "IWindow" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "NavigateResponse" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    protected _signupStart(args: CreateSigninRequestArgs, handle: IWindow): Promise<NavigateResponse>;
     // Warning: (ae-forgotten-export) The symbol "SilentRenewService" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
