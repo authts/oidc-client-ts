@@ -558,6 +558,7 @@ export class UserManager {
             return await handle.navigate({
                 url: signoutRequest.url,
                 state: signoutRequest.state?.id,
+                scriptOrigin: this.settings.iframeScriptOrigin,
             });
         }
         catch (err) {
