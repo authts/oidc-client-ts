@@ -1,4 +1,4 @@
-<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>SessionMonitor | oidc-client-ts</title><meta name="description" content="Documentation for oidc-client-ts"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>RefreshState | oidc-client-ts</title><meta name="description" content="Documentation for oidc-client-ts"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
 <div class="tsd-toolbar-contents container">
 <div class="table-cell" id="tsd-search" data-base="..">
 <div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div>
@@ -13,14 +13,18 @@
 <div class="tsd-page-title">
 <ul class="tsd-breadcrumb">
 <li><a href="../modules.html">oidc-client-ts</a></li>
-<li><a href="SessionMonitor.html">SessionMonitor</a></li></ul>
-<h1>Class SessionMonitor</h1></div>
+<li><a href="RefreshState.html">RefreshState</a></li></ul>
+<h1>Class RefreshState</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>Fake state store implementation necessary for validating refresh token requests.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-hierarchy">
 <h4>Hierarchy</h4>
 <ul class="tsd-hierarchy">
-<li><span class="target">SessionMonitor</span></li></ul></section><aside class="tsd-sources">
+<li><span class="target">RefreshState</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/f3a805a/src/SessionMonitor.ts#L12">src/SessionMonitor.ts:12</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/f3a805a/src/RefreshState.ts#L11">src/RefreshState.ts:11</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -28,23 +32,88 @@
 <div class="tsd-accordion-details">
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Constructors</h3>
-<div class="tsd-index-list"><a href="SessionMonitor.html#constructor" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-512"></use></svg><span>constructor</span></a>
+<div class="tsd-index-list"><a href="RefreshState.html#constructor" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-512"></use></svg><span>constructor</span></a>
+</div></section>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading">Properties</h3>
+<div class="tsd-index-list"><a href="RefreshState.html#data" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>data?</span></a>
+<a href="RefreshState.html#id_token" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>id_<wbr/>token?</span></a>
+<a href="RefreshState.html#profile" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>profile</span></a>
+<a href="RefreshState.html#refresh_token" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>refresh_<wbr/>token</span></a>
+<a href="RefreshState.html#resource" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>resource?</span></a>
+<a href="RefreshState.html#scope" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>scope?</span></a>
+<a href="RefreshState.html#session_state" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>session_<wbr/>state</span></a>
 </div></section></div></details></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Constructors</h2>
 <section class="tsd-panel tsd-member"><a id="constructor" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>constructor</span><a href="#constructor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="constructor.new_SessionMonitor"><span class="tsd-kind-constructor-signature">new <wbr/>Session<wbr/>Monitor</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">_userManager</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="SessionMonitor.html" class="tsd-signature-type tsd-kind-class">SessionMonitor</a><a href="#constructor.new_SessionMonitor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="constructor.new_RefreshState"><span class="tsd-kind-constructor-signature">new <wbr/>Refresh<wbr/>State</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">args</span>, <span class="tsd-kind-parameter">resource</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="RefreshState.html" class="tsd-signature-type tsd-kind-class">RefreshState</a><a href="#constructor.new_RefreshState" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">_userManager</span>: <a href="UserManager.html" class="tsd-signature-type tsd-kind-class">UserManager</a></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <a href="SessionMonitor.html" class="tsd-signature-type tsd-kind-class">SessionMonitor</a></h4><aside class="tsd-sources">
+<h5><span class="tsd-kind-parameter">args</span>: <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">id_token</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">profile</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/IdTokenClaims.html" class="tsd-signature-type tsd-kind-interface">IdTokenClaims</a><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">refresh_token</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">scope</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">session_state</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">state</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h5>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">id_<wbr/>token</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">profile</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/IdTokenClaims.html" class="tsd-signature-type tsd-kind-interface">IdTokenClaims</a></h5></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">refresh_<wbr/>token</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">scope</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">session_<wbr/>state</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">state</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">unknown</span></h5></li></ul></li>
+<li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">resource</span>: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="RefreshState.html" class="tsd-signature-type tsd-kind-class">RefreshState</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/f3a805a/src/SessionMonitor.ts#L19">src/SessionMonitor.ts:19</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/f3a805a/src/RefreshState.ts#L22">src/RefreshState.ts:22</a></li></ul></aside></li></ul></section></section>
+<section class="tsd-panel-group tsd-member-group">
+<h2>Properties</h2>
+<section class="tsd-panel tsd-member"><a id="data" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>data</span><a href="#data" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">data</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">unknown</span></div>
+<div class="tsd-comment tsd-typography"><p>custom &quot;state&quot;, which can be used by a caller to have &quot;data&quot; round tripped</p>
+</div>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/f3a805a/src/RefreshState.ts#L13">src/RefreshState.ts:13</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member"><a id="id_token" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>id_<wbr/>token</span><a href="#id_token" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">id_<wbr/>token</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/f3a805a/src/RefreshState.ts#L16">src/RefreshState.ts:16</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member"><a id="profile" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>profile</span><a href="#profile" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">profile</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/IdTokenClaims.html" class="tsd-signature-type tsd-kind-interface">IdTokenClaims</a></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/f3a805a/src/RefreshState.ts#L19">src/RefreshState.ts:19</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member"><a id="refresh_token" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>refresh_<wbr/>token</span><a href="#refresh_token" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">refresh_<wbr/>token</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/f3a805a/src/RefreshState.ts#L15">src/RefreshState.ts:15</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member"><a id="resource" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>resource</span><a href="#resource" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">resource</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/f3a805a/src/RefreshState.ts#L20">src/RefreshState.ts:20</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member"><a id="scope" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>scope</span><a href="#scope" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">scope</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/f3a805a/src/RefreshState.ts#L18">src/RefreshState.ts:18</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member"><a id="session_state" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>session_<wbr/>state</span><a href="#session_state" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">session_<wbr/>state</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/authts/oidc-client-ts/blob/f3a805a/src/RefreshState.ts#L17">src/RefreshState.ts:17</a></li></ul></aside></section></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
@@ -62,7 +131,14 @@
 <h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><use href="#icon-chevronDown"></use></svg>On This Page</h3></summary>
 <div class="tsd-accordion-details">
 <ul>
-<li><a href="#constructor" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-512"></use></svg><span>constructor</span></a></li></ul></div></details></div>
+<li><a href="#constructor" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-512"></use></svg><span>constructor</span></a></li>
+<li><a href="#data" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>data</span></a></li>
+<li><a href="#id_token" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>id_<wbr/>token</span></a></li>
+<li><a href="#profile" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>profile</span></a></li>
+<li><a href="#refresh_token" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>refresh_<wbr/>token</span></a></li>
+<li><a href="#resource" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>resource</span></a></li>
+<li><a href="#scope" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>scope</span></a></li>
+<li><a href="#session_state" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>session_<wbr/>state</span></a></li></ul></div></details></div>
 <div class="site-menu">
 <nav class="tsd-navigation"><a href="../modules.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1"></use></svg><span>oidc-client-ts</span></a>
 <ul class="tsd-small-nested-navigation" id="tsd-nav-container" data-base="..">
@@ -76,8 +152,8 @@
 <li><a href="MetadataService.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>MetadataService</a></li>
 <li><a href="OidcClient.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>OidcClient</a></li>
 <li><a href="OidcClientSettingsStore.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>OidcClientSettingsStore</a></li>
-<li><a href="RefreshState.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>RefreshState</a></li>
-<li><a href="SessionMonitor.html" class="current"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>SessionMonitor</a></li>
+<li><a href="RefreshState.html" class="current"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>RefreshState</a></li>
+<li><a href="SessionMonitor.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>SessionMonitor</a></li>
 <li><a href="SigninRequest.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>SigninRequest</a></li>
 <li><a href="SigninResponse.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>SigninResponse</a></li>
 <li><a href="SigninState.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>SigninState</a></li>
