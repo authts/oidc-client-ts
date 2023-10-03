@@ -2816,7 +2816,7 @@ var UserManager = class {
       const signinRequest = await this._client.createSigninRequest(args);
       logger2.debug("got signup request");
       return await handle.navigate({
-        url: signinRequest.url.replace("/auth", "/registrations"),
+        url: signinRequest.url.replace("/auth?", "/registrations?"),
         state: signinRequest.state.id,
         response_mode: signinRequest.state.response_mode,
         scriptOrigin: this.settings.iframeScriptOrigin
@@ -3070,7 +3070,7 @@ var UserManager = class {
 };
 
 // package.json
-var version = "2.2.4";
+var version = "2.2.5";
 
 // src/Version.ts
 var Version = version;

@@ -434,7 +434,7 @@ export class UserManager {
             logger.debug("got signup request");
 
             return await handle.navigate({
-                url: signinRequest.url.replace("/auth", "/registrations"),
+                url: signinRequest.url.replace("/auth?", "/registrations?"),
                 state: signinRequest.state.id,
                 response_mode: signinRequest.state.response_mode,
                 scriptOrigin: this.settings.iframeScriptOrigin,
