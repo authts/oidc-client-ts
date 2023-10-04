@@ -44,6 +44,9 @@ export interface SigninRequestArgs {
     state_data?: unknown;
 }
 
+const isPrimitive = (val: unknown): val is number|boolean|string =>
+    ["number", "boolean", "string"].includes(typeof val);
+
 /**
  * @public
  */
@@ -156,7 +159,7 @@ export class SigninRequest {
             ...this._extraQueryParams,
         });
         for (const [key, value] of extraParams) {
-            if (value != null) {
+            if (value != null && isPrimitive(value)) {
                 parsedUrl.searchParams.append(key, value.toString());
             }
         }
