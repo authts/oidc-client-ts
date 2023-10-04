@@ -44,9 +44,6 @@ export interface SigninRequestArgs {
     state_data?: unknown;
 }
 
-const isPrimitive = (val: unknown): val is number|boolean|string =>
-    ["number", "boolean", "string"].includes(typeof val);
-
 /**
  * @public
  */
@@ -56,14 +53,13 @@ export class SigninRequest {
     public readonly state: SigninState;
 
     private readonly _url: string;
-    private readonly _authority: string;
     private readonly _client_id: string;
     private readonly _redirect_uri: string;
     private readonly _response_type: string;
     private readonly _scope: string;
     private readonly _nonce: string|undefined;
     private readonly _resource: string|string[]|undefined;
-    private readonly _optionalParams: Partial<SigninRequestArgs>;
+    private readonly _optionalParams: Record<string, number | boolean | string>;
     private readonly _extraQueryParams: SigninRequestArgs["extraQueryParams"];
     private readonly _response_mode: string|undefined;
 
@@ -105,7 +101,6 @@ export class SigninRequest {
         }
 
         this._url = url;
-        this._authority = authority;
         this._client_id = client_id;
         this._redirect_uri = redirect_uri;
         this._response_type = response_type;
@@ -159,7 +154,7 @@ export class SigninRequest {
             ...this._extraQueryParams,
         });
         for (const [key, value] of extraParams) {
-            if (value != null && isPrimitive(value)) {
+            if (value != null) {
                 parsedUrl.searchParams.append(key, value.toString());
             }
         }
