@@ -8,7 +8,7 @@ describe("SigninRequest", () => {
     let subject: SigninRequest;
     let settings: SigninRequestArgs;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         settings = {
             url: "http://sts/signin",
             client_id: "client",
@@ -18,56 +18,52 @@ describe("SigninRequest", () => {
             authority : "op",
             state_data: { data: "test" },
         };
-        subject = new SigninRequest(settings);
+        subject = await SigninRequest.create(settings);
     });
 
-    describe("constructor", () => {
-        it.each(["url", "client_id", "redirect_uri", "response_type", "scope", "authority"])("should require a %s param", (param) => {
+    describe("create", () => {
+        it.each(["url", "client_id", "redirect_uri", "response_type", "scope", "authority"])("should require a %s param", async (param) => {
             // arrange
             Object.assign(settings, { [param]: undefined });
 
             // act
-            expect(() => new SigninRequest(settings))
-                // assert
-                .toThrow(param);
+            const act = async () => await SigninRequest.create(settings);
+
+            // assert
+            await expect(act).rejects.toThrow(param);
         });
     });
 
     describe("url", () => {
-        let url: string;
-
-        beforeEach(async () => {
-            url = await subject.getUrl();
-        });
 
         it("should include url", () => {
             // assert
-            expect(url.indexOf("http://sts/signin")).toEqual(0);
+            expect(subject.url.indexOf("http://sts/signin")).toEqual(0);
         });
 
         it("should include client_id", () => {
             // assert
-            expect(url).toContain("client_id=client");
+            expect(subject.url).toContain("client_id=client");
         });
 
         it("should include redirect_uri", () => {
             // assert
-            expect(url).toContain("redirect_uri=" + encodeURIComponent("http://app"));
+            expect(subject.url).toContain("redirect_uri=" + encodeURIComponent("http://app"));
         });
 
         it("should include response_type", () => {
             // assert
-            expect(url).toContain("response_type=code");
+            expect(subject.url).toContain("response_type=code");
         });
 
         it("should include scope", () => {
             // assert
-            expect(url).toContain("scope=openid");
+            expect(subject.url).toContain("scope=openid");
         });
 
         it("should include state", () => {
             // assert
-            expect(url).toContain("state=" + subject.state.id);
+            expect(subject.url).toContain("state=" + subject.state.id);
         });
 
         it("should include prompt", async () => {
@@ -75,11 +71,10 @@ describe("SigninRequest", () => {
             settings.prompt = "foo";
 
             // act
-            subject = new SigninRequest(settings);
-            url = await subject.getUrl();
+            subject = await SigninRequest.create(settings);
 
             // assert
-            expect(url).toContain("prompt=foo");
+            expect(subject.url).toContain("prompt=foo");
         });
 
         it("should include display", async () => {
@@ -87,11 +82,10 @@ describe("SigninRequest", () => {
             settings.display = "foo";
 
             // act
-            subject = new SigninRequest(settings);
-            url = await subject.getUrl();
+            subject = await SigninRequest.create(settings);
 
             // assert
-            expect(url).toContain("display=foo");
+            expect(subject.url).toContain("display=foo");
         });
 
         it("should include max_age", async () => {
@@ -99,11 +93,10 @@ describe("SigninRequest", () => {
             settings.max_age = 42;
 
             // act
-            subject = new SigninRequest(settings);
-            url = await subject.getUrl();
+            subject = await SigninRequest.create(settings);
 
             // assert
-            expect(url).toContain("max_age=42");
+            expect(subject.url).toContain("max_age=42");
         });
 
         it("should include ui_locales", async () => {
@@ -111,11 +104,10 @@ describe("SigninRequest", () => {
             settings.ui_locales = "foo";
 
             // act
-            subject = new SigninRequest(settings);
-            url = await subject.getUrl();
+            subject = await SigninRequest.create(settings);
 
             // assert
-            expect(url).toContain("ui_locales=foo");
+            expect(subject.url).toContain("ui_locales=foo");
         });
 
         it("should include id_token_hint", async () => {
@@ -123,11 +115,10 @@ describe("SigninRequest", () => {
             settings.id_token_hint = "foo";
 
             // act
-            subject = new SigninRequest(settings);
-            url = await subject.getUrl();
+            subject = await SigninRequest.create(settings);
 
             // assert
-            expect(url).toContain("id_token_hint=foo");
+            expect(subject.url).toContain("id_token_hint=foo");
         });
 
         it("should include login_hint", async () => {
@@ -135,11 +126,10 @@ describe("SigninRequest", () => {
             settings.login_hint = "foo";
 
             // act
-            subject = new SigninRequest(settings);
-            url = await subject.getUrl();
+            subject = await SigninRequest.create(settings);
 
             // assert
-            expect(url).toContain("login_hint=foo");
+            expect(subject.url).toContain("login_hint=foo");
         });
 
         it("should include acr_values", async () => {
@@ -147,11 +137,10 @@ describe("SigninRequest", () => {
             settings.acr_values = "foo";
 
             // act
-            subject = new SigninRequest(settings);
-            url = await subject.getUrl();
+            subject = await SigninRequest.create(settings);
 
             // assert
-            expect(url).toContain("acr_values=foo");
+            expect(subject.url).toContain("acr_values=foo");
         });
 
         it("should include a resource", async () => {
@@ -159,11 +148,10 @@ describe("SigninRequest", () => {
             settings.resource = "foo";
 
             // act
-            subject = new SigninRequest(settings);
-            url = await subject.getUrl();
+            subject = await SigninRequest.create(settings);
 
             // assert
-            expect(url).toContain("resource=foo");
+            expect(subject.url).toContain("resource=foo");
         });
 
         it("should include multiple resources", async () => {
@@ -171,11 +159,10 @@ describe("SigninRequest", () => {
             settings.resource = ["foo", "bar"];
 
             // act
-            subject = new SigninRequest(settings);
-            url = await subject.getUrl();
+            subject = await SigninRequest.create(settings);
 
             // assert
-            expect(url).toContain("resource=foo&resource=bar");
+            expect(subject.url).toContain("resource=foo&resource=bar");
         });
 
         it("should include response_mode", async () => {
@@ -183,11 +170,10 @@ describe("SigninRequest", () => {
             settings.response_mode = "fragment";
 
             // act
-            subject = new SigninRequest(settings);
-            url = await subject.getUrl();
+            subject = await SigninRequest.create(settings);
 
             // assert
-            expect(url).toContain("response_mode=fragment");
+            expect(subject.url).toContain("response_mode=fragment");
         });
 
         it("should include request", async () => {
@@ -195,11 +181,10 @@ describe("SigninRequest", () => {
             settings.request = "foo";
 
             // act
-            subject = new SigninRequest(settings);
-            url = await subject.getUrl();
+            subject = await SigninRequest.create(settings);
 
             // assert
-            expect(url).toContain("request=foo");
+            expect(subject.url).toContain("request=foo");
         });
 
         it("should include request_uri", async () => {
@@ -207,11 +192,10 @@ describe("SigninRequest", () => {
             settings.request_uri = "foo";
 
             // act
-            subject = new SigninRequest(settings);
-            url = await subject.getUrl();
+            subject = await SigninRequest.create(settings);
 
             // assert
-            expect(url).toContain("request_uri=foo");
+            expect(subject.url).toContain("request_uri=foo");
         });
 
         it("should include extra query params", async () => {
@@ -222,21 +206,20 @@ describe("SigninRequest", () => {
             };
 
             // act
-            subject = new SigninRequest(settings);
-            url = await subject.getUrl();
+            subject = await SigninRequest.create(settings);
 
             // assert
-            expect(url).toContain("hd=domain.com&foo=bar");
+            expect(subject.url).toContain("hd=domain.com&foo=bar");
         });
 
-        it("should store extra token params in state", () => {
+        it("should store extra token params in state", async () => {
             // arrange
             settings.extraTokenParams = {
                 "resourceServer": "abc",
             };
 
             // act
-            subject = new SigninRequest(settings);
+            subject = await SigninRequest.create(settings);
 
             // assert
             expect(subject.state.extraTokenParams).toEqual({
@@ -249,12 +232,11 @@ describe("SigninRequest", () => {
             settings.response_type = "code";
 
             // act
-            subject = new SigninRequest(settings);
-            url = await subject.getUrl();
+            subject = await SigninRequest.create(settings);
 
             // assert
-            expect(url).toContain("code_challenge=");
-            expect(url).toContain("code_challenge_method=S256");
+            expect(subject.url).toContain("code_challenge=");
+            expect(subject.url).toContain("code_challenge_method=S256");
         });
 
         it("should include nonce", async () => {
@@ -262,11 +244,10 @@ describe("SigninRequest", () => {
             settings.nonce = "random_nonce";
 
             // act
-            subject = new SigninRequest(settings);
-            url = await subject.getUrl();
+            subject = await SigninRequest.create(settings);
 
             // assert
-            expect(url).toContain("nonce=");
+            expect(subject.url).toContain("nonce=");
         });
     });
 });

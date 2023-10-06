@@ -43,7 +43,7 @@ export class State {
         });
     }
 
-    public static fromStorageString(storageString: string): State {
+    public static async fromStorageString(storageString: string): Promise<State> {
         Logger.createStatic("State", "fromStorageString");
         return new State(JSON.parse(storageString));
     }
@@ -62,7 +62,7 @@ export class State {
 
             if (item) {
                 try {
-                    const state = State.fromStorageString(item);
+                    const state = await State.fromStorageString(item);
 
                     logger.debug("got item from key:", key, state.created);
                     if (state.created <= cutoff) {

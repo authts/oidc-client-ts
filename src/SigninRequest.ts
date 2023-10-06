@@ -10,6 +10,7 @@ import { SigninState } from "./SigninState";
  */
 export interface SigninRequestArgs {
     // mandatory
+    url: string;
     authority: string;
     client_id: string;
     redirect_uri: string;
@@ -47,31 +48,19 @@ export interface SigninRequestArgs {
  * @public
  */
 export class SigninRequest {
-    private readonly _logger = new Logger("SigninRequest");
+    private static readonly _logger = new Logger("SigninRequest");
 
+    public readonly url: string;
     public readonly state: SigninState;
 
-    public get url(): string {
-        if (!this._url) {
-            throw new Error("URL was not set, setUrl must be called first");
-        }
-        return this._url;
+    private constructor(args: { url: string; state: SigninState }) {
+        this.url = args.url;
+        this.state = args.state;
     }
 
-    private _url?: string;
-    private readonly _client_id: string;
-    private readonly _redirect_uri: string;
-    private readonly _response_type: string;
-    private readonly _scope: string;
-    private readonly _nonce: string|undefined;
-    private readonly _resource: string|string[]|undefined;
-    private readonly _optionalParams: Record<string, number | boolean | string>;
-    private readonly _extraQueryParams: SigninRequestArgs["extraQueryParams"];
-    private readonly _response_mode: string|undefined;
-
-    public constructor({
+    public static async create({
         // mandatory
-        authority, client_id, redirect_uri, response_type, scope,
+        url, authority, client_id, redirect_uri, response_type, scope,
         // optional
         state_data, response_mode, request_type, client_secret, nonce,
         resource,
@@ -80,7 +69,12 @@ export class SigninRequest {
         extraTokenParams,
         disablePKCE,
         ...optionalParams
-    }: SigninRequestArgs) {
+    }: SigninRequestArgs): Promise<SigninRequest> {
+
+        if (!url) {
+            this._logger.error("ctor: No url passed");
+            throw new Error("url");
+        }
         if (!client_id) {
             this._logger.error("ctor: No client_id passed");
             throw new Error("client_id");
@@ -102,17 +96,7 @@ export class SigninRequest {
             throw new Error("authority");
         }
 
-        this._client_id = client_id;
-        this._redirect_uri = redirect_uri;
-        this._response_type = response_type;
-        this._scope = scope;
-        this._nonce = nonce;
-        this._resource = resource;
-        this._optionalParams = optionalParams;
-        this._extraQueryParams = extraQueryParams;
-        this._response_mode = response_mode;
-
-        this.state = new SigninState({
+        const state = await SigninState.create({
             data: state_data,
             request_type,
             code_verifier: !disablePKCE,
@@ -121,45 +105,35 @@ export class SigninRequest {
             client_secret, scope, extraTokenParams,
             skipUserInfo,
         });
-    }
 
-    public async setUrl(baseUrl: string): Promise<void> {
-        const parsedUrl = new URL(baseUrl);
-        parsedUrl.searchParams.append("client_id", this._client_id);
-        parsedUrl.searchParams.append("redirect_uri", this._redirect_uri);
-        parsedUrl.searchParams.append("response_type", this._response_type);
-        parsedUrl.searchParams.append("scope", this._scope);
-        if (this._nonce) {
-            parsedUrl.searchParams.append("nonce", this._nonce);
+        const parsedUrl = new URL(url);
+        parsedUrl.searchParams.append("client_id", client_id);
+        parsedUrl.searchParams.append("redirect_uri", redirect_uri);
+        parsedUrl.searchParams.append("response_type", response_type);
+        parsedUrl.searchParams.append("scope", scope);
+        if (nonce) {
+            parsedUrl.searchParams.append("nonce", nonce);
         }
 
-        parsedUrl.searchParams.append("state", this.state.id);
-
-        const challenge = await this.state.getChallenge();
-        if (challenge) {
-            parsedUrl.searchParams.append("code_challenge", challenge);
+        parsedUrl.searchParams.append("state", state.id);
+        if (state.code_challenge) {
+            parsedUrl.searchParams.append("code_challenge", state.code_challenge);
             parsedUrl.searchParams.append("code_challenge_method", "S256");
         }
 
-        if (this._resource) {
+        if (resource) {
             // https://datatracker.ietf.org/doc/html/rfc8707
-            const resources = Array.isArray(this._resource) ? this._resource : [this._resource];
-            for (const r of resources) {
-                parsedUrl.searchParams.append("resource", r);
-            }
+            const resources = Array.isArray(resource) ? resource : [resource];
+            resources
+                .forEach(r => parsedUrl.searchParams.append("resource", r));
         }
 
-        const extraParams = Object.entries({
-            response_mode: this._response_mode,
-            ...this._optionalParams,
-            ...this._extraQueryParams,
-        });
-        for (const [key, value] of extraParams) {
+        for (const [key, value] of Object.entries({ response_mode, ...optionalParams, ...extraQueryParams })) {
             if (value != null) {
                 parsedUrl.searchParams.append(key, value.toString());
             }
         }
 
-        this._url = parsedUrl.href;
+        return new SigninRequest({ url: parsedUrl.href, state });
     }
 }

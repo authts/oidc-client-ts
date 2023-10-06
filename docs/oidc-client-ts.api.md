@@ -629,13 +629,12 @@ export type SigninRedirectArgs = RedirectParams & ExtraSigninRequestArgs;
 
 // @public (undocumented)
 export class SigninRequest {
-    constructor({ authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, resource, skipUserInfo, extraQueryParams, extraTokenParams, disablePKCE, ...optionalParams }: SigninRequestArgs);
     // (undocumented)
-    setUrl(baseUrl: string): Promise<void>;
+    static create({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, resource, skipUserInfo, extraQueryParams, extraTokenParams, disablePKCE, ...optionalParams }: SigninRequestArgs): Promise<SigninRequest>;
     // (undocumented)
     readonly state: SigninState;
     // (undocumented)
-    get url(): string;
+    readonly url: string;
 }
 
 // @public (undocumented)
@@ -687,6 +686,8 @@ export interface SigninRequestArgs {
     state_data?: unknown;
     // (undocumented)
     ui_locales?: string;
+    // (undocumented)
+    url: string;
 }
 
 // @public (undocumented)
@@ -734,7 +735,16 @@ export type SigninSilentArgs = IFrameWindowParams & ExtraSigninRequestArgs;
 
 // @public (undocumented)
 export class SigninState extends State {
-    constructor(args: {
+    // (undocumented)
+    readonly authority: string;
+    // (undocumented)
+    readonly client_id: string;
+    // (undocumented)
+    readonly client_secret: string | undefined;
+    readonly code_challenge: string | undefined;
+    readonly code_verifier: string | undefined;
+    // (undocumented)
+    static create(args: {
         id?: string;
         data?: unknown;
         created?: number;
@@ -748,21 +758,11 @@ export class SigninState extends State {
         extraTokenParams?: Record<string, unknown>;
         response_mode?: "query" | "fragment";
         skipUserInfo?: boolean;
-    });
-    // (undocumented)
-    readonly authority: string;
-    // (undocumented)
-    readonly client_id: string;
-    // (undocumented)
-    readonly client_secret: string | undefined;
-    protected readonly _code_challenge: string | undefined;
-    readonly code_verifier: string | undefined;
+    }): Promise<SigninState>;
     // (undocumented)
     readonly extraTokenParams: Record<string, unknown> | undefined;
     // (undocumented)
-    static fromStorageString(storageString: string): SigninState;
-    // (undocumented)
-    getChallenge(): Promise<string | undefined>;
+    static fromStorageString(storageString: string): Promise<SigninState>;
     // (undocumented)
     readonly redirect_uri: string;
     // (undocumented)
@@ -841,7 +841,7 @@ export class State {
     readonly created: number;
     readonly data?: unknown;
     // (undocumented)
-    static fromStorageString(storageString: string): State;
+    static fromStorageString(storageString: string): Promise<State>;
     // (undocumented)
     readonly id: string;
     // (undocumented)

@@ -91,7 +91,7 @@ describe("OidcClient", () => {
 
             // assert
             expect(request.state.data).toEqual("foo");
-            const url = await request.getUrl();
+            const url = request.url;
             expect(url).toContain("http://sts/authorize");
             expect(url).toContain("response_type=code");
             expect(url).toContain("scope=baz");
@@ -132,7 +132,7 @@ describe("OidcClient", () => {
 
             // assert
             expect(request.state.data).toEqual("foo");
-            const url = await request.getUrl();
+            const url = request.url;
             expect(url).toContain("http://sts/authorize");
             expect(url).toContain("response_type=code");
             expect(url).toContain("scope=baz");
@@ -259,14 +259,14 @@ describe("OidcClient", () => {
 
         it("should deserialize stored state and return state and response", async () => {
             // arrange
-            const item = new SigninState({
+            const item = (await SigninState.create({
                 id: "1",
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "http://app/cb",
                 scope: "scope",
                 request_type: "type",
-            }).toStorageString();
+            })).toStorageString();
             jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item));
 
             // act
@@ -314,7 +314,7 @@ describe("OidcClient", () => {
 
         it("should deserialize stored state and call validator", async () => {
             // arrange
-            const item = new SigninState({
+            const item = await SigninState.create({
                 id: "1",
                 authority: "authority",
                 client_id: "client",

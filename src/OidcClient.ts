@@ -114,7 +114,8 @@ export class OidcClient {
         const url = await this.metadataService.getAuthorizationEndpoint();
         logger.debug("Received authorization endpoint", url);
 
-        const signinRequest = new SigninRequest({
+        const signinRequest = await SigninRequest.create({
+            url,
             authority: this.settings.authority,
             client_id: this.settings.client_id,
             redirect_uri,
@@ -128,8 +129,6 @@ export class OidcClient {
             nonce,
             disablePKCE: this.settings.disablePKCE,
         });
-
-        await signinRequest.setUrl(url);
 
         // house cleaning
         await this.clearStaleState();
@@ -155,7 +154,7 @@ export class OidcClient {
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
-        const state = SigninState.fromStorageString(storedStateString);
+        const state = await SigninState.fromStorageString(storedStateString);
         return { state, response };
     }
 
@@ -285,7 +284,7 @@ export class OidcClient {
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
-        const state = State.fromStorageString(storedStateString);
+        const state = await State.fromStorageString(storedStateString);
         return { state, response };
     }
 

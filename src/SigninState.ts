@@ -12,7 +12,7 @@ export class SigninState extends State {
     /** The same code_verifier that was used to obtain the authorization_code via PKCE. */
     public readonly code_verifier: string | undefined;
     /** Used to secure authorization code grants via Proof Key for Code Exchange (PKCE). */
-    protected readonly _code_challenge: string | undefined;
+    public readonly code_challenge: string | undefined;
 
     // to ensure state still matches settings
     /** @see {@link OidcClientSettings.authority} */
@@ -32,7 +32,40 @@ export class SigninState extends State {
 
     public readonly skipUserInfo: boolean | undefined;
 
-    public constructor(args: {
+    private constructor(args: {
+        id?: string;
+        data?: unknown;
+        created?: number;
+        request_type?: string;
+
+        code_verifier?: string;
+        code_challenge?: string;
+        authority: string;
+        client_id: string;
+        redirect_uri: string;
+        scope: string;
+        client_secret?: string;
+        extraTokenParams?: Record<string, unknown>;
+        response_mode?: "query" | "fragment";
+        skipUserInfo?: boolean;
+    }) {
+        super(args);
+
+        this.code_verifier = args.code_verifier;
+        this.code_challenge = args.code_challenge;
+
+        this.authority = args.authority;
+        this.client_id = args.client_id;
+        this.redirect_uri = args.redirect_uri;
+        this.scope = args.scope;
+        this.client_secret = args.client_secret;
+        this.extraTokenParams = args.extraTokenParams;
+
+        this.response_mode = args.response_mode;
+        this.skipUserInfo = args.skipUserInfo;
+    }
+
+    public static async create(args: {
         id?: string;
         data?: unknown;
         created?: number;
@@ -47,38 +80,20 @@ export class SigninState extends State {
         extraTokenParams?: Record<string, unknown>;
         response_mode?: "query" | "fragment";
         skipUserInfo?: boolean;
-    }) {
-        super(args);
+    }): Promise<SigninState> {
+        const code_verifier = args.code_verifier === true
+            ? CryptoUtils.generateCodeVerifier()
+            : args.code_verifier ? args.code_verifier : undefined;
 
-        if (args.code_verifier === true) {
-            this.code_verifier = CryptoUtils.generateCodeVerifier();
-        }
-        else if (args.code_verifier) {
-            this.code_verifier = args.code_verifier;
-        }
+        const code_challenge = code_verifier
+            ? await CryptoUtils.generateCodeChallenge(code_verifier)
+            : undefined;
 
-        this.authority = args.authority;
-        this.client_id = args.client_id;
-        this.redirect_uri = args.redirect_uri;
-        this.scope = args.scope;
-        this.client_secret = args.client_secret;
-        this.extraTokenParams = args.extraTokenParams;
-
-        this.response_mode = args.response_mode;
-        this.skipUserInfo = args.skipUserInfo;
-    }
-
-    public async getChallenge(): Promise<string|undefined> {
-        if (!this.code_verifier) {
-            return undefined;
-        }
-
-        let challenge = this._code_challenge;
-        if (!this._code_challenge) {
-            challenge = await CryptoUtils.generateCodeChallenge(this.code_verifier);
-        }
-
-        return challenge;
+        return new SigninState({
+            ...args,
+            code_verifier,
+            code_challenge,
+        });
     }
 
     public toStorageString(): string {
@@ -101,9 +116,9 @@ export class SigninState extends State {
         });
     }
 
-    public static fromStorageString(storageString: string): SigninState {
+    public static fromStorageString(storageString: string): Promise<SigninState> {
         Logger.createStatic("SigninState", "fromStorageString");
         const data = JSON.parse(storageString);
-        return new SigninState(data);
+        return SigninState.create(data);
     }
 }
