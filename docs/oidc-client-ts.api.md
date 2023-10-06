@@ -629,11 +629,13 @@ export type SigninRedirectArgs = RedirectParams & ExtraSigninRequestArgs;
 
 // @public (undocumented)
 export class SigninRequest {
-    constructor({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, resource, skipUserInfo, extraQueryParams, extraTokenParams, disablePKCE, ...optionalParams }: SigninRequestArgs);
+    constructor({ authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, resource, skipUserInfo, extraQueryParams, extraTokenParams, disablePKCE, ...optionalParams }: SigninRequestArgs);
     // (undocumented)
-    getUrl(): Promise<string>;
+    setUrl(baseUrl: string): Promise<void>;
     // (undocumented)
     readonly state: SigninState;
+    // (undocumented)
+    get url(): string | undefined;
 }
 
 // @public (undocumented)
@@ -685,8 +687,6 @@ export interface SigninRequestArgs {
     state_data?: unknown;
     // (undocumented)
     ui_locales?: string;
-    // (undocumented)
-    url: string;
 }
 
 // @public (undocumented)

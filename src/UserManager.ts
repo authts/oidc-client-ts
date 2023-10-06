@@ -424,7 +424,11 @@ export class UserManager {
             const signinRequest = await this._client.createSigninRequest(args);
             logger.debug("got signin request");
 
-            const url = await signinRequest.getUrl();
+            const url = signinRequest.url;
+
+            if (!url) {
+                throw new Error("No sign in URL was set");
+            }
 
             return await handle.navigate({
                 url,

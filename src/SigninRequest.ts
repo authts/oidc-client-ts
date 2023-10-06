@@ -10,7 +10,6 @@ import { SigninState } from "./SigninState";
  */
 export interface SigninRequestArgs {
     // mandatory
-    url: string;
     authority: string;
     client_id: string;
     redirect_uri: string;
@@ -52,7 +51,11 @@ export class SigninRequest {
 
     public readonly state: SigninState;
 
-    private readonly _url: string;
+    public get url(): string | undefined {
+        return this._url;
+    }
+
+    private _url?: string;
     private readonly _client_id: string;
     private readonly _redirect_uri: string;
     private readonly _response_type: string;
@@ -65,7 +68,7 @@ export class SigninRequest {
 
     public constructor({
         // mandatory
-        url, authority, client_id, redirect_uri, response_type, scope,
+        authority, client_id, redirect_uri, response_type, scope,
         // optional
         state_data, response_mode, request_type, client_secret, nonce,
         resource,
@@ -75,10 +78,6 @@ export class SigninRequest {
         disablePKCE,
         ...optionalParams
     }: SigninRequestArgs) {
-        if (!url) {
-            this._logger.error("ctor: No url passed");
-            throw new Error("url");
-        }
         if (!client_id) {
             this._logger.error("ctor: No client_id passed");
             throw new Error("client_id");
@@ -100,7 +99,6 @@ export class SigninRequest {
             throw new Error("authority");
         }
 
-        this._url = url;
         this._client_id = client_id;
         this._redirect_uri = redirect_uri;
         this._response_type = response_type;
@@ -122,8 +120,8 @@ export class SigninRequest {
         });
     }
 
-    public async getUrl(): Promise<string> {
-        const parsedUrl = new URL(this._url);
+    public async setUrl(baseUrl: string): Promise<void> {
+        const parsedUrl = new URL(baseUrl);
         parsedUrl.searchParams.append("client_id", this._client_id);
         parsedUrl.searchParams.append("redirect_uri", this._redirect_uri);
         parsedUrl.searchParams.append("response_type", this._response_type);
@@ -159,6 +157,6 @@ export class SigninRequest {
             }
         }
 
-        return parsedUrl.href;
+        this._url = parsedUrl.href;
     }
 }

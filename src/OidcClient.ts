@@ -73,7 +73,7 @@ export class OidcClient {
     protected readonly _tokenClient: TokenClient;
 
     public constructor(settings: OidcClientSettings);
-    public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService); 
+    public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService);
     public constructor(settings: OidcClientSettings | OidcClientSettingsStore, metadataService?: MetadataService) {
         this.settings = settings instanceof OidcClientSettingsStore ? settings : new OidcClientSettingsStore(settings);
 
@@ -115,7 +115,6 @@ export class OidcClient {
         logger.debug("Received authorization endpoint", url);
 
         const signinRequest = new SigninRequest({
-            url,
             authority: this.settings.authority,
             client_id: this.settings.client_id,
             redirect_uri,
@@ -129,6 +128,8 @@ export class OidcClient {
             nonce,
             disablePKCE: this.settings.disablePKCE,
         });
+
+        await signinRequest.setUrl(url);
 
         // house cleaning
         await this.clearStaleState();
