@@ -635,7 +635,7 @@ export class SigninRequest {
     // (undocumented)
     readonly state: SigninState;
     // (undocumented)
-    get url(): string | undefined;
+    get url(): string;
 }
 
 // @public (undocumented)

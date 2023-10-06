@@ -51,7 +51,10 @@ export class SigninRequest {
 
     public readonly state: SigninState;
 
-    public get url(): string | undefined {
+    public get url(): string {
+        if (!this._url) {
+            throw new Error("URL was not set, setUrl must be called first");
+        }
         return this._url;
     }
 

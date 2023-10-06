@@ -426,10 +426,6 @@ export class UserManager {
 
             const url = signinRequest.url;
 
-            if (!url) {
-                throw new Error("No sign in URL was set");
-            }
-
             return await handle.navigate({
                 url,
                 state: signinRequest.state.id,
