@@ -578,6 +578,27 @@ describe("ResponseValidator", () => {
             expect(stubResponse).not.toHaveProperty("profile");
         });
 
+        it("should process an openid signin response without an id_token as a non-openid signin response", async () => {
+            // this is aimed at Authorization servers that don't support the OIDC spec and don't return an id_token if the
+            // openid scope is set in the request scope.
+            // arrange
+            Object.assign(stubResponse, {
+                isOpenId: true,
+            });
+            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
+
+            // act
+            await subject.validateCredentialsResponse(stubResponse, true);
+
+            // assert
+            expect(JwtUtils.decode).not.toHaveBeenCalledWith("id_token");
+            expect(
+                subject["_userInfoService"].getClaims,
+            ).not.toHaveBeenCalledWith();
+            expect(stubResponse).toHaveProperty("profile", {});
+
+        });
+
         it("should process a valid non-openid signin response skipping userInfo", async () => {
             // arrange
             Object.assign(stubResponse, {
