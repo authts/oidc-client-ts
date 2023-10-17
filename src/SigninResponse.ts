@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Timer } from "./utils";
+import { Timer, URL_STATE_DELIMITER } from "./utils";
 import type { UserProfile } from "./User";
 
 const OidcScope = "openid";
@@ -53,7 +53,7 @@ export class SigninResponse {
         this.state = params.get("state");
         this.session_state = params.get("session_state");
         if (this.state) {
-            const splitState = decodeURIComponent(this.state).split(";");
+            const splitState = decodeURIComponent(this.state).split(URL_STATE_DELIMITER);
             this.state = splitState[0];
             this.url_state = splitState[1];
         }
