@@ -51,11 +51,20 @@ describe("SigninResponse", () => {
 
         it("should read url_state", () => {
             // act
-            const subject = new SigninResponse(new URLSearchParams("state=foo%3Bbar"));
+            const subject = new SigninResponse(new URLSearchParams("state=foo;bar"));
 
             // assert
             expect(subject.state).toEqual("foo");
             expect(subject.url_state).toEqual("bar");
+        });
+
+        it("should return url_state that uses the delimiter unmodified", () => {
+            // act
+            const subject = new SigninResponse(new URLSearchParams("state=foo;bar;baz"));
+
+            // assert
+            expect(subject.state).toEqual("foo");
+            expect(subject.url_state).toEqual("bar;baz");
         });
 
         it("should read code", () => {

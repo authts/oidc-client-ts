@@ -55,7 +55,9 @@ export class SigninResponse {
         if (this.state) {
             const splitState = decodeURIComponent(this.state).split(URL_STATE_DELIMITER);
             this.state = splitState[0];
-            this.url_state = splitState[1];
+            if (splitState.length > 1) {
+                this.url_state = splitState.slice(1).join(URL_STATE_DELIMITER);
+            }
         }
 
         this.error = params.get("error");
