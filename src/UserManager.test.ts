@@ -248,6 +248,7 @@ describe("UserManager", () => {
                 nonce: "random_nonce",
                 redirect_uri: "http://app/extra_callback",
                 prompt: "login",
+                url_state: "url_state",
             };
 
             // act

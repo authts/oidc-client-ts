@@ -49,6 +49,15 @@ describe("SigninResponse", () => {
             expect(subject.state).toEqual("foo");
         });
 
+        it("should read url_state", () => {
+            // act
+            const subject = new SigninResponse(new URLSearchParams("state=foo%3Bbar"));
+
+            // assert
+            expect(subject.state).toEqual("foo");
+            expect(subject.url_state).toEqual("bar");
+        });
+
         it("should read code", () => {
             // act
             const subject = new SigninResponse(new URLSearchParams("code=foo"));

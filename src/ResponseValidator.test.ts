@@ -85,6 +85,17 @@ describe("ResponseValidator", () => {
             // assert
             expect(stubResponse.userState).toEqual({ some: "data" });
         });
+
+        it("should return url_state for successful responses", () => {
+            // arrange
+            Object.assign(stubResponse, { url_state: "url_state" });
+
+            // act
+            subject.validateSignoutResponse(stubResponse, stubState);
+
+            // assert
+            expect(stubResponse.url_state).toEqual("url_state");
+        });
     });
 
     describe("validateSigninResponse", () => {

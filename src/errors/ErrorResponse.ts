@@ -29,10 +29,12 @@ export class ErrorResponse extends Error {
 
     public readonly session_state: string | null;
 
+    public url_state?: string;
+
     public constructor(
         args: {
             error?: string | null; error_description?: string | null; error_uri?: string | null;
-            userState?: unknown; session_state?: string | null;
+            userState?: unknown; session_state?: string | null; url_state?: string;
         },
         /** The x-www-form-urlencoded request body sent to the authority server */
         public readonly form?: URLSearchParams,
@@ -50,5 +52,6 @@ export class ErrorResponse extends Error {
 
         this.state = args.userState;
         this.session_state = args.session_state ?? null;
+        this.url_state = args.url_state;
     }
 }

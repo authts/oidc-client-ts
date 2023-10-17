@@ -44,6 +44,7 @@ export class SigninResponse {
 
     /** custom state data set during the initial signin request */
     public userState: unknown;
+    public url_state?: string;
 
     /** @see {@link User.profile} */
     public profile: UserProfile = {} as UserProfile;
@@ -51,6 +52,11 @@ export class SigninResponse {
     public constructor(params: URLSearchParams) {
         this.state = params.get("state");
         this.session_state = params.get("session_state");
+        if (this.state) {
+            const splitState = decodeURIComponent(this.state).split(";");
+            this.state = splitState[0];
+            this.url_state = splitState[1];
+        }
 
         this.error = params.get("error");
         this.error_description = params.get("error_description");

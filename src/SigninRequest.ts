@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Logger } from "./utils";
+import { Logger, URL_STATE_DELIMITER } from "./utils";
 import { SigninState } from "./SigninState";
 
 /**
@@ -42,6 +42,7 @@ export interface SigninRequestArgs {
     disablePKCE?: boolean;
     /** custom "state", which can be used by a caller to have "data" round tripped */
     state_data?: unknown;
+    url_state?: string;
 }
 
 /**
@@ -57,7 +58,7 @@ export class SigninRequest {
         // mandatory
         url, authority, client_id, redirect_uri, response_type, scope,
         // optional
-        state_data, response_mode, request_type, client_secret, nonce,
+        state_data, response_mode, request_type, client_secret, nonce, url_state,
         resource,
         skipUserInfo,
         extraQueryParams,
@@ -93,6 +94,7 @@ export class SigninRequest {
         this.state = new SigninState({
             data: state_data,
             request_type,
+            url_state,
             code_verifier: !disablePKCE,
             client_id, authority, redirect_uri,
             response_mode,
@@ -109,7 +111,11 @@ export class SigninRequest {
             parsedUrl.searchParams.append("nonce", nonce);
         }
 
-        parsedUrl.searchParams.append("state", this.state.id);
+        let state = this.state.id;
+        if (url_state) {
+            state = `${state}${URL_STATE_DELIMITER}${url_state}`;
+        }
+        parsedUrl.searchParams.append("state", state);
         if (this.state.code_challenge) {
             parsedUrl.searchParams.append("code_challenge", this.state.code_challenge);
             parsedUrl.searchParams.append("code_challenge_method", "S256");
