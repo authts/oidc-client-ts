@@ -1,8 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Capacitor } from '@capacitor/core';
-import { Browser } from '@capacitor/browser';
 import { Logger } from "../utils";
 import type { UserManagerSettingsStore } from "../UserManagerSettings";
 import type { INavigator } from "./INavigator";
@@ -34,7 +32,7 @@ export class RedirectNavigator implements INavigator {
         if (redirectTarget === "top") {
             targetWindow = window.top ?? window.self;
         }
-    
+
         const redirect = targetWindow.location[redirectMethod].bind(targetWindow.location) as (url: string) => never;
         let abort: (reason: Error) => void;
         return {
@@ -44,11 +42,7 @@ export class RedirectNavigator implements INavigator {
                 const promise = new Promise((resolve, reject) => {
                     abort = reject;
                 });
-                if (Capacitor.isNativePlatform()) {
-                    Browser.open({ url: params.url });
-                } else {
-                    redirect(params.url);
-                }
+                redirect(params.url);
                 return await (promise as Promise<never>);
             },
             close: () => {

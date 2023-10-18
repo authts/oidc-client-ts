@@ -2235,8 +2235,6 @@ var PopupNavigator = class {
 };
 
 // src/navigators/RedirectNavigator.ts
-import { Capacitor } from "@capacitor/core";
-import { Browser } from "@capacitor/browser";
 var RedirectNavigator = class {
   constructor(_settings) {
     this._settings = _settings;
@@ -2260,11 +2258,7 @@ var RedirectNavigator = class {
         const promise = new Promise((resolve, reject) => {
           abort = reject;
         });
-        if (Capacitor.isNativePlatform()) {
-          Browser.open({ url: params.url });
-        } else {
-          redirect(params.url);
-        }
+        redirect(params.url);
         return await promise;
       },
       close: () => {
@@ -3015,7 +3009,7 @@ var UserManager = class {
 };
 
 // package.json
-var version = "2.2.5";
+var version = "2.2.6";
 
 // src/Version.ts
 var Version = version;
