@@ -51,7 +51,7 @@ export class ResponseValidator {
     public async validateCredentialsResponse(response: SigninResponse, skipUserInfo: boolean): Promise<void> {
         const logger = this._logger.create("validateCredentialsResponse");
 
-        if (response.isOpenId) {
+        if (response.isOpenId && !!response.id_token) {
             this._validateIdTokenAttributes(response);
         }
         logger.debug("tokens validated");
