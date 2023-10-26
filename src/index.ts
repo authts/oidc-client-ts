@@ -43,3 +43,4 @@ export { UserManagerSettingsStore } from "./UserManagerSettings";
 export type { UserManagerSettings } from "./UserManagerSettings";
 export { Version } from "./Version";
 export { WebStorageStateStore } from "./WebStorageStateStore";
+export { BrowserStorageStateStore } from "./BrowserStorageStateStore";

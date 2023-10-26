@@ -4,6 +4,8 @@
 
 ```ts
 
+/// <reference types="chrome" />
+
 // @public (undocumented)
 export type AccessTokenCallback = (...ev: unknown[]) => (Promise<void> | void);
 
@@ -32,6 +34,22 @@ export interface AsyncStorage {
     readonly length: Promise<number>;
     removeItem(key: string): Promise<void>;
     setItem(key: string, value: string): Promise<void>;
+}
+
+// @public (undocumented)
+export class BrowserStorageStateStore implements StateStore {
+    constructor({ prefix, store, }?: {
+        prefix?: string;
+        store?: chrome.storage.StorageArea;
+    });
+    // (undocumented)
+    get(key: string): Promise<string | null>;
+    // (undocumented)
+    getAllKeys(): Promise<string[]>;
+    // (undocumented)
+    remove(key: string): Promise<string | null>;
+    // (undocumented)
+    set(key: string, value: string): Promise<void>;
 }
 
 // @internal (undocumented)
