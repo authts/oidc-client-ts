@@ -70,7 +70,7 @@ export class ClaimsService {
         for (const [claim, values] of Object.entries(claims2)) {
             for (const value of Array.isArray(values) ? values : [values]) {
                 const previousValue = result[claim];
-                if (!previousValue) {
+                if (previousValue === undefined) {
                     result[claim] = value;
                 }
                 else if (Array.isArray(previousValue)) {
