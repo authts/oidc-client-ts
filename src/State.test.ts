@@ -89,12 +89,22 @@ describe("State", () => {
             // assert
             expect(subject.request_type).toEqual("xoxo");
         });
+
+        it("should accept url_state", () => {
+            // act
+            const subject = new State({
+                url_state: "foo",
+            });
+
+            // assert
+            expect(subject.url_state).toEqual("foo");
+        });
     });
 
     it("can serialize and then deserialize", () => {
         // arrange
         const subject1 = new State({
-            data: { foo: "test" }, created: 1000, request_type:"type",
+            data: { foo: "test" }, created: 1000, request_type:"type", url_state: "foo",
         });
 
         // act

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { SigninRequest, type SigninRequestArgs } from "./SigninRequest";
+import { URL_STATE_DELIMITER } from "./utils";
 
 describe("SigninRequest", () => {
 
@@ -247,6 +248,17 @@ describe("SigninRequest", () => {
 
             // assert
             expect(subject.url).toContain("nonce=");
+        });
+
+        it("should include url_state", () => {
+            // arrange
+            settings.url_state = "foo";
+
+            // act
+            subject = new SigninRequest(settings);
+
+            // assert
+            expect(subject.url).toContain("state=" + subject.state.id + encodeURIComponent(URL_STATE_DELIMITER + "foo"));
         });
     });
 });

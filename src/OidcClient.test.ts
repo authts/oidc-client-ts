@@ -87,6 +87,7 @@ describe("OidcClient", () => {
                 request: "req",
                 request_uri: "req_uri",
                 nonce: "rnd",
+                url_state: "url_state",
             });
 
             // assert
@@ -108,6 +109,7 @@ describe("OidcClient", () => {
             expect(url).toContain("request_uri=req_uri");
             expect(url).toContain("response_mode=fragment");
             expect(url).toContain("nonce=rnd");
+            expect(url.match(/state=.*%3Burl_state/)).toBeTruthy();
         });
 
         it("should pass state in place of data to SigninRequest", async () => {
@@ -128,6 +130,7 @@ describe("OidcClient", () => {
                 login_hint: "lh",
                 acr_values: "av",
                 resource: "res",
+                url_state: "url_state",
             });
 
             // assert
@@ -145,6 +148,7 @@ describe("OidcClient", () => {
             expect(url).toContain("login_hint=lh");
             expect(url).toContain("acr_values=av");
             expect(url).toContain("resource=res");
+            expect(url.match(/state=.*%3Burl_state/)).toBeTruthy();
         });
 
         it("should fail if implicit flow requested", async () => {

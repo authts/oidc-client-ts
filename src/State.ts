@@ -11,6 +11,7 @@ export class State {
     public readonly id: string;
     public readonly created: number;
     public readonly request_type: string | undefined;
+    public readonly url_state: string | undefined;
 
     /** custom "state", which can be used by a caller to have "data" round tripped */
     public readonly data?: unknown;
@@ -20,6 +21,7 @@ export class State {
         data?: unknown;
         created?: number;
         request_type?: string;
+        url_state?: string;
     }) {
         this.id = args.id || CryptoUtils.generateUUIDv4();
         this.data = args.data;
@@ -31,6 +33,7 @@ export class State {
             this.created = Timer.getEpochTime();
         }
         this.request_type = args.request_type;
+        this.url_state = args.url_state;
     }
 
     public toStorageString(): string {
@@ -40,6 +43,7 @@ export class State {
             data: this.data,
             created: this.created,
             request_type: this.request_type,
+            url_state: this.url_state,
         });
     }
 

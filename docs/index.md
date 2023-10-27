@@ -117,6 +117,16 @@ After successful sign-in the custom state is part of the [User](classes/User.htm
 
 This custom state should not be confused with the URL state parameter. The latter is internally used to match against the authentication state object to finish the authentication process.
 
+## Custom state in request url
+If you would like to encode a custom state string in the sign in request url, you can do so with the `url_state` parameter. You may want to do this in order to pass user state to the authentication server and/or a proxy and return that state as part of the response.
+
+```javascript
+const mgr = new UserManager();
+mgr.signinRedirect({ url_state: 'custom url state' })
+```
+
+The `url_state` will be appended to the opaque, unique value created by the library when sending the request. It should survive the round trip to your authentication server and will be part of the [User](classes/User.html#url_state) object as `url_state`.
+
 
 ## Projects using oidc-client
 

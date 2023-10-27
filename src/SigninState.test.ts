@@ -18,12 +18,14 @@ describe("SigninState", () => {
                 redirect_uri: "http://cb",
                 request_type: "type",
                 scope: "scope",
+                url_state: "foo",
             });
 
             // assert
             expect(subject.id).toEqual("5");
             expect(subject.created).toEqual(6);
             expect(subject.data).toEqual(7);
+            expect(subject.url_state).toEqual("foo");
         });
 
         it("should accept redirect_uri", () => {

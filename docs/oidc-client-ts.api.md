@@ -69,6 +69,7 @@ export class ErrorResponse extends Error {
         error_uri?: string | null;
         userState?: unknown;
         session_state?: string | null;
+        url_state?: string;
     },
     form?: URLSearchParams | undefined);
     readonly error: string | null;
@@ -79,6 +80,8 @@ export class ErrorResponse extends Error {
     // (undocumented)
     readonly session_state: string | null;
     state?: unknown;
+    // (undocumented)
+    url_state?: string;
 }
 
 // @public
@@ -91,7 +94,7 @@ export class ErrorTimeout extends Error {
 export type ExtraHeader = string | (() => string);
 
 // @public (undocumented)
-export type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "nonce" | "extraQueryParams" | "extraTokenParams" | "state" | "redirect_uri" | "prompt" | "acr_values" | "login_hint" | "scope" | "max_age" | "ui_locales" | "resource">;
+export type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "nonce" | "extraQueryParams" | "extraTokenParams" | "state" | "redirect_uri" | "prompt" | "acr_values" | "login_hint" | "scope" | "max_age" | "ui_locales" | "resource" | "url_state">;
 
 // @public (undocumented)
 export type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQueryParams" | "state" | "id_token_hint" | "post_logout_redirect_uri">;
@@ -298,7 +301,7 @@ export class OidcClient {
     // (undocumented)
     clearStaleState(): Promise<void>;
     // (undocumented)
-    createSigninRequest({ state, request, request_uri, request_type, id_token_hint, login_hint, skipUserInfo, nonce, response_type, scope, redirect_uri, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, extraQueryParams, extraTokenParams, }: CreateSigninRequestArgs): Promise<SigninRequest>;
+    createSigninRequest({ state, request, request_uri, request_type, id_token_hint, login_hint, skipUserInfo, nonce, url_state, response_type, scope, redirect_uri, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, extraQueryParams, extraTokenParams, }: CreateSigninRequestArgs): Promise<SigninRequest>;
     // (undocumented)
     createSignoutRequest({ state, id_token_hint, client_id, request_type, post_logout_redirect_uri, extraQueryParams, }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
     // (undocumented)
@@ -629,7 +632,7 @@ export type SigninRedirectArgs = RedirectParams & ExtraSigninRequestArgs;
 
 // @public (undocumented)
 export class SigninRequest {
-    constructor({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, resource, skipUserInfo, extraQueryParams, extraTokenParams, disablePKCE, ...optionalParams }: SigninRequestArgs);
+    constructor({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, url_state, resource, skipUserInfo, extraQueryParams, extraTokenParams, disablePKCE, ...optionalParams }: SigninRequestArgs);
     // (undocumented)
     readonly state: SigninState;
     // (undocumented)
@@ -687,6 +690,8 @@ export interface SigninRequestArgs {
     ui_locales?: string;
     // (undocumented)
     url: string;
+    // (undocumented)
+    url_state?: string;
 }
 
 // @public (undocumented)
@@ -726,6 +731,8 @@ export class SigninResponse {
     readonly state: string | null;
     // (undocumented)
     token_type: string;
+    // (undocumented)
+    url_state?: string;
     userState: unknown;
 }
 
@@ -739,6 +746,7 @@ export class SigninState extends State {
         data?: unknown;
         created?: number;
         request_type?: string;
+        url_state?: string;
         code_verifier?: string | boolean;
         authority: string;
         client_id: string;
@@ -832,6 +840,7 @@ export class State {
         data?: unknown;
         created?: number;
         request_type?: string;
+        url_state?: string;
     });
     // (undocumented)
     static clearStaleState(storage: StateStore, age: number): Promise<void>;
@@ -846,6 +855,8 @@ export class State {
     readonly request_type: string | undefined;
     // (undocumented)
     toStorageString(): string;
+    // (undocumented)
+    readonly url_state: string | undefined;
 }
 
 // @public (undocumented)
@@ -872,6 +883,7 @@ export class User {
         profile: UserProfile;
         expires_at?: number;
         userState?: unknown;
+        url_state?: string;
     });
     access_token: string;
     get expired(): boolean | undefined;
@@ -890,6 +902,8 @@ export class User {
     token_type: string;
     // (undocumented)
     toStorageString(): string;
+    // (undocumented)
+    readonly url_state?: string;
 }
 
 // @public (undocumented)

@@ -13,3 +13,8 @@ export class UrlUtils {
         return new URLSearchParams(params.slice(1));
     }
 }
+
+/**
+ * @internal
+ */
+export const URL_STATE_DELIMITER = ";";

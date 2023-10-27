@@ -37,6 +37,7 @@ export class SigninState extends State {
         data?: unknown;
         created?: number;
         request_type?: string;
+        url_state?: string;
 
         code_verifier?: string | boolean;
         authority: string;
@@ -79,6 +80,7 @@ export class SigninState extends State {
             data: this.data,
             created: this.created,
             request_type: this.request_type,
+            url_state: this.url_state,
 
             code_verifier: this.code_verifier,
             authority: this.authority,

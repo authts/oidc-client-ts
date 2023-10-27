@@ -50,6 +50,7 @@ export class User {
 
     /** custom state data set during the initial signin request */
     public readonly state: unknown;
+    public readonly url_state?: string;
 
     public constructor(args: {
         id_token?: string;
@@ -61,6 +62,7 @@ export class User {
         profile: UserProfile;
         expires_at?: number;
         userState?: unknown;
+        url_state?: string;
     }) {
         this.id_token = args.id_token;
         this.session_state = args.session_state ?? null;
@@ -72,6 +74,7 @@ export class User {
         this.profile = args.profile;
         this.expires_at = args.expires_at;
         this.state = args.userState;
+        this.url_state = args.url_state;
     }
 
     /** Computed number of seconds the access token has remaining. */
