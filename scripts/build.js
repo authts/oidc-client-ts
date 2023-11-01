@@ -5,9 +5,22 @@ const fs = require("fs");
 
 const { dependencies, peerDependencies, version } = require("../package.json");
 
+// replace all comments (//... and /*...*/)
+function readJson(path) {
+    let data = fs.readFileSync(path, { encoding: "utf-8" });
+    data = data.replace(/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g, (m, g) => (g ? "" : m));
+    const json = JSON.parse(data);
+    return json;
+}
+
+const tsConfig = readJson(__dirname + "/../tsconfig.json");
+if (!tsConfig?.compilerOptions?.target) {
+    throw new Error("build target not defined");
+}
 const opts = {
     entryPoints: ["src/index.ts"],
     absWorkingDir: join(__dirname, ".."),
+    target: tsConfig.compilerOptions.target,
     bundle: true,
     sourcemap: true,
 };
