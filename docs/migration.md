@@ -1,3 +1,15 @@
+## oidc-client v2.4.0 &rarr; oidc-client-ts v3.0.0
+
+The API is largely backwards-compatible.
+
+### [OidcClientSettings](https://authts.github.io/oidc-client-ts/interfaces/OidcClientSettings.html)
+
+- the following deprecated properties were **removed**:
+  - `clockSkewInSeconds` unused since 2.0.0
+  - `userInfoJwtIssuer` unused since 2.0.0
+  - `refreshTokenCredentials` use `fetchRequestCredentials` since 2.1.0
+
+
 ## oidc-client v1.11.5 &rarr; oidc-client-ts v2.0.0
 
 Ported library from JavaScript to TypeScript. The API is largely
