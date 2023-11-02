@@ -358,7 +358,9 @@ export interface OidcClientSettings {
     filterProtocolClaims?: boolean | string[];
     loadUserInfo?: boolean;
     max_age?: number;
-    mergeClaims?: boolean;
+    mergeClaimsStrategy?: {
+        array: "replace" | "merge";
+    };
     metadata?: Partial<OidcMetadata>;
     metadataSeed?: Partial<OidcMetadata>;
     // (undocumented)
@@ -380,7 +382,7 @@ export interface OidcClientSettings {
 
 // @public
 export class OidcClientSettingsStore {
-    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, mergeClaims, disablePKCE, stateStore, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, extraHeaders, }: OidcClientSettings);
+    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, mergeClaimsStrategy, disablePKCE, stateStore, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, extraHeaders, }: OidcClientSettings);
     // (undocumented)
     readonly acr_values: string | undefined;
     // (undocumented)
@@ -410,7 +412,9 @@ export class OidcClientSettingsStore {
     // (undocumented)
     readonly max_age: number | undefined;
     // (undocumented)
-    readonly mergeClaims: boolean;
+    readonly mergeClaimsStrategy: {
+        array: "replace" | "merge";
+    };
     // (undocumented)
     readonly metadata: Partial<OidcMetadata> | undefined;
     // (undocumented)

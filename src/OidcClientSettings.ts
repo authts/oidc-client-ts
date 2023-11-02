@@ -87,10 +87,12 @@ export interface OidcClientSettings {
     staleStateAgeInSeconds?: number;
 
     /**
-     * Indicates if objects returned from the user info endpoint as claims (e.g. `address`) are merged into the claims from the id token as a single object.
-     * Otherwise, they are added to an array as distinct objects for the claim type. (default: false)
+     * Indicates how objects returned from the user info endpoint as claims (e.g. `address`) are merged into the claims from the
+     * id token as a single object.  (default: `{ array: "replace" }`)
+     * - array: "replace": natives (string, int, float) and arrays are replaced, objects are merged as distinct objects
+     * - array: "merge": natives (string, int, float) are replaced, arrays and objects are merged as distinct objects
      */
-    mergeClaims?: boolean;
+    mergeClaimsStrategy?: { array: "replace" | "merge" };
 
     /**
      * Storage object used to persist interaction state (default: window.localStorage, InMemoryWebStorage iff no window).
@@ -167,7 +169,7 @@ export class OidcClientSettingsStore {
     public readonly filterProtocolClaims: boolean | string[];
     public readonly loadUserInfo: boolean;
     public readonly staleStateAgeInSeconds: number;
-    public readonly mergeClaims: boolean;
+    public readonly mergeClaimsStrategy: { array: "replace" | "merge" };
 
     public readonly stateStore: StateStore;
 
@@ -194,7 +196,7 @@ export class OidcClientSettingsStore {
         filterProtocolClaims = true,
         loadUserInfo = false,
         staleStateAgeInSeconds = DefaultStaleStateAgeInSeconds,
-        mergeClaims = false,
+        mergeClaimsStrategy = { array: "replace" },
         disablePKCE = false,
         // other behavior
         stateStore,
@@ -244,7 +246,7 @@ export class OidcClientSettingsStore {
         this.filterProtocolClaims = filterProtocolClaims ?? true;
         this.loadUserInfo = !!loadUserInfo;
         this.staleStateAgeInSeconds = staleStateAgeInSeconds;
-        this.mergeClaims = !!mergeClaims;
+        this.mergeClaimsStrategy = mergeClaimsStrategy;
         this.disablePKCE = !!disablePKCE;
         this.revokeTokenAdditionalContentTypes = revokeTokenAdditionalContentTypes;
 
