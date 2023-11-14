@@ -44,6 +44,56 @@ describe("UserManagerEvents", () => {
             expect(cb).toBeCalledTimes(0);
         });
 
+        it("should allow callback", () => {
+            // arrange
+            const cb = jest.fn();
+
+            // act
+            subject.addUserSessionError(cb);
+            subject._raiseUserSessionError();
+
+            // assert
+            expect(cb).toBeCalled();
+        });
+
+        it("should allow unregistering callback", () => {
+            // arrange
+            const cb = jest.fn();
+
+            // act
+            subject.addUserSessionError(cb);
+            subject.removeUserSessionError(cb);
+            subject._raiseUserSessionError();
+
+            // assert
+            expect(cb).toBeCalledTimes(0);
+        });
+
+        it("should allow callback", () => {
+            // arrange
+            const cb = jest.fn();
+
+            // act
+            subject.addUserSessionError(cb);
+            subject._raiseUserSessionError();
+
+            // assert
+            expect(cb).toBeCalled();
+        });
+
+        it("should allow unregistering callback", () => {
+            // arrange
+            const cb = jest.fn();
+
+            // act
+            subject.addUserSessionError(cb);
+            subject.removeUserSessionError(cb);
+            subject._raiseUserSessionError();
+
+            // assert
+            expect(cb).toBeCalledTimes(0);
+        });
+
         it("should pass error to callback", () => {
             // arrange
             let e: Error | null = null;

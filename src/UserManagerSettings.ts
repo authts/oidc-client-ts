@@ -63,6 +63,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     checkSessionIntervalInSeconds?: number;
     query_status_response_type?: string;
     stopCheckSessionOnError?: boolean;
+    propagateUserSessionError?: boolean;
 
     /**
      * The `token_type_hint`s to pass to the authority server by default (default: ["access_token", "refresh_token"])
@@ -113,6 +114,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly checkSessionIntervalInSeconds: number;
     public readonly query_status_response_type: string;
     public readonly stopCheckSessionOnError: boolean;
+    public readonly propagateUserSessionError: boolean;
 
     public readonly revokeTokenTypes: ("access_token" | "refresh_token")[];
     public readonly revokeTokensOnSignout: boolean;
@@ -145,6 +147,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             checkSessionIntervalInSeconds = DefaultCheckSessionIntervalInSeconds,
             query_status_response_type = "code",
             stopCheckSessionOnError = true,
+            propagateUserSessionError = false,
 
             revokeTokenTypes = ["access_token", "refresh_token"],
             revokeTokensOnSignout = false,
@@ -178,6 +181,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         this.checkSessionIntervalInSeconds = checkSessionIntervalInSeconds;
         this.stopCheckSessionOnError = stopCheckSessionOnError;
         this.query_status_response_type = query_status_response_type;
+        this.propagateUserSessionError = propagateUserSessionError;
 
         this.revokeTokenTypes = revokeTokenTypes;
         this.revokeTokensOnSignout = revokeTokensOnSignout;
