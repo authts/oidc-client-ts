@@ -10,6 +10,7 @@ The API is largely backwards-compatible. The merge claims behavior has been impr
   - `refreshTokenCredentials` use `fetchRequestCredentials` since 2.1.0
 - the `mergeClaims` has been replaced by `mergeClaimsStrategy`
   - if the previous behavior is needed `mergeClaimsStrategy: { array: "merge" }` can be used
+- default of `response_mode` changed from `query` &rarr; `undefined`
 
 
 ## oidc-client v1.11.5 &rarr; oidc-client-ts v2.0.0

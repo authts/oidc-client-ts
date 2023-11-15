@@ -9,7 +9,6 @@ import { InMemoryWebStorage } from "./InMemoryWebStorage";
 const DefaultResponseType = "code";
 const DefaultScope = "openid";
 const DefaultClientAuthentication = "client_secret_post";
-const DefaultResponseMode = "query";
 const DefaultStaleStateAgeInSeconds = 60 * 15;
 
 /**
@@ -72,7 +71,14 @@ export interface OidcClientSettings {
     /** optional protocol param */
     resource?: string | string[];
 
-    /** optional protocol param (default: "query") */
+    /**
+     * Optional protocol param
+     * The response mode used by the authority server is defined by the response_type unless explicitly specified:
+     * - Response mode for the OAuth 2.0 response type "code" is the "query" encoding
+     * - Response mode for the OAuth 2.0 response type "token" is the "fragment" encoding
+     *
+     * @see https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html#ResponseModes
+     */
     response_mode?: "query" | "fragment";
 
     /**
@@ -163,7 +169,7 @@ export class OidcClientSettingsStore {
     public readonly ui_locales: string | undefined;
     public readonly acr_values: string | undefined;
     public readonly resource: string | string[] | undefined;
-    public readonly response_mode: "query" | "fragment";
+    public readonly response_mode: "query" | "fragment" | undefined;
 
     // behavior flags
     public readonly filterProtocolClaims: boolean | string[];
@@ -191,7 +197,7 @@ export class OidcClientSettingsStore {
         redirect_uri, post_logout_redirect_uri,
         client_authentication = DefaultClientAuthentication,
         // optional protocol
-        prompt, display, max_age, ui_locales, acr_values, resource, response_mode = DefaultResponseMode,
+        prompt, display, max_age, ui_locales, acr_values, resource, response_mode,
         // behavior flags
         filterProtocolClaims = true,
         loadUserInfo = false,
