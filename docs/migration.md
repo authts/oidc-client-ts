@@ -1,6 +1,6 @@
-## oidc-client v2.4.0 &rarr; oidc-client-ts v3.0.0
+## oidc-client-ts v2.4.0 &rarr; oidc-client-ts v3.0.0
 
-The API is largely backwards-compatible.
+The API is largely backwards-compatible. The merge claims behavior has been improved.
 
 ### [OidcClientSettings](https://authts.github.io/oidc-client-ts/interfaces/OidcClientSettings.html)
 
@@ -8,6 +8,8 @@ The API is largely backwards-compatible.
   - `clockSkewInSeconds` unused since 2.0.0
   - `userInfoJwtIssuer` unused since 2.0.0
   - `refreshTokenCredentials` use `fetchRequestCredentials` since 2.1.0
+- the `mergeClaims` has been replaced by `mergeClaimsStrategy`
+  - if the previous behavior is needed `mergeClaimsStrategy: { array: "merge" }` can be used
 
 
 ## oidc-client v1.11.5 &rarr; oidc-client-ts v2.0.0
