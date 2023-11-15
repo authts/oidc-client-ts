@@ -46,7 +46,7 @@ export class CheckSessionIFrame {
 }
 
 // @public (undocumented)
-export interface CreateSigninRequestArgs extends Omit<SigninRequestArgs, "url" | "authority" | "client_id" | "redirect_uri" | "response_type" | "scope" | "state_data"> {
+export interface CreateSigninRequestArgs extends Omit<SigninRequestCreateArgs, "url" | "authority" | "client_id" | "redirect_uri" | "response_type" | "scope" | "state_data"> {
     // (undocumented)
     redirect_uri?: string;
     // (undocumented)
@@ -626,7 +626,8 @@ export type SigninRedirectArgs = RedirectParams & ExtraSigninRequestArgs;
 
 // @public (undocumented)
 export class SigninRequest {
-    constructor({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, url_state, resource, skipUserInfo, extraQueryParams, extraTokenParams, disablePKCE, ...optionalParams }: SigninRequestArgs);
+    // (undocumented)
+    static create({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, url_state, resource, skipUserInfo, extraQueryParams, extraTokenParams, disablePKCE, ...optionalParams }: SigninRequestCreateArgs): Promise<SigninRequest>;
     // (undocumented)
     readonly state: SigninState;
     // (undocumented)
@@ -634,7 +635,7 @@ export class SigninRequest {
 }
 
 // @public (undocumented)
-export interface SigninRequestArgs {
+export interface SigninRequestCreateArgs {
     // (undocumented)
     acr_values?: string;
     // (undocumented)
@@ -735,22 +736,6 @@ export type SigninSilentArgs = IFrameWindowParams & ExtraSigninRequestArgs;
 
 // @public (undocumented)
 export class SigninState extends State {
-    constructor(args: {
-        id?: string;
-        data?: unknown;
-        created?: number;
-        request_type?: string;
-        url_state?: string;
-        code_verifier?: string | boolean;
-        authority: string;
-        client_id: string;
-        redirect_uri: string;
-        scope: string;
-        client_secret?: string;
-        extraTokenParams?: Record<string, unknown>;
-        response_mode?: "query" | "fragment";
-        skipUserInfo?: boolean;
-    });
     // (undocumented)
     readonly authority: string;
     // (undocumented)
@@ -760,9 +745,11 @@ export class SigninState extends State {
     readonly code_challenge: string | undefined;
     readonly code_verifier: string | undefined;
     // (undocumented)
+    static create(args: SigninStateCreateArgs): Promise<SigninState>;
+    // (undocumented)
     readonly extraTokenParams: Record<string, unknown> | undefined;
     // (undocumented)
-    static fromStorageString(storageString: string): SigninState;
+    static fromStorageString(storageString: string): Promise<SigninState>;
     // (undocumented)
     readonly redirect_uri: string;
     // (undocumented)
@@ -774,6 +761,45 @@ export class SigninState extends State {
     // (undocumented)
     toStorageString(): string;
 }
+
+// @public (undocumented)
+export interface SigninStateArgs {
+    // (undocumented)
+    authority: string;
+    // (undocumented)
+    client_id: string;
+    // (undocumented)
+    client_secret?: string;
+    // (undocumented)
+    code_challenge?: string;
+    // (undocumented)
+    code_verifier?: string;
+    // (undocumented)
+    created?: number;
+    // (undocumented)
+    data?: unknown;
+    // (undocumented)
+    extraTokenParams?: Record<string, unknown>;
+    // (undocumented)
+    id?: string;
+    // (undocumented)
+    redirect_uri: string;
+    // (undocumented)
+    request_type?: string;
+    // (undocumented)
+    response_mode?: "query" | "fragment";
+    // (undocumented)
+    scope: string;
+    // (undocumented)
+    skipUserInfo?: boolean;
+    // (undocumented)
+    url_state?: string;
+}
+
+// @public (undocumented)
+export type SigninStateCreateArgs = Omit<SigninStateArgs, "code_verifier"> & {
+    code_verifier?: string | boolean;
+};
 
 // @public (undocumented)
 export type SignoutPopupArgs = PopupWindowParams & ExtraSignoutRequestArgs;
@@ -842,7 +868,7 @@ export class State {
     readonly created: number;
     readonly data?: unknown;
     // (undocumented)
-    static fromStorageString(storageString: string): State;
+    static fromStorageString(storageString: string): Promise<State>;
     // (undocumented)
     readonly id: string;
     // (undocumented)

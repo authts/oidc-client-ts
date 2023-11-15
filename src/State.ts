@@ -47,9 +47,9 @@ export class State {
         });
     }
 
-    public static fromStorageString(storageString: string): State {
+    public static fromStorageString(storageString: string): Promise<State> {
         Logger.createStatic("State", "fromStorageString");
-        return new State(JSON.parse(storageString));
+        return Promise.resolve(new State(JSON.parse(storageString)));
     }
 
     public static async clearStaleState(storage: StateStore, age: number): Promise<void> {
@@ -66,7 +66,7 @@ export class State {
 
             if (item) {
                 try {
-                    const state = State.fromStorageString(item);
+                    const state = await State.fromStorageString(item);
 
                     logger.debug("got item from key:", key, state.created);
                     if (state.created <= cutoff) {
