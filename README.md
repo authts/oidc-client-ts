@@ -22,10 +22,11 @@ available [here](docs/migration.md).
 Implements the following OAuth 2.0 protocols and supports
 [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html):
 
-- [Authorization Code Grant](https://oauth.net/2/grant-types/authorization-code/)
-  with [PKCE](https://oauth.net/2/pkce/)
-- [Resource Owner Password Credentials Grant](https://www.rfc-editor.org/rfc/rfc6749#section-1.3.3); however, read the [security concerns](docs/ropc.md) before using this flow
-- [Refresh Token Grant](https://oauth.net/2/grant-types/refresh-token/)
+- [Authorization Code Grant with Proof Key for Code Exchange (PKCE)](docs/protocols/authorization-code-grant-with-pkce.md)
+- [Authorization Code Grant](docs/protocols/authorization-code-grant.md)
+- [Resource Owner Password Credentials (ROPC) Grant](docs/protocols/resource-owner-password-credentials-grant.md)
+- [Refresh Token Grant](docs/protocols/refresh-token-grant.md)
+- [Silent Refresh Token in iframe Flow](docs/protocols/silent-refresh-token-in-iframe-flow.md)
 
 ## Table of Contents
 
