@@ -1,7 +1,7 @@
 /**
- * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/open#window_features
  *
  * @public
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/open#window_features
  */
 export interface PopupWindowFeatures {
     left?: number;
