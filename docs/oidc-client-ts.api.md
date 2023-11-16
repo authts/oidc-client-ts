@@ -601,7 +601,6 @@ export class SessionMonitor {
         session_state: string;
         profile: {
             sub: string;
-            sid: string;
         } | null;
     }) => Promise<void>;
     // (undocumented)
@@ -611,7 +610,6 @@ export class SessionMonitor {
 // @public (undocumented)
 export interface SessionStatus {
     session_state: string;
-    sid?: string;
     sub?: string;
 }
 

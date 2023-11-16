@@ -388,7 +388,6 @@ export class UserManager {
                 return {
                     session_state: signinResponse.session_state,
                     sub: signinResponse.profile.sub,
-                    sid: signinResponse.profile.sid,
                 };
             }
 
