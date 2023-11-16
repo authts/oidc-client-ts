@@ -432,7 +432,7 @@ export class OidcClientSettingsStore {
     // (undocumented)
     readonly resource: string | string[] | undefined;
     // (undocumented)
-    readonly response_mode: "query" | "fragment";
+    readonly response_mode: "query" | "fragment" | undefined;
     // (undocumented)
     readonly response_type: string;
     // (undocumented)
