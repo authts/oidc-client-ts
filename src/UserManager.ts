@@ -71,13 +71,13 @@ export type SignoutPopupArgs = PopupWindowParams & ExtraSignoutRequestArgs;
 export type SignoutSilentArgs = IFrameWindowParams & ExtraSignoutRequestArgs;
 
 /**
- * Provides a higher level API for signing a user in, signing out, managing the user's claims returned from the OIDC provider,
- * and managing an access token returned from the OIDC/OAuth2 provider.
+ * Provides a higher level API for signing a user in, signing out, managing the user's claims returned from the identity provider,
+ * and managing an access token returned from the identity provider (OAuth2/OIDC).
  *
  * @public
  */
 export class UserManager {
-    /** Returns the settings used to configure the `UserManager`. */
+    /** Get the settings used to configure the `UserManager`. */
     public readonly settings: UserManagerSettingsStore;
     protected readonly _logger = new Logger("UserManager");
 
@@ -113,18 +113,24 @@ export class UserManager {
 
     }
 
-    /** Returns an object used to register for events raised by the `UserManager`. */
+    /**
+     * Get object used to register for events raised by the `UserManager`.
+     */
     public get events(): UserManagerEvents {
         return this._events;
     }
 
-    /** Returns an object used to access the metadata configuration of the OIDC provider. */
+    /**
+     * Get object used to access the metadata configuration of the identity provider.
+     */
     public get metadataService(): MetadataService {
         return this._client.metadataService;
     }
 
     /**
-     * Returns promise to load the `User` object for the currently authenticated user.
+     * Load the `User` object for the currently authenticated user.
+     *
+     * @returns A promise
      */
     public async getUser(): Promise<User | null> {
         const logger = this._logger.create("getUser");
@@ -140,7 +146,9 @@ export class UserManager {
     }
 
     /**
-     * Returns promise to remove from any storage the currently authenticated user.
+     * Remove from any storage the currently authenticated user.
+     *
+     * @returns A promise
      */
     public async removeUser(): Promise<void> {
         const logger = this._logger.create("removeUser");
@@ -150,7 +158,11 @@ export class UserManager {
     }
 
     /**
-     * Returns promise to trigger a redirect of the current window to the authorization endpoint.
+     * Trigger a redirect of the current window to the authorization endpoint.
+     *
+     * @returns A promise
+     *
+     * @throws `Error` In cases of wrong authentication.
      */
     public async signinRedirect(args: SigninRedirectArgs = {}): Promise<void> {
         this._logger.create("signinRedirect");
@@ -166,7 +178,12 @@ export class UserManager {
     }
 
     /**
-     * Returns promise to process response from the authorization endpoint. The result of the promise is the authenticated `User`.
+     * Process the response (callback) from the authorization endpoint.
+     * It is recommend to use {@link UserManager.signinCallback} instead.
+     *
+     * @returns A promise containing the authenticated `User`.
+     *
+     * @see {@link UserManager.signinCallback}
      */
     public async signinRedirectCallback(url = window.location.href): Promise<User> {
         const logger = this._logger.create("signinRedirectCallback");
@@ -182,15 +199,16 @@ export class UserManager {
     }
 
     /**
-     * Returns promise to process the signin with user/password. The result of the promise is the authenticated `User`.
+     * Trigger the signin with user/password.
      *
-     * Throws an ErrorResponse in case of wrong authentication.
+     * @returns A promise containing the authenticated `User`.
+     * @throws {@link ErrorResponse} In cases of wrong authentication.
      */
     public async signinResourceOwnerCredentials({
         username,
         password,
         skipUserInfo = false,
-    }: SigninResourceOwnerCredentialsArgs ) {
+    }: SigninResourceOwnerCredentialsArgs): Promise<User> {
         const logger = this._logger.create("signinResourceOwnerCredential");
 
         const signinResponse = await this._client.processResourceOwnerPasswordCredentials({ username, password, skipUserInfo, extraTokenParams: this.settings.extraTokenParams });
@@ -206,7 +224,10 @@ export class UserManager {
     }
 
     /**
-     * Returns promise to trigger a request (via a popup window) to the authorization endpoint. The result of the promise is the authenticated `User`.
+     * Trigger a request (via a popup window) to the authorization endpoint.
+     *
+     * @returns A promise containing the authenticated `User`.
+     * @throws `Error` In cases of wrong authentication.
      */
     public async signinPopup(args: SigninPopupArgs = {}): Promise<User> {
         const logger = this._logger.create("signinPopup");
@@ -239,7 +260,12 @@ export class UserManager {
         return user;
     }
     /**
-     * Returns promise to notify the opening window of response from the authorization endpoint.
+     * Notify the opening window of response (callback) from the authorization endpoint.
+     * It is recommend to use {@link UserManager.signinCallback} instead.
+     *
+     * @returns A promise
+     *
+     * @see {@link UserManager.signinCallback}
      */
     public async signinPopupCallback(url = window.location.href, keepOpen = false): Promise<void> {
         const logger = this._logger.create("signinPopupCallback");
@@ -248,8 +274,9 @@ export class UserManager {
     }
 
     /**
-     * Returns promise to trigger a silent request (via an iframe) to the authorization endpoint.
-     * The result of the promise is the authenticated `User`.
+     * Trigger a silent request (via refresh token or an iframe) to the authorization endpoint.
+     *
+     * @returns A promise that contains the authenticated `User`.
      */
     public async signinSilent(args: SigninSilentArgs = {}): Promise<User | null> {
         const logger = this._logger.create("signinSilent");
@@ -310,7 +337,13 @@ export class UserManager {
     }
 
     /**
-     * Returns promise to notify the parent window of response from the authorization endpoint.
+     *
+     * Notify the parent window of response (callback) from the authorization endpoint.
+     * It is recommend to use {@link UserManager.signinCallback} instead.
+     *
+     * @returns A promise
+     *
+     * @see {@link UserManager.signinCallback}
      */
     public async signinSilentCallback(url = window.location.href): Promise<void> {
         const logger = this._logger.create("signinSilentCallback");
@@ -318,6 +351,15 @@ export class UserManager {
         logger.info("success");
     }
 
+    /**
+     * Process any response (callback) from the authorization endpoint, by dispatching the request_type
+     * and executing one of the following functions:
+     * - {@link UserManager.signinRedirectCallback}
+     * - {@link UserManager.signinPopupCallback}
+     * - {@link UserManager.signinSilentCallback}
+     *
+     * @throws `Error` If request_type is unknown or signout can not processed.
+     */
     public async signinCallback(url = window.location.href): Promise<User | void> {
         const { state } = await this._client.readSigninResponseState(url);
         switch (state.request_type) {
@@ -332,6 +374,15 @@ export class UserManager {
         }
     }
 
+    /**
+     * Process any response (callback) from the end session endpoint, by dispatching the request_type
+     * and executing one of the following functions:
+     * - {@link UserManager.signoutRedirectCallback}
+     * - {@link UserManager.signoutPopupCallback}
+     * - {@link UserManager.signoutSilentCallback}
+     *
+     * @throws `Error` If request_type is unknown or signout can not processed.
+     */
     public async signoutCallback(url = window.location.href, keepOpen = false): Promise<void> {
         const { state } = await this._client.readSignoutResponseState(url);
         if (!state) {
@@ -354,7 +405,9 @@ export class UserManager {
     }
 
     /**
-     * Returns promise to query OP for user's current signin status. Returns object with session_state and subject identifier.
+     * Query OP for user's current signin status.
+     *
+     * @returns A promise object with session_state and subject identifier.
      */
     public async querySessionStatus(args: QuerySessionStatusArgs = {}): Promise<SessionStatus | null> {
         const logger = this._logger.create("querySessionStatus");
@@ -464,7 +517,9 @@ export class UserManager {
     }
 
     /**
-     * Returns promise to trigger a redirect of the current window to the end session endpoint.
+     * Trigger a redirect of the current window to the end session endpoint.
+     *
+     * @returns A promise
      */
     public async signoutRedirect(args: SignoutRedirectArgs = {}): Promise<void> {
         const logger = this._logger.create("signoutRedirect");
@@ -482,7 +537,12 @@ export class UserManager {
     }
 
     /**
-     * Returns promise to process response from the end session endpoint.
+     * Process response (callback) from the end session endpoint.
+     * It is recommend to use {@link UserManager.signoutCallback} instead.
+     *
+     * @returns A promise containing signout response
+     *
+     * @see {@link UserManager.signoutCallback}
      */
     public async signoutRedirectCallback(url = window.location.href): Promise<SignoutResponse> {
         const logger = this._logger.create("signoutRedirectCallback");
@@ -492,7 +552,9 @@ export class UserManager {
     }
 
     /**
-     * Returns promise to trigger a redirect of a popup window window to the end session endpoint.
+     * Trigger a redirect of a popup window window to the end session endpoint.
+     *
+     * @returns A promise
      */
     public async signoutPopup(args: SignoutPopupArgs = {}): Promise<void> {
         const logger = this._logger.create("signoutPopup");
@@ -519,7 +581,12 @@ export class UserManager {
     }
 
     /**
-     * Returns promise to process response from the end session endpoint from a popup window.
+     * Process response (callback) from the end session endpoint from a popup window.
+     * It is recommend to use {@link UserManager.signoutCallback} instead.
+     *
+     * @returns A promise
+     *
+     * @see {@link UserManager.signoutCallback}
      */
     public async signoutPopupCallback(url = window.location.href, keepOpen = false): Promise<void> {
         const logger = this._logger.create("signoutPopupCallback");
@@ -575,7 +642,9 @@ export class UserManager {
     }
 
     /**
-     * Returns promise to trigger a silent request (via an iframe) to the end session endpoint.
+     * Trigger a silent request (via an iframe) to the end session endpoint.
+     *
+     * @returns A promise
      */
     public async signoutSilent(args: SignoutSilentArgs = {}): Promise<void> {
         const logger = this._logger.create("signoutSilent");
@@ -601,7 +670,12 @@ export class UserManager {
     }
 
     /**
-     * Returns promise to notify the parent window of response from the end session endpoint.
+     * Notify the parent window of response (callback) from the end session endpoint.
+     * It is recommend to use {@link UserManager.signoutCallback} instead.
+     *
+     * @returns A promise
+     *
+     * @see {@link UserManager.signoutCallback}
      */
     public async signoutSilentCallback(url = window.location.href): Promise<void> {
         const logger = this._logger.create("signoutSilentCallback");

@@ -124,7 +124,7 @@ export interface OidcClientSettings {
      */
     revokeTokenAdditionalContentTypes?: string[];
     /**
-     * Will disable pkce validation, changing to true will not append to sign in request code_challenge and code_challenge_method. (default: false)
+     * Will disable PKCE validation, changing to true will not append to sign in request code_challenge and code_challenge_method. (default: false)
      */
     disablePKCE?: boolean;
     /**
@@ -141,9 +141,9 @@ export interface OidcClientSettings {
 
 /**
  * The settings with defaults applied of the {@link OidcClient}.
- * @see {@link OidcClientSettings}
  *
  * @public
+ * @see {@link OidcClientSettings}
  */
 export class OidcClientSettingsStore {
     // metadata

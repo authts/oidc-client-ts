@@ -6,6 +6,7 @@ import type { IdTokenClaims } from "./Claims";
 
 /**
  * Holds claims represented by a combination of the `id_token` and the user info endpoint.
+ *
  * @public
  */
 export type UserProfile = IdTokenClaims;

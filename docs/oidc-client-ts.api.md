@@ -969,7 +969,6 @@ export class UserManager {
     readonly settings: UserManagerSettingsStore;
     // (undocumented)
     protected _signin(args: CreateSigninRequestArgs, handle: IWindow, verifySub?: string): Promise<User>;
-    // (undocumented)
     signinCallback(url?: string): Promise<User | void>;
     // (undocumented)
     protected _signinEnd(url: string, verifySub?: string): Promise<User>;
@@ -984,7 +983,6 @@ export class UserManager {
     protected _signinStart(args: CreateSigninRequestArgs, handle: IWindow): Promise<NavigateResponse>;
     // (undocumented)
     protected _signout(args: CreateSignoutRequestArgs, handle: IWindow): Promise<SignoutResponse>;
-    // (undocumented)
     signoutCallback(url?: string, keepOpen?: boolean): Promise<void>;
     // (undocumented)
     protected _signoutEnd(url: string): Promise<SignoutResponse>;

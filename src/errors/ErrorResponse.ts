@@ -6,9 +6,8 @@ import { Logger } from "../utils";
 /**
  * Error class thrown in case of an authentication error.
  *
- * See https://openid.net/specs/openid-connect-core-1_0.html#AuthError
- *
  * @public
+ * @see https://openid.net/specs/openid-connect-core-1_0.html#AuthError
  */
 export class ErrorResponse extends Error {
     /** Marker to detect class: "ErrorResponse" */
