@@ -17,7 +17,7 @@ sequenceDiagram
   App->>Hidden iframe: Load silent<br/>Authorization Code Grant<br/>in an iframe (1)
 
   activate Hidden iframe
-  Note left of Hidden iframe: PKCE: Generate code_verifier and<br/>code_challenge
+  Note right of Hidden iframe: PKCE: Generate code_verifier and<br/>code_challenge
   Hidden iframe->>Identity Provider: Authorization code request (1)
   deactivate Hidden iframe
   Note right of Hidden iframe: PKCE: with code_challenge
