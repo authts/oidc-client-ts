@@ -13,7 +13,7 @@ sequenceDiagram
   User->>App: Click sign-in link (1)
 
   activate App
-  Note left of App: Generate code_verifier and<br/>code_challenge
+  Note right of App: Generate code_verifier and<br/>code_challenge
   App->>Identity Provider: Authorization code request & code_challenge (2)
   deactivate App
 
