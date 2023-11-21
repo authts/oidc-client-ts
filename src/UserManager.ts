@@ -283,6 +283,7 @@ export class UserManager {
         const {
             silentRequestTimeoutInSeconds,
             resource,
+            extraTokenParams,
             ...requestArgs
         } = args;
         // first determine if we have a refresh token, or need to use iframe
@@ -290,7 +291,7 @@ export class UserManager {
         if (user?.refresh_token) {
             logger.debug("using refresh token");
             const state = new RefreshState(user as Required<User>, resource);
-            return await this._useRefreshToken(state);
+            return await this._useRefreshToken(state, extraTokenParams);
         }
 
         const url = this.settings.silent_redirect_uri;
@@ -324,10 +325,11 @@ export class UserManager {
         return user;
     }
 
-    protected async _useRefreshToken(state: RefreshState): Promise<User> {
+    protected async _useRefreshToken(state: RefreshState, extraTokenParams?: Record<string, unknown>): Promise<User> {
         const response = await this._client.useRefreshToken({
             state,
             timeoutInSeconds: this.settings.silentRequestTimeoutInSeconds,
+            extraTokenParams
         });
         const user = new User({ ...state, ...response });
 
