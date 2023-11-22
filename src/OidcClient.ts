@@ -186,7 +186,7 @@ export class OidcClient {
     public async useRefreshToken({
         state,
         timeoutInSeconds,
-        extraTokenParams
+        extraTokenParams,
     }: UseRefreshTokenArgs): Promise<SigninResponse> {
         const logger = this._logger.create("useRefreshToken");
 

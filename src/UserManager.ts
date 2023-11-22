@@ -4,7 +4,7 @@
 import { Logger } from "./utils";
 import { ErrorResponse } from "./errors";
 import { type NavigateResponse, type PopupWindowParams, type IWindow, type IFrameWindowParams, type RedirectParams, RedirectNavigator, PopupNavigator, IFrameNavigator, type INavigator } from "./navigators";
-import { OidcClient, type CreateSigninRequestArgs, type CreateSignoutRequestArgs, type ProcessResourceOwnerPasswordCredentialsArgs } from "./OidcClient";
+import { OidcClient, type CreateSigninRequestArgs, type CreateSignoutRequestArgs, type ProcessResourceOwnerPasswordCredentialsArgs, type UseRefreshTokenArgs } from "./OidcClient";
 import { type UserManagerSettings, UserManagerSettingsStore } from "./UserManagerSettings";
 import { User } from "./User";
 import { UserManagerEvents } from "./UserManagerEvents";
@@ -283,7 +283,6 @@ export class UserManager {
         const {
             silentRequestTimeoutInSeconds,
             resource,
-            extraTokenParams,
             ...requestArgs
         } = args;
         // first determine if we have a refresh token, or need to use iframe
@@ -291,7 +290,7 @@ export class UserManager {
         if (user?.refresh_token) {
             logger.debug("using refresh token");
             const state = new RefreshState(user as Required<User>, resource);
-            return await this._useRefreshToken(state, extraTokenParams);
+            return await this._useRefreshToken({ state, extraTokenParams: requestArgs.extraTokenParams });
         }
 
         const url = this.settings.silent_redirect_uri;
@@ -325,13 +324,12 @@ export class UserManager {
         return user;
     }
 
-    protected async _useRefreshToken(state: RefreshState, extraTokenParams?: Record<string, unknown>): Promise<User> {
+    protected async _useRefreshToken(args: UseRefreshTokenArgs): Promise<User> {
         const response = await this._client.useRefreshToken({
-            state,
+            ...args,
             timeoutInSeconds: this.settings.silentRequestTimeoutInSeconds,
-            extraTokenParams
         });
-        const user = new User({ ...state, ...response });
+        const user = new User({ ...args.state, ...response });
 
         await this.storeUser(user);
         this._events.load(user);
