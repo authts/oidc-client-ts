@@ -5,12 +5,18 @@
  * @internal
  */
 export class UrlUtils {
-    public static readParams(url: string, responseMode: "query" | "fragment" = "query"): URLSearchParams {
+    public static readParams(url: string, responseMode: "query" | "fragment" = "query", hashRouterMode = false): URLSearchParams {
         if (!url) throw new TypeError("Invalid URL");
         // the base URL is irrelevant, it's just here to support relative url arguments
         const parsedUrl = new URL(url, "http://127.0.0.1");
-        const params = parsedUrl[responseMode === "fragment" ? "hash" : "search"];
-        return new URLSearchParams(params.slice(1));
+        let params: string;
+        if (!hashRouterMode) {
+            params = parsedUrl[responseMode === "fragment" ? "hash" : "search"].slice(1);
+        } else {
+            const route = parsedUrl.hash.substring(1); // remove first `#`
+            params = route.substring(route.indexOf(responseMode === "fragment" ? "#" : "?") + 1);
+        }
+        return new URLSearchParams(params);
     }
 }
 

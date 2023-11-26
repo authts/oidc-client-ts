@@ -80,6 +80,8 @@ export interface OidcClientSettings {
      * @see https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html#ResponseModes
      */
     response_mode?: "query" | "fragment";
+    /** Search for the callback parameters in the hash part of the URL */
+    hashRouterMode?: boolean;
 
     /**
      * Should optional OIDC protocol claims be removed from profile or specify the ones to be removed (default: true)
@@ -172,6 +174,7 @@ export class OidcClientSettingsStore {
     public readonly response_mode: "query" | "fragment" | undefined;
 
     // behavior flags
+    public readonly hashRouterMode: boolean;
     public readonly filterProtocolClaims: boolean | string[];
     public readonly loadUserInfo: boolean;
     public readonly staleStateAgeInSeconds: number;
@@ -199,6 +202,7 @@ export class OidcClientSettingsStore {
         // optional protocol
         prompt, display, max_age, ui_locales, acr_values, resource, response_mode,
         // behavior flags
+        hashRouterMode = false,
         filterProtocolClaims = true,
         loadUserInfo = false,
         staleStateAgeInSeconds = DefaultStaleStateAgeInSeconds,
@@ -249,6 +253,7 @@ export class OidcClientSettingsStore {
         this.resource = resource;
         this.response_mode = response_mode;
 
+        this.hashRouterMode = hashRouterMode;
         this.filterProtocolClaims = filterProtocolClaims ?? true;
         this.loadUserInfo = !!loadUserInfo;
         this.staleStateAgeInSeconds = staleStateAgeInSeconds;

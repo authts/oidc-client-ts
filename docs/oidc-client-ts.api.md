@@ -264,6 +264,7 @@ export class MetadataService {
 
 // @public (undocumented)
 export interface NavigateParams {
+    hashRouterMode?: boolean;
     nonce?: string;
     // (undocumented)
     response_mode?: "query" | "fragment";
@@ -356,6 +357,7 @@ export interface OidcClientSettings {
     extraTokenParams?: Record<string, unknown>;
     fetchRequestCredentials?: RequestCredentials;
     filterProtocolClaims?: boolean | string[];
+    hashRouterMode?: boolean;
     loadUserInfo?: boolean;
     max_age?: number;
     mergeClaimsStrategy?: {
@@ -382,7 +384,7 @@ export interface OidcClientSettings {
 
 // @public
 export class OidcClientSettingsStore {
-    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, mergeClaimsStrategy, disablePKCE, stateStore, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, extraHeaders, }: OidcClientSettings);
+    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, hashRouterMode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, mergeClaimsStrategy, disablePKCE, stateStore, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, extraHeaders, }: OidcClientSettings);
     // (undocumented)
     readonly acr_values: string | undefined;
     // (undocumented)
@@ -407,6 +409,8 @@ export class OidcClientSettingsStore {
     readonly fetchRequestCredentials: RequestCredentials;
     // (undocumented)
     readonly filterProtocolClaims: boolean | string[];
+    // (undocumented)
+    readonly hashRouterMode: boolean;
     // (undocumented)
     readonly loadUserInfo: boolean;
     // (undocumented)

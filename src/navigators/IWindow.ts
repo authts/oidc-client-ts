@@ -11,6 +11,8 @@ export interface NavigateParams {
     /** The request "state" parameter. For sign out requests, this parameter is optional. */
     state?: string;
     response_mode?: "query" | "fragment";
+    /** Search for the callback parameters in the hash part of the URL */
+    hashRouterMode?: boolean;
     scriptOrigin?: string;
 }
 

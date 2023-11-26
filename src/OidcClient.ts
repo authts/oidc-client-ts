@@ -144,7 +144,7 @@ export class OidcClient {
     public async readSigninResponseState(url: string, removeState = false): Promise<{ state: SigninState; response: SigninResponse }> {
         const logger = this._logger.create("readSigninResponseState");
 
-        const response = new SigninResponse(UrlUtils.readParams(url, this.settings.response_mode));
+        const response = new SigninResponse(UrlUtils.readParams(url, this.settings.response_mode, this.settings.hashRouterMode));
         if (!response.state) {
             logger.throw(new Error("No state in response"));
             // need to throw within this function's body for type narrowing to work
@@ -271,7 +271,7 @@ export class OidcClient {
     public async readSignoutResponseState(url: string, removeState = false): Promise<{ state: State | undefined; response: SignoutResponse }> {
         const logger = this._logger.create("readSignoutResponseState");
 
-        const response = new SignoutResponse(UrlUtils.readParams(url, this.settings.response_mode));
+        const response = new SignoutResponse(UrlUtils.readParams(url, this.settings.response_mode, this.settings.hashRouterMode));
         if (!response.state) {
             logger.debug("No state in response");
 

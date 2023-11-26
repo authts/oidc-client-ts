@@ -43,7 +43,7 @@ export abstract class AbstractChildWindow implements IWindow {
                     return;
                 }
                 try {
-                    const state = UrlUtils.readParams(data.url, params.response_mode).get("state");
+                    const state = UrlUtils.readParams(data.url, params.response_mode, params.hashRouterMode).get("state");
                     if (!state) {
                         logger.warn("no state found in response url");
                     }

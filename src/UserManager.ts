@@ -480,6 +480,7 @@ export class UserManager {
                 url: signinRequest.url,
                 state: signinRequest.state.id,
                 response_mode: signinRequest.state.response_mode,
+                hashRouterMode: this.settings.hashRouterMode,
                 scriptOrigin: this.settings.iframeScriptOrigin,
             });
         }
@@ -624,6 +625,7 @@ export class UserManager {
             return await handle.navigate({
                 url: signoutRequest.url,
                 state: signoutRequest.state?.id,
+                hashRouterMode: this.settings.hashRouterMode,
                 scriptOrigin: this.settings.iframeScriptOrigin,
             });
         }
