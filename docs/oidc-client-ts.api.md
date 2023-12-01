@@ -874,6 +874,8 @@ export class User {
         userState?: unknown;
     });
     access_token: string;
+    // (undocumented)
+    dpopProof(url: string): Promise<string>;
     get expired(): boolean | undefined;
     expires_at?: number;
     get expires_in(): number | undefined;

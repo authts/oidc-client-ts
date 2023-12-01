@@ -4,6 +4,7 @@
 import { ErrorResponse, ErrorTimeout } from "./errors";
 import type { ExtraHeader } from "./OidcClientSettings";
 import { Logger } from "./utils";
+import { DPoPService } from "./DPoPService";
 
 /**
  * @internal
@@ -36,6 +37,8 @@ export class JsonService {
 
     private _contentTypes: string[] = [];
 
+    private _dpopService: DPoPService;
+
     public constructor(
         additionalContentTypes: string[] = [],
         private _jwtHandler: JwtHandler | null = null,
@@ -45,6 +48,7 @@ export class JsonService {
         if (_jwtHandler) {
             this._contentTypes.push("application/jwt");
         }
+        this._dpopService = new DPoPService();
     }
 
     protected async fetchWithTimeout(input: RequestInfo, init: RequestInit & { timeoutInSeconds?: number } = {}) {
@@ -133,9 +137,11 @@ export class JsonService {
         initCredentials,
     }: PostFormOpts): Promise<Record<string, unknown>> {
         const logger = this._logger.create("postForm");
+        const DPoPProof = await this._dpopService.generateDPoPProofForAccessTokenRequest();
         const headers: HeadersInit = {
             "Accept": this._contentTypes.join(", "),
             "Content-Type": "application/x-www-form-urlencoded",
+            "DPoP": DPoPProof,
         };
         if (basicAuth !== undefined) {
             headers["Authorization"] = "Basic " + basicAuth;

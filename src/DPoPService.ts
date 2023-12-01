@@ -11,7 +11,10 @@ export class DPoPService {
     }
     public async generateDPoPProofForAccessTokenRequest() : Promise<string> {
         const keyPair = await this.generateKeys();
-        await this.keyStore.set("dpopKeys", JSON.stringify(keyPair));
+        const exportedPrivateKey = await window.crypto.subtle.exportKey("jwk", keyPair.privateKey);
+        const exportedPublicKey = await window.crypto.subtle.exportKey("jwk", keyPair.publicKey);
+        await this.keyStore.set("dpopPrivateKey", JSON.stringify(exportedPrivateKey));
+        await this.keyStore.set("dpopPublicKey", JSON.stringify(exportedPublicKey));
 
         const publicJwk = await jose.exportJWK(keyPair.publicKey);
 
@@ -30,12 +33,31 @@ export class DPoPService {
         return dpopProofJwt;
     }
 
-    public async generateDPoPProof(accessToken : string) : Promise<string> {
-        const keyPairString = await this.keyStore.get("dpopKeys");
+    public async generateDPoPProof(accessToken: string, url: string) : Promise<string> {
 
-        const keyPair = JSON.parse(keyPairString as string) as CryptoKeyPair;
+        const dpopPrivateKey = await this.keyStore.get("dpopPrivateKey");
+        const dpopPublicKey = await this.keyStore.get("dpopPublicKey");
 
-        const publicJwk = await jose.exportJWK(keyPair.publicKey);
+        const privateKeyObject = JSON.parse(dpopPrivateKey as string);
+        const publicKeyObject = JSON.parse(dpopPublicKey as string);
+
+        const privateKey = await window.crypto.subtle.importKey(
+            "jwk",
+            privateKeyObject, {
+                name: "ECDSA",
+                namedCurve: "P-256",
+            },
+            true, ["sign"]);
+
+        const publicKey = await window.crypto.subtle.importKey(
+            "jwk",
+            publicKeyObject, {
+                name: "ECDSA",
+                namedCurve: "P-256",
+            },
+            true, ["verify"]);
+
+        const publicJwk = await jose.exportJWK(publicKey);
 
         const digestHex = await this.digestMessage(accessToken);
         console.log("Hash: ", digestHex);
@@ -45,13 +67,13 @@ export class DPoPService {
         const dpopProofJwt = await new SignJWT({
             "jti": window.crypto.randomUUID(),
             "htm": "GET",
-            "htu": "https://localhost:5005/identity",
+            "htu": url,
             "ath": hash,
         }).setProtectedHeader({
             "alg": "ES256",
             "typ": "dpop+jwt",
             "jwk": publicJwk,
-        }).setIssuedAt().sign(keyPair.privateKey);
+        }).setIssuedAt().sign(privateKey);
 
         console.log("DPoP proof token for requesting access token: ", dpopProofJwt);
         return dpopProofJwt;
