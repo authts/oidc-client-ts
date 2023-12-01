@@ -133,6 +133,13 @@ mgr.signinRedirect({ url_state: 'custom url state' })
 The `url_state` will be appended to the opaque, unique value created by the library when sending the request. It should survive the round trip to your authentication server and will be part of the [User](classes/User.html#url_state) object as `url_state`.
 
 
+# Hash-mode router (SPA)
+If your app is using hash-based routing, be aware that many OIDC providers append the query string after the hash instead of inserting it before:  
+**Correct:** `https://your.org/?code=ab&state=cd#/oidc-callback`  
+**Wrong:** `https://your.org/#/oidc-callback?code=ab&state=cd`
+
+Check out [this issue]([https://github.com/authts/oidc-client-ts/issues/734#issuecomment-1298381823](https://github.com/authts/oidc-client-ts/issues/734)) for details. (There are also workarounds, as long as your provider doesn't fix the issue)
+
 # Projects using oidc-client-ts
 
 - [React context provider](https://github.com/authts/react-oidc-context)
