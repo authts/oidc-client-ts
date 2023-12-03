@@ -1,20 +1,11 @@
-import { WebStorageStateStore } from "./WebStorageStateStore";
 import * as jose from "jose";
 import { SignJWT, base64url } from "jose";
+import { set, get } from "idb-keyval";
 
 export class DPoPService {
-
-    public readonly keyStore: WebStorageStateStore;
-
-    public constructor() {
-        this.keyStore = new WebStorageStateStore({ prefix: ".dpop", store: window.sessionStorage });
-    }
     public async generateDPoPProofForAccessTokenRequest() : Promise<string> {
         const keyPair = await this.generateKeys();
-        const exportedPrivateKey = await window.crypto.subtle.exportKey("jwk", keyPair.privateKey);
-        const exportedPublicKey = await window.crypto.subtle.exportKey("jwk", keyPair.publicKey);
-        await this.keyStore.set("dpopPrivateKey", JSON.stringify(exportedPrivateKey));
-        await this.keyStore.set("dpopPublicKey", JSON.stringify(exportedPublicKey));
+        await set("oidc.dpop", keyPair);
 
         const publicJwk = await jose.exportJWK(keyPair.publicKey);
 
@@ -34,32 +25,10 @@ export class DPoPService {
     }
 
     public async generateDPoPProof(accessToken: string, url: string) : Promise<string> {
-
-        const dpopPrivateKey = await this.keyStore.get("dpopPrivateKey");
-        const dpopPublicKey = await this.keyStore.get("dpopPublicKey");
-
-        const privateKeyObject = JSON.parse(dpopPrivateKey as string);
-        const publicKeyObject = JSON.parse(dpopPublicKey as string);
-
-        const privateKey = await window.crypto.subtle.importKey(
-            "jwk",
-            privateKeyObject, {
-                name: "ECDSA",
-                namedCurve: "P-256",
-            },
-            true, ["sign"]);
-
-        const publicKey = await window.crypto.subtle.importKey(
-            "jwk",
-            publicKeyObject, {
-                name: "ECDSA",
-                namedCurve: "P-256",
-            },
-            true, ["verify"]);
-
-        const publicJwk = await jose.exportJWK(publicKey);
-
+        const keyPair = await get("oidc.dpop") as CryptoKeyPair;
+        const publicJwk = await jose.exportJWK(keyPair.publicKey);
         const digestHex = await this.digestMessage(accessToken);
+
         console.log("Hash: ", digestHex);
         const hash = base64url.encode(digestHex);
         console.log("Base64 encoded hash: ", hash);
@@ -73,7 +42,7 @@ export class DPoPService {
             "alg": "ES256",
             "typ": "dpop+jwt",
             "jwk": publicJwk,
-        }).setIssuedAt().sign(privateKey);
+        }).setIssuedAt().sign(keyPair.privateKey);
 
         console.log("DPoP proof token for requesting access token: ", dpopProofJwt);
         return dpopProofJwt;
@@ -92,7 +61,7 @@ export class DPoPService {
                 name: "ECDSA",
                 namedCurve: "P-256",
             },
-            true,
+            false,
             ["sign", "verify"],
         );
     }
