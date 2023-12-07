@@ -349,6 +349,7 @@ export interface OidcClientSettings {
     clockSkewInSeconds?: number;
     disablePKCE?: boolean;
     display?: string;
+    dpop?: boolean;
     extraHeaders?: Record<string, ExtraHeader>;
     extraQueryParams?: Record<string, string | number | boolean>;
     // (undocumented)
@@ -400,6 +401,8 @@ export class OidcClientSettingsStore {
     readonly disablePKCE: boolean;
     // (undocumented)
     readonly display: string | undefined;
+    // (undocumented)
+    readonly dpop: boolean | undefined;
     // (undocumented)
     readonly extraHeaders: Record<string, ExtraHeader>;
     // (undocumented)

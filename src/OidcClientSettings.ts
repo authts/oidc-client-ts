@@ -50,6 +50,10 @@ export interface OidcClientSettings {
     redirect_uri: string;
     /** The OIDC/OAuth2 post-logout redirect URI */
     post_logout_redirect_uri?: string;
+    /** Indicates whether to apply Dynamic Proof Of Possession when requesting an access token
+     *  See https://datatracker.ietf.org/doc/html/rfc9449
+     */
+    dpop?: boolean;
 
     /**
      * Client authentication method that is used to authenticate when using the token endpoint (default: "client_secret_post")
@@ -164,6 +168,7 @@ export class OidcClientSettingsStore {
     public readonly redirect_uri: string;
     public readonly post_logout_redirect_uri: string | undefined;
     public readonly client_authentication: "client_secret_basic" | "client_secret_post";
+    public readonly dpop: boolean | undefined;
 
     // optional protocol params
     public readonly prompt: string | undefined;

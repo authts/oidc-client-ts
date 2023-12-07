@@ -30,7 +30,6 @@ export class DPoPService {
             "jwk": publicJwk,
         }).setIssuedAt().sign(keyPair.privateKey);
 
-        console.log("DPoP proof token for requesting access token: ", dpopProofJwt);
         return dpopProofJwt;
     }
 
