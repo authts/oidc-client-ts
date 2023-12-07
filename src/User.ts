@@ -122,7 +122,7 @@ export class User {
         return new User(JSON.parse(storageString));
     }
 
-    public async dpopProof(url: string): Promise<string> {
-        return await new DPoPService().generateDPoPProof(this.access_token, url);
+    public async dpopProof(url: string, httpMethod?: string): Promise<string> {
+        return await new DPoPService().generateDPoPProof(url, this.access_token, httpMethod);
     }
 }

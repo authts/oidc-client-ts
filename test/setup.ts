@@ -1,4 +1,5 @@
 import { Log } from "../src";
+import "fake-indexeddb/auto";
 
 beforeAll(() => {
     globalThis.fetch = jest.fn();
