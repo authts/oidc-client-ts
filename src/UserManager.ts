@@ -282,15 +282,18 @@ export class UserManager {
         const logger = this._logger.create("signinSilent");
         const {
             silentRequestTimeoutInSeconds,
-            resource,
             ...requestArgs
         } = args;
         // first determine if we have a refresh token, or need to use iframe
         let user = await this._loadUser();
         if (user?.refresh_token) {
             logger.debug("using refresh token");
-            const state = new RefreshState(user as Required<User>, resource);
-            return await this._useRefreshToken({ state, extraTokenParams: requestArgs.extraTokenParams });
+            const state = new RefreshState(user as Required<User>);
+            return await this._useRefreshToken({
+                state,
+                resource: requestArgs.resource,
+                extraTokenParams: requestArgs.extraTokenParams,
+            });
         }
 
         const url = this.settings.silent_redirect_uri;

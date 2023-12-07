@@ -426,10 +426,10 @@ describe("OidcClient", () => {
                 session_state: "session_state",
                 scope: "openid",
                 profile: {} as UserProfile,
-            }, "resource");
+            });
 
             // act
-            const response = await subject.useRefreshToken({ state });
+            const response = await subject.useRefreshToken({ state, resource: "resource" });
 
             // assert
             expect(exchangeRefreshTokenMock).toHaveBeenCalledWith( {

@@ -333,7 +333,7 @@ export class OidcClient {
     // (undocumented)
     protected readonly _tokenClient: TokenClient;
     // (undocumented)
-    useRefreshToken({ state, timeoutInSeconds, extraTokenParams, }: UseRefreshTokenArgs): Promise<SigninResponse>;
+    useRefreshToken({ state, resource, timeoutInSeconds, extraTokenParams, }: UseRefreshTokenArgs): Promise<SigninResponse>;
     // Warning: (ae-forgotten-export) The symbol "ResponseValidator" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -570,7 +570,7 @@ export class RefreshState {
         scope?: string;
         profile: UserProfile;
         state?: unknown;
-    }, resource?: string | string[]);
+    });
     readonly data?: unknown;
     // (undocumented)
     readonly id_token?: string;
@@ -578,8 +578,6 @@ export class RefreshState {
     readonly profile: UserProfile;
     // (undocumented)
     readonly refresh_token: string;
-    // (undocumented)
-    readonly resource?: string | string[];
     // (undocumented)
     readonly scope?: string;
     // (undocumented)
@@ -928,6 +926,8 @@ export class User {
 export interface UseRefreshTokenArgs {
     // (undocumented)
     extraTokenParams?: Record<string, unknown>;
+    // (undocumented)
+    resource?: string | string[];
     // (undocumented)
     state: RefreshState;
     // (undocumented)

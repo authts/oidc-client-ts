@@ -552,11 +552,11 @@ describe("UserManager", () => {
             expect(useRefreshTokenSpy).toBeCalledWith(
                 expect.objectContaining({
                     state: {
-                        resource: "resource",
                         refresh_token: user.refresh_token,
                         session_state: null,
                         "profile": { "nickname": "Nick", "sub": "sub" },
                     },
+                    resource: "resource",
                 }),
             );
         });
