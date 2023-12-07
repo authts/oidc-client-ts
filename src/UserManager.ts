@@ -294,6 +294,7 @@ export class UserManager {
                 redirect_uri: requestArgs.redirect_uri,
                 resource: requestArgs.resource,
                 extraTokenParams: requestArgs.extraTokenParams,
+                timeoutInSeconds: silentRequestTimeoutInSeconds,
             });
         }
 
