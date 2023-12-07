@@ -291,6 +291,7 @@ export class UserManager {
             const state = new RefreshState(user as Required<User>);
             return await this._useRefreshToken({
                 state,
+                redirect_uri: requestArgs.redirect_uri,
                 resource: requestArgs.resource,
                 extraTokenParams: requestArgs.extraTokenParams,
             });

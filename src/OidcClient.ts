@@ -33,6 +33,7 @@ export interface CreateSigninRequestArgs
  * @public
  */
 export interface UseRefreshTokenArgs {
+    redirect_uri?: string;
     resource?: string | string[];
     extraTokenParams?: Record<string, unknown>;
     timeoutInSeconds?: number;
@@ -187,6 +188,7 @@ export class OidcClient {
 
     public async useRefreshToken({
         state,
+        redirect_uri,
         resource,
         timeoutInSeconds,
         extraTokenParams,
@@ -210,6 +212,7 @@ export class OidcClient {
             refresh_token: state.refresh_token,
             // provide the (possible filtered) scope list
             scope,
+            redirect_uri,
             resource,
             timeoutInSeconds,
             ...extraTokenParams,
