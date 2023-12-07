@@ -137,7 +137,7 @@ export class JsonService {
         initCredentials,
     }: PostFormOpts): Promise<Record<string, unknown>> {
         const logger = this._logger.create("postForm");
-        const DPoPProof = await this._dpopService.generateDPoPProofForAccessTokenRequest();
+        const DPoPProof = await this._dpopService.generateDPoPProof(url, basicAuth, "POST");
         const headers: HeadersInit = {
             "Accept": this._contentTypes.join(", "),
             "Content-Type": "application/x-www-form-urlencoded",

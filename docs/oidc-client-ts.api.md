@@ -875,7 +875,7 @@ export class User {
     });
     access_token: string;
     // (undocumented)
-    dpopProof(url: string): Promise<string>;
+    dpopProof(url: string, httpMethod?: string): Promise<string>;
     get expired(): boolean | undefined;
     expires_at?: number;
     get expires_in(): number | undefined;

@@ -1,44 +1,30 @@
-import * as jose from "jose";
-import { SignJWT, base64url } from "jose";
+import { SignJWT, base64url, exportJWK } from "jose";
 import { set, get } from "idb-keyval";
 
 export class DPoPService {
-    public async generateDPoPProofForAccessTokenRequest() : Promise<string> {
-        const keyPair = await this.generateKeys();
-        await set("oidc.dpop", keyPair);
+    public async generateDPoPProof(url: string, accessToken?: string, httpMethod?: string) : Promise<string> {
+        let keyPair: CryptoKeyPair;
+        let digestHex;
+        let hash: string;
 
-        const publicJwk = await jose.exportJWK(keyPair.publicKey);
-
-        const dpopProofJwt = await new SignJWT({
+        const payload: Record<string, string> = {
             "jti": window.crypto.randomUUID(),
-            "htm": "POST",
-            "htu": "https://localhost:5001/connect/token",
-        })
-            .setProtectedHeader({
-                "alg": "ES256",
-                "typ": "dpop+jwt",
-                "jwk": publicJwk,
-            }).setIssuedAt().sign(keyPair.privateKey);
-
-        console.log("DPoP proof token for requesting access token: ", dpopProofJwt);
-        return dpopProofJwt;
-    }
-
-    public async generateDPoPProof(accessToken: string, url: string) : Promise<string> {
-        const keyPair = await get("oidc.dpop") as CryptoKeyPair;
-        const publicJwk = await jose.exportJWK(keyPair.publicKey);
-        const digestHex = await this.digestMessage(accessToken);
-
-        console.log("Hash: ", digestHex);
-        const hash = base64url.encode(digestHex);
-        console.log("Base64 encoded hash: ", hash);
-
-        const dpopProofJwt = await new SignJWT({
-            "jti": window.crypto.randomUUID(),
-            "htm": "GET",
+            "htm": httpMethod ?? "GET",
             "htu": url,
-            "ath": hash,
-        }).setProtectedHeader({
+        };
+
+        if (accessToken) {
+            keyPair = await get("oidc.dpop") as CryptoKeyPair;
+            digestHex = await this.digestMessage(accessToken);
+            hash = base64url.encode(digestHex);
+            payload.ath = hash;
+        } else {
+            keyPair = await this.generateKeys();
+            await set("oidc.dpop", keyPair);
+        }
+        const publicJwk = await exportJWK(keyPair.publicKey);
+
+        const dpopProofJwt = await new SignJWT(payload).setProtectedHeader({
             "alg": "ES256",
             "typ": "dpop+jwt",
             "jwk": publicJwk,
@@ -50,7 +36,6 @@ export class DPoPService {
 
     protected async digestMessage(message: string) : Promise<Uint8Array> {
         const msgUint8 = new TextEncoder().encode(message);
-        console.log("access token as Unit8Array", msgUint8);
         const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8);
         return new Uint8Array(hashBuffer);
     }

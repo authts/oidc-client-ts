@@ -33,7 +33,7 @@
     "build-types": "tsc -p tsconfig.build.json && api-extractor run",
     "clean": "git clean -fdX dist lib *.tsbuildinfo",
     "prepack": "npm run build",
-    "test": "tsc && jest",
+    "test": "tsc && jest --verbose",
     "typedoc": "typedoc",
     "lint": "eslint --max-warnings=0 --cache .",
     "prepare": "husky install"
@@ -54,6 +54,7 @@
     "esbuild": "^0.17.0",
     "eslint": "^8.5.0",
     "eslint-plugin-testing-library": "^6.0.0",
+    "fake-indexeddb": "^5.0.1",
     "http-proxy-middleware": "^2.0.1",
     "husky": "^8.0.1",
     "jest": "^29.3.1",
