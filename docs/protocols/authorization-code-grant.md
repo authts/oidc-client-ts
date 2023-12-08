@@ -11,7 +11,7 @@ This flow can only be used for applications, which can protected the client secr
 - **Native app**: Can not securely store the client secret, as its possible to decompile the application.
 - **Single-page app**: Can not securely store the client secret, as the full code is exposed in the users browser
 
-In that scenarios [Authorization Code Grant with Proof Key for Code Exchange (PKCE)](authorization-code-flow-with-pkce.md) must be used.
+In that scenarios [Authorization Code Grant with Proof Key for Code Exchange (PKCE)](authorization-code-grant-with-pkce.md) must be used.
 
 
 ## Principle of function
