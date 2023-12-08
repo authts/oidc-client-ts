@@ -33,9 +33,12 @@ export interface CreateSigninRequestArgs
  * @public
  */
 export interface UseRefreshTokenArgs {
-    state: RefreshState;
-    timeoutInSeconds?: number;
+    redirect_uri?: string;
+    resource?: string | string[];
     extraTokenParams?: Record<string, unknown>;
+    timeoutInSeconds?: number;
+
+    state: RefreshState;
 }
 
 /**
@@ -185,6 +188,8 @@ export class OidcClient {
 
     public async useRefreshToken({
         state,
+        redirect_uri,
+        resource,
         timeoutInSeconds,
         extraTokenParams,
     }: UseRefreshTokenArgs): Promise<SigninResponse> {
@@ -205,9 +210,10 @@ export class OidcClient {
 
         const result = await this._tokenClient.exchangeRefreshToken({
             refresh_token: state.refresh_token,
-            resource: state.resource,
             // provide the (possible filtered) scope list
             scope,
+            redirect_uri,
+            resource,
             timeoutInSeconds,
             ...extraTokenParams,
         });
@@ -216,7 +222,7 @@ export class OidcClient {
         logger.debug("validating response", response);
         await this._validator.validateRefreshResponse(response, {
             ...state,
-            // overide the scope in the state handed over to the validator
+            // override the scope in the state handed over to the validator
             // so it can set the granted scope to the requested scope in case none is included in the response
             scope,
         });
