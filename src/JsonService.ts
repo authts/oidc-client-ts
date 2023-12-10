@@ -148,7 +148,7 @@ export class JsonService {
 
         if (dpop) {
             DPoPProof = await this._dpopService.generateDPoPProof(url, basicAuth, "POST");
-            headers["DPoPProof"] = DPoPProof;
+            headers["DPoP"] = DPoPProof;
         }
 
         if (basicAuth !== undefined) {
