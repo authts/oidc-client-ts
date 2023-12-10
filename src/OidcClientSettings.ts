@@ -226,6 +226,7 @@ export class OidcClientSettingsStore {
         extraQueryParams = {},
         extraTokenParams = {},
         extraHeaders = {},
+        dpop = false,
     }: OidcClientSettings) {
 
         this.authority = authority;
@@ -253,6 +254,7 @@ export class OidcClientSettingsStore {
         this.redirect_uri = redirect_uri;
         this.post_logout_redirect_uri = post_logout_redirect_uri;
         this.client_authentication = client_authentication;
+        this.dpop = dpop;
 
         this.prompt = prompt;
         this.display = display;
