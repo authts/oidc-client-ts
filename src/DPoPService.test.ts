@@ -1,11 +1,13 @@
 import { DPoPService } from "./DPoPService";
 import { jwtVerify, decodeProtectedHeader, importJWK, type JWK } from "jose";
+import { del } from "idb-keyval";
 
 describe("DPoPService", () => {
     let subject: DPoPService;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         subject = new DPoPService();
+        await del("oidc.dpop");
     });
 
     describe("generateDPoPProof", () => {
@@ -31,6 +33,11 @@ describe("DPoPService", () => {
             expect(verifiedResult.payload).toHaveProperty("htm");
             expect(verifiedResult.payload).toHaveProperty("ath");
             expect(verifiedResult.payload["htu"]).toEqual("http://example.com");
+        });
+
+        it("should throw an exception if an access token is provided but no keys are found in the store", async () => {
+            await expect(subject.generateDPoPProof("http://example.com", "some_access_token"))
+                .rejects.toThrowError("Could not retrieve dpop keys from storage");
         });
     });
 });

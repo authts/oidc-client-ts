@@ -57,7 +57,7 @@ describe("JsonService", () => {
             expect(fetch).toBeCalledWith(
                 "http://test",
                 expect.objectContaining({
-                    headers: { 
+                    headers: {
                         Accept: "application/json",
                         "Custom-Header-1": "this-is-header-1",
                         "Custom-Header-2": "this-is-header-2",
@@ -75,7 +75,7 @@ describe("JsonService", () => {
             expect(fetch).toBeCalledWith(
                 "http://test",
                 expect.objectContaining({
-                    headers: { 
+                    headers: {
                         Accept: "application/json",
                         "Custom-Header-1": "my-name-is-header-1",
                         "Custom-Header-2": "my-name-is-header-2",
@@ -107,7 +107,7 @@ describe("JsonService", () => {
             expect(fetch).toBeCalledWith(
                 "http://test",
                 expect.objectContaining({
-                    headers: { 
+                    headers: {
                         Accept: "application/json",
                         Authorization: "Bearer token",
                         "Custom-Header-1": "this-is-header-1",
@@ -126,8 +126,8 @@ describe("JsonService", () => {
             expect(fetch).toBeCalledWith(
                 "http://test",
                 expect.objectContaining({
-                    headers: { 
-                        Accept: "application/json", 
+                    headers: {
+                        Accept: "application/json",
                         Authorization: "Bearer token",
                         "Custom-Header-1": "my-name-is-header-1",
                         "Custom-Header-2": "my-name-is-header-2",
@@ -332,6 +332,28 @@ describe("JsonService", () => {
                         Accept: "application/json",
                         Authorization: "Basic basicAuth",
                         "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    method: "POST",
+                    body: new URLSearchParams(),
+                }),
+            );
+        });
+
+        it("should set dpop proof as header if dpop is true", async () => {
+            // act
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), dpop: true })).rejects.toThrow();
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), basicAuth: "basicAuth", dpop: true })).rejects.toThrow();
+
+            // assert
+            expect(fetch).toBeCalledTimes(2);
+            expect(fetch).toHaveBeenLastCalledWith(
+                "http://test",
+                expect.objectContaining({
+                    headers: {
+                        Accept: "application/json",
+                        Authorization: "Basic basicAuth",
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        DPoP: expect.any(String),
                     },
                     method: "POST",
                     body: new URLSearchParams(),
