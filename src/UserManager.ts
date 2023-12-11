@@ -15,6 +15,7 @@ import type { SignoutResponse } from "./SignoutResponse";
 import type { MetadataService } from "./MetadataService";
 import { RefreshState } from "./RefreshState";
 import type { SigninResponse } from "./SigninResponse";
+import { del } from "idb-keyval";
 
 /**
  * @public
@@ -146,6 +147,10 @@ export class UserManager {
         const logger = this._logger.create("removeUser");
         await this.storeUser(null);
         logger.info("user removed from storage");
+        if (this.settings.dpop) {
+            await del("oidc.dpop");
+            logger.debug("removed dpop cyptokeys from storage");
+        }
         this._events.unload();
     }
 
