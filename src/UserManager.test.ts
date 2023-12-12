@@ -12,6 +12,7 @@ import type { UserProfile } from "./User";
 import { WebStorageStateStore } from "./WebStorageStateStore";
 import type { SigninState } from "./SigninState";
 import type { State } from "./State";
+import * as idb from "idb-keyval";
 
 import { mocked } from "jest-mock";
 
@@ -147,6 +148,25 @@ describe("UserManager", () => {
             // assert
             expect(storeUserMock).toBeCalledWith(null);
             expect(unloadMock).toBeCalled();
+        });
+    });
+
+    describe("removeUser", () => {
+        it("should remove user from store and remove dpop keys from indexedDB if dpop setting is true", async () => {
+            // arrange
+            Object.assign(subject.settings, {
+                dpop: true,
+            });
+            const storeUserMock = jest.spyOn(subject, "storeUser");
+            const unloadMock = jest.spyOn(subject["_events"], "unload");
+            const delMock = jest.spyOn(idb, "del");
+            // act
+            await subject.removeUser();
+
+            // assert
+            expect(storeUserMock).toBeCalledWith(null);
+            expect(unloadMock).toBeCalled();
+            expect(delMock).toBeCalled();
         });
     });
 
