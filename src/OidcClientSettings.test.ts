@@ -250,7 +250,7 @@ describe("OidcClientSettings", () => {
             });
 
             // assert
-            expect(subject.dpop).toEqual(true);
+            expect(subject.dpopEnabled).toEqual(true);
         });
     });
 

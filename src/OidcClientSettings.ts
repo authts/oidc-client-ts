@@ -168,7 +168,7 @@ export class OidcClientSettingsStore {
     public readonly redirect_uri: string;
     public readonly post_logout_redirect_uri: string | undefined;
     public readonly client_authentication: "client_secret_basic" | "client_secret_post";
-    public readonly dpop: boolean | undefined;
+    public readonly dpopEnabled: boolean | undefined;
 
     // optional protocol params
     public readonly prompt: string | undefined;
@@ -254,7 +254,7 @@ export class OidcClientSettingsStore {
         this.redirect_uri = redirect_uri;
         this.post_logout_redirect_uri = post_logout_redirect_uri;
         this.client_authentication = client_authentication;
-        this.dpop = dpop;
+        this.dpopEnabled = dpop;
 
         this.prompt = prompt;
         this.display = display;

@@ -402,7 +402,7 @@ export class OidcClientSettingsStore {
     // (undocumented)
     readonly display: string | undefined;
     // (undocumented)
-    readonly dpop: boolean | undefined;
+    readonly dpopEnabled: boolean | undefined;
     // (undocumented)
     readonly extraHeaders: Record<string, ExtraHeader>;
     // (undocumented)
