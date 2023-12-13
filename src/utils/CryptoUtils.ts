@@ -38,6 +38,10 @@ export class CryptoUtils {
      * PKCE: Generate a code challenge
      */
     public static async generateCodeChallenge(code_verifier: string): Promise<string> {
+        if (!crypto.subtle) {
+            throw new Error("Crypto.subtle is available only in secure contexts (HTTPS).");
+        }
+
         try {
             const encoder = new TextEncoder();
             const data = encoder.encode(code_verifier);
