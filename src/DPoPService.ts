@@ -2,7 +2,12 @@ import { base64url, exportJWK, SignJWT } from "jose";
 import { get, set } from "idb-keyval";
 
 export class DPoPService {
-    public async generateDPoPProof(url: string, accessToken?: string, httpMethod?: string) : Promise<string> {
+    public async generateDPoPProof(
+        url: string,
+        accessToken?: string,
+        httpMethod?: string,
+        nonce?: string,
+    ) : Promise<string> {
         let keyPair: CryptoKeyPair;
         let digestHex;
         let hash: string;
@@ -12,6 +17,10 @@ export class DPoPService {
             "htm": httpMethod ?? "GET",
             "htu": url,
         };
+
+        if (nonce) {
+            payload.nonce = nonce;
+        }
 
         try {
             if (accessToken) {
@@ -33,7 +42,7 @@ export class DPoPService {
 
         } catch (err) {
             if (err instanceof TypeError) {
-                throw new Error("Could not retrieve dpop keys from storage");
+                throw new Error(`Could not retrieve dpop keys from storage: ${err.message}`);
             } else {
                 throw err;
             }

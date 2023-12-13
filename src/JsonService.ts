@@ -27,7 +27,7 @@ export interface PostFormOpts {
     basicAuth?: string;
     timeoutInSeconds?: number;
     initCredentials?: "same-origin" | "include" | "omit";
-    dpop?: boolean;
+    dpopEnabled?: boolean;
 }
 
 /**
@@ -38,7 +38,7 @@ export class JsonService {
 
     private _contentTypes: string[] = [];
 
-    private _dpopService: DPoPService;
+    public dpopService: DPoPService;
 
     public constructor(
         additionalContentTypes: string[] = [],
@@ -49,7 +49,7 @@ export class JsonService {
         if (_jwtHandler) {
             this._contentTypes.push("application/jwt");
         }
-        this._dpopService = new DPoPService();
+        this.dpopService = new DPoPService();
     }
 
     protected async fetchWithTimeout(input: RequestInfo, init: RequestInit & { timeoutInSeconds?: number } = {}) {
@@ -136,7 +136,7 @@ export class JsonService {
         basicAuth,
         timeoutInSeconds,
         initCredentials,
-        dpop,
+        dpopEnabled,
     }: PostFormOpts): Promise<Record<string, unknown>> {
         const logger = this._logger.create("postForm");
         let DPoPProof;
@@ -146,8 +146,8 @@ export class JsonService {
             "Content-Type": "application/x-www-form-urlencoded",
         };
 
-        if (dpop) {
-            DPoPProof = await this._dpopService.generateDPoPProof(url, basicAuth, "POST");
+        if (dpopEnabled) {
+            DPoPProof = await this.dpopService.generateDPoPProof(url, basicAuth, "POST");
             headers["DPoP"] = DPoPProof;
         }
 
@@ -173,7 +173,7 @@ export class JsonService {
             throw new Error(`Invalid response Content-Type: ${(contentType ?? "undefined")}, from URL: ${url}`);
         }
 
-        const responseText = await response.text();
+        let responseText = await response.text();
 
         let json: Record<string, unknown> = {};
         if (responseText) {
@@ -190,6 +190,15 @@ export class JsonService {
         if (!response.ok) {
             logger.error("Error from server:", json);
             if (json.error) {
+                if (json.error === "use_dpop_nonce" && dpopEnabled && response.headers.get("Dpop-Nonce")) {
+                    const nonce = response.headers.get("Dpop-Nonce") as string;
+                    DPoPProof = await this.dpopService.generateDPoPProof(url, undefined,"POST", nonce);
+                    headers["DPoP"] = DPoPProof;
+                    response = await this.fetchWithTimeout(url, { method: "POST", headers, body, timeoutInSeconds });
+                    responseText = await response.text();
+                    json = JSON.parse(responseText);
+                    return json;
+                }
                 throw new ErrorResponse(json, body);
             }
             throw new Error(`${response.statusText} (${response.status}): ${JSON.stringify(json)}`);

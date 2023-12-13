@@ -339,10 +339,10 @@ describe("JsonService", () => {
             );
         });
 
-        it("should set dpop proof as header if dpop is true", async () => {
+        it("should set dpop proof as header if dpop is enabled", async () => {
             // act
-            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), dpop: true })).rejects.toThrow();
-            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), basicAuth: "basicAuth", dpop: true })).rejects.toThrow();
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), dpopEnabled: true })).rejects.toThrow();
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), basicAuth: "basicAuth", dpopEnabled: true })).rejects.toThrow();
 
             // assert
             expect(fetch).toBeCalledTimes(2);
@@ -467,6 +467,40 @@ describe("JsonService", () => {
             await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy") }))
                 // assert
                 .rejects.toThrow(ErrorResponse);
+        });
+
+        it("should retry with server supplied nonce value from response header when http response is 400 and json error is 'use_dpop_nonce'", async () => {
+            // arrange
+            const json = { error: "use_dpop_nonce" };
+            const dpopServiceMock = jest.spyOn(subject.dpopService, "generateDPoPProof").mockImplementation(() => Promise.resolve("some-proof"));
+
+            const fetchMock = mocked(fetch)
+                .mockResolvedValueOnce({
+                    status: 400,
+                    ok: false,
+                    headers: new Headers({
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                        "DPoP-Nonce": "eyJ7S_zG.eyJH0-Z.JX4w-7v",
+                    }),
+                    text: () => Promise.resolve(JSON.stringify(json)),
+                } as Response).mockResolvedValueOnce({
+                    status: 200,
+                    ok: true,
+                    headers: new Headers({
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                    }),
+                    text: () => Promise.resolve(JSON.stringify({ foo: 1, bar: "test" })),
+                } as Response);
+
+            // act
+            await subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), dpopEnabled: true, basicAuth: "some-access-token" });
+
+            // assert
+            expect(fetchMock).toBeCalledTimes(2);
+            expect(dpopServiceMock).toBeCalledTimes(2);
+            expect(dpopServiceMock).toHaveBeenLastCalledWith("http://test", undefined, "POST", "eyJ7S_zG.eyJH0-Z.JX4w-7v");
         });
 
         it("should reject promise when http response is 400 and json has no error field", async () => {
