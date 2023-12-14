@@ -1,5 +1,5 @@
-import { base64url, exportJWK, SignJWT } from "jose";
-import { get, set } from "idb-keyval";
+import { base64url, exportJWK, SignJWT, calculateJwkThumbprint } from "jose";
+import { get, set, keys } from "idb-keyval";
 
 export class DPoPService {
     public async generateDPoPProof(
@@ -23,15 +23,21 @@ export class DPoPService {
         }
 
         try {
-            if (accessToken) {
+            const allKeys = await keys();
+
+            if (!allKeys.includes("oidc.dpop")) {
+                keyPair = await this.generateKeys();
+                await set("oidc.dpop", keyPair);
+            } else {
                 keyPair = await get("oidc.dpop") as CryptoKeyPair;
+            }
+
+            if (accessToken) {
                 digestHex = await this.digestMessage(accessToken);
                 hash = base64url.encode(digestHex);
                 payload.ath = hash;
-            } else {
-                keyPair = await this.generateKeys();
-                await set("oidc.dpop", keyPair);
             }
+
             const publicJwk = await exportJWK(keyPair.publicKey);
 
             return await new SignJWT(payload).setProtectedHeader({
@@ -40,6 +46,28 @@ export class DPoPService {
                 "jwk": publicJwk,
             }).setIssuedAt().sign(keyPair.privateKey);
 
+        } catch (err) {
+            if (err instanceof TypeError) {
+                throw new Error(`Could not retrieve dpop keys from storage: ${err.message}`);
+            } else {
+                throw err;
+            }
+        }
+    }
+
+    public async dpopJwt() : Promise<string> {
+        try {
+            const allKeys = await keys();
+            let keyPair;
+
+            if (!allKeys.includes("oidc.dpop")) {
+                keyPair = await this.generateKeys();
+                await set("oidc.dpop", keyPair);
+            } else {
+                keyPair = await get("oidc.dpop") as CryptoKeyPair;
+            }
+            const publicJwk = await exportJWK(keyPair.publicKey);
+            return await calculateJwkThumbprint(publicJwk, "sha256");
         } catch (err) {
             if (err instanceof TypeError) {
                 throw new Error(`Could not retrieve dpop keys from storage: ${err.message}`);

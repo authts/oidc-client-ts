@@ -20,6 +20,7 @@ export interface SigninRequestArgs {
     // optional
     response_mode?: "query" | "fragment";
     nonce?: string;
+    dpopJkt?: string;
     display?: string;
     prompt?: string;
     max_age?: number;
@@ -57,7 +58,7 @@ export class SigninRequest {
         // mandatory
         url, authority, client_id, redirect_uri, response_type, scope,
         // optional
-        state_data, response_mode, request_type, client_secret, nonce,
+        state_data, response_mode, request_type, client_secret, nonce, dpopJkt,
         resource,
         skipUserInfo,
         extraQueryParams,
@@ -107,6 +108,9 @@ export class SigninRequest {
         parsedUrl.searchParams.append("scope", scope);
         if (nonce) {
             parsedUrl.searchParams.append("nonce", nonce);
+        }
+        if (dpopJkt) {
+            parsedUrl.searchParams.append("dpop_jkt", dpopJkt);
         }
 
         parsedUrl.searchParams.append("state", this.state.id);

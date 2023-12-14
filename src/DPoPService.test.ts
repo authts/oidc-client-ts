@@ -1,6 +1,7 @@
 import { DPoPService } from "./DPoPService";
 import { jwtVerify, decodeProtectedHeader, importJWK, type JWK } from "jose";
 import { del, set } from "idb-keyval";
+import * as idb from "idb-keyval";
 
 describe("DPoPService", () => {
     let subject: DPoPService;
@@ -49,15 +50,23 @@ describe("DPoPService", () => {
         });
 
         it("should throw an exception if the stored proof keys are not a CryptoKeyPair object", async () => {
-            await subject.generateDPoPProof("http://example.com");
             await set("oidc.dpop", "some string");
             await expect(subject.generateDPoPProof("http://example.com", "some_access_token"))
                 .rejects.toThrowError("Could not retrieve dpop keys from storage: Key must be one of type KeyObject, CryptoKey, or Uint8Array. Received undefined");
         });
+    });
 
-        it("should throw an exception if an access token is provided but no keys are found in the store", async () => {
-            await expect(subject.generateDPoPProof("http://example.com", "some_access_token"))
-                .rejects.toThrowError("Could not retrieve dpop keys from storage: Cannot read properties of undefined (reading 'publicKey')");
+    describe("dpopJkt", () => {
+        it("should throw an exception if the stored proof keys are not a CryptoKeyPair object", async () => {
+            await set("oidc.dpop", "some string");
+            await expect(subject.dpopJwt()).rejects.toThrowError(
+                "Could not retrieve dpop keys from storage: Key must be one of type KeyObject, CryptoKey, or Uint8Array. Received undefined");
+        });
+
+        it("should generate crypto keys when generating a dpop thumbprint if no keys exists in the store", async () => {
+            const setMock = jest.spyOn(idb, "set");
+            await subject.dpopJwt();
+            expect(setMock).toHaveBeenCalled();
         });
     });
 });

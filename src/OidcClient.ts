@@ -15,6 +15,7 @@ import { SigninState } from "./SigninState";
 import { State } from "./State";
 import { TokenClient } from "./TokenClient";
 import { ClaimsService } from "./ClaimsService";
+import { DPoPService } from "./DPoPService";
 
 /**
  * @public
@@ -71,9 +72,10 @@ export class OidcClient {
     protected readonly _claimsService: ClaimsService;
     protected readonly _validator: ResponseValidator;
     protected readonly _tokenClient: TokenClient;
+    protected readonly _dpopService: DPoPService;
 
     public constructor(settings: OidcClientSettings);
-    public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService); 
+    public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService);
     public constructor(settings: OidcClientSettings | OidcClientSettingsStore, metadataService?: MetadataService) {
         this.settings = settings instanceof OidcClientSettingsStore ? settings : new OidcClientSettingsStore(settings);
 
@@ -81,6 +83,7 @@ export class OidcClient {
         this._claimsService = new ClaimsService(this.settings);
         this._validator = new ResponseValidator(this.settings, this.metadataService, this._claimsService);
         this._tokenClient = new TokenClient(this.settings, this.metadataService);
+        this._dpopService = new DPoPService();
     }
 
     public async createSigninRequest({
@@ -114,6 +117,11 @@ export class OidcClient {
         const url = await this.metadataService.getAuthorizationEndpoint();
         logger.debug("Received authorization endpoint", url);
 
+        let dpopJkt;
+        if (this.settings.dpopEnabled) {
+            dpopJkt = await this._dpopService.dpopJwt();
+        }
+
         const signinRequest = new SigninRequest({
             url,
             authority: this.settings.authority,
@@ -127,6 +135,7 @@ export class OidcClient {
             client_secret: this.settings.client_secret,
             skipUserInfo,
             nonce,
+            dpopJkt,
             disablePKCE: this.settings.disablePKCE,
         });
 
