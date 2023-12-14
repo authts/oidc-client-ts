@@ -117,10 +117,7 @@ export class OidcClient {
         const url = await this.metadataService.getAuthorizationEndpoint();
         logger.debug("Received authorization endpoint", url);
 
-        let dpopJkt;
-        if (this.settings.dpopEnabled) {
-            dpopJkt = await this._dpopService.dpopJwt();
-        }
+        const dpopJkt = this.settings.dpopEnabled ? await this._dpopService.generateDPoPJkt() : undefined;
 
         const signinRequest = new SigninRequest({
             url,

@@ -8,9 +8,8 @@ export class DPoPService {
         httpMethod?: string,
         nonce?: string,
     ) : Promise<string> {
-        let keyPair: CryptoKeyPair;
-        let digestHex;
-        let hash: string;
+        let hashedToken: Uint8Array;
+        let encodedHash: string;
 
         const payload: Record<string, string> = {
             "jti": window.crypto.randomUUID(),
@@ -22,50 +21,33 @@ export class DPoPService {
             payload.nonce = nonce;
         }
 
+        const keyPair = await this.loadKeyPair();
+
+        if (accessToken) {
+            hashedToken = await this.hash("SHA-256", accessToken);
+            encodedHash = base64url.encode(hashedToken);
+            payload.ath = encodedHash;
+        }
+
         try {
-            const allKeys = await keys();
-
-            if (!allKeys.includes("oidc.dpop")) {
-                keyPair = await this.generateKeys();
-                await set("oidc.dpop", keyPair);
-            } else {
-                keyPair = await get("oidc.dpop") as CryptoKeyPair;
-            }
-
-            if (accessToken) {
-                digestHex = await this.digestMessage(accessToken);
-                hash = base64url.encode(digestHex);
-                payload.ath = hash;
-            }
-
             const publicJwk = await exportJWK(keyPair.publicKey);
-
             return await new SignJWT(payload).setProtectedHeader({
                 "alg": "ES256",
                 "typ": "dpop+jwt",
                 "jwk": publicJwk,
             }).setIssuedAt().sign(keyPair.privateKey);
-
         } catch (err) {
             if (err instanceof TypeError) {
-                throw new Error(`Could not retrieve dpop keys from storage: ${err.message}`);
+                throw new Error(`Error exporting dpop public key: ${err.message}`);
             } else {
                 throw err;
             }
         }
     }
 
-    public async dpopJwt() : Promise<string> {
+    public async generateDPoPJkt() : Promise<string> {
         try {
-            const allKeys = await keys();
-            let keyPair;
-
-            if (!allKeys.includes("oidc.dpop")) {
-                keyPair = await this.generateKeys();
-                await set("oidc.dpop", keyPair);
-            } else {
-                keyPair = await get("oidc.dpop") as CryptoKeyPair;
-            }
+            const keyPair = await this.loadKeyPair();
             const publicJwk = await exportJWK(keyPair.publicKey);
             return await calculateJwkThumbprint(publicJwk, "sha256");
         } catch (err) {
@@ -77,10 +59,30 @@ export class DPoPService {
         }
     }
 
-    protected async digestMessage(message: string) : Promise<Uint8Array> {
+    protected async hash(alg: string, message: string) : Promise<Uint8Array> {
         const msgUint8 = new TextEncoder().encode(message);
-        const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8);
+        const hashBuffer = await crypto.subtle.digest(alg, msgUint8);
         return new Uint8Array(hashBuffer);
+    }
+
+    protected async loadKeyPair() : Promise<CryptoKeyPair> {
+        try {
+            const allKeys = await keys();
+            let keyPair: CryptoKeyPair;
+            if (!allKeys.includes("oidc.dpop")) {
+                keyPair = await this.generateKeys();
+                await set("oidc.dpop", keyPair);
+            } else {
+                keyPair = await get("oidc.dpop") as CryptoKeyPair;
+            }
+            return keyPair;
+        } catch (err) {
+            if (err instanceof TypeError) {
+                throw new Error(`Could not retrieve dpop keys from storage: ${err.message}`);
+            } else {
+                throw err;
+            }
+        }
     }
 
     protected async generateKeys() : Promise<CryptoKeyPair> {
