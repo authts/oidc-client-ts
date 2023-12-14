@@ -246,7 +246,7 @@ describe("OidcClientSettings", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 authority: "http://sts",
-                dpop: true,
+                dpopEnabled: true,
             });
 
             // assert
