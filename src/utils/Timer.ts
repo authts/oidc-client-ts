@@ -57,7 +57,7 @@ export class Timer extends Event<[void]> {
 
         if (this._expiration <= Timer.getEpochTime()) {
             this.cancel();
-            super.raise();
+            void super.raise();
         }
     };
 }

@@ -1022,17 +1022,17 @@ export class UserManagerEvents extends AccessTokenEvents {
     addUserSignedOut(cb: UserSignedOutCallback): () => void;
     addUserUnloaded(cb: UserUnloadedCallback): () => void;
     // (undocumented)
-    load(user: User, raiseEvent?: boolean): void;
+    load(user: User, raiseEvent?: boolean): Promise<void>;
     // (undocumented)
     protected readonly _logger: Logger;
     // @internal (undocumented)
-    _raiseSilentRenewError(e: Error): void;
+    _raiseSilentRenewError(e: Error): Promise<void>;
     // @internal (undocumented)
-    _raiseUserSessionChanged(): void;
+    _raiseUserSessionChanged(): Promise<void>;
     // @internal (undocumented)
-    _raiseUserSignedIn(): void;
+    _raiseUserSignedIn(): Promise<void>;
     // @internal (undocumented)
-    _raiseUserSignedOut(): void;
+    _raiseUserSignedOut(): Promise<void>;
     removeSilentRenewError(cb: SilentRenewErrorCallback): void;
     removeUserLoaded(cb: UserLoadedCallback): void;
     removeUserSessionChanged(cb: UserSessionChangedCallback): void;
@@ -1040,7 +1040,7 @@ export class UserManagerEvents extends AccessTokenEvents {
     removeUserSignedOut(cb: UserSignedOutCallback): void;
     removeUserUnloaded(cb: UserUnloadedCallback): void;
     // (undocumented)
-    unload(): void;
+    unload(): Promise<void>;
 }
 
 // @public

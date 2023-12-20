@@ -148,7 +148,7 @@ export class SessionMonitor {
                     this._checkSessionIFrame.start(session.session_state);
 
                     logger.debug("same sub still logged in at OP, session state has changed, restarting check session iframe; session_state", session.session_state);
-                    this._userManager.events._raiseUserSessionChanged();
+                    await this._userManager.events._raiseUserSessionChanged();
                 }
                 else {
                     logger.debug("different subject signed into OP", session.sub);
@@ -160,10 +160,10 @@ export class SessionMonitor {
 
             if (raiseEvent) {
                 if (this._sub) {
-                    this._userManager.events._raiseUserSignedOut();
+                    await this._userManager.events._raiseUserSignedOut();
                 }
                 else {
-                    this._userManager.events._raiseUserSignedIn();
+                    await this._userManager.events._raiseUserSignedIn();
                 }
             } else {
                 logger.debug("no change in session detected, no event to raise");
@@ -172,7 +172,7 @@ export class SessionMonitor {
         catch (err) {
             if (this._sub) {
                 logger.debug("Error calling queryCurrentSigninSession; raising signed out event", err);
-                this._userManager.events._raiseUserSignedOut();
+                await this._userManager.events._raiseUserSignedOut();
             }
         }
     };
