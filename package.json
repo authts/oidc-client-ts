@@ -4,7 +4,7 @@
   "description": "OpenID Connect (OIDC) & OAuth2 client library",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com:authts/oidc-client-ts.git"
+    "url": "git+https://github.com/authts/oidc-client-ts.git"
   },
   "homepage": "https://github.com/authts/oidc-client-ts#readme",
   "license": "Apache-2.0",
