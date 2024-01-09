@@ -137,7 +137,7 @@ export class UserManager {
         const user = await this._loadUser();
         if (user) {
             logger.info("user loaded");
-            this._events.load(user, false);
+            await this._events.load(user, false);
             return user;
         }
 
@@ -154,7 +154,7 @@ export class UserManager {
         const logger = this._logger.create("removeUser");
         await this.storeUser(null);
         logger.info("user removed from storage");
-        this._events.unload();
+        await this._events.unload();
     }
 
     /**
@@ -337,7 +337,7 @@ export class UserManager {
         const user = new User({ ...args.state, ...response });
 
         await this.storeUser(user);
-        this._events.load(user);
+        await this._events.load(user);
         return user;
     }
 
@@ -516,7 +516,7 @@ export class UserManager {
 
         await this.storeUser(user);
         logger.debug("user stored");
-        this._events.load(user);
+        await this._events.load(user);
 
         return user;
     }
@@ -718,7 +718,7 @@ export class UserManager {
 
         await this.storeUser(user);
         logger.debug("user stored");
-        this._events.load(user);
+        await this._events.load(user);
     }
 
     /**

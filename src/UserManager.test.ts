@@ -93,14 +93,14 @@ describe("UserManager", () => {
     });
 
     describe("getUser", () => {
-        it("should be able to call getUser without recursion", () => {
+        it("should be able to call getUser without recursion", async () => {
             // arrange
             subject.events.addUserLoaded(async () => {
                 await subject.getUser();
             });
 
             // act
-            subject.events.load({} as User);
+            await subject.events.load({} as User);
         });
 
         it("should return user if there is a user stored", async () => {
@@ -314,7 +314,7 @@ describe("UserManager", () => {
                 scope: "openid profile email",
             };
             jest.spyOn(subject["_client"], "processResourceOwnerPasswordCredentials").mockResolvedValue(mockUser as SigninResponse);
-            jest.spyOn(subject["_events"], "load").mockReturnValue();
+            jest.spyOn(subject["_events"], "load").mockImplementation(() => Promise.resolve());
 
             // act
             const user:User = await subject.signinResourceOwnerCredentials({ username: "u", password: "p" });

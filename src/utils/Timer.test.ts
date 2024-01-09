@@ -180,7 +180,7 @@ describe("Timer", () => {
 
     describe("addHandler", () => {
 
-        it("should allow callback to be invoked", () => {
+        it("should allow callback to be invoked", async () => {
             // arrange
             const cb = jest.fn();
 
@@ -188,13 +188,13 @@ describe("Timer", () => {
             subject.addHandler(cb);
             subject.init(10);
             now += 10;
-            jest.runOnlyPendingTimers();
+            await jest.runOnlyPendingTimersAsync();
 
             // assert
             expect(cb).toBeCalled();
         });
 
-        it("should allow multiple callbacks", () => {
+        it("should allow multiple callbacks", async () => {
             // arrange
             const cb = jest.fn();
 
@@ -205,7 +205,7 @@ describe("Timer", () => {
             subject.addHandler(cb);
             subject.init(10);
             now += 10;
-            jest.runOnlyPendingTimers();
+            await jest.runOnlyPendingTimersAsync();
 
             // assert
             expect(cb).toBeCalledTimes(4);

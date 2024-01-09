@@ -48,15 +48,15 @@ export class UserManagerEvents extends AccessTokenEvents {
         super({ expiringNotificationTimeInSeconds: settings.accessTokenExpiringNotificationTimeInSeconds });
     }
 
-    public load(user: User, raiseEvent=true): void {
+    public async load(user: User, raiseEvent=true): Promise<void> {
         super.load(user);
         if (raiseEvent) {
-            this._userLoaded.raise(user);
+            await this._userLoaded.raise(user);
         }
     }
-    public unload(): void {
+    public async unload(): Promise<void> {
         super.unload();
-        this._userUnloaded.raise();
+        await this._userUnloaded.raise();
     }
 
     /**
@@ -100,8 +100,8 @@ export class UserManagerEvents extends AccessTokenEvents {
     /**
      * @internal
      */
-    public _raiseSilentRenewError(e: Error): void {
-        this._silentRenewError.raise(e);
+    public async _raiseSilentRenewError(e: Error): Promise<void> {
+        await this._silentRenewError.raise(e);
     }
 
     /**
@@ -120,8 +120,8 @@ export class UserManagerEvents extends AccessTokenEvents {
     /**
      * @internal
      */
-    public _raiseUserSignedIn(): void {
-        this._userSignedIn.raise();
+    public async _raiseUserSignedIn(): Promise<void> {
+        await this._userSignedIn.raise();
     }
 
     /**
@@ -140,8 +140,8 @@ export class UserManagerEvents extends AccessTokenEvents {
     /**
      * @internal
      */
-    public _raiseUserSignedOut(): void {
-        this._userSignedOut.raise();
+    public async _raiseUserSignedOut(): Promise<void> {
+        await this._userSignedOut.raise();
     }
 
     /**
@@ -160,7 +160,7 @@ export class UserManagerEvents extends AccessTokenEvents {
     /**
      * @internal
      */
-    public _raiseUserSessionChanged(): void {
-        this._userSessionChanged.raise();
+    public async _raiseUserSessionChanged(): Promise<void> {
+        await this._userSessionChanged.raise();
     }
 }

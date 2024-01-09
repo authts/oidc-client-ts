@@ -30,10 +30,10 @@ export class Event<EventType extends unknown[]> {
         }
     }
 
-    public raise(...ev: EventType): void {
+    public async raise(...ev: EventType): Promise<void> {
         this._logger.debug("raise:", ...ev);
         for (const cb of this._callbacks) {
-            void cb(...ev);
+            await cb(...ev);
         }
     }
 }
