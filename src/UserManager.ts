@@ -620,9 +620,6 @@ export class UserManager {
                 args.id_token_hint = id_token;
             }
 
-            await this.removeUser();
-            logger.debug("user removed, creating signout request");
-
             const signoutRequest = await this._client.createSignoutRequest(args);
             logger.debug("got signout request");
 
@@ -638,10 +635,14 @@ export class UserManager {
             throw err;
         }
     }
+
     protected async _signoutEnd(url: string): Promise<SignoutResponse> {
         const logger = this._logger.create("_signoutEnd");
         const signoutResponse = await this._client.processSignoutResponse(url);
         logger.debug("got signout response");
+
+        await this.removeUser();
+        logger.debug("user removed");
 
         return signoutResponse;
     }
