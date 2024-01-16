@@ -2,7 +2,7 @@ import { base64url, exportJWK, SignJWT, calculateJwkThumbprint } from "jose";
 import { get, set, keys } from "idb-keyval";
 
 export class DPoPService {
-    public async generateDPoPProof(
+    public static async generateDPoPProof(
         url: string,
         accessToken?: string,
         httpMethod?: string,
@@ -45,7 +45,7 @@ export class DPoPService {
         }
     }
 
-    public async generateDPoPJkt() : Promise<string> {
+    public static async generateDPoPJkt() : Promise<string> {
         try {
             const keyPair = await this.loadKeyPair();
             const publicJwk = await exportJWK(keyPair.publicKey);
@@ -59,13 +59,13 @@ export class DPoPService {
         }
     }
 
-    protected async hash(alg: string, message: string) : Promise<Uint8Array> {
+    protected static async hash(alg: string, message: string) : Promise<Uint8Array> {
         const msgUint8 = new TextEncoder().encode(message);
         const hashBuffer = await crypto.subtle.digest(alg, msgUint8);
         return new Uint8Array(hashBuffer);
     }
 
-    protected async loadKeyPair() : Promise<CryptoKeyPair> {
+    protected static async loadKeyPair() : Promise<CryptoKeyPair> {
         try {
             const allKeys = await keys();
             let keyPair: CryptoKeyPair;
@@ -85,7 +85,7 @@ export class DPoPService {
         }
     }
 
-    protected async generateKeys() : Promise<CryptoKeyPair> {
+    protected static async generateKeys() : Promise<CryptoKeyPair> {
         return await window.crypto.subtle.generateKey(
             {
                 name: "ECDSA",

@@ -5,6 +5,7 @@ import { ErrorResponse } from "./errors";
 import { JsonService } from "./JsonService";
 
 import { mocked } from "jest-mock";
+import { DPoPService } from "./DPoPService";
 
 describe("JsonService", () => {
     let subject: JsonService;
@@ -472,7 +473,7 @@ describe("JsonService", () => {
         it("should retry with server supplied nonce value from response header when http response is 400 and json error is 'use_dpop_nonce'", async () => {
             // arrange
             const json = { error: "use_dpop_nonce" };
-            const dpopServiceMock = jest.spyOn(subject.dpopService, "generateDPoPProof").mockImplementation(() => Promise.resolve("some-proof"));
+            const dpopServiceMock = jest.spyOn(DPoPService, "generateDPoPProof").mockImplementation(() => Promise.resolve("some-proof"));
 
             const fetchMock = mocked(fetch)
                 .mockResolvedValueOnce({

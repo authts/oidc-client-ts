@@ -38,8 +38,6 @@ export class JsonService {
 
     private _contentTypes: string[] = [];
 
-    public dpopService: DPoPService;
-
     public constructor(
         additionalContentTypes: string[] = [],
         private _jwtHandler: JwtHandler | null = null,
@@ -49,7 +47,6 @@ export class JsonService {
         if (_jwtHandler) {
             this._contentTypes.push("application/jwt");
         }
-        this.dpopService = new DPoPService();
     }
 
     protected async fetchWithTimeout(input: RequestInfo, init: RequestInit & { timeoutInSeconds?: number } = {}) {
@@ -147,7 +144,7 @@ export class JsonService {
         };
 
         if (dpopEnabled) {
-            DPoPProof = await this.dpopService.generateDPoPProof(url, basicAuth, "POST");
+            DPoPProof = await DPoPService.generateDPoPProof(url, basicAuth, "POST");
             headers["DPoP"] = DPoPProof;
         }
 
@@ -192,7 +189,7 @@ export class JsonService {
             if (json.error) {
                 if (json.error === "use_dpop_nonce" && dpopEnabled && response.headers.get("Dpop-Nonce")) {
                     const nonce = response.headers.get("Dpop-Nonce") as string;
-                    DPoPProof = await this.dpopService.generateDPoPProof(url, undefined,"POST", nonce);
+                    DPoPProof = await DPoPService.generateDPoPProof(url, undefined,"POST", nonce);
                     headers["DPoP"] = DPoPProof;
                     response = await this.fetchWithTimeout(url, { method: "POST", headers, body, timeoutInSeconds });
                     responseText = await response.text();
