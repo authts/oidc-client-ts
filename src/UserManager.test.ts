@@ -154,8 +154,8 @@ describe("UserManager", () => {
     describe("removeUser", () => {
         it("should remove user from store and remove dpop keys from indexedDB if dpop setting is true", async () => {
             // arrange
-            Object.assign(subject.settings, {
-                dpopEnabled: true,
+            Object.assign(subject.settings.dpopSettings, {
+                enabled: true,
             });
             const storeUserMock = jest.spyOn(subject, "storeUser");
             const unloadMock = jest.spyOn(subject["_events"], "unload");

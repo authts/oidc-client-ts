@@ -246,11 +246,11 @@ describe("OidcClientSettings", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 authority: "http://sts",
-                dpopEnabled: true,
+                dpopSettings: { enabled: true, bind_authorization_code: false },
             });
 
             // assert
-            expect(subject.dpopEnabled).toEqual(true);
+            expect(subject.dpopSettings.enabled).toEqual(true);
         });
     });
 

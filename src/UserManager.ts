@@ -147,7 +147,7 @@ export class UserManager {
         const logger = this._logger.create("removeUser");
         await this.storeUser(null);
         logger.info("user removed from storage");
-        if (this.settings.dpopEnabled) {
+        if (this.settings.dpopSettings.enabled) {
             await del("oidc.dpop");
             logger.debug("removed dpop cyptokeys from storage");
         }

@@ -123,7 +123,7 @@ export class TokenClient {
         const url = await this._metadataService.getTokenEndpoint(false);
         logger.debug("got token endpoint");
 
-        const response = await this._jsonService.postForm(url, { body: params, basicAuth, initCredentials: this._settings.fetchRequestCredentials, dpopEnabled: this._settings.dpopEnabled });
+        const response = await this._jsonService.postForm(url, { body: params, basicAuth, initCredentials: this._settings.fetchRequestCredentials, dpopEnabled: this._settings.dpopSettings.enabled });
         logger.debug("got response");
 
         return response;
