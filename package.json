@@ -33,7 +33,7 @@
     "build-types": "tsc -p tsconfig.build.json && api-extractor run",
     "clean": "git clean -fdX dist lib *.tsbuildinfo",
     "prepack": "npm run build",
-    "test": "tsc && jest --verbose",
+    "test": "tsc && jest",
     "typedoc": "typedoc",
     "lint": "eslint --max-warnings=0 --cache .",
     "prepare": "husky install"

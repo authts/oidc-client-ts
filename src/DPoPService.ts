@@ -1,6 +1,10 @@
 import { base64url, exportJWK, SignJWT, calculateJwkThumbprint } from "jose";
 import { get, set, keys } from "idb-keyval";
 
+/**
+ * Provides an implementation of Demonstrating Proof of Posession as defined in the
+ * OAuth2 spec https://datatracker.ietf.org/doc/html/rfc9449.
+ */
 export class DPoPService {
     public static async generateDPoPProof(
         url: string,
