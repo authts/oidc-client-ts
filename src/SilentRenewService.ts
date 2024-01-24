@@ -59,7 +59,7 @@ export class SilentRenewService {
             }
 
             logger.error("Error from signinSilent:", err);
-            this._userManager.events._raiseSilentRenewError(err as Error);
+            await this._userManager.events._raiseSilentRenewError(err as Error);
         }
     };
 }

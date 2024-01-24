@@ -64,27 +64,27 @@ export class ClaimsService {
         return result;
     }
 
+    public mergeClaims(claims1: JwtClaims, claims2: JwtClaims): UserProfile;
     public mergeClaims(claims1: UserProfile, claims2: JwtClaims): UserProfile {
         const result = { ...claims1 };
-
         for (const [claim, values] of Object.entries(claims2)) {
-            for (const value of Array.isArray(values) ? values : [values]) {
-                const previousValue = result[claim];
-                if (!previousValue) {
-                    result[claim] = value;
-                }
-                else if (Array.isArray(previousValue)) {
-                    if (!previousValue.includes(value)) {
-                        previousValue.push(value);
+            if (result[claim] !== values) {
+                if (Array.isArray(result[claim]) || Array.isArray(values)) {
+                    if (this._settings.mergeClaimsStrategy.array == "replace") {
+                        result[claim] = values;
+                    } else {
+                        const mergedValues = Array.isArray(result[claim]) ? result[claim] as unknown[] : [result[claim]];
+                        for (const value of Array.isArray(values) ? values : [values]) {
+                            if (!mergedValues.includes(value)) {
+                                mergedValues.push(value);
+                            }
+                        }
+                        result[claim] = mergedValues;
                     }
-                }
-                else if (result[claim] !== value) {
-                    if (typeof value === "object" && this._settings.mergeClaims) {
-                        result[claim] = this.mergeClaims(previousValue as UserProfile, value);
-                    }
-                    else {
-                        result[claim] = [previousValue, value];
-                    }
+                } else if (typeof result[claim] === "object" && typeof values === "object") {
+                    result[claim] = this.mergeClaims(result[claim] as JwtClaims, values as JwtClaims);
+                } else {
+                    result[claim] = values;
                 }
             }
         }

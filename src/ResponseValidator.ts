@@ -51,7 +51,7 @@ export class ResponseValidator {
     public async validateCredentialsResponse(response: SigninResponse, skipUserInfo: boolean): Promise<void> {
         const logger = this._logger.create("validateCredentialsResponse");
 
-        if (response.isOpenId) {
+        if (response.isOpenId && !!response.id_token) {
             this._validateIdTokenAttributes(response);
         }
         logger.debug("tokens validated");
@@ -133,6 +133,7 @@ export class ResponseValidator {
         // this is important for both success & error outcomes
         logger.debug("state validated");
         response.userState = state.data;
+        response.url_state = state.url_state;
         // if there's no scope on the response, then assume all scopes granted (per-spec) and copy over scopes from original request
         response.scope ??= state.scope;
 

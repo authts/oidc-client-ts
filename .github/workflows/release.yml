@@ -12,16 +12,27 @@ jobs:
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 18.x
           cache: npm
           registry-url: https://registry.npmjs.org
 
-      - run: npm ci
-      - run: npm publish
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Publish package release
+        if: "!github.event.release.prerelease"
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - run: npm run typedoc
+      - name: Publish package pre-release
+        if: "github.event.release.prerelease"
+        run: npm publish --tag next
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Generate API documentation
+        run: npm run typedoc
 
       - name: Deploy pages
         uses: peaceiris/actions-gh-pages@v3

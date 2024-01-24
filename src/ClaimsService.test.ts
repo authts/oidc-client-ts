@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { ClaimsService } from "./ClaimsService";
-import type { OidcClientSettingsStore } from "./OidcClientSettings";
+import { OidcClientSettingsStore } from "./OidcClientSettings";
 import type { UserProfile } from "./User";
 
 describe("ClaimsService", () => {
@@ -10,11 +10,11 @@ describe("ClaimsService", () => {
     let subject: ClaimsService;
 
     beforeEach(() => {
-        settings = {
-            authority: "op",
-            client_id: "client",
-            loadUserInfo: true,
-        } as OidcClientSettingsStore;
+        settings = new OidcClientSettingsStore({
+            authority: "authority",
+            client_id: "client_id",
+            redirect_uri: "redirect_uri",
+        });
 
         subject = new ClaimsService(settings);
     });
@@ -218,33 +218,8 @@ describe("ClaimsService", () => {
             expect(result).toEqual({ a: "apple", c: "carrot", b: "banana" });
         });
 
-        it("should not merge claims when claim types are objects", () => {
+        it("should merge claims when claim types are objects", () => {
             // arrange
-            const c1 = {
-                custom: { apple: "foo", pear: "bar" },
-            } as unknown as UserProfile;
-            const c2 = {
-                custom: { apple: "foo", orange: "peel" },
-                b: "banana",
-            };
-
-            // act
-            const result = subject.mergeClaims(c1, c2);
-
-            // assert
-            expect(result).toEqual({
-                custom: [
-                    { apple: "foo", pear: "bar" },
-                    { apple: "foo", orange: "peel" },
-                ],
-                b: "banana",
-            });
-        });
-
-        it("should merge claims when claim types are objects when mergeClaims settings is true", () => {
-            // arrange
-            Object.assign(settings, { mergeClaims: true });
-
             const c1 = {
                 custom: { apple: "foo", pear: "bar" },
             } as unknown as UserProfile;
@@ -263,7 +238,7 @@ describe("ClaimsService", () => {
             });
         });
 
-        it("should merge same claim types into array", () => {
+        it("should replace same claim types", () => {
             // arrange
             const c1 = { a: "apple", b: "banana" } as unknown as UserProfile;
             const c2 = { a: "carrot" };
@@ -272,54 +247,7 @@ describe("ClaimsService", () => {
             const result = subject.mergeClaims(c1, c2);
 
             // assert
-            expect(result).toEqual({ a: ["apple", "carrot"], b: "banana" });
-        });
-
-        it("should merge arrays of same claim types into array", () => {
-            // arrange
-            const c1 = { a: "apple", b: "banana" } as unknown as UserProfile;
-            const c2 = { a: ["carrot", "durian"] };
-
-            // act
-            let result = subject.mergeClaims(c1, c2);
-
-            // assert
-            expect(result).toEqual({
-                a: ["apple", "carrot", "durian"],
-                b: "banana",
-            });
-
-            // arrange
-            const d1 = {
-                a: ["apple", "carrot"],
-                b: "banana",
-            } as unknown as UserProfile;
-            const d2 = { a: ["durian"] };
-
-            // act
-            result = subject.mergeClaims(d1, d2);
-
-            // assert
-            expect(result).toEqual({
-                a: ["apple", "carrot", "durian"],
-                b: "banana",
-            });
-
-            // arrange
-            const e1 = {
-                a: ["apple", "carrot"],
-                b: "banana",
-            } as unknown as UserProfile;
-            const e2 = { a: "durian" };
-
-            // act
-            result = subject.mergeClaims(e1, e2);
-
-            // assert
-            expect(result).toEqual({
-                a: ["apple", "carrot", "durian"],
-                b: "banana",
-            });
+            expect(result).toEqual({ a: "carrot", b: "banana" });
         });
 
         it("should remove duplicates when producing arrays", () => {
@@ -334,8 +262,67 @@ describe("ClaimsService", () => {
             expect(result).toEqual({ a: ["apple", "durian"], b: "banana" });
         });
 
-        it("should not add if already present in array", () => {
+        it("should merge arrays of same claim types into array (string vs. array) when mergeClaimsStrategy is 'merge'", () => {
             // arrange
+            Object.assign(settings, { mergeClaimsStrategy: "merge" });
+            const c1 = {
+                a: "apple",
+                b: "banana",
+            } as unknown as UserProfile;
+            const c2 = {
+                a: ["carrot", "durian"],
+            };
+
+            // act
+            const result = subject.mergeClaims(c1, c2);
+
+            // assert
+            expect(result).toEqual({
+                a: ["apple", "carrot", "durian"],
+                b: "banana",
+            });
+        });
+
+        it("should merge arrays of same claim types into array (array vs. array) when mergeClaimsStrategy is 'merge'", () => {
+            // arrange
+            Object.assign(settings, { mergeClaimsStrategy: "merge" });
+            const d1 = {
+                a: ["apple", "carrot"],
+                b: "banana",
+            } as unknown as UserProfile;
+            const d2 = { a: ["durian"] };
+
+            // act
+            const result = subject.mergeClaims(d1, d2);
+
+            // assert
+            expect(result).toEqual({
+                a: ["apple", "carrot", "durian"],
+                b: "banana",
+            });
+        });
+
+        it("should merge arrays of same claim types into array (array vs. string) when mergeClaimsStrategy is 'merge'", () => {
+            // arrange
+            Object.assign(settings, { mergeClaimsStrategy: "merge" });
+            const e1 = {
+                a: ["apple", "carrot"],
+                b: "banana",
+            } as unknown as UserProfile;
+            const e2 = { a: "durian" };
+
+            // act
+            const result = subject.mergeClaims(e1, e2);
+
+            // assert
+            expect(result).toEqual({
+                a: ["apple", "carrot", "durian"],
+                b: "banana",
+            });
+        });
+
+        it("should replace if type is different (array vs. string)", () => {
+        // arrange
             const c1 = {
                 a: ["apple", "durian"],
                 b: "banana",
@@ -346,7 +333,39 @@ describe("ClaimsService", () => {
             const result = subject.mergeClaims(c1, c2);
 
             // assert
-            expect(result).toEqual({ a: ["apple", "durian"], b: "banana" });
+            expect(result).toEqual({ a: "apple", b: "banana" });
+        });
+
+        it("should replace if type is different (object vs. string)", () => {
+        // arrange
+            const c1 = {
+                custom: { a: "apple" },
+                b: "banana",
+            } as unknown as UserProfile;
+            const c2 = { custom: "apple" };
+
+            // act
+            const result = subject.mergeClaims(c1, c2);
+
+            // assert
+            expect(result).toEqual({ custom: "apple", b: "banana" });
+        });
+
+        it("should replace if type is different (array vs. object)", () => {
+        // arrange
+            const c1 = {
+                custom: ["apple", "durian"],
+                b: "banana",
+            } as unknown as UserProfile;
+            const c2 = {
+                custom: { a: "apple" },
+            } as unknown as UserProfile;
+
+            // act
+            const result = subject.mergeClaims(c1, c2);
+
+            // assert
+            expect(result).toEqual({ custom: { a: "apple" }, b: "banana" });
         });
     });
 });

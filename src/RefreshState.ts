@@ -17,7 +17,6 @@ export class RefreshState {
     public readonly session_state: string | null;
     public readonly scope?: string;
     public readonly profile: UserProfile;
-    public readonly resource?: string | string[];
 
     constructor(args: {
         refresh_token: string;
@@ -27,13 +26,12 @@ export class RefreshState {
         profile: UserProfile;
 
         state?: unknown;
-    }, resource?: string | string[]) {
+    }) {
         this.refresh_token = args.refresh_token;
         this.id_token = args.id_token;
         this.session_state = args.session_state;
         this.scope = args.scope;
         this.profile = args.profile;
-        this.resource = resource;
 
         this.data = args.state;
 

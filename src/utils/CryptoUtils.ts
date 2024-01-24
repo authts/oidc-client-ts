@@ -1,18 +1,20 @@
-import CryptoJS from "crypto-js/core.js";
-import sha256 from "crypto-js/sha256.js";
-import Base64 from "crypto-js/enc-base64.js";
-import Utf8 from "crypto-js/enc-utf8.js";
-
 import { Logger } from "./Logger";
 
 const UUID_V4_TEMPLATE = "10000000-1000-4000-8000-100000000000";
+
+const toBase64 = (val: ArrayBuffer): string =>
+    btoa([...new Uint8Array(val)]
+        .map((chr) => String.fromCharCode(chr))
+        .join(""));
 
 /**
  * @internal
  */
 export class CryptoUtils {
     private static _randomWord(): number {
-        return CryptoJS.lib.WordArray.random(1).words[0];
+        const arr = new Uint32Array(1);
+        crypto.getRandomValues(arr);
+        return arr[0];
     }
 
     /**
@@ -35,10 +37,16 @@ export class CryptoUtils {
     /**
      * PKCE: Generate a code challenge
      */
-    public static generateCodeChallenge(code_verifier: string): string {
+    public static async generateCodeChallenge(code_verifier: string): Promise<string> {
+        if (!crypto.subtle) {
+            throw new Error("Crypto.subtle is available only in secure contexts (HTTPS).");
+        }
+
         try {
-            const hashed = sha256(code_verifier);
-            return Base64.stringify(hashed).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+            const encoder = new TextEncoder();
+            const data = encoder.encode(code_verifier);
+            const hashed = await crypto.subtle.digest("SHA-256", data);
+            return toBase64(hashed).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
         }
         catch (err) {
             Logger.error("CryptoUtils.generateCodeChallenge", err);
@@ -50,7 +58,8 @@ export class CryptoUtils {
      * Generates a base64-encoded string for a basic auth header
      */
     public static generateBasicAuth(client_id: string, client_secret: string): string {
-        const basicAuth = Utf8.parse([client_id, client_secret].join(":"));
-        return Base64.stringify(basicAuth);
+        const encoder = new TextEncoder();
+        const data = encoder.encode([client_id, client_secret].join(":"));
+        return toBase64(data);
     }
 }

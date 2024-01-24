@@ -7,7 +7,7 @@ import { type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSe
 import { ResponseValidator } from "./ResponseValidator";
 import { MetadataService } from "./MetadataService";
 import type { RefreshState } from "./RefreshState";
-import { SigninRequest, type SigninRequestArgs } from "./SigninRequest";
+import { SigninRequest, type SigninRequestCreateArgs } from "./SigninRequest";
 import { SigninResponse } from "./SigninResponse";
 import { SignoutRequest, type SignoutRequestArgs } from "./SignoutRequest";
 import { SignoutResponse } from "./SignoutResponse";
@@ -21,7 +21,7 @@ import { DPoPService } from "./DPoPService";
  * @public
  */
 export interface CreateSigninRequestArgs
-    extends Omit<SigninRequestArgs, "url" | "authority" | "client_id" | "redirect_uri" | "response_type" | "scope" | "state_data"> {
+    extends Omit<SigninRequestCreateArgs, "url" | "authority" | "client_id" | "redirect_uri" | "response_type" | "scope" | "state_data"> {
     redirect_uri?: string;
     response_type?: string;
     scope?: string;
@@ -34,8 +34,12 @@ export interface CreateSigninRequestArgs
  * @public
  */
 export interface UseRefreshTokenArgs {
-    state: RefreshState;
+    redirect_uri?: string;
+    resource?: string | string[];
+    extraTokenParams?: Record<string, unknown>;
     timeoutInSeconds?: number;
+
+    state: RefreshState;
 }
 
 /**
@@ -93,6 +97,7 @@ export class OidcClient {
         login_hint,
         skipUserInfo,
         nonce,
+        url_state,
         response_type = this.settings.response_type,
         scope = this.settings.scope,
         redirect_uri = this.settings.redirect_uri,
@@ -117,7 +122,7 @@ export class OidcClient {
 
         const dpopJkt = this.settings.dpopSettings.enabled && this.settings.dpopSettings.bind_authorization_code ? await DPoPService.generateDPoPJkt() : undefined;
 
-        const signinRequest = new SigninRequest({
+        const signinRequest = await SigninRequest.create({
             url,
             authority: this.settings.authority,
             client_id: this.settings.client_id,
@@ -125,6 +130,7 @@ export class OidcClient {
             response_type,
             scope,
             state_data: state,
+            url_state,
             prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
             resource, request, request_uri, extraQueryParams, extraTokenParams, request_type, response_mode,
             client_secret: this.settings.client_secret,
@@ -158,7 +164,7 @@ export class OidcClient {
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
-        const state = SigninState.fromStorageString(storedStateString);
+        const state = await SigninState.fromStorageString(storedStateString);
         return { state, response };
     }
 
@@ -186,7 +192,10 @@ export class OidcClient {
 
     public async useRefreshToken({
         state,
+        redirect_uri,
+        resource,
         timeoutInSeconds,
+        extraTokenParams,
     }: UseRefreshTokenArgs): Promise<SigninResponse> {
         const logger = this._logger.create("useRefreshToken");
 
@@ -205,17 +214,19 @@ export class OidcClient {
 
         const result = await this._tokenClient.exchangeRefreshToken({
             refresh_token: state.refresh_token,
-            resource: state.resource,
             // provide the (possible filtered) scope list
             scope,
+            redirect_uri,
+            resource,
             timeoutInSeconds,
+            ...extraTokenParams,
         });
         const response = new SigninResponse(new URLSearchParams());
         Object.assign(response, result);
         logger.debug("validating response", response);
         await this._validator.validateRefreshResponse(response, {
             ...state,
-            // overide the scope in the state handed over to the validator
+            // override the scope in the state handed over to the validator
             // so it can set the granted scope to the requested scope in case none is included in the response
             scope,
         });
@@ -288,7 +299,7 @@ export class OidcClient {
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
-        const state = State.fromStorageString(storedStateString);
+        const state = await State.fromStorageString(storedStateString);
         return { state, response };
     }
 

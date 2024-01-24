@@ -39,6 +39,7 @@ export interface ExchangeCredentialsArgs {
 export interface ExchangeRefreshTokenArgs {
     client_id?: string;
     client_secret?: string;
+    redirect_uri?: string;
 
     grant_type?: string;
     refresh_token: string;

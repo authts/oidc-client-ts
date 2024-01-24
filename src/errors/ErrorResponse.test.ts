@@ -53,6 +53,13 @@ describe("ErrorResponse", () => {
             expect(subject.state).toEqual("foo");
         });
 
+        it("should read url_state", () => {
+            // act
+            const subject = new ErrorResponse({ error:"error", url_state:"foo" });
+
+            // assert
+            expect(subject.url_state).toEqual("foo");
+        });
     });
 
     describe("message", () => {

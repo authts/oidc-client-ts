@@ -19,32 +19,32 @@ describe("UserManagerEvents", () => {
 
     describe("silent renew error", () => {
 
-        it("should allow callback", () => {
+        it("should allow callback", async () => {
             // arrange
             const cb = jest.fn();
 
             // act
             subject.addSilentRenewError(cb);
-            subject._raiseSilentRenewError(new Error("boom"));
+            await subject._raiseSilentRenewError(new Error("boom"));
 
             // assert
             expect(cb).toBeCalled();
         });
 
-        it("should allow unregistering callback", () => {
+        it("should allow unregistering callback", async () => {
             // arrange
             const cb = jest.fn();
 
             // act
             subject.addSilentRenewError(cb);
             subject.removeSilentRenewError(cb);
-            subject._raiseSilentRenewError(new Error("boom"));
+            await subject._raiseSilentRenewError(new Error("boom"));
 
             // assert
             expect(cb).toBeCalledTimes(0);
         });
 
-        it("should pass error to callback", () => {
+        it("should pass error to callback", async () => {
             // arrange
             let e: Error | null = null;
             const cb = function (arg_e: Error) {
@@ -54,7 +54,7 @@ describe("UserManagerEvents", () => {
 
             // act
             subject.addSilentRenewError(cb);
-            subject._raiseSilentRenewError(expected);
+            await subject._raiseSilentRenewError(expected);
 
             // assert
             expect(e).toEqual(expected);

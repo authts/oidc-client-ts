@@ -13,19 +13,19 @@ describe("Event", () => {
 
     describe("addHandler", () => {
 
-        it("should allow callback to be invoked", () => {
+        it("should allow callback to be invoked", async () => {
             // arrange
             const cb = jest.fn();
 
             // act
             subject.addHandler(cb);
-            subject.raise();
+            await subject.raise();
 
             // assert
             expect(cb).toBeCalled();
         });
 
-        it("should allow multiple callbacks", () => {
+        it("should allow multiple callbacks", async () => {
             // arrange
             const cb = jest.fn();
 
@@ -34,7 +34,7 @@ describe("Event", () => {
             subject.addHandler(cb);
             subject.addHandler(cb);
             subject.addHandler(cb);
-            subject.raise();
+            await subject.raise();
 
             // assert
             expect(cb).toBeCalledTimes(4);
@@ -43,20 +43,20 @@ describe("Event", () => {
 
     describe("removeHandler", () => {
 
-        it("should remove callback from being invoked", () => {
+        it("should remove callback from being invoked", async () => {
             // arrange
             const cb = jest.fn();
 
             // act
             subject.addHandler(cb);
             subject.removeHandler(cb);
-            subject.raise();
+            await subject.raise();
 
             // assert
             expect(cb).toBeCalledTimes(0);
         });
 
-        it("should remove individual callback", () => {
+        it("should remove individual callback", async () => {
             // arrange
             const cb1 = jest.fn();
             const cb2 = jest.fn();
@@ -68,7 +68,7 @@ describe("Event", () => {
             subject.removeHandler(cb1);
             subject.removeHandler(cb1);
 
-            subject.raise();
+            await subject.raise();
 
             // assert
             expect(cb1).toBeCalledTimes(0);
@@ -78,7 +78,7 @@ describe("Event", () => {
 
     describe("raise", () => {
 
-        it("should pass params", () => {
+        it("should pass params", async () => {
             // arrange
             const typedSubject = subject as Event<[number, number, number]>;
             let a = 10;
@@ -92,7 +92,7 @@ describe("Event", () => {
             typedSubject.addHandler(cb);
 
             // act
-            typedSubject.raise(1, 2, 3);
+            await typedSubject.raise(1, 2, 3);
 
             // assert
             expect(a).toEqual(1);

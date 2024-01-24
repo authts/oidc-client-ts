@@ -2,7 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { once } from "events";
-import { RedirectNavigator, type PopupWindow, PopupNavigator, IFrameNavigator } from "./navigators";
+import {
+    RedirectNavigator,
+    type PopupWindow,
+    PopupNavigator,
+    IFrameNavigator,
+    type NavigateResponse,
+} from "./navigators";
 import type { SigninResponse } from "./SigninResponse";
 import type { SignoutResponse } from "./SignoutResponse";
 import { UserManager, type SigninPopupArgs, type SigninRedirectArgs, type SigninSilentArgs, type SignoutSilentArgs } from "./UserManager";
@@ -34,6 +40,7 @@ describe("UserManager", () => {
             userStore: userStoreMock,
             metadata: {
                 authorization_endpoint: "http://sts/oidc/authorize",
+                end_session_endpoint:  "http://sts/oidc/logout",
                 token_endpoint: "http://sts/oidc/token",
                 revocation_endpoint: "http://sts/oidc/revoke",
             },
@@ -94,14 +101,14 @@ describe("UserManager", () => {
     });
 
     describe("getUser", () => {
-        it("should be able to call getUser without recursion", () => {
+        it("should be able to call getUser without recursion", async () => {
             // arrange
             subject.events.addUserLoaded(async () => {
                 await subject.getUser();
             });
 
             // act
-            subject.events.load({} as User);
+            await subject.events.load({} as User);
         });
 
         it("should return user if there is a user stored", async () => {
@@ -268,6 +275,7 @@ describe("UserManager", () => {
                 nonce: "random_nonce",
                 redirect_uri: "http://app/extra_callback",
                 prompt: "login",
+                url_state: "url_state",
             };
 
             // act
@@ -333,7 +341,7 @@ describe("UserManager", () => {
                 scope: "openid profile email",
             };
             jest.spyOn(subject["_client"], "processResourceOwnerPasswordCredentials").mockResolvedValue(mockUser as SigninResponse);
-            jest.spyOn(subject["_events"], "load").mockReturnValue();
+            jest.spyOn(subject["_events"], "load").mockImplementation(() => Promise.resolve());
 
             // act
             const user:User = await subject.signinResourceOwnerCredentials({ username: "u", password: "p" });
@@ -571,11 +579,11 @@ describe("UserManager", () => {
             expect(useRefreshTokenSpy).toBeCalledWith(
                 expect.objectContaining({
                     state: {
-                        resource: "resource",
                         refresh_token: user.refresh_token,
                         session_state: null,
                         "profile": { "nickname": "Nick", "sub": "sub" },
                     },
+                    resource: "resource",
                 }),
             );
         });
@@ -854,6 +862,53 @@ describe("UserManager", () => {
 
             // assert
             expect(callbackMock).toBeCalledWith(url);
+        });
+    });
+
+    describe("signoutRedirect", () => {
+        it("should not unload user to avoid race condition between actual signout and signout event handlers", async () => {
+            // arrange
+            const navigateMock = jest.fn().mockReturnValue(Promise.resolve({
+                url: "http://localhost:8080",
+            } as NavigateResponse));
+            jest.spyOn(subject["_redirectNavigator"], "prepare").mockReturnValue(Promise.resolve({
+                navigate: navigateMock,
+                close: () => {},
+            }));
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {} as UserProfile,
+            });
+            await subject.storeUser(user);
+
+            // act
+            await subject.signoutRedirect();
+
+            // assert
+            expect(navigateMock).toHaveBeenCalledTimes(1);
+            const storageString = await subject.settings.userStore.get(subject["_userStoreKey"]);
+            expect(storageString).not.toBeNull();
+        });
+    });
+
+    describe("signoutRedirectCallback", () => {
+        it("should unload user", async () => {
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {} as UserProfile,
+            });
+            await subject.storeUser(user);
+
+            expect(await subject.settings.userStore.get(subject["_userStoreKey"])).not.toBeNull();
+
+            // act
+            await subject.signoutRedirectCallback();
+
+            // assert
+            expect(await subject.settings.userStore.get(subject["_userStoreKey"])).toBeNull();
         });
     });
 

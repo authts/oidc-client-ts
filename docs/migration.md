@@ -1,3 +1,22 @@
+## oidc-client-ts v2.4.0 &rarr; oidc-client-ts v3.0.0
+
+The API is largely backwards-compatible.
+
+The "crypto-js" software library has been removed; the native crypto/crypto.subtle module built into the browser is instead used. All modern browser are expected to support it. If need to support older browsers stay with v2.4!
+
+The behavior of merging claims  has been improved.
+
+### [OidcClientSettings](https://authts.github.io/oidc-client-ts/interfaces/OidcClientSettings.html)
+
+- the following deprecated properties were **removed**:
+  - `clockSkewInSeconds`
+  - `userInfoJwtIssuer`
+  - `refreshTokenCredentials` use `fetchRequestCredentials`
+- the `mergeClaims` has been replaced by `mergeClaimsStrategy`
+  - if the previous behavior is required `mergeClaimsStrategy: { array: "merge" }` comes close to it
+- default of `response_mode` changed from `query` &rarr; `undefined`
+
+
 ## oidc-client v1.11.5 &rarr; oidc-client-ts v2.0.0
 
 Ported library from JavaScript to TypeScript. The API is largely

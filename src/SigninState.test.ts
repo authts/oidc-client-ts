@@ -6,9 +6,9 @@ import { SigninState } from "./SigninState";
 describe("SigninState", () => {
     describe("constructor", () => {
 
-        it("should call base ctor", () => {
+        it("should call base ctor", async () => {
             // act
-            const subject = new SigninState({
+            const subject = await SigninState.create({
                 id: "5",
                 created: 6,
                 data: 7,
@@ -18,17 +18,19 @@ describe("SigninState", () => {
                 redirect_uri: "http://cb",
                 request_type: "type",
                 scope: "scope",
+                url_state: "foo",
             });
 
             // assert
             expect(subject.id).toEqual("5");
             expect(subject.created).toEqual(6);
             expect(subject.data).toEqual(7);
+            expect(subject.url_state).toEqual("foo");
         });
 
-        it("should accept redirect_uri", () => {
+        it("should accept redirect_uri", async () => {
             // act
-            const subject = new SigninState({
+            const subject = await SigninState.create({
                 authority: "authority",
                 client_id: "client",
                 scope: "scope",
@@ -40,9 +42,9 @@ describe("SigninState", () => {
             expect(subject.redirect_uri).toEqual("http://cb");
         });
 
-        it("should accept code_verifier", () => {
+        it("should accept code_verifier", async () => {
             // act
-            const subject = new SigninState({
+            const subject = await SigninState.create({
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "http://cb",
@@ -55,9 +57,9 @@ describe("SigninState", () => {
             expect(subject.code_verifier).toEqual("5");
         });
 
-        it("should generate code_verifier", () => {
+        it("should generate code_verifier", async () => {
             // act
-            const subject = new SigninState({
+            const subject = await SigninState.create({
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "http://cb",
@@ -70,11 +72,11 @@ describe("SigninState", () => {
             expect(subject.code_verifier).toBeDefined();
         });
 
-        it("should generate code_challenge", () => {
+        it("should generate code_challenge", async () => {
             // arrange
 
             // act
-            const subject = new SigninState({
+            const subject = await SigninState.create({
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "http://cb",
@@ -87,9 +89,9 @@ describe("SigninState", () => {
             expect(subject.code_challenge).toBeDefined();
         });
 
-        it("should accept client_id", () => {
+        it("should accept client_id", async () => {
             // act
-            const subject = new SigninState({
+            const subject = await SigninState.create({
                 authority: "authority",
                 redirect_uri: "http://cb",
                 scope: "scope",
@@ -101,9 +103,9 @@ describe("SigninState", () => {
             expect(subject.client_id).toEqual("client");
         });
 
-        it("should accept authority", () => {
+        it("should accept authority", async () => {
             // act
-            const subject = new SigninState({
+            const subject = await SigninState.create({
                 client_id: "client",
                 redirect_uri: "http://cb",
                 scope: "scope",
@@ -115,9 +117,9 @@ describe("SigninState", () => {
             expect(subject.authority).toEqual("test");
         });
 
-        it("should accept request_type", () => {
+        it("should accept request_type", async () => {
             // act
-            const subject = new SigninState({
+            const subject = await SigninState.create({
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "http://cb",
@@ -129,9 +131,9 @@ describe("SigninState", () => {
             expect(subject.request_type).toEqual("xoxo");
         });
 
-        it("should accept extraTokenParams", () => {
+        it("should accept extraTokenParams", async () => {
             // act
-            const subject = new SigninState({
+            const subject = await SigninState.create({
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "http://cb",
@@ -147,9 +149,9 @@ describe("SigninState", () => {
         });
     });
 
-    it("can serialize and then deserialize", () => {
+    it("can serialize and then deserialize", async () => {
         // arrange
-        const subject1 = new SigninState({
+        const subject1 = await SigninState.create({
             data: { foo: "test" },
             created: 1000,
             code_verifier: true,
@@ -162,7 +164,7 @@ describe("SigninState", () => {
 
         // act
         const storage = subject1.toStorageString();
-        const subject2 = SigninState.fromStorageString(storage);
+        const subject2 = await SigninState.fromStorageString(storage);
 
         // assert
         expect(subject2).toEqual(subject1);

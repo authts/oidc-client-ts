@@ -35,7 +35,7 @@ export class PopupWindow extends AbstractChildWindow {
         if (popupWindowFeatures.closePopupWindowAfterInSeconds && popupWindowFeatures.closePopupWindowAfterInSeconds > 0) {
             setTimeout(() => {
                 if (!this._window || typeof this._window.closed !== "boolean" || this._window.closed) {
-                    this._abort.raise(new Error("Popup blocked by user"));
+                    void this._abort.raise(new Error("Popup blocked by user"));
                     return;
                 }
 
@@ -49,7 +49,7 @@ export class PopupWindow extends AbstractChildWindow {
 
         const popupClosedInterval = setInterval(() => {
             if (!this._window || this._window.closed) {
-                this._abort.raise(new Error("Popup closed by user"));
+                void this._abort.raise(new Error("Popup closed by user"));
             }
         }, checkForPopupClosedInterval);
         this._disposeHandlers.add(() => clearInterval(popupClosedInterval));
@@ -61,7 +61,7 @@ export class PopupWindow extends AbstractChildWindow {
         if (this._window) {
             if (!this._window.closed) {
                 this._window.close();
-                this._abort.raise(new Error("Popup closed"));
+                void this._abort.raise(new Error("Popup closed"));
             }
         }
         this._window = null;

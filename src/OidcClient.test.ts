@@ -87,6 +87,7 @@ describe("OidcClient", () => {
                 request: "req",
                 request_uri: "req_uri",
                 nonce: "rnd",
+                url_state: "url_state",
             });
 
             // assert
@@ -108,6 +109,7 @@ describe("OidcClient", () => {
             expect(url).toContain("request_uri=req_uri");
             expect(url).toContain("response_mode=fragment");
             expect(url).toContain("nonce=rnd");
+            expect(url.match(/state=.*%3Burl_state/)).toBeTruthy();
         });
 
         it("should include a dpop key thumbprint in params if dpop is enabled and bind_authorization_code is true", async () => {
@@ -220,6 +222,7 @@ describe("OidcClient", () => {
                 login_hint: "lh",
                 acr_values: "av",
                 resource: "res",
+                url_state: "url_state",
             });
 
             // assert
@@ -237,6 +240,7 @@ describe("OidcClient", () => {
             expect(url).toContain("login_hint=lh");
             expect(url).toContain("acr_values=av");
             expect(url).toContain("resource=res");
+            expect(url.match(/state=.*%3Burl_state/)).toBeTruthy();
         });
 
         it("should fail if implicit flow requested", async () => {
@@ -351,15 +355,15 @@ describe("OidcClient", () => {
 
         it("should deserialize stored state and return state and response", async () => {
             // arrange
-            const item = new SigninState({
+            const item = await SigninState.create({
                 id: "1",
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "http://app/cb",
                 scope: "scope",
                 request_type: "type",
-            }).toStorageString();
-            jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item));
+            });
+            jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item.toStorageString()));
 
             // act
             const { state, response } = await subject.readSigninResponseState("http://app/cb?state=1");
@@ -406,7 +410,7 @@ describe("OidcClient", () => {
 
         it("should deserialize stored state and call validator", async () => {
             // arrange
-            const item = new SigninState({
+            const item = await SigninState.create({
                 id: "1",
                 authority: "authority",
                 client_id: "client",
@@ -514,10 +518,10 @@ describe("OidcClient", () => {
                 session_state: "session_state",
                 scope: "openid",
                 profile: {} as UserProfile,
-            }, "resource");
+            });
 
             // act
-            const response = await subject.useRefreshToken({ state });
+            const response = await subject.useRefreshToken({ state, resource: "resource" });
 
             // assert
             expect(exchangeRefreshTokenMock).toHaveBeenCalledWith( {

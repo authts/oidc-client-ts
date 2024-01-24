@@ -9,9 +9,7 @@ import { InMemoryWebStorage } from "./InMemoryWebStorage";
 const DefaultResponseType = "code";
 const DefaultScope = "openid";
 const DefaultClientAuthentication = "client_secret_post";
-const DefaultResponseMode = "query";
 const DefaultStaleStateAgeInSeconds = 60 * 15;
-const DefaultClockSkewInSeconds = 60 * 5;
 
 /**
  * @public
@@ -82,7 +80,14 @@ export interface OidcClientSettings {
     /** optional protocol param */
     resource?: string | string[];
 
-    /** optional protocol param (default: "query") */
+    /**
+     * Optional protocol param
+     * The response mode used by the authority server is defined by the response_type unless explicitly specified:
+     * - Response mode for the OAuth 2.0 response type "code" is the "query" encoding
+     * - Response mode for the OAuth 2.0 response type "token" is the "fragment" encoding
+     *
+     * @see https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html#ResponseModes
+     */
     response_mode?: "query" | "fragment";
 
     /**
@@ -96,16 +101,13 @@ export interface OidcClientSettings {
     /** Number (in seconds) indicating the age of state entries in storage for authorize requests that are considered abandoned and thus can be cleaned up (default: 900) */
     staleStateAgeInSeconds?: number;
 
-    /** @deprecated Unused */
-    clockSkewInSeconds?: number;
-    /** @deprecated Unused */
-    userInfoJwtIssuer?: /*"ANY" | "OP" |*/ string;
-
     /**
-     * Indicates if objects returned from the user info endpoint as claims (e.g. `address`) are merged into the claims from the id token as a single object.
-     * Otherwise, they are added to an array as distinct objects for the claim type. (default: false)
+     * Indicates how objects returned from the user info endpoint as claims (e.g. `address`) are merged into the claims from the
+     * id token as a single object.  (default: `{ array: "replace" }`)
+     * - array: "replace": natives (string, int, float) and arrays are replaced, objects are merged as distinct objects
+     * - array: "merge": natives (string, int, float) are replaced, arrays and objects are merged as distinct objects
      */
-    mergeClaims?: boolean;
+    mergeClaimsStrategy?: { array: "replace" | "merge" };
 
     /**
      * Storage object used to persist interaction state (default: window.localStorage, InMemoryWebStorage iff no window).
@@ -127,16 +129,11 @@ export interface OidcClientSettings {
     extraHeaders?: Record<string, ExtraHeader>;
 
     /**
-     * @deprecated since version 2.1.0. Use fetchRequestCredentials instead.
-     */
-    refreshTokenCredentials?: "same-origin" | "include" | "omit";
-
-    /**
      * Will check the content type header of the response of the revocation endpoint to match these passed values (default: [])
      */
     revokeTokenAdditionalContentTypes?: string[];
     /**
-     * Will disable pkce validation, changing to true will not append to sign in request code_challenge and code_challenge_method. (default: false)
+     * Will disable PKCE validation, changing to true will not append to sign in request code_challenge and code_challenge_method. (default: false)
      */
     disablePKCE?: boolean;
     /**
@@ -153,9 +150,9 @@ export interface OidcClientSettings {
 
 /**
  * The settings with defaults applied of the {@link OidcClient}.
- * @see {@link OidcClientSettings}
  *
  * @public
+ * @see {@link OidcClientSettings}
  */
 export class OidcClientSettingsStore {
     // metadata
@@ -182,15 +179,13 @@ export class OidcClientSettingsStore {
     public readonly ui_locales: string | undefined;
     public readonly acr_values: string | undefined;
     public readonly resource: string | string[] | undefined;
-    public readonly response_mode: "query" | "fragment";
+    public readonly response_mode: "query" | "fragment" | undefined;
 
     // behavior flags
     public readonly filterProtocolClaims: boolean | string[];
     public readonly loadUserInfo: boolean;
     public readonly staleStateAgeInSeconds: number;
-    public readonly clockSkewInSeconds: number;
-    public readonly userInfoJwtIssuer: /*"ANY" | "OP" |*/ string;
-    public readonly mergeClaims: boolean;
+    public readonly mergeClaimsStrategy: { array: "replace" | "merge" };
 
     public readonly stateStore: StateStore;
 
@@ -212,18 +207,15 @@ export class OidcClientSettingsStore {
         redirect_uri, post_logout_redirect_uri,
         client_authentication = DefaultClientAuthentication,
         // optional protocol
-        prompt, display, max_age, ui_locales, acr_values, resource, response_mode = DefaultResponseMode,
+        prompt, display, max_age, ui_locales, acr_values, resource, response_mode,
         // behavior flags
         filterProtocolClaims = true,
         loadUserInfo = false,
         staleStateAgeInSeconds = DefaultStaleStateAgeInSeconds,
-        clockSkewInSeconds = DefaultClockSkewInSeconds,
-        userInfoJwtIssuer = "OP",
-        mergeClaims = false,
+        mergeClaimsStrategy = { array: "replace" },
         disablePKCE = false,
         // other behavior
         stateStore,
-        refreshTokenCredentials,
         revokeTokenAdditionalContentTypes,
         fetchRequestCredentials,
         refreshTokenAllowedScope,
@@ -272,17 +264,11 @@ export class OidcClientSettingsStore {
         this.filterProtocolClaims = filterProtocolClaims ?? true;
         this.loadUserInfo = !!loadUserInfo;
         this.staleStateAgeInSeconds = staleStateAgeInSeconds;
-        this.clockSkewInSeconds = clockSkewInSeconds;
-        this.userInfoJwtIssuer = userInfoJwtIssuer;
-        this.mergeClaims = !!mergeClaims;
+        this.mergeClaimsStrategy = mergeClaimsStrategy;
         this.disablePKCE = !!disablePKCE;
         this.revokeTokenAdditionalContentTypes = revokeTokenAdditionalContentTypes;
 
-        if (fetchRequestCredentials && refreshTokenCredentials) {
-            console.warn("Both fetchRequestCredentials and refreshTokenCredentials is set. Only fetchRequestCredentials will be used.");
-        }
-        this.fetchRequestCredentials = fetchRequestCredentials ? fetchRequestCredentials
-            : refreshTokenCredentials ? refreshTokenCredentials : "same-origin";
+        this.fetchRequestCredentials = fetchRequestCredentials ? fetchRequestCredentials : "same-origin";
 
         if (stateStore) {
             this.stateStore = stateStore;
