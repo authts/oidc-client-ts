@@ -25,7 +25,7 @@ export type ExtraHeader = string | (() => string);
 
 export interface DPoPSettings {
     enabled: boolean;
-    bind_authorization_code: boolean;
+    bind_authorization_code?: boolean;
 }
 
 /**
