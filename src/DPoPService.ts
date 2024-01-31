@@ -1,4 +1,4 @@
-import { base64url, exportJWK, SignJWT, calculateJwkThumbprint } from "jose";
+import { exportJWK, calculateJwkThumbprint } from "jose";
 import { get, set, keys } from "idb-keyval";
 
 /**
@@ -15,10 +15,11 @@ export class DPoPService {
         let hashedToken: Uint8Array;
         let encodedHash: string;
 
-        const payload: Record<string, string> = {
+        const payload: Record<string, string | number> = {
             "jti": window.crypto.randomUUID(),
             "htm": httpMethod ?? "GET",
             "htu": url,
+            "iat": Math.floor(Date.now() / 1000),
         };
 
         if (nonce) {
@@ -29,17 +30,18 @@ export class DPoPService {
 
         if (accessToken) {
             hashedToken = await this.hash("SHA-256", accessToken);
-            encodedHash = base64url.encode(hashedToken);
+            encodedHash = this.encodeBase64Url(hashedToken);
             payload.ath = encodedHash;
         }
 
         try {
             const publicJwk = await exportJWK(keyPair.publicKey);
-            return await new SignJWT(payload).setProtectedHeader({
+            const header = {
                 "alg": "ES256",
                 "typ": "dpop+jwt",
                 "jwk": publicJwk,
-            }).setIssuedAt().sign(keyPair.privateKey);
+            };
+            return await this.generateSignedJwt(header, payload, keyPair.privateKey);
         } catch (err) {
             if (err instanceof TypeError) {
                 throw new Error(`Error exporting dpop public key: ${err.message}`);
@@ -62,6 +64,38 @@ export class DPoPService {
             }
         }
     }
+
+    public static async generateSignedJwt(header: object, payload: object, privateKey: CryptoKey) : Promise<string> {
+        const encodedHeader = this.encodeBase64Url(new TextEncoder().encode(JSON.stringify(header)));
+        const encodedPayload = this.encodeBase64Url(new TextEncoder().encode(JSON.stringify(payload)));
+        const encodedToken = `${encodedHeader}.${encodedPayload}`;
+
+        const signature = await window.crypto.subtle.sign(
+            {
+                name: "ECDSA",
+                hash: { name: "SHA-256" },
+            },
+            privateKey,
+            new TextEncoder().encode(encodedToken),
+        );
+
+        const encodedSignature = this.encodeBase64Url(new Uint8Array(signature));
+        return `${encodedToken}.${encodedSignature}`;
+    }
+
+    public static encodeBase64Url = (input: Uint8Array) => {
+        return this.encodeBase64(input).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+    };
+
+    public static encodeBase64 = (input: Uint8Array) => {
+        const CHUNK_SIZE = 0x8000;
+        const arr = [];
+        for (let i = 0; i < input.length; i += CHUNK_SIZE) {
+            const chunk = input.subarray(i, i + CHUNK_SIZE);
+            arr.push(String.fromCharCode.apply(null, Array.from(chunk)));
+        }
+        return btoa(arr.join(""));
+    };
 
     protected static async hash(alg: string, message: string) : Promise<Uint8Array> {
         const msgUint8 = new TextEncoder().encode(message);
