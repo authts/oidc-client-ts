@@ -1,5 +1,5 @@
 import { DPoPService } from "./DPoPService";
-import { jwtVerify, decodeProtectedHeader, importJWK, type JWK, exportJWK, SignJWT } from "jose";
+import { jwtVerify, decodeProtectedHeader, importJWK, type JWK, exportJWK, SignJWT, calculateJwkThumbprint } from "jose";
 import { del, set } from "idb-keyval";
 import * as idb from "idb-keyval";
 
@@ -50,7 +50,7 @@ describe("DPoPService", () => {
         it("should throw an exception if the stored proof keys are not a CryptoKeyPair object", async () => {
             await set("oidc.dpop", "some string");
             await expect(DPoPService.generateDPoPProof("http://example.com", "some_access_token"))
-                .rejects.toThrowError("Error exporting dpop public key: Key must be one of type KeyObject, CryptoKey, or Uint8Array. Received undefined");
+                .rejects.toThrowError("Failed to execute 'exportKey' on 'SubtleCrypto': 2nd argument is not of type CryptoKey.");
         });
     });
 
@@ -58,7 +58,7 @@ describe("DPoPService", () => {
         it("should throw an exception if the stored proof keys are not a CryptoKeyPair object", async () => {
             await set("oidc.dpop", "some string");
             await expect(DPoPService.generateDPoPJkt()).rejects.toThrowError(
-                "Could not retrieve dpop keys from storage: Key must be one of type KeyObject, CryptoKey, or Uint8Array. Received undefined");
+                "Failed to execute 'exportKey' on 'SubtleCrypto': 2nd argument is not of type CryptoKey.");
         });
 
         it("should generate crypto keys when generating a dpop thumbprint if no keys exists in the store", async () => {
@@ -110,5 +110,24 @@ describe("DPoPService", () => {
             expect(verifiedResultJwt2.payload.iat).toEqual(iat);
             //expect(jwt1).toEqual(jwt2);
         });
+    });
+
+    describe("generateJwkThumbprint", () => {
+        it("should generate a thumbprint", async () => {
+            const keyPair = await window.crypto.subtle.generateKey(
+                {
+                    name: "ECDSA",
+                    namedCurve: "P-256",
+                },
+                false,
+                ["sign", "verify"]);
+            const publicJwk = await exportJWK(keyPair.publicKey);
+            const jwk= await crypto.subtle.exportKey("jwk", keyPair.publicKey);
+
+            const thumbprint1 = await calculateJwkThumbprint(publicJwk, "sha256");
+            const thumbprint2 = await DPoPService.customCalculateJwkThumbprint(jwk);
+            expect(thumbprint1).toEqual(thumbprint2);
+        });
+
     });
 });

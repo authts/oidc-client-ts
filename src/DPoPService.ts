@@ -1,5 +1,4 @@
-import { exportJWK, calculateJwkThumbprint } from "jose";
-import { get, set, keys } from "idb-keyval";
+import { get, keys, set } from "idb-keyval";
 
 /**
  * Provides an implementation of Demonstrating Proof of Posession as defined in the
@@ -35,7 +34,7 @@ export class DPoPService {
         }
 
         try {
-            const publicJwk = await exportJWK(keyPair.publicKey);
+            const publicJwk = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
             const header = {
                 "alg": "ES256",
                 "typ": "dpop+jwt",
@@ -54,8 +53,8 @@ export class DPoPService {
     public static async generateDPoPJkt() : Promise<string> {
         try {
             const keyPair = await this.loadKeyPair();
-            const publicJwk = await exportJWK(keyPair.publicKey);
-            return await calculateJwkThumbprint(publicJwk, "sha256");
+            const publicJwk = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
+            return await this.customCalculateJwkThumbprint(publicJwk);
         } catch (err) {
             if (err instanceof TypeError) {
                 throw new Error(`Could not retrieve dpop keys from storage: ${err.message}`);
@@ -63,6 +62,44 @@ export class DPoPService {
                 throw err;
             }
         }
+    }
+
+    public static async customCalculateJwkThumbprint(jwk: JsonWebKey): Promise<string> {
+        let jsonObject: object;
+        switch (jwk.kty) {
+            case "RSA":
+                jsonObject = {
+                    "e": jwk.e,
+                    "kty": jwk.kty,
+                    "n": jwk.n,
+                };
+                break;
+            case "EC":
+                jsonObject = {
+                    "crv": jwk.crv,
+                    "kty": jwk.kty,
+                    "x": jwk.x,
+                    "y": jwk.y,
+                };
+                break;
+            case "OKP":
+                jsonObject = {
+                    "crv": jwk.crv,
+                    "kty": jwk.kty,
+                    "x": jwk.x,
+                };
+                break;
+            case "oct":
+                jsonObject = {
+                    "crv": jwk.k,
+                    "kty": jwk.kty,
+                };
+                break;
+            default:
+                throw new Error("Unknown jwk type");
+        }
+        const utf8encodedAndHashed = await this.hash("SHA-256", JSON.stringify(jsonObject));
+        return this.encodeBase64Url(utf8encodedAndHashed);
     }
 
     public static async generateSignedJwt(header: object, payload: object, privateKey: CryptoKey) : Promise<string> {
