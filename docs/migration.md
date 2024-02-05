@@ -2,7 +2,9 @@
 
 The API is largely backwards-compatible.
 
-The "crypto-js" software library has been removed; the native crypto/crypto.subtle module built into the browser is instead used. All modern browsers are expected to support it. If you need to support older browsers stay with v2.4!
+The "crypto-js" software library has been removed; the native crypto/crypto.subtle module built into the
+browser is instead used. All modern browsers are expected to support it.
+If you need to support older browsers stay with v2.4!
 
 The behavior of merging claims  has been improved.
 
@@ -15,6 +17,8 @@ The behavior of merging claims  has been improved.
 - the `mergeClaims` has been replaced by `mergeClaimsStrategy`
   - if the previous behavior is required `mergeClaimsStrategy: { array: "merge" }` comes close to it
 - default of `response_mode` changed from `query` &rarr; `undefined`
+- when using `signoutRedirect` a working callback is required to remove the user and raise an event. As usual
+  either call `signoutCallback` or `signoutRedirectCallback` in this situation.
 
 
 ## oidc-client v1.11.5 &rarr; oidc-client-ts v2.0.0
