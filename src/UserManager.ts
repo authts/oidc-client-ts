@@ -537,7 +537,7 @@ export class UserManager {
             request_type: "so:r",
             post_logout_redirect_uri: this.settings.post_logout_redirect_uri,
             ...requestArgs,
-        }, handle);
+        }, handle, true);
         logger.info("success");
     }
 
@@ -551,7 +551,7 @@ export class UserManager {
      */
     public async signoutRedirectCallback(url = window.location.href): Promise<SignoutResponse> {
         const logger = this._logger.create("signoutRedirectCallback");
-        const response = await this._signoutEnd(url);
+        const response = await this._signoutEnd(url, false);
         logger.info("success");
         return response;
     }
@@ -600,10 +600,10 @@ export class UserManager {
     }
 
     protected async _signout(args: CreateSignoutRequestArgs, handle: IWindow): Promise<SignoutResponse> {
-        const navResponse = await this._signoutStart(args, handle);
-        return await this._signoutEnd(navResponse.url);
+        const navResponse = await this._signoutStart(args, handle, false);
+        return await this._signoutEnd(navResponse.url, true);
     }
-    protected async _signoutStart(args: CreateSignoutRequestArgs = {}, handle: IWindow): Promise<NavigateResponse> {
+    protected async _signoutStart(args: CreateSignoutRequestArgs = {}, handle: IWindow, removeUser: boolean): Promise<NavigateResponse> {
         const logger = this._logger.create("_signoutStart");
 
         try {
@@ -620,6 +620,12 @@ export class UserManager {
                 args.id_token_hint = id_token;
             }
 
+            if (removeUser) {
+                await this.removeUser();
+                logger.debug("user removed");
+            }
+
+            logger.debug("creating signout request");
             const signoutRequest = await this._client.createSignoutRequest(args);
             logger.debug("got signout request");
 
@@ -636,13 +642,15 @@ export class UserManager {
         }
     }
 
-    protected async _signoutEnd(url: string): Promise<SignoutResponse> {
+    protected async _signoutEnd(url: string, removeUser: boolean): Promise<SignoutResponse> {
         const logger = this._logger.create("_signoutEnd");
         const signoutResponse = await this._client.processSignoutResponse(url);
         logger.debug("got signout response");
 
-        await this.removeUser();
-        logger.debug("user removed");
+        if (removeUser) {
+            await this.removeUser();
+            logger.debug("user removed");
+        }
 
         return signoutResponse;
     }
