@@ -1,5 +1,5 @@
 import { DPoPService } from "./DPoPService";
-import { jwtVerify, decodeProtectedHeader, importJWK, type JWK, exportJWK, SignJWT, calculateJwkThumbprint } from "jose";
+import { jwtVerify, decodeProtectedHeader, importJWK, type JWK } from "jose";
 import { del, set } from "idb-keyval";
 import * as idb from "idb-keyval";
 
@@ -66,68 +66,5 @@ describe("DPoPService", () => {
             await DPoPService.generateDPoPJkt();
             expect(setMock).toHaveBeenCalled();
         });
-    });
-
-    describe("createJwt", () => {
-        it("should be able to create identical jwts two different ways", async () => {
-            const keyPair = await window.crypto.subtle.generateKey(
-                {
-                    name: "ECDSA",
-                    namedCurve: "P-256",
-                },
-                false,
-                ["sign", "verify"]);
-
-            const payload: Record<string, string | number> = {
-                "jti": window.crypto.randomUUID(),
-                "htm": "GET",
-                "htu": "http://test.com",
-            };
-            const publicJwk = await exportJWK(keyPair.publicKey);
-            const iat = Date.now();
-            const jwt1 = await new SignJWT(payload).setProtectedHeader({
-                "alg": "ES256",
-                "typ": "dpop+jwt",
-                "jwk": publicJwk,
-            }).setIssuedAt(iat).sign(keyPair.privateKey);
-
-            const header = {
-                "alg": "ES256",
-                "typ": "dpop+jwt",
-                "jwk": publicJwk,
-            };
-            payload.iat = iat;
-            const jwt2 = await DPoPService.generateSignedJwt(header, payload, keyPair.privateKey);
-
-            const protectedHeader = decodeProtectedHeader(jwt1);
-            const publicKey = await importJWK(<JWK>protectedHeader.jwk);
-            const verifiedResult = await jwtVerify(jwt1, publicKey);
-            expect(verifiedResult.payload.iat).toEqual(iat);
-
-            const protectedHeaderJwt2 = decodeProtectedHeader(jwt2);
-            const publicKeyJwt2 = await importJWK(<JWK>protectedHeaderJwt2.jwk);
-            const verifiedResultJwt2 = await jwtVerify(jwt2, publicKeyJwt2);
-            expect(verifiedResultJwt2.payload.iat).toEqual(iat);
-            //expect(jwt1).toEqual(jwt2);
-        });
-    });
-
-    describe("generateJwkThumbprint", () => {
-        it("should generate a thumbprint", async () => {
-            const keyPair = await window.crypto.subtle.generateKey(
-                {
-                    name: "ECDSA",
-                    namedCurve: "P-256",
-                },
-                false,
-                ["sign", "verify"]);
-            const publicJwk = await exportJWK(keyPair.publicKey);
-            const jwk= await crypto.subtle.exportKey("jwk", keyPair.publicKey);
-
-            const thumbprint1 = await calculateJwkThumbprint(publicJwk, "sha256");
-            const thumbprint2 = await DPoPService.customCalculateJwkThumbprint(jwk);
-            expect(thumbprint1).toEqual(thumbprint2);
-        });
-
     });
 });

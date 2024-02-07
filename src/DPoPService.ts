@@ -1,4 +1,5 @@
 import { get, keys, set } from "idb-keyval";
+import { CryptoUtils, JwtUtils } from "./utils";
 
 /**
  * Provides an implementation of Demonstrating Proof of Posession as defined in the
@@ -28,8 +29,8 @@ export class DPoPService {
         const keyPair = await this.loadKeyPair();
 
         if (accessToken) {
-            hashedToken = await this.hash("SHA-256", accessToken);
-            encodedHash = this.encodeBase64Url(hashedToken);
+            hashedToken = await CryptoUtils.hash("SHA-256", accessToken);
+            encodedHash = CryptoUtils.encodeBase64Url(hashedToken);
             payload.ath = encodedHash;
         }
 
@@ -38,9 +39,14 @@ export class DPoPService {
             const header = {
                 "alg": "ES256",
                 "typ": "dpop+jwt",
-                "jwk": publicJwk,
+                "jwk": {
+                    "crv": publicJwk.crv,
+                    "kty": publicJwk.kty,
+                    "x": publicJwk.x,
+                    "y": publicJwk.y,
+                },
             };
-            return await this.generateSignedJwt(header, payload, keyPair.privateKey);
+            return await JwtUtils.generateSignedJwt(header, payload, keyPair.privateKey);
         } catch (err) {
             if (err instanceof TypeError) {
                 throw new Error(`Error exporting dpop public key: ${err.message}`);
@@ -98,46 +104,8 @@ export class DPoPService {
             default:
                 throw new Error("Unknown jwk type");
         }
-        const utf8encodedAndHashed = await this.hash("SHA-256", JSON.stringify(jsonObject));
-        return this.encodeBase64Url(utf8encodedAndHashed);
-    }
-
-    public static async generateSignedJwt(header: object, payload: object, privateKey: CryptoKey) : Promise<string> {
-        const encodedHeader = this.encodeBase64Url(new TextEncoder().encode(JSON.stringify(header)));
-        const encodedPayload = this.encodeBase64Url(new TextEncoder().encode(JSON.stringify(payload)));
-        const encodedToken = `${encodedHeader}.${encodedPayload}`;
-
-        const signature = await window.crypto.subtle.sign(
-            {
-                name: "ECDSA",
-                hash: { name: "SHA-256" },
-            },
-            privateKey,
-            new TextEncoder().encode(encodedToken),
-        );
-
-        const encodedSignature = this.encodeBase64Url(new Uint8Array(signature));
-        return `${encodedToken}.${encodedSignature}`;
-    }
-
-    public static encodeBase64Url = (input: Uint8Array) => {
-        return this.encodeBase64(input).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
-    };
-
-    public static encodeBase64 = (input: Uint8Array) => {
-        const CHUNK_SIZE = 0x8000;
-        const arr = [];
-        for (let i = 0; i < input.length; i += CHUNK_SIZE) {
-            const chunk = input.subarray(i, i + CHUNK_SIZE);
-            arr.push(String.fromCharCode.apply(null, Array.from(chunk)));
-        }
-        return btoa(arr.join(""));
-    };
-
-    protected static async hash(alg: string, message: string) : Promise<Uint8Array> {
-        const msgUint8 = new TextEncoder().encode(message);
-        const hashBuffer = await crypto.subtle.digest(alg, msgUint8);
-        return new Uint8Array(hashBuffer);
+        const utf8encodedAndHashed = await CryptoUtils.hash("SHA-256", JSON.stringify(jsonObject));
+        return CryptoUtils.encodeBase64Url(utf8encodedAndHashed);
     }
 
     protected static async loadKeyPair() : Promise<CryptoKeyPair> {

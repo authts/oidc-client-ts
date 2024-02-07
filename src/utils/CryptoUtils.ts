@@ -62,4 +62,52 @@ export class CryptoUtils {
         const data = encoder.encode([client_id, client_secret].join(":"));
         return toBase64(data);
     }
+
+    public static encodeBase64Url = (input: Uint8Array) => {
+        return toBase64(input).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+    };
+
+    public static async hash(alg: string, message: string) : Promise<Uint8Array> {
+        const msgUint8 = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest(alg, msgUint8);
+        return new Uint8Array(hashBuffer);
+    }
+
+    public static async customCalculateJwkThumbprint(jwk: JsonWebKey): Promise<string> {
+        let jsonObject: object;
+        switch (jwk.kty) {
+            case "RSA":
+                jsonObject = {
+                    "e": jwk.e,
+                    "kty": jwk.kty,
+                    "n": jwk.n,
+                };
+                break;
+            case "EC":
+                jsonObject = {
+                    "crv": jwk.crv,
+                    "kty": jwk.kty,
+                    "x": jwk.x,
+                    "y": jwk.y,
+                };
+                break;
+            case "OKP":
+                jsonObject = {
+                    "crv": jwk.crv,
+                    "kty": jwk.kty,
+                    "x": jwk.x,
+                };
+                break;
+            case "oct":
+                jsonObject = {
+                    "crv": jwk.k,
+                    "kty": jwk.kty,
+                };
+                break;
+            default:
+                throw new Error("Unknown jwk type");
+        }
+        const utf8encodedAndHashed = await CryptoUtils.hash("SHA-256", JSON.stringify(jsonObject));
+        return CryptoUtils.encodeBase64Url(utf8encodedAndHashed);
+    }
 }
