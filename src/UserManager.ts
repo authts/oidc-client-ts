@@ -151,10 +151,14 @@ export class UserManager {
      * @returns A promise
      */
     public async removeUser(): Promise<void> {
-        const logger = this._logger.create("removeUser");
+        await this._removeUser(true);
+    }
+
+    protected async _removeUser(raiseEvent: boolean): Promise<void> {
+        const logger = this._logger.create("_removeUser");
         await this.storeUser(null);
         logger.info("user removed from storage");
-        await this._events.unload();
+        await this._events.unload(raiseEvent);
     }
 
     /**
@@ -528,6 +532,11 @@ export class UserManager {
      */
     public async signoutRedirect(args: SignoutRedirectArgs = {}): Promise<void> {
         const logger = this._logger.create("signoutRedirect");
+
+        if (!this.settings.raiserUserUnloadEventBeforeSignoutRequest && !this.settings.post_logout_redirect_uri) {
+            throw new Error("post_logout_redirect_uri"); // to raise unload event
+        }
+
         const {
             redirectMethod,
             ...requestArgs
@@ -620,6 +629,10 @@ export class UserManager {
                 args.id_token_hint = id_token;
             }
 
+            await this._removeUser(this.settings.raiserUserUnloadEventBeforeSignoutRequest);
+            logger.debug("user removed, creating signout request");
+
+            logger.debug("creating signout request");
             const signoutRequest = await this._client.createSignoutRequest(args);
             logger.debug("got signout request");
 
@@ -641,8 +654,9 @@ export class UserManager {
         const signoutResponse = await this._client.processSignoutResponse(url);
         logger.debug("got signout response");
 
-        await this.removeUser();
-        logger.debug("user removed");
+        if (!this.settings.raiserUserUnloadEventBeforeSignoutRequest) {
+            await this._events.unload();
+        }
 
         return signoutResponse;
     }

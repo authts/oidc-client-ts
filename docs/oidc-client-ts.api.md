@@ -965,6 +965,8 @@ export class UserManager {
     protected readonly _redirectNavigator: INavigator;
     removeUser(): Promise<void>;
     // (undocumented)
+    protected _removeUser(raiseEvent: boolean): Promise<void>;
+    // (undocumented)
     protected _revokeInternal(user: User | null, types?: ("access_token" | "refresh_token")[]): Promise<void>;
     // (undocumented)
     revokeTokens(types?: RevokeTokensTypes): Promise<void>;
@@ -1040,7 +1042,7 @@ export class UserManagerEvents extends AccessTokenEvents {
     removeUserSignedOut(cb: UserSignedOutCallback): void;
     removeUserUnloaded(cb: UserUnloadedCallback): void;
     // (undocumented)
-    unload(): Promise<void>;
+    unload(raiseEvent?: boolean): Promise<void>;
 }
 
 // @public
@@ -1062,6 +1064,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     popupWindowTarget?: string;
     // (undocumented)
     query_status_response_type?: string;
+    raiserUserUnloadEventBeforeSignoutRequest?: boolean;
     redirectMethod?: "replace" | "assign";
     redirectTarget?: "top" | "self";
     revokeTokensOnSignout?: boolean;
@@ -1105,6 +1108,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     readonly popupWindowTarget: string;
     // (undocumented)
     readonly query_status_response_type: string;
+    // (undocumented)
+    readonly raiserUserUnloadEventBeforeSignoutRequest: boolean;
     // (undocumented)
     readonly redirectMethod: "replace" | "assign";
     // (undocumented)

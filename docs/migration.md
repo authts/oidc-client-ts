@@ -17,8 +17,9 @@ The behavior of merging claims  has been improved.
 - the `mergeClaims` has been replaced by `mergeClaimsStrategy`
   - if the previous behavior is required `mergeClaimsStrategy: { array: "merge" }` comes close to it
 - default of `response_mode` changed from `query` &rarr; `undefined`
-- when using `signoutRedirect` a working callback is required to remove the user and raise an event. As usual
-  either call `signoutCallback` or `signoutRedirectCallback` in this situation.
+- when using `signoutRedirect` the user unload event is raised after the signout request (within callback)
+  - if not already done, implement that callback by using `signoutCallback` or `signoutRedirectCallback`
+  - if the previous behavior is required `raiserUserUnloadEventBeforeSignoutRequest: true` can be used
 
 
 ## oidc-client v1.11.5 &rarr; oidc-client-ts v2.0.0

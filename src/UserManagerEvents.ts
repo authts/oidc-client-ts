@@ -54,9 +54,11 @@ export class UserManagerEvents extends AccessTokenEvents {
             await this._userLoaded.raise(user);
         }
     }
-    public async unload(): Promise<void> {
+    public async unload(raiseEvent=true): Promise<void> {
         super.unload();
-        await this._userUnloaded.raise();
+        if (raiseEvent) {
+            await this._userUnloaded.raise();
+        }
     }
 
     /**

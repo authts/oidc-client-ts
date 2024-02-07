@@ -26,6 +26,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     /** The URL for the page containing the call to signinPopupCallback to handle the callback from the OIDC/OAuth2 */
     popup_redirect_uri?: string;
     popup_post_logout_redirect_uri?: string;
+
     /**
      * The features parameter to window.open for the popup signin window. By default, the popup is
      * placed centered in front of the window opener.
@@ -78,6 +79,9 @@ export interface UserManagerSettings extends OidcClientSettings {
     /** The number of seconds before an access token is to expire to raise the accessTokenExpiring event (default: 60) */
     accessTokenExpiringNotificationTimeInSeconds?: number;
 
+    /** Raise user unload event before the sending the signout request, otherwise its raised within the logout callback  (default: false) */
+    raiserUserUnloadEventBeforeSignoutRequest?: boolean;
+
     /**
      * Storage object used to persist User for currently authenticated user (default: window.sessionStorage, InMemoryWebStorage iff no window).
      *  E.g. `userStore: new WebStorageStateStore({ store: window.localStorage })`
@@ -94,6 +98,7 @@ export interface UserManagerSettings extends OidcClientSettings {
 export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly popup_redirect_uri: string;
     public readonly popup_post_logout_redirect_uri: string | undefined;
+
     public readonly popupWindowFeatures: PopupWindowFeatures;
     public readonly popupWindowTarget: string;
     public readonly redirectMethod: "replace" | "assign";
@@ -120,12 +125,15 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
     public readonly accessTokenExpiringNotificationTimeInSeconds: number;
 
+    public readonly raiserUserUnloadEventBeforeSignoutRequest: boolean;
+
     public readonly userStore: WebStorageStateStore;
 
     public constructor(args: UserManagerSettings) {
         const {
             popup_redirect_uri = args.redirect_uri,
             popup_post_logout_redirect_uri = args.post_logout_redirect_uri,
+
             popupWindowFeatures = DefaultPopupWindowFeatures,
             popupWindowTarget = DefaultPopupTarget,
             redirectMethod = "assign",
@@ -152,6 +160,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
             accessTokenExpiringNotificationTimeInSeconds = DefaultAccessTokenExpiringNotificationTimeInSeconds,
 
+            raiserUserUnloadEventBeforeSignoutRequest = false,
+
             userStore,
         } = args;
 
@@ -159,6 +169,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
         this.popup_redirect_uri = popup_redirect_uri;
         this.popup_post_logout_redirect_uri = popup_post_logout_redirect_uri;
+
         this.popupWindowFeatures = popupWindowFeatures;
         this.popupWindowTarget = popupWindowTarget;
         this.redirectMethod = redirectMethod;
@@ -184,6 +195,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         this.includeIdTokenInSilentSignout = includeIdTokenInSilentSignout;
 
         this.accessTokenExpiringNotificationTimeInSeconds = accessTokenExpiringNotificationTimeInSeconds;
+
+        this.raiserUserUnloadEventBeforeSignoutRequest = raiserUserUnloadEventBeforeSignoutRequest;
 
         if (userStore) {
             this.userStore = userStore;

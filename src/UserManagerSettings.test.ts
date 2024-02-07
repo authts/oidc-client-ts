@@ -376,4 +376,30 @@ describe("UserManagerSettings", () => {
             expect(subject.stopCheckSessionOnError).toEqual(true);
         });
     });
+
+    describe("raiserUserUnloadEventBeforeSignoutRequest", () => {
+        it("should return value from initial settings", () => {
+            // act
+            const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                raiserUserUnloadEventBeforeSignoutRequest : true,
+            });
+
+            // assert
+            expect(subject.stopCheckSessionOnError).toEqual(true);
+        });
+        it("should use default value", () => {
+            // act
+            const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+            });
+
+            // assert
+            expect(subject.raiserUserUnloadEventBeforeSignoutRequest).toEqual(false);
+        });
+    });
 });

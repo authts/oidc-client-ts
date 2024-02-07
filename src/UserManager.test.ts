@@ -846,8 +846,12 @@ describe("UserManager", () => {
     });
 
     describe("signoutRedirect", () => {
-        it("should not unload user to avoid race condition between actual signout and signout event handlers", async () => {
+        it("should remove user and send unload event (raiserUserUnloadEventBeforeSignoutRequest=true)", async () => {
             // arrange
+            subject = new UserManager({
+                ...subject.settings,
+                post_logout_redirect_uri: "post_logout_redirect_uri",
+                raiserUserUnloadEventBeforeSignoutRequest: true });
             const navigateMock = jest.fn().mockReturnValue(Promise.resolve({
                 url: "http://localhost:8080",
             } as NavigateResponse));
@@ -855,6 +859,7 @@ describe("UserManager", () => {
                 navigate: navigateMock,
                 close: () => {},
             }));
+            jest.spyOn(subject["_events"], "unload").mockImplementation(() => Promise.resolve());
             const user = new User({
                 access_token: "access_token",
                 token_type: "token_type",
@@ -868,13 +873,24 @@ describe("UserManager", () => {
             // assert
             expect(navigateMock).toHaveBeenCalledTimes(1);
             const storageString = await subject.settings.userStore.get(subject["_userStoreKey"]);
-            expect(storageString).not.toBeNull();
+            expect(storageString).toBeNull();
+            expect(subject["_events"].unload).toHaveBeenCalledWith(true);
         });
-    });
 
-    describe("signoutRedirectCallback", () => {
-        it("should unload user", async () => {
+        it("should remove user and send defer unload event (raiserUserUnloadEventBeforeSignoutRequest=false)", async () => {
             // arrange
+            subject = new UserManager({
+                ...subject.settings,
+                post_logout_redirect_uri: "post_logout_redirect_uri",
+                raiserUserUnloadEventBeforeSignoutRequest: false });
+            const navigateMock = jest.fn().mockReturnValue(Promise.resolve({
+                url: "http://localhost:8080",
+            } as NavigateResponse));
+            jest.spyOn(subject["_redirectNavigator"], "prepare").mockReturnValue(Promise.resolve({
+                navigate: navigateMock,
+                close: () => {},
+            }));
+            jest.spyOn(subject["_events"], "unload").mockImplementation(() => Promise.resolve());
             const user = new User({
                 access_token: "access_token",
                 token_type: "token_type",
@@ -882,13 +898,58 @@ describe("UserManager", () => {
             });
             await subject.storeUser(user);
 
-            expect(await subject.settings.userStore.get(subject["_userStoreKey"])).not.toBeNull();
+            // act
+            await subject.signoutRedirect();
+
+            // assert
+            expect(navigateMock).toHaveBeenCalledTimes(1);
+            const storageString = await subject.settings.userStore.get(subject["_userStoreKey"]);
+            expect(storageString).toBeNull();
+            expect(subject["_events"].unload).toHaveBeenCalledWith(false);
+        });
+
+        it("should throw an error for invalid settings", async () => {
+            // arrange
+            subject = new UserManager({
+                ...subject.settings,
+                raiserUserUnloadEventBeforeSignoutRequest: false });
+
+            // act
+            await expect(
+                subject.signoutRedirect(),
+            )
+                // assert
+                .rejects.toThrow();
+        });
+    });
+
+    describe("signoutRedirectCallback", () => {
+        it("should not raise unload event (raiserUserUnloadEventBeforeSignoutRequest=true)", async () => {
+            // arrange
+            subject = new UserManager({
+                ...subject.settings,
+                raiserUserUnloadEventBeforeSignoutRequest: true });
+            jest.spyOn(subject["_events"], "unload").mockImplementation(() => Promise.resolve());
 
             // act
             await subject.signoutRedirectCallback();
 
             // assert
-            expect(await subject.settings.userStore.get(subject["_userStoreKey"])).toBeNull();
+            expect(subject["_events"].unload).not.toHaveBeenCalled();
+        });
+
+        it("should not raise unload event (raiserUserUnloadEventBeforeSignoutRequest=false)", async () => {
+            // arrange
+            subject = new UserManager({
+                ...subject.settings,
+                raiserUserUnloadEventBeforeSignoutRequest: false });
+            jest.spyOn(subject["_events"], "unload").mockImplementation(() => Promise.resolve());
+
+            // act
+            await subject.signoutRedirectCallback();
+
+            // assert
+            expect(subject["_events"].unload).toHaveBeenCalledTimes(1);
         });
     });
 
