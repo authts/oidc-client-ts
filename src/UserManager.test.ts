@@ -56,10 +56,14 @@ describe("UserManager", () => {
             { monitorSession: true, message: "should" },
             { monitorSession: false, message: "should not" },
         ])("when monitorSession is $monitorSession $message init sessionMonitor", (args) => {
+            // arrange
             const settings = { ...subject.settings, monitorSession: args.monitorSession };
 
-            const userManager = new UserManager(settings);
-            const sessionMonitor = userManager["_sessionMonitor"];
+            // act
+            subject= new UserManager(settings);
+
+            // assert
+            const sessionMonitor = subject["_sessionMonitor"];
             if (args.monitorSession) {
                 expect(sessionMonitor).toBeDefined();
             } else {
@@ -68,33 +72,41 @@ describe("UserManager", () => {
         });
 
         it("should accept redirectNavigator", () => {
+            // arrange
             const customRedirectNavigator = new RedirectNavigator(subject.settings);
 
-            const userManager = new UserManager(subject.settings, customRedirectNavigator);
+            // act
+            subject = new UserManager(subject.settings, customRedirectNavigator);
 
-            expect(userManager["_redirectNavigator"]).toBe(customRedirectNavigator);
+            // assert
+            expect(subject["_redirectNavigator"]).toBe(customRedirectNavigator);
         });
 
         it("should accept popupNavigator", () => {
+            // arrange
             const customPopupNavigator = new PopupNavigator(subject.settings);
 
-            const userManager = new UserManager(subject.settings, undefined, customPopupNavigator);
+            subject = new UserManager(subject.settings, undefined, customPopupNavigator);
 
-            expect(userManager["_popupNavigator"]).toBe(customPopupNavigator);
+            // assert
+            expect(subject["_popupNavigator"]).toBe(customPopupNavigator);
         });
 
         it("should accept iframeNavigator", () => {
+            // arrange
             const customiframeNavigator = new IFrameNavigator(subject.settings);
 
-            const userManager = new UserManager(subject.settings, undefined, undefined, customiframeNavigator);
+            // act
+            subject = new UserManager(subject.settings, undefined, undefined, customiframeNavigator);
 
-            expect(userManager["_iframeNavigator"]).toBe(customiframeNavigator);
+            // assert
+            expect(subject["_iframeNavigator"]).toBe(customiframeNavigator);
         });
     });
 
     describe("settings", () => {
         it("should be UserManagerSettings", () => {
-            // act
+            // act & assert
             expect(subject.settings).toBeInstanceOf(UserManagerSettingsStore);
         });
     });
