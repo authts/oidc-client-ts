@@ -225,7 +225,7 @@ describe("OidcClient", () => {
             await subject.createSigninRequest(args);
 
             // assert
-            expect(setMock).toBeCalled();
+            expect(setMock).toHaveBeenCalled();
         });
     });
 
@@ -335,7 +335,7 @@ describe("OidcClient", () => {
             const response = await subject.processSigninResponse("http://app/cb?state=1");
 
             // assert
-            expect(validateSigninResponseMock).toBeCalledWith(response, item);
+            expect(validateSigninResponseMock).toHaveBeenCalledWith(response, item);
         });
     });
 
@@ -648,7 +648,7 @@ describe("OidcClient", () => {
             });
 
             // assert
-            expect(setMock).toBeCalled();
+            expect(setMock).toHaveBeenCalled();
         });
 
         it("should not generate state if no data", async () => {
@@ -660,7 +660,7 @@ describe("OidcClient", () => {
             await subject.createSignoutRequest();
 
             // assert
-            expect(setMock).not.toBeCalled();
+            expect(setMock).not.toHaveBeenCalled();
         });
     });
 
@@ -741,7 +741,7 @@ describe("OidcClient", () => {
             const response = await subject.processSignoutResponse("http://app/cb?state=1&error=foo");
 
             // assert
-            expect(validateSignoutResponse).toBeCalledWith(response, item);
+            expect(validateSignoutResponse).toHaveBeenCalledWith(response, item);
         });
     });
 
@@ -806,7 +806,7 @@ describe("OidcClient", () => {
             const response = await subject.processSignoutResponse("http://app/cb?state=1");
 
             // assert
-            expect(validateSignoutResponse).toBeCalledWith(response, item);
+            expect(validateSignoutResponse).toHaveBeenCalledWith(response, item);
         });
 
         it("should call validator with state even if error in response", async () => {
@@ -825,7 +825,7 @@ describe("OidcClient", () => {
             const response = await subject.processSignoutResponse("http://app/cb?state=1&error=foo");
 
             // assert
-            expect(validateSignoutResponse).toBeCalledWith(response, item);
+            expect(validateSignoutResponse).toHaveBeenCalledWith(response, item);
         });
     });
 
@@ -839,7 +839,7 @@ describe("OidcClient", () => {
             await subject.clearStaleState();
 
             // assert
-            expect(clearStaleState).toBeCalled();
+            expect(clearStaleState).toHaveBeenCalled();
         });
     });
 

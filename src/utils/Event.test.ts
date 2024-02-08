@@ -22,7 +22,7 @@ describe("Event", () => {
             await subject.raise();
 
             // assert
-            expect(cb).toBeCalled();
+            expect(cb).toHaveBeenCalled();
         });
 
         it("should allow multiple callbacks", async () => {
@@ -37,7 +37,7 @@ describe("Event", () => {
             await subject.raise();
 
             // assert
-            expect(cb).toBeCalledTimes(4);
+            expect(cb).toHaveBeenCalledTimes(4);
         });
     });
 
@@ -53,7 +53,7 @@ describe("Event", () => {
             await subject.raise();
 
             // assert
-            expect(cb).toBeCalledTimes(0);
+            expect(cb).toHaveBeenCalledTimes(0);
         });
 
         it("should remove individual callback", async () => {
@@ -71,8 +71,8 @@ describe("Event", () => {
             await subject.raise();
 
             // assert
-            expect(cb1).toBeCalledTimes(0);
-            expect(cb2).toBeCalledTimes(1);
+            expect(cb1).toHaveBeenCalledTimes(0);
+            expect(cb2).toHaveBeenCalledTimes(1);
         });
     });
 

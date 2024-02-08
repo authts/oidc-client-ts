@@ -58,7 +58,7 @@ describe("MetadataService", () => {
             await subject.getMetadata();
 
             // assert
-            expect(getJsonMock).toBeCalledWith("authority/.well-known/openid-configuration", { credentials: "same-origin" });
+            expect(getJsonMock).toHaveBeenCalledWith("authority/.well-known/openid-configuration", { credentials: "same-origin" });
         });
 
         it("should fail when no authority or metadataUrl configured", async () => {
@@ -93,7 +93,7 @@ describe("MetadataService", () => {
             await subject.getMetadata();
 
             // assert
-            expect(getJsonMock).toBeCalledWith("http://sts/metadata", { credentials: "same-origin" });
+            expect(getJsonMock).toHaveBeenCalledWith("http://sts/metadata", { credentials: "same-origin" });
         });
 
         it("should return metadata from json call", async () => {
@@ -196,7 +196,7 @@ describe("MetadataService", () => {
             await subject.getMetadata();
 
             // assert
-            expect(getJsonMock).toBeCalledWith("http://sts/metadata", { credentials: "include" });
+            expect(getJsonMock).toHaveBeenCalledWith("http://sts/metadata", { credentials: "include" });
         });
     });
 
@@ -535,7 +535,7 @@ describe("MetadataService", () => {
             await subject.getSigningKeys();
 
             // assert
-            expect(getJsonMock).toBeCalledWith("http://sts/metadata/keys");
+            expect(getJsonMock).toHaveBeenCalledWith("http://sts/metadata/keys");
         });
 
         it("should return keys from jwks_uri", async () => {

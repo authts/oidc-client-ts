@@ -57,7 +57,7 @@ describe("IFrameWindow", () => {
                     .mockReturnValue({ location: { replace: replaceMock } } as unknown as WindowProxy);
 
                 subject.close();
-                expect(replaceMock).toBeCalledWith("about:blank");
+                expect(replaceMock).toHaveBeenCalledWith("about:blank");
             });
 
             it("should reset frame to null", () => {
@@ -174,7 +174,7 @@ describe("IFrameWindow", () => {
             [undefined, fakeWindowOrigin],
         ])("should call postMessage with appropriate parameters", (targetOrigin, expectedOrigin) => {
             IFrameWindow.notifyParent(messageData.url, targetOrigin);
-            expect(postMessageMock).toBeCalledWith(messageData, expectedOrigin);
+            expect(postMessageMock).toHaveBeenCalledWith(messageData, expectedOrigin);
         });
     });
 });
