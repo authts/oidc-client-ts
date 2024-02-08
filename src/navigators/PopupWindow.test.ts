@@ -152,7 +152,7 @@ describe("PopupWindow", () => {
 
     it("should run setTimeout when closePopupWindowAfterInSeconds is greater than 0", async () => {
         jest.spyOn(global, "setTimeout");
-        
+
         new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: 1 } });
 
         jest.runOnlyPendingTimers();
@@ -162,7 +162,7 @@ describe("PopupWindow", () => {
 
     it("shouldn't run setTimeout when closePopupWindowAfterInSeconds is equal to 0", async () => {
         jest.spyOn(global, "setTimeout");
-        
+
         new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: 0 } });
 
         jest.runOnlyPendingTimers();
@@ -172,7 +172,7 @@ describe("PopupWindow", () => {
 
     it("shouldn't run setTimeout when closePopupWindowAfterInSeconds is less than 0", async () => {
         jest.spyOn(global, "setTimeout");
-        
+
         new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: -120 } });
 
         jest.runOnlyPendingTimers();
@@ -198,7 +198,7 @@ describe("PopupWindow", () => {
 
         jest.runOnlyPendingTimers();
 
-        expect(closeWindowSpy).not.toBeCalled();
+        expect(closeWindowSpy).not.toHaveBeenCalled();
         jest.runAllTimers();
     });
 

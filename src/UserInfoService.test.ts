@@ -60,7 +60,7 @@ describe("UserInfoService", () => {
             await subject.getClaims("token");
 
             // assert
-            expect(getJsonMock).toBeCalledWith(
+            expect(getJsonMock).toHaveBeenCalledWith(
                 "http://sts/userinfo",
                 expect.objectContaining({
                     token: "token",
@@ -112,7 +112,7 @@ describe("UserInfoService", () => {
             await subject.getClaims("token");
 
             // assert
-            expect(getJsonMock).toBeCalledWith(
+            expect(getJsonMock).toHaveBeenCalledWith(
                 "http://sts/userinfo",
                 expect.objectContaining({
                     credentials: "include",

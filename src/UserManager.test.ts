@@ -137,7 +137,7 @@ describe("UserManager", () => {
 
             // assert
             expect(result).toEqual(user);
-            expect(loadMock).toBeCalledWith(user, false);
+            expect(loadMock).toHaveBeenCalledWith(user, false);
         });
 
         it("should return null if there is no user stored", async () => {
@@ -150,7 +150,7 @@ describe("UserManager", () => {
 
             // assert
             expect(result).toBeNull();
-            expect(loadMock).not.toBeCalled();
+            expect(loadMock).not.toHaveBeenCalled();
         });
     });
 
@@ -164,8 +164,8 @@ describe("UserManager", () => {
             await subject.removeUser();
 
             // assert
-            expect(storeUserMock).toBeCalledWith(null);
-            expect(unloadMock).toBeCalled();
+            expect(storeUserMock).toHaveBeenCalledWith(null);
+            expect(unloadMock).toHaveBeenCalled();
         });
     });
 
@@ -253,7 +253,7 @@ describe("UserManager", () => {
             await subject.signinRedirect(navParams);
 
             // assert
-            expect(prepareMock).toBeCalledWith(navParams);
+            expect(prepareMock).toHaveBeenCalledWith(navParams);
         });
 
         it("should pass extra args to _signinStart", async () => {
@@ -274,7 +274,7 @@ describe("UserManager", () => {
             await subject.signinRedirect(extraArgs);
 
             // assert
-            expect(subject["_signinStart"]).toBeCalledWith(
+            expect(subject["_signinStart"]).toHaveBeenCalledWith(
                 {
                     request_type: "si:r",
                     ...extraArgs,
@@ -365,7 +365,7 @@ describe("UserManager", () => {
             await subject.signinPopup(navParams);
 
             // assert
-            expect(prepareMock).toBeCalledWith(navParams);
+            expect(prepareMock).toHaveBeenCalledWith(navParams);
         });
 
         it("should pass extra args to _signinStart", async () => {
@@ -392,7 +392,7 @@ describe("UserManager", () => {
             await subject.signinPopup(extraArgs);
 
             // assert
-            expect(subject["_signin"]).toBeCalledWith(
+            expect(subject["_signin"]).toHaveBeenCalledWith(
                 {
                     request_type: "si:p",
                     display: "popup",
@@ -414,7 +414,7 @@ describe("UserManager", () => {
             await subject.signinPopupCallback(url, keepOpen);
 
             // assert
-            expect(callbackMock).toBeCalledWith(url, { keepOpen });
+            expect(callbackMock).toHaveBeenCalledWith(url, { keepOpen });
         });
     });
 
@@ -454,7 +454,7 @@ describe("UserManager", () => {
             await subject.signinSilent(navParams);
 
             // assert
-            expect(prepareMock).toBeCalledWith(navParams);
+            expect(prepareMock).toHaveBeenCalledWith(navParams);
         });
 
         it("should pass extra args to _signinStart", async () => {
@@ -478,7 +478,7 @@ describe("UserManager", () => {
             await subject.signinSilent(extraArgs);
 
             // assert
-            expect(subject["_signin"]).toBeCalledWith(
+            expect(subject["_signin"]).toHaveBeenCalledWith(
                 {
                     request_type: "si:s",
                     prompt: "none",
@@ -534,7 +534,7 @@ describe("UserManager", () => {
             const refreshedUser = await subject.signinSilent();
             expect(refreshedUser).toHaveProperty("access_token", "new_access_token");
             expect(refreshedUser!.profile).toHaveProperty("nickname", "Nicholas");
-            expect(useRefreshTokenSpy).toBeCalledWith(
+            expect(useRefreshTokenSpy).toHaveBeenCalledWith(
                 expect.objectContaining({
                     state: {
                         refresh_token: user.refresh_token,
@@ -568,7 +568,7 @@ describe("UserManager", () => {
 
             // act
             await subject.signinSilent({ resource: "resource" });
-            expect(useRefreshTokenSpy).toBeCalledWith(
+            expect(useRefreshTokenSpy).toHaveBeenCalledWith(
                 expect.objectContaining({
                     state: {
                         refresh_token: user.refresh_token,
@@ -591,7 +591,7 @@ describe("UserManager", () => {
             await subject.signinSilentCallback(url);
 
             // assert
-            expect(callbackMock).toBeCalledWith(url);
+            expect(callbackMock).toHaveBeenCalledWith(url);
         });
     });
 
@@ -617,7 +617,7 @@ describe("UserManager", () => {
             const result = await subject.signinCallback(url);
 
             // assert
-            expect(signinRedirectCallbackMock).toBeCalledWith(url);
+            expect(signinRedirectCallbackMock).toHaveBeenCalledWith(url);
             expect(result).toEqual(user);
         });
 
@@ -636,7 +636,7 @@ describe("UserManager", () => {
             const result = await subject.signinCallback(url);
 
             // assert
-            expect(signinPopupCallbackMock).toBeCalledWith(url);
+            expect(signinPopupCallbackMock).toHaveBeenCalledWith(url);
             expect(result).toBe(undefined);
         });
 
@@ -655,7 +655,7 @@ describe("UserManager", () => {
             const result = await subject.signinCallback(url);
 
             // assert
-            expect(signinRedirectCallbackMock).toBeCalledWith(url);
+            expect(signinRedirectCallbackMock).toHaveBeenCalledWith(url);
             expect(result).toBe(undefined);
         });
 
@@ -692,7 +692,7 @@ describe("UserManager", () => {
             await subject.signoutCallback(url, true);
 
             // assert
-            expect(signoutRedirectCallbackMock).toBeCalledWith(url);
+            expect(signoutRedirectCallbackMock).toHaveBeenCalledWith(url);
         });
 
         it("should signout popup callback for request type so:p", async () => {
@@ -712,7 +712,7 @@ describe("UserManager", () => {
             await subject.signoutCallback(url, keepOpen);
 
             // assert
-            expect(signoutPopupCallbackMock).toBeCalledWith(url, keepOpen);
+            expect(signoutPopupCallbackMock).toHaveBeenCalledWith(url, keepOpen);
         });
 
         it("should have valid request type", async () => {
@@ -760,7 +760,7 @@ describe("UserManager", () => {
             await subject.signoutSilent(navParams);
 
             // assert
-            expect(prepareMock).toBeCalledWith(navParams);
+            expect(prepareMock).toHaveBeenCalledWith(navParams);
         });
 
         it("should pass extra args to _signoutStart", async () => {
@@ -777,7 +777,7 @@ describe("UserManager", () => {
             await subject.signoutSilent(extraArgs);
 
             // assert
-            expect(subject["_signout"]).toBeCalledWith(
+            expect(subject["_signout"]).toHaveBeenCalledWith(
                 {
                     request_type: "so:s",
                     id_token_hint: undefined,
@@ -808,7 +808,7 @@ describe("UserManager", () => {
             await subject.signoutSilent();
 
             // assert
-            expect(subject["_signout"]).toBeCalledWith(
+            expect(subject["_signout"]).toHaveBeenCalledWith(
                 expect.objectContaining({
                     id_token_hint: "id_token",
                 }),
@@ -834,7 +834,7 @@ describe("UserManager", () => {
             await subject.signoutSilent();
 
             // assert
-            expect(subject["_signout"]).toBeCalledWith(
+            expect(subject["_signout"]).toHaveBeenCalledWith(
                 expect.objectContaining({
                     id_token_hint: undefined,
                 }),
@@ -853,7 +853,7 @@ describe("UserManager", () => {
             await subject.signoutSilentCallback(url);
 
             // assert
-            expect(callbackMock).toBeCalledWith(url);
+            expect(callbackMock).toHaveBeenCalledWith(url);
         });
     });
 

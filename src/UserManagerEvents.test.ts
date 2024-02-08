@@ -28,7 +28,7 @@ describe("UserManagerEvents", () => {
             await subject._raiseSilentRenewError(new Error("boom"));
 
             // assert
-            expect(cb).toBeCalled();
+            expect(cb).toHaveBeenCalled();
         });
 
         it("should allow unregistering callback", async () => {
@@ -41,7 +41,7 @@ describe("UserManagerEvents", () => {
             await subject._raiseSilentRenewError(new Error("boom"));
 
             // assert
-            expect(cb).toBeCalledTimes(0);
+            expect(cb).toHaveBeenCalledTimes(0);
         });
 
         it("should pass error to callback", async () => {

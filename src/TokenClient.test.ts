@@ -85,8 +85,8 @@ describe("TokenClient", () => {
 
             // assert
             expect(generateBasicAuthSpy).toHaveBeenCalledWith("client_id", "client_secret");
-            expect(getTokenEndpointMock).toBeCalledWith(false);
-            expect(postFormMock).toBeCalledWith(
+            expect(getTokenEndpointMock).toHaveBeenCalledWith(false);
+            expect(postFormMock).toHaveBeenCalledWith(
                 "http://sts/token_endpoint",
                 expect.objectContaining({
                     body: expect.any(URLSearchParams),
@@ -109,8 +109,8 @@ describe("TokenClient", () => {
             await subject.exchangeCode({ code: "code", code_verifier: "code_verifier" });
 
             // assert
-            expect(getTokenEndpointMock).toBeCalledWith(false);
-            expect(postFormMock).toBeCalledWith(
+            expect(getTokenEndpointMock).toHaveBeenCalledWith(false);
+            expect(postFormMock).toHaveBeenCalledWith(
                 "http://sts/token_endpoint",
                 expect.objectContaining({
                     body: expect.any(URLSearchParams),
@@ -133,8 +133,8 @@ describe("TokenClient", () => {
             await subject.exchangeCode({ code: "code", code_verifier: "code_verifier" });
 
             // assert
-            expect(getTokenEndpointMock).toBeCalledWith(false);
-            expect(postFormMock).toBeCalledWith(
+            expect(getTokenEndpointMock).toHaveBeenCalledWith(false);
+            expect(postFormMock).toHaveBeenCalledWith(
                 "http://sts/token_endpoint",
                 expect.objectContaining({
                     body: expect.any(URLSearchParams),
@@ -185,8 +185,8 @@ describe("TokenClient", () => {
 
             // assert
             expect(generateBasicAuthSpy).toHaveBeenCalledWith("client_id", "client_secret");
-            expect(getTokenEndpointMock).toBeCalledWith(false);
-            expect(postFormMock).toBeCalledWith(
+            expect(getTokenEndpointMock).toHaveBeenCalledWith(false);
+            expect(postFormMock).toHaveBeenCalledWith(
                 "http://sts/token_endpoint",
                 expect.objectContaining({
                     body: expect.any(URLSearchParams),
@@ -209,8 +209,8 @@ describe("TokenClient", () => {
             await subject.exchangeCredentials({ username: "u", password: "p" });
 
             // assert
-            expect(getTokenEndpointMock).toBeCalledWith(false);
-            expect(postFormMock).toBeCalledWith(
+            expect(getTokenEndpointMock).toHaveBeenCalledWith(false);
+            expect(postFormMock).toHaveBeenCalledWith(
                 "http://sts/token_endpoint",
                 expect.objectContaining({
                     body: expect.any(URLSearchParams),
@@ -233,8 +233,8 @@ describe("TokenClient", () => {
             await subject.exchangeCredentials({ username: "u", password: "p" });
 
             // assert
-            expect(getTokenEndpointMock).toBeCalledWith(false);
-            expect(postFormMock).toBeCalledWith(
+            expect(getTokenEndpointMock).toHaveBeenCalledWith(false);
+            expect(postFormMock).toHaveBeenCalledWith(
                 "http://sts/token_endpoint",
                 expect.objectContaining({
                     body: expect.any(URLSearchParams),
@@ -300,8 +300,8 @@ describe("TokenClient", () => {
             await subject.exchangeRefreshToken({ refresh_token: "refresh_token" });
 
             // assert
-            expect(getTokenEndpointMock).toBeCalledWith(false);
-            expect(postFormMock).toBeCalledWith(
+            expect(getTokenEndpointMock).toHaveBeenCalledWith(false);
+            expect(postFormMock).toHaveBeenCalledWith(
                 "http://sts/token_endpoint",
                 expect.objectContaining({
                     body: expect.any(URLSearchParams),
@@ -325,8 +325,8 @@ describe("TokenClient", () => {
             await subject.exchangeRefreshToken({ refresh_token: "refresh_token" });
 
             // assert
-            expect(getTokenEndpointMock).toBeCalledWith(false);
-            expect(postFormMock).toBeCalledWith(
+            expect(getTokenEndpointMock).toHaveBeenCalledWith(false);
+            expect(postFormMock).toHaveBeenCalledWith(
                 "http://sts/token_endpoint",
                 expect.objectContaining({
                     body: expect.any(URLSearchParams),
@@ -350,8 +350,8 @@ describe("TokenClient", () => {
             await subject.exchangeRefreshToken({ refresh_token: "refresh_token" });
 
             // assert
-            expect(getTokenEndpointMock).toBeCalledWith(false);
-            expect(postFormMock).toBeCalledWith(
+            expect(getTokenEndpointMock).toHaveBeenCalledWith(false);
+            expect(postFormMock).toHaveBeenCalledWith(
                 "http://sts/token_endpoint",
                 expect.objectContaining({
                     body: expect.any(URLSearchParams),
@@ -384,8 +384,8 @@ describe("TokenClient", () => {
             await subject.revoke({ token: "token", token_type_hint: "access_token" });
 
             // assert
-            expect(getTokenEndpointMock).toBeCalledWith(false);
-            expect(postFormMock).toBeCalledWith(
+            expect(getTokenEndpointMock).toHaveBeenCalledWith(false);
+            expect(postFormMock).toHaveBeenCalledWith(
                 "http://sts/revoke_endpoint",
                 expect.objectContaining({
                     body: expect.any(URLSearchParams),
