@@ -11,7 +11,7 @@ import {
 } from "./navigators";
 import type { SigninResponse } from "./SigninResponse";
 import type { SignoutResponse } from "./SignoutResponse";
-import { UserManager, type SigninPopupArgs, type SigninRedirectArgs, type SigninSilentArgs, type SignoutSilentArgs } from "./UserManager";
+import { UserManager, type SigninPopupArgs, type SigninRedirectArgs, type SigninSilentArgs, type SignoutSilentArgs, type SignoutPopupArgs } from "./UserManager";
 import { UserManagerSettingsStore } from "./UserManagerSettings";
 import { User } from "./User";
 import type { UserProfile } from "./User";
@@ -689,7 +689,7 @@ describe("UserManager", () => {
             const url = "http://app/cb?state=test&code=code";
 
             // act
-            await subject.signoutCallback(url, true);
+            await subject.signoutCallback(url);
 
             // assert
             expect(signoutRedirectCallbackMock).toHaveBeenCalledWith(url);
@@ -713,6 +713,38 @@ describe("UserManager", () => {
 
             // assert
             expect(signoutPopupCallbackMock).toHaveBeenCalledWith(url, keepOpen);
+        });
+
+        it("should signout silent callback for request type so:s", async () => {
+            // arrange
+            const responseState = {
+                state: { request_type: "so:s" } as State,
+                response: { } as SignoutResponse,
+            };
+            jest.spyOn(subject["_client"], "readSignoutResponseState")
+                .mockImplementation(() => Promise.resolve(responseState));
+            const signoutSilentCallbackMock = jest.spyOn(subject, "signoutSilentCallback")
+                .mockImplementation();
+            const url = "http://app/cb?state=test&code=code";
+
+            // act
+            await subject.signoutCallback(url);
+
+            // assert
+            expect(signoutSilentCallbackMock).toHaveBeenCalledWith(url);
+        });
+
+        it("should do nothing without state", async () => {
+            // arrange
+            const responseState = {
+                state: undefined,
+                response: { } as SignoutResponse,
+            };
+            jest.spyOn(subject["_client"], "readSignoutResponseState")
+                .mockImplementation(() => Promise.resolve(responseState));
+
+            // act & assert (no throw)
+            await subject.signoutCallback();
         });
 
         it("should have valid request type", async () => {
@@ -881,6 +913,55 @@ describe("UserManager", () => {
             expect(navigateMock).toHaveBeenCalledTimes(1);
             const storageString = await subject.settings.userStore.get(subject["_userStoreKey"]);
             expect(storageString).toBeNull();
+        });
+    });
+
+    describe("signoutPopup", () => {
+        it("should pass navigator params to navigator", async () => {
+            // arrange
+            const handle = { } as PopupWindow;
+            const prepareMock = jest.spyOn(subject["_popupNavigator"], "prepare")
+                .mockImplementation(() => Promise.resolve(handle));
+            subject["_signout"] = jest.fn();
+            const navParams: SignoutPopupArgs = {
+                popupWindowFeatures: {
+                    location: false,
+                    toolbar: false,
+                    height: 100,
+                },
+                popupWindowTarget: "popupWindowTarget",
+            };
+
+            // act
+            await subject.signoutPopup(navParams);
+
+            // assert
+            expect(prepareMock).toHaveBeenCalledWith(navParams);
+        });
+
+        it("should pass extra args to _signoutStart", async () => {
+            // arrange
+            const handle = { } as PopupWindow;
+            jest.spyOn(subject["_popupNavigator"], "prepare")
+                .mockImplementation(() => Promise.resolve(handle));
+            subject["_signout"] = jest.fn().mockResolvedValue({} as SignoutResponse);
+            const extraArgs: SignoutPopupArgs = {
+                extraQueryParams: { q : "q" },
+                state: "state",
+                post_logout_redirect_uri: "http://app/extra_callback",
+            };
+
+            // act
+            await subject.signoutPopup(extraArgs);
+
+            // assert
+            expect(subject["_signout"]).toHaveBeenCalledWith(
+                {
+                    request_type: "so:p",
+                    ...extraArgs,
+                },
+                handle,
+            );
         });
     });
 
