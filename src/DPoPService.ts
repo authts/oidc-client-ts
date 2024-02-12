@@ -60,7 +60,7 @@ export class DPoPService {
         try {
             const keyPair = await this.loadKeyPair();
             const publicJwk = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
-            return await this.customCalculateJwkThumbprint(publicJwk);
+            return await CryptoUtils.customCalculateJwkThumbprint(publicJwk);
         } catch (err) {
             if (err instanceof TypeError) {
                 throw new Error(`Could not retrieve dpop keys from storage: ${err.message}`);
@@ -68,44 +68,6 @@ export class DPoPService {
                 throw err;
             }
         }
-    }
-
-    public static async customCalculateJwkThumbprint(jwk: JsonWebKey): Promise<string> {
-        let jsonObject: object;
-        switch (jwk.kty) {
-            case "RSA":
-                jsonObject = {
-                    "e": jwk.e,
-                    "kty": jwk.kty,
-                    "n": jwk.n,
-                };
-                break;
-            case "EC":
-                jsonObject = {
-                    "crv": jwk.crv,
-                    "kty": jwk.kty,
-                    "x": jwk.x,
-                    "y": jwk.y,
-                };
-                break;
-            case "OKP":
-                jsonObject = {
-                    "crv": jwk.crv,
-                    "kty": jwk.kty,
-                    "x": jwk.x,
-                };
-                break;
-            case "oct":
-                jsonObject = {
-                    "crv": jwk.k,
-                    "kty": jwk.kty,
-                };
-                break;
-            default:
-                throw new Error("Unknown jwk type");
-        }
-        const utf8encodedAndHashed = await CryptoUtils.hash("SHA-256", JSON.stringify(jsonObject));
-        return CryptoUtils.encodeBase64Url(utf8encodedAndHashed);
     }
 
     protected static async loadKeyPair() : Promise<CryptoKeyPair> {

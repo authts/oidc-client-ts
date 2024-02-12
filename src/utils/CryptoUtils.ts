@@ -63,16 +63,28 @@ export class CryptoUtils {
         return toBase64(data);
     }
 
+    /**
+     * Generates a base64url encoded string
+     */
     public static encodeBase64Url = (input: Uint8Array) => {
         return toBase64(input).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
     };
 
+    /**
+     * Generates a hash of a string using a given algorithm
+     * @param alg
+     * @param message
+     */
     public static async hash(alg: string, message: string) : Promise<Uint8Array> {
         const msgUint8 = new TextEncoder().encode(message);
         const hashBuffer = await crypto.subtle.digest(alg, msgUint8);
         return new Uint8Array(hashBuffer);
     }
 
+    /**
+     * Generates a rfc7638 compliant jwk thumbprint
+     * @param jwk
+     */
     public static async customCalculateJwkThumbprint(jwk: JsonWebKey): Promise<string> {
         let jsonObject: object;
         switch (jwk.kty) {

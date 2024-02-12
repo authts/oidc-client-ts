@@ -12,4 +12,17 @@ describe("CryptoUtils", () => {
             expect(rnd).toMatch(pattern);
         });
     });
+
+    describe("customCalculateJwkThumbprint", () => {
+        it("should return a valid rfc7638 jwk thumbprint", async () => {
+            const jwk = {
+                "kty": "EC",
+                "x": "zSau12OpG01OkWtiU8yG1ppv06v1uDrG66cNeqMWk_8",
+                "y": "Mjr6rkLy4chKd7f8m0ctUFEA2DtZuk_F09FU3h98xyo",
+                "crv": "P-256",
+            } as JsonWebKey;
+            const jwkThumbprint = await CryptoUtils.customCalculateJwkThumbprint(jwk);
+            expect(jwkThumbprint).toEqual("fvRy8PxXeUhrCgW4r0hAFroUAqSnmyiCncJmlCamt9g");
+        });
+    });
 });
