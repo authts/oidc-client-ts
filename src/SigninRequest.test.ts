@@ -23,7 +23,7 @@ describe("SigninRequest", () => {
     });
 
     describe("constructor", () => {
-        it.each(["url", "client_id", "redirect_uri", "response_type", "scope", "authority"])("should require a %s param", async (param) => {
+        it.each(["url", "client_id", "redirect_uri", "response_type", "authority"])("should require a %s param", async (param) => {
             // arrange
             Object.assign(settings, { [param]: undefined });
 
@@ -64,6 +64,18 @@ describe("SigninRequest", () => {
         it("should include scope", () => {
             // assert
             expect(url).toContain("scope=openid");
+        });
+
+        it("should not include scope if scope is not specified", async () => {
+            // arrange
+            settings.scope = undefined;
+
+            // act
+            subject = await SigninRequest.create(settings);
+            url = subject.url;
+
+            // assert
+            expect(url).not.toContain("scope");
         });
 
         it("should include state", () => {

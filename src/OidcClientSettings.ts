@@ -137,6 +137,12 @@ export interface OidcClientSettings {
      * Only scopes in this list will be passed in the token refresh request.
      */
     refreshTokenAllowedScope?: string | undefined;
+
+    /**
+     * https://datatracker.ietf.org/doc/html/rfc6749#section-3.3 describes behavior when omitting scopes from sign in requests
+     * If the IDP supports default scopes, this setting will ignore the scopes property passed to the config
+     */
+    useIdpDefaultScopes?: boolean;
 }
 
 /**
@@ -157,7 +163,7 @@ export class OidcClientSettingsStore {
     public readonly client_id: string;
     public readonly client_secret: string | undefined;
     public readonly response_type: string;
-    public readonly scope: string;
+    public readonly scope: string | undefined;
     public readonly redirect_uri: string;
     public readonly post_logout_redirect_uri: string | undefined;
     public readonly client_authentication: "client_secret_basic" | "client_secret_post";
@@ -213,6 +219,7 @@ export class OidcClientSettingsStore {
         extraQueryParams = {},
         extraTokenParams = {},
         extraHeaders = {},
+        useIdpDefaultScopes = false,
     }: OidcClientSettings) {
 
         this.authority = authority;
@@ -229,6 +236,11 @@ export class OidcClientSettingsStore {
             }
         }
 
+        this.scope = scope;
+        if (useIdpDefaultScopes) {
+            this.scope = undefined;
+        }
+
         this.metadata = metadata;
         this.metadataSeed = metadataSeed;
         this.signingKeys = signingKeys;
@@ -236,7 +248,6 @@ export class OidcClientSettingsStore {
         this.client_id = client_id;
         this.client_secret = client_secret;
         this.response_type = response_type;
-        this.scope = scope;
         this.redirect_uri = redirect_uri;
         this.post_logout_redirect_uri = post_logout_redirect_uri;
         this.client_authentication = client_authentication;
