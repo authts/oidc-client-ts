@@ -15,7 +15,7 @@ import type { SignoutResponse } from "./SignoutResponse";
 import type { MetadataService } from "./MetadataService";
 import { RefreshState } from "./RefreshState";
 import type { SigninResponse } from "./SigninResponse";
-import { del } from "idb-keyval";
+import { IndexedDbCryptoKeyPairStore } from "./IndexedDbCryptoKeyPairStore";
 
 /**
  * @public
@@ -156,7 +156,7 @@ export class UserManager {
         await this.storeUser(null);
         logger.info("user removed from storage");
         if (this.settings.dpopSettings.enabled) {
-            await del("oidc.dpop");
+            await IndexedDbCryptoKeyPairStore.remove("oidc.dpop");
             logger.debug("removed dpop cyptokeys from storage");
         }
         await this._events.unload();

@@ -18,7 +18,7 @@ import type { UserProfile } from "./User";
 import { WebStorageStateStore } from "./WebStorageStateStore";
 import type { SigninState } from "./SigninState";
 import type { State } from "./State";
-import * as idb from "idb-keyval";
+import { IndexedDbCryptoKeyPairStore as idb } from "./IndexedDbCryptoKeyPairStore";
 
 import { mocked } from "jest-mock";
 
@@ -166,7 +166,7 @@ describe("UserManager", () => {
             });
             const storeUserMock = jest.spyOn(subject, "storeUser");
             const unloadMock = jest.spyOn(subject["_events"], "unload");
-            const delMock = jest.spyOn(idb, "del");
+            const delMock = jest.spyOn(idb, "remove");
             // act
             await subject.removeUser();
 

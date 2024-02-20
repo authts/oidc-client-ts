@@ -40,7 +40,6 @@
   },
   "dependencies": {
     "crypto-js": "^4.1.1",
-    "idb-keyval": "^6.2.1",
     "jwt-decode": "^4.0.0"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
-import { get, keys, set } from "idb-keyval";
 import { CryptoUtils, JwtUtils } from "./utils";
+import { IndexedDbCryptoKeyPairStore } from "./IndexedDbCryptoKeyPairStore";
 
 /**
  * Provides an implementation of Demonstrating Proof of Posession as defined in the
@@ -72,13 +72,13 @@ export class DPoPService {
 
     protected static async loadKeyPair() : Promise<CryptoKeyPair> {
         try {
-            const allKeys = await keys();
+            const allKeys = await IndexedDbCryptoKeyPairStore.getAllKeys();
             let keyPair: CryptoKeyPair;
             if (!allKeys.includes("oidc.dpop")) {
                 keyPair = await this.generateKeys();
-                await set("oidc.dpop", keyPair);
+                await IndexedDbCryptoKeyPairStore.set("oidc.dpop", keyPair);
             } else {
-                keyPair = await get("oidc.dpop") as CryptoKeyPair;
+                keyPair = await IndexedDbCryptoKeyPairStore.get("oidc.dpop") as CryptoKeyPair;
             }
             return keyPair;
         } catch (err) {
