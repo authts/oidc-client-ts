@@ -1,13 +1,16 @@
 export class IndexedDbCryptoKeyPairStore {
+    static dbName = "oidc";
+    static storeName = "dpop";
+
     static async get(key: string): Promise<CryptoKeyPair | null> {
-        const store = await this.createStore("big", "party");
+        const store = await this.createStore(this.dbName, this.storeName);
         return await store("readonly", (str) => {
             return this.promisifyRequest(str.get(key));
         }) as CryptoKeyPair;
     }
 
     static async getAllKeys(): Promise<string[]> {
-        const store = await this.createStore("big", "party");
+        const store = await this.createStore(this.dbName, this.storeName);
         return await store("readonly", (str) => {
             return this.promisifyRequest(str.getAllKeys());
         }) as string[];
@@ -15,7 +18,7 @@ export class IndexedDbCryptoKeyPairStore {
 
     static async remove(key: string): Promise<CryptoKeyPair | null> {
         const item = await this.get(key);
-        const store = await this.createStore("big", "party");
+        const store = await this.createStore(this.dbName, this.storeName);
         await store("readwrite", (str) => {
             return this.promisifyRequest(str.delete(key));
         });
@@ -23,7 +26,7 @@ export class IndexedDbCryptoKeyPairStore {
     }
 
     static async set(key: string, value: CryptoKeyPair): Promise<void> {
-        const store = await this.createStore("big", "party");
+        const store = await this.createStore(this.dbName, this.storeName);
         await store("readwrite", (str: IDBObjectStore) => {
             str.put(value, key);
             return this.promisifyRequest(str.transaction);

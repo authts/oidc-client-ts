@@ -2,7 +2,7 @@ import { CryptoUtils, JwtUtils } from "./utils";
 import { IndexedDbCryptoKeyPairStore } from "./IndexedDbCryptoKeyPairStore";
 
 /**
- * Provides an implementation of Demonstrating Proof of Posession as defined in the
+ * Provides an implementation of Demonstrating Proof of Possession (DPoP) as defined in the
  * OAuth2 spec https://datatracker.ietf.org/doc/html/rfc9449.
  */
 export class DPoPService {

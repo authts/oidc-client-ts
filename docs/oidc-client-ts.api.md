@@ -140,6 +140,26 @@ export interface INavigator {
 }
 
 // @public (undocumented)
+export class IndexedDbCryptoKeyPairStore {
+    // (undocumented)
+    static createStore<T>(dbName: string, storeName: string): Promise<(txMode: IDBTransactionMode, callback: (store: IDBObjectStore) => T | PromiseLike<T>) => Promise<T>>;
+    // (undocumented)
+    static dbName: string;
+    // (undocumented)
+    static get(key: string): Promise<CryptoKeyPair | null>;
+    // (undocumented)
+    static getAllKeys(): Promise<string[]>;
+    // (undocumented)
+    static promisifyRequest<T = undefined>(request: IDBRequest<T> | IDBTransaction): Promise<T>;
+    // (undocumented)
+    static remove(key: string): Promise<CryptoKeyPair | null>;
+    // (undocumented)
+    static set(key: string, value: CryptoKeyPair): Promise<void>;
+    // (undocumented)
+    static storeName: string;
+}
+
+// @public (undocumented)
 export class InMemoryWebStorage implements Storage {
     // (undocumented)
     clear(): void;
