@@ -1,6 +1,9 @@
 export class IndexedDbCryptoKeyPairStore {
     static async get(key: string): Promise<CryptoKeyPair | null> {
-        return await this.getKey(key);
+        const store = await this.createStore("big", "party");
+        return await store("readonly", (str) => {
+            return this.promisifyRequest(str.get(key));
+        }) as CryptoKeyPair;
     }
 
     static async getAllKeys(): Promise<string[]> {
@@ -12,34 +15,19 @@ export class IndexedDbCryptoKeyPairStore {
 
     static async remove(key: string): Promise<CryptoKeyPair | null> {
         const item = await this.get(key);
-        await this.delKey(key);
+        const store = await this.createStore("big", "party");
+        await store("readwrite", (str) => {
+            return this.promisifyRequest(str.delete(key));
+        });
         return item;
     }
 
     static async set(key: string, value: CryptoKeyPair): Promise<void> {
-        await this.setKey(key, value);
-    }
-
-    static async setKey(key: string, value: CryptoKeyPair) {
         const store = await this.createStore("big", "party");
-        return await store("readwrite", (str: IDBObjectStore) => {
+        await store("readwrite", (str: IDBObjectStore) => {
             str.put(value, key);
             return this.promisifyRequest(str.transaction);
         });
-    }
-
-    static async getKey(key: string): Promise<CryptoKeyPair> {
-        const store = await this.createStore("big", "party");
-        return await store("readonly", (str) => {
-            return this.promisifyRequest(str.get(key));
-        }) as CryptoKeyPair;
-    }
-
-    static async delKey(key: string): Promise<IDBRequest<undefined>> {
-        const store = await this.createStore("big", "party");
-        return await store("readwrite", (str) => {
-            return this.promisifyRequest(str.delete(key));
-        }) as IDBRequest<undefined>;
     }
 
     static promisifyRequest<T = undefined>(
