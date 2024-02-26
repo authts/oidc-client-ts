@@ -27,7 +27,7 @@ export interface PostFormOpts {
     basicAuth?: string;
     timeoutInSeconds?: number;
     initCredentials?: "same-origin" | "include" | "omit";
-    dpopEnabled?: boolean;
+    extraHeaders?: Record<string, ExtraHeader>;
 }
 
 /**
@@ -133,7 +133,7 @@ export class JsonService {
         basicAuth,
         timeoutInSeconds,
         initCredentials,
-        dpopEnabled,
+        extraHeaders,
     }: PostFormOpts): Promise<Record<string, unknown>> {
         const logger = this._logger.create("postForm");
         let DPoPProof;
@@ -141,12 +141,8 @@ export class JsonService {
         const headers: HeadersInit = {
             "Accept": this._contentTypes.join(", "),
             "Content-Type": "application/x-www-form-urlencoded",
+            ...extraHeaders,
         };
-
-        if (dpopEnabled) {
-            DPoPProof = await DPoPService.generateDPoPProof(url, basicAuth, "POST");
-            headers["DPoP"] = DPoPProof;
-        }
 
         if (basicAuth !== undefined) {
             headers["Authorization"] = "Basic " + basicAuth;
@@ -187,7 +183,7 @@ export class JsonService {
         if (!response.ok) {
             logger.error("Error from server:", json);
             if (json.error) {
-                if (json.error === "use_dpop_nonce" && dpopEnabled && response.headers.get("Dpop-Nonce")) {
+                if (json.error === "use_dpop_nonce" && this.dpopRequestHeaderInUse(extraHeaders) && response.headers.get("Dpop-Nonce")) {
                     const nonce = response.headers.get("Dpop-Nonce") as string;
                     DPoPProof = await DPoPService.generateDPoPProof(url, undefined,"POST", nonce);
                     headers["DPoP"] = DPoPProof;
@@ -202,6 +198,10 @@ export class JsonService {
         }
 
         return json;
+    }
+
+    private dpopRequestHeaderInUse(headers: Record<string, ExtraHeader> | undefined): boolean {
+        return !!(headers && Object.keys(headers as object).includes("DPoP"));
     }
 
     private appendExtraHeaders(

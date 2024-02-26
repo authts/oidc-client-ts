@@ -5,6 +5,8 @@ import { CryptoUtils, Logger } from "./utils";
 import { JsonService } from "./JsonService";
 import type { MetadataService } from "./MetadataService";
 import type { OidcClientSettingsStore } from "./OidcClientSettings";
+import type { ExtraHeader } from "./OidcClientSettings";
+import { DPoPService } from "./DPoPService";
 
 /**
  * @internal
@@ -124,7 +126,12 @@ export class TokenClient {
         const url = await this._metadataService.getTokenEndpoint(false);
         logger.debug("got token endpoint");
 
-        const response = await this._jsonService.postForm(url, { body: params, basicAuth, initCredentials: this._settings.fetchRequestCredentials, dpopEnabled: this._settings.dpopSettings.enabled });
+        const extraHeaders: Record<string, ExtraHeader> = {};
+        if (this._settings.dpopSettings.enabled) {
+            extraHeaders["DPoP"] = await DPoPService.generateDPoPProof(url, basicAuth, "POST");
+        }
+
+        const response = await this._jsonService.postForm(url, { body: params, basicAuth, initCredentials: this._settings.fetchRequestCredentials, extraHeaders });
         logger.debug("got response");
 
         return response;
@@ -230,7 +237,12 @@ export class TokenClient {
         const url = await this._metadataService.getTokenEndpoint(false);
         logger.debug("got token endpoint");
 
-        const response = await this._jsonService.postForm(url, { body: params, basicAuth, timeoutInSeconds, initCredentials: this._settings.fetchRequestCredentials, dpopEnabled: this._settings.dpopSettings.enabled });
+        const extraHeaders: Record<string, ExtraHeader> = {};
+        if (this._settings.dpopSettings.enabled) {
+            extraHeaders["DPoP"] = await DPoPService.generateDPoPProof(url, basicAuth, "POST");
+        }
+
+        const response = await this._jsonService.postForm(url, { body: params, basicAuth, timeoutInSeconds, initCredentials: this._settings.fetchRequestCredentials, extraHeaders });
         logger.debug("got response");
 
         return response;

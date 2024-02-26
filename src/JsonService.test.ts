@@ -5,12 +5,14 @@ import { ErrorResponse } from "./errors";
 import { JsonService } from "./JsonService";
 
 import { mocked } from "jest-mock";
+import type { ExtraHeader } from "./OidcClientSettings";
 import { DPoPService } from "./DPoPService";
 
 describe("JsonService", () => {
     let subject: JsonService;
     let customStaticHeaderSubject: JsonService;
     let customDynamicHeaderSubject: JsonService;
+    let extraHeaders: Record<string, ExtraHeader>;
 
     const staticExtraHeaders = {
         "Custom-Header-1": "this-is-header-1",
@@ -33,6 +35,9 @@ describe("JsonService", () => {
         subject = new JsonService();
         customStaticHeaderSubject = new JsonService(undefined, null, staticExtraHeaders);
         customDynamicHeaderSubject = new JsonService(undefined, null, dynamicExtraHeaders);
+        extraHeaders = {
+            "DPoP": "some random dpop proof",
+        };
     });
 
     describe("getJson", () => {
@@ -342,8 +347,8 @@ describe("JsonService", () => {
 
         it("should set dpop proof as header if dpop is enabled", async () => {
             // act
-            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), dpopEnabled: true })).rejects.toThrow();
-            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), basicAuth: "basicAuth", dpopEnabled: true })).rejects.toThrow();
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), extraHeaders })).rejects.toThrow();
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), basicAuth: "basicAuth", extraHeaders })).rejects.toThrow();
 
             // assert
             expect(fetch).toBeCalledTimes(2);
@@ -496,12 +501,35 @@ describe("JsonService", () => {
                 } as Response);
 
             // act
-            await subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), dpopEnabled: true, basicAuth: "some-access-token" });
+            await subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), extraHeaders: extraHeaders, basicAuth: "some-access-token" });
 
             // assert
             expect(fetchMock).toBeCalledTimes(2);
-            expect(dpopServiceMock).toBeCalledTimes(2);
+            expect(dpopServiceMock).toBeCalledTimes(1);
             expect(dpopServiceMock).toHaveBeenLastCalledWith("http://test", undefined, "POST", "eyJ7S_zG.eyJH0-Z.JX4w-7v");
+        });
+
+        it("should throw error if response is 400 and json error is 'use_dpop_nonce' and no DPoP header was used", async () => {
+            // arrange
+            const json = { error: "use_dpop_nonce" };
+
+            const fetchMock = mocked(fetch)
+                .mockResolvedValue({
+                    status: 400,
+                    ok: false,
+                    headers: new Headers({
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                        "DPoP-Nonce": "eyJ7S_zG.eyJH0-Z.JX4w-7v",
+                    }),
+                    text: () => Promise.resolve(JSON.stringify(json)),
+                } as Response);
+
+            // assert
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), basicAuth: "some-access-token" }))
+                // assert
+                .rejects.toThrow("use_dpop_nonce");
+            expect(fetchMock).toBeCalledTimes(1);
         });
 
         it("should reject promise when http response is 400 and json has no error field", async () => {
