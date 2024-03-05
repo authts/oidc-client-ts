@@ -16,6 +16,8 @@ import type { MetadataService } from "./MetadataService";
 import { RefreshState } from "./RefreshState";
 import type { SigninResponse } from "./SigninResponse";
 import { IndexedDbCryptoKeyPairStore } from "./IndexedDbCryptoKeyPairStore";
+import { InMemoryWebStorage } from "./InMemoryWebStorage";
+import { WebStorageStateStore } from "./WebStorageStateStore";
 
 /**
  * @public
@@ -89,6 +91,7 @@ export class UserManager {
     protected readonly _events: UserManagerEvents;
     protected readonly _silentRenewService: SilentRenewService;
     protected readonly _sessionMonitor: SessionMonitor | null;
+    protected readonly _dpopNonceStore: WebStorageStateStore | null;
 
     public constructor(settings: UserManagerSettings, redirectNavigator?: INavigator, popupNavigator?: INavigator, iframeNavigator?: INavigator) {
         this.settings = new UserManagerSettingsStore(settings);
@@ -112,6 +115,11 @@ export class UserManager {
             this._sessionMonitor = new SessionMonitor(this);
         }
 
+        this._dpopNonceStore = null;
+        if (this.settings.dpopSettings.enabled) {
+            const store = typeof window !== "undefined" ? window.sessionStorage : new InMemoryWebStorage();
+            this._dpopNonceStore = new WebStorageStateStore( { store });
+        }
     }
 
     /**
@@ -156,6 +164,7 @@ export class UserManager {
         await this.storeUser(null);
         logger.info("user removed from storage");
         if (this.settings.dpopSettings.enabled) {
+            await this._dpopNonceStore?.remove("dpop_nonce");
             await IndexedDbCryptoKeyPairStore.remove("oidc.dpop");
             logger.debug("removed dpop cyptokeys from storage");
         }

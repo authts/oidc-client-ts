@@ -975,6 +975,8 @@ export class UserManager {
     clearStaleState(): Promise<void>;
     // (undocumented)
     protected readonly _client: OidcClient;
+    // (undocumented)
+    protected readonly _dpopNonceStore: WebStorageStateStore | null;
     get events(): UserManagerEvents;
     // (undocumented)
     protected readonly _events: UserManagerEvents;

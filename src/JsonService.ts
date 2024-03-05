@@ -5,6 +5,8 @@ import { ErrorResponse, ErrorTimeout } from "./errors";
 import type { ExtraHeader } from "./OidcClientSettings";
 import { Logger } from "./utils";
 import { DPoPService } from "./DPoPService";
+import { WebStorageStateStore } from "./WebStorageStateStore";
+import { InMemoryWebStorage } from "./InMemoryWebStorage";
 
 /**
  * @internal
@@ -38,6 +40,8 @@ export class JsonService {
 
     private _contentTypes: string[] = [];
 
+    private dpopNonceStore: WebStorageStateStore;
+
     public constructor(
         additionalContentTypes: string[] = [],
         private _jwtHandler: JwtHandler | null = null,
@@ -47,6 +51,8 @@ export class JsonService {
         if (_jwtHandler) {
             this._contentTypes.push("application/jwt");
         }
+        const store = typeof window !== "undefined" ? window.sessionStorage : new InMemoryWebStorage();
+        this.dpopNonceStore = new WebStorageStateStore( { store });
     }
 
     protected async fetchWithTimeout(input: RequestInfo, init: RequestInit & { timeoutInSeconds?: number } = {}) {
@@ -185,6 +191,7 @@ export class JsonService {
             if (json.error) {
                 if (json.error === "use_dpop_nonce" && this.dpopRequestHeaderInUse(extraHeaders) && response.headers.get("Dpop-Nonce")) {
                     const nonce = response.headers.get("Dpop-Nonce") as string;
+                    await this.dpopNonceStore.set("dpop_nonce", nonce);
                     DPoPProof = await DPoPService.generateDPoPProof(url, undefined,"POST", nonce);
                     headers["DPoP"] = DPoPProof;
                     response = await this.fetchWithTimeout(url, { method: "POST", headers, body, timeoutInSeconds });
