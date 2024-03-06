@@ -60,7 +60,7 @@ export class MetadataService {
         }
 
         logger.debug("getting metadata from", this._metadataUrl);
-        const metadata = await this._jsonService.getJson(this._metadataUrl, { credentials: this._fetchRequestCredentials });
+        const metadata = await this._jsonService.getJson(this._metadataUrl, { credentials: this._fetchRequestCredentials, timeoutInSeconds: this._settings.requestTimeoutInSeconds });
 
         logger.debug("merging remote JSON with seed metadata");
         this._metadata = Object.assign({}, this._settings.metadataSeed, metadata);
@@ -133,7 +133,7 @@ export class MetadataService {
         const jwks_uri = await this.getKeysEndpoint(false);
         logger.debug("got jwks_uri", jwks_uri);
 
-        const keySet = await this._jsonService.getJson(jwks_uri);
+        const keySet = await this._jsonService.getJson(jwks_uri, { timeoutInSeconds: this._settings.requestTimeoutInSeconds });
         logger.debug("got key set", keySet);
 
         if (!Array.isArray(keySet.keys)) {
