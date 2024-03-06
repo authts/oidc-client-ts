@@ -4,9 +4,6 @@
 import { ErrorResponse, ErrorTimeout } from "./errors";
 import type { ExtraHeader } from "./OidcClientSettings";
 import { Logger } from "./utils";
-import { DPoPService } from "./DPoPService";
-import { WebStorageStateStore } from "./WebStorageStateStore";
-import { InMemoryWebStorage } from "./InMemoryWebStorage";
 
 /**
  * @internal
@@ -40,8 +37,6 @@ export class JsonService {
 
     private _contentTypes: string[] = [];
 
-    private dpopNonceStore: WebStorageStateStore;
-
     public constructor(
         additionalContentTypes: string[] = [],
         private _jwtHandler: JwtHandler | null = null,
@@ -51,8 +46,6 @@ export class JsonService {
         if (_jwtHandler) {
             this._contentTypes.push("application/jwt");
         }
-        const store = typeof window !== "undefined" ? window.sessionStorage : new InMemoryWebStorage();
-        this.dpopNonceStore = new WebStorageStateStore( { store });
     }
 
     protected async fetchWithTimeout(input: RequestInfo, init: RequestInit & { timeoutInSeconds?: number } = {}) {
@@ -142,7 +135,6 @@ export class JsonService {
         extraHeaders,
     }: PostFormOpts): Promise<Record<string, unknown>> {
         const logger = this._logger.create("postForm");
-        let DPoPProof;
 
         const headers: HeadersInit = {
             "Accept": this._contentTypes.join(", "),
@@ -172,7 +164,7 @@ export class JsonService {
             throw new Error(`Invalid response Content-Type: ${(contentType ?? "undefined")}, from URL: ${url}`);
         }
 
-        let responseText = await response.text();
+        const responseText = await response.text();
 
         let json: Record<string, unknown> = {};
         if (responseText) {
@@ -189,26 +181,12 @@ export class JsonService {
         if (!response.ok) {
             logger.error("Error from server:", json);
             if (json.error) {
-                if (json.error === "use_dpop_nonce" && this.dpopRequestHeaderInUse(extraHeaders) && response.headers.get("Dpop-Nonce")) {
-                    const nonce = response.headers.get("Dpop-Nonce") as string;
-                    await this.dpopNonceStore.set("dpop_nonce", nonce);
-                    DPoPProof = await DPoPService.generateDPoPProof(url, undefined,"POST", nonce);
-                    headers["DPoP"] = DPoPProof;
-                    response = await this.fetchWithTimeout(url, { method: "POST", headers, body, timeoutInSeconds });
-                    responseText = await response.text();
-                    json = JSON.parse(responseText);
-                    return json;
-                }
                 throw new ErrorResponse(json, body);
             }
             throw new Error(`${response.statusText} (${response.status}): ${JSON.stringify(json)}`);
         }
 
         return json;
-    }
-
-    private dpopRequestHeaderInUse(headers: Record<string, ExtraHeader> | undefined): boolean {
-        return !!(headers && Object.keys(headers as object).includes("DPoP"));
     }
 
     private appendExtraHeaders(

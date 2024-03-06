@@ -7,8 +7,6 @@ import type { MetadataService } from "./MetadataService";
 import type { OidcClientSettingsStore } from "./OidcClientSettings";
 import type { ExtraHeader } from "./OidcClientSettings";
 import { DPoPService } from "./DPoPService";
-import { InMemoryWebStorage } from "./InMemoryWebStorage";
-import { WebStorageStateStore } from "./WebStorageStateStore";
 
 /**
  * @internal
@@ -67,7 +65,6 @@ export interface RevokeArgs {
 export class TokenClient {
     private readonly _logger = new Logger("TokenClient");
     private readonly _jsonService;
-    private dpopNonceStore: WebStorageStateStore;
 
     public constructor(
         private readonly _settings: OidcClientSettingsStore,
@@ -78,8 +75,6 @@ export class TokenClient {
             null,
             this._settings.extraHeaders,
         );
-        const store = typeof window !== "undefined" ? window.sessionStorage : new InMemoryWebStorage();
-        this.dpopNonceStore = new WebStorageStateStore( { store });
     }
 
     /**
@@ -133,8 +128,7 @@ export class TokenClient {
 
         const extraHeaders: Record<string, ExtraHeader> = {};
         if (this._settings.dpopSettings.enabled) {
-            const dpopNonce = await this.dpopNonceStore.get("dpop_nonce") as string | undefined;
-            extraHeaders["DPoP"] = await DPoPService.generateDPoPProof(url, basicAuth, "POST", dpopNonce);
+            extraHeaders["DPoP"] = await DPoPService.generateDPoPProof(url, basicAuth, "POST");
         }
 
         const response = await this._jsonService.postForm(url, { body: params, basicAuth, initCredentials: this._settings.fetchRequestCredentials, extraHeaders });
@@ -245,8 +239,7 @@ export class TokenClient {
 
         const extraHeaders: Record<string, ExtraHeader> = {};
         if (this._settings.dpopSettings.enabled) {
-            const dpopNonce = await this.dpopNonceStore.get("dpop_nonce") as string | undefined;
-            extraHeaders["DPoP"] = await DPoPService.generateDPoPProof(url, basicAuth, "POST", dpopNonce);
+            extraHeaders["DPoP"] = await DPoPService.generateDPoPProof(url, basicAuth, "POST");
         }
 
         const response = await this._jsonService.postForm(url, { body: params, basicAuth, timeoutInSeconds, initCredentials: this._settings.fetchRequestCredentials, extraHeaders });

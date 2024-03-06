@@ -32,19 +32,6 @@ describe("DPoPService", () => {
             expect(verifiedResult.payload).toHaveProperty("ath");
             expect(verifiedResult.payload["htu"]).toEqual("http://example.com");
         });
-
-        it("should generate a valid proof with a nonce", async () => {
-            const proof = await DPoPService.generateDPoPProof("http://example.com", undefined, undefined, "some-nonce");
-            const protectedHeader = decodeProtectedHeader(proof);
-            const publicKey = await importJWK(<JWK>protectedHeader.jwk);
-            const verifiedResult = await jwtVerify(proof, publicKey);
-
-            expect(verifiedResult.payload).toHaveProperty("htu");
-            expect(verifiedResult.payload).toHaveProperty("htm");
-            expect(verifiedResult.payload).toHaveProperty("nonce");
-            expect(verifiedResult.payload["nonce"]).toEqual("some-nonce");
-            expect(verifiedResult.payload["htu"]).toEqual("http://example.com");
-        });
     });
 
     describe("dpopJkt", () => {

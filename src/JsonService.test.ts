@@ -6,7 +6,6 @@ import { JsonService } from "./JsonService";
 
 import { mocked } from "jest-mock";
 import type { ExtraHeader } from "./OidcClientSettings";
-import { DPoPService } from "./DPoPService";
 
 describe("JsonService", () => {
     let subject: JsonService;
@@ -473,63 +472,6 @@ describe("JsonService", () => {
             await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy") }))
                 // assert
                 .rejects.toThrow(ErrorResponse);
-        });
-
-        it("should retry with server supplied nonce value from response header when http response is 400 and json error is 'use_dpop_nonce'", async () => {
-            // arrange
-            const json = { error: "use_dpop_nonce" };
-            const dpopServiceMock = jest.spyOn(DPoPService, "generateDPoPProof").mockImplementation(() => Promise.resolve("some-proof"));
-
-            const fetchMock = mocked(fetch)
-                .mockResolvedValueOnce({
-                    status: 400,
-                    ok: false,
-                    headers: new Headers({
-                        Accept: "application/json",
-                        "Content-Type": "application/json",
-                        "DPoP-Nonce": "eyJ7S_zG.eyJH0-Z.JX4w-7v",
-                    }),
-                    text: () => Promise.resolve(JSON.stringify(json)),
-                } as Response).mockResolvedValueOnce({
-                    status: 200,
-                    ok: true,
-                    headers: new Headers({
-                        Accept: "application/json",
-                        "Content-Type": "application/json",
-                    }),
-                    text: () => Promise.resolve(JSON.stringify({ foo: 1, bar: "test" })),
-                } as Response);
-
-            // act
-            await subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), extraHeaders: extraHeaders, basicAuth: "some-access-token" });
-
-            // assert
-            expect(fetchMock).toBeCalledTimes(2);
-            expect(dpopServiceMock).toBeCalledTimes(1);
-            expect(dpopServiceMock).toHaveBeenLastCalledWith("http://test", undefined, "POST", "eyJ7S_zG.eyJH0-Z.JX4w-7v");
-        });
-
-        it("should throw error if response is 400 and json error is 'use_dpop_nonce' and no DPoP header was used", async () => {
-            // arrange
-            const json = { error: "use_dpop_nonce" };
-
-            const fetchMock = mocked(fetch)
-                .mockResolvedValue({
-                    status: 400,
-                    ok: false,
-                    headers: new Headers({
-                        Accept: "application/json",
-                        "Content-Type": "application/json",
-                        "DPoP-Nonce": "eyJ7S_zG.eyJH0-Z.JX4w-7v",
-                    }),
-                    text: () => Promise.resolve(JSON.stringify(json)),
-                } as Response);
-
-            // assert
-            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), basicAuth: "some-access-token" }))
-                // assert
-                .rejects.toThrow("use_dpop_nonce");
-            expect(fetchMock).toBeCalledTimes(1);
         });
 
         it("should reject promise when http response is 400 and json has no error field", async () => {

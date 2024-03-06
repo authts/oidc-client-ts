@@ -10,7 +10,6 @@ export class DPoPService {
         url: string,
         accessToken?: string,
         httpMethod?: string,
-        nonce?: string,
     ) : Promise<string> {
         let hashedToken: Uint8Array;
         let encodedHash: string;
@@ -21,10 +20,6 @@ export class DPoPService {
             "htu": url,
             "iat": Math.floor(Date.now() / 1000),
         };
-
-        if (nonce) {
-            payload.nonce = nonce;
-        }
 
         const keyPair = await this.loadKeyPair();
 
