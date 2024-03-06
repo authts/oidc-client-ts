@@ -2,7 +2,7 @@
 
 The API is largely backwards-compatible.
 
-The "crypto-js" software library has been removed; the native crypto/crypto.subtle module built into the browser is instead used. All modern browser are expected to support it. If need to support older browsers stay with v2.4!
+The "crypto-js" software library has been removed; the native crypto/crypto.subtle module built into the browser is instead used. All modern browsers are expected to support it. If you need to support older browsers stay with v2.4!
 
 The behavior of merging claims  has been improved.
 

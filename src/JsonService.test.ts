@@ -45,7 +45,7 @@ describe("JsonService", () => {
             await expect(subject.getJson("http://test")).rejects.toThrow();
 
             // assert
-            expect(fetch).toBeCalledWith(
+            expect(fetch).toHaveBeenCalledWith(
                 "http://test",
                 expect.objectContaining({
                     headers: { Accept: "application/json" },
@@ -59,7 +59,7 @@ describe("JsonService", () => {
             await expect(customStaticHeaderSubject.getJson("http://test")).rejects.toThrow();
 
             // assert
-            expect(fetch).toBeCalledWith(
+            expect(fetch).toHaveBeenCalledWith(
                 "http://test",
                 expect.objectContaining({
                     headers: {
@@ -77,7 +77,7 @@ describe("JsonService", () => {
             await expect(customDynamicHeaderSubject.getJson("http://test")).rejects.toThrow();
 
             // assert
-            expect(fetch).toBeCalledWith(
+            expect(fetch).toHaveBeenCalledWith(
                 "http://test",
                 expect.objectContaining({
                     headers: {
@@ -95,7 +95,7 @@ describe("JsonService", () => {
             await expect(subject.getJson("http://test", { token: "token" })).rejects.toThrow();
 
             // assert
-            expect(fetch).toBeCalledWith(
+            expect(fetch).toHaveBeenCalledWith(
                 "http://test",
                 expect.objectContaining({
                     headers: { Accept: "application/json", Authorization: "Bearer token" },
@@ -109,7 +109,7 @@ describe("JsonService", () => {
             await expect(customStaticHeaderSubject.getJson("http://test", { token: "token" })).rejects.toThrow();
 
             // assert
-            expect(fetch).toBeCalledWith(
+            expect(fetch).toHaveBeenCalledWith(
                 "http://test",
                 expect.objectContaining({
                     headers: {
@@ -128,7 +128,7 @@ describe("JsonService", () => {
             await expect(customDynamicHeaderSubject.getJson("http://test", { token: "token" })).rejects.toThrow();
 
             // assert
-            expect(fetch).toBeCalledWith(
+            expect(fetch).toHaveBeenCalledWith(
                 "http://test",
                 expect.objectContaining({
                     headers: {
@@ -262,7 +262,7 @@ describe("JsonService", () => {
             await subject.getJson("http://test");
 
             // assert
-            expect(jwtHandler).toBeCalledWith(text);
+            expect(jwtHandler).toHaveBeenCalledWith(text);
         });
     });
 
@@ -272,7 +272,7 @@ describe("JsonService", () => {
             await expect(subject.postForm("http://test", { body: new URLSearchParams("a=b") })).rejects.toThrow();
 
             // assert
-            expect(fetch).toBeCalledWith(
+            expect(fetch).toHaveBeenCalledWith(
                 "http://test",
                 expect.objectContaining({
                     headers: {
@@ -290,7 +290,7 @@ describe("JsonService", () => {
             await expect(customStaticHeaderSubject.postForm("http://test", { body: new URLSearchParams("a=b") })).rejects.toThrow();
 
             // assert
-            expect(fetch).toBeCalledWith(
+            expect(fetch).toHaveBeenCalledWith(
                 "http://test",
                 expect.objectContaining({
                     headers: {
@@ -310,7 +310,7 @@ describe("JsonService", () => {
             await expect(customDynamicHeaderSubject.postForm("http://test", { body: new URLSearchParams("a=b") })).rejects.toThrow();
 
             // assert
-            expect(fetch).toBeCalledWith(
+            expect(fetch).toHaveBeenCalledWith(
                 "http://test",
                 expect.objectContaining({
                     headers: {
@@ -330,7 +330,7 @@ describe("JsonService", () => {
             await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), basicAuth: "basicAuth" })).rejects.toThrow();
 
             // assert
-            expect(fetch).toBeCalledWith(
+            expect(fetch).toHaveBeenCalledWith(
                 "http://test",
                 expect.objectContaining({
                     headers: {
@@ -374,7 +374,7 @@ describe("JsonService", () => {
             const body = new URLSearchParams();
             body.set("payload", "dummy");
 
-            expect(fetch).toBeCalledWith(
+            expect(fetch).toHaveBeenCalledWith(
                 "http://test",
                 expect.objectContaining({
                     headers: {
