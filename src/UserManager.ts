@@ -332,7 +332,7 @@ export class UserManager {
     protected async _useRefreshToken(args: UseRefreshTokenArgs): Promise<User> {
         const response = await this._client.useRefreshToken({
             ...args,
-            timeoutInSeconds: this.settings.silentRequestTimeoutInSeconds,
+            timeoutInSeconds: this.settings.requestTimeoutInSeconds ?? this.settings.silentRequestTimeoutInSeconds,
         });
         const user = new User({ ...args.state, ...response });
 
@@ -344,7 +344,7 @@ export class UserManager {
     /**
      *
      * Notify the parent window of response (callback) from the authorization endpoint.
-     * It is recommend to use {@link UserManager.signinCallback} instead.
+     * It is recommended to use {@link UserManager.signinCallback} instead.
      *
      * @returns A promise
      *
