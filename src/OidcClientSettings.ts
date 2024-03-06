@@ -137,6 +137,11 @@ export interface OidcClientSettings {
      * Only scopes in this list will be passed in the token refresh request.
      */
     refreshTokenAllowedScope?: string | undefined;
+
+    /**
+     * Defines request timeouts globally across all requests made to the authorisation server
+     */
+    requestTimeoutInSeconds?: number | undefined;
 }
 
 /**
@@ -188,6 +193,7 @@ export class OidcClientSettingsStore {
     public readonly fetchRequestCredentials: RequestCredentials;
     public readonly refreshTokenAllowedScope: string | undefined;
     public readonly disablePKCE: boolean;
+    public readonly requestTimeoutInSeconds: number | undefined;
 
     public constructor({
         // metadata related
@@ -201,6 +207,7 @@ export class OidcClientSettingsStore {
         // behavior flags
         filterProtocolClaims = true,
         loadUserInfo = false,
+        requestTimeoutInSeconds ,
         staleStateAgeInSeconds = DefaultStaleStateAgeInSeconds,
         mergeClaimsStrategy = { array: "replace" },
         disablePKCE = false,
@@ -257,6 +264,7 @@ export class OidcClientSettingsStore {
         this.revokeTokenAdditionalContentTypes = revokeTokenAdditionalContentTypes;
 
         this.fetchRequestCredentials = fetchRequestCredentials ? fetchRequestCredentials : "same-origin";
+        this.requestTimeoutInSeconds = requestTimeoutInSeconds;
 
         if (stateStore) {
             this.stateStore = stateStore;
