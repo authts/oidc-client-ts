@@ -207,7 +207,7 @@ export class OidcClientSettingsStore {
         // behavior flags
         filterProtocolClaims = true,
         loadUserInfo = false,
-        requestTimeoutInSeconds ,
+        requestTimeoutInSeconds,
         staleStateAgeInSeconds = DefaultStaleStateAgeInSeconds,
         mergeClaimsStrategy = { array: "replace" },
         disablePKCE = false,

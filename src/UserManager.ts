@@ -331,8 +331,8 @@ export class UserManager {
 
     protected async _useRefreshToken(args: UseRefreshTokenArgs): Promise<User> {
         const response = await this._client.useRefreshToken({
+            timeoutInSeconds: this.settings.silentRequestTimeoutInSeconds,
             ...args,
-            timeoutInSeconds: this.settings.requestTimeoutInSeconds ?? this.settings.silentRequestTimeoutInSeconds,
         });
         const user = new User({ ...args.state, ...response });
 
