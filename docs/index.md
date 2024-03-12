@@ -118,12 +118,12 @@ const customState = { foo: "bar" };
 mgr.signinRedirect({ state: customState });
 ```
 
-After successful sign-in the custom state is part of the [User](classes/User.html#state) object as `state`. In case of failure it is inside [ErrorResponse](classes/ErrorResponse.html#state).
+After successful sign-in, the custom state is part of the [User](classes/User.html#state) object as `state`. In case of failure, it is inside [ErrorResponse](classes/ErrorResponse.html#state).
 
 This custom state should not be confused with the URL state parameter. The latter is internally used to match against the authentication state object to finish the authentication process.
 
 # Custom state in request url
-If you would like to encode a custom state string in the sign in request url, you can do so with the `url_state` parameter. You may want to do this in order to pass user state to the authentication server and/or a proxy and return that state as part of the response.
+If you would like to encode a custom state string in the sign-in request url, you can do so with the `url_state` parameter. You may want to do this in order to pass user state to the authentication server and/or a proxy and return that state as part of the response.
 
 ```javascript
 const mgr = new UserManager();
