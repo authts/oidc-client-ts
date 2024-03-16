@@ -179,7 +179,7 @@ export class UserManager {
 
     /**
      * Process the response (callback) from the authorization endpoint.
-     * It is recommend to use {@link UserManager.signinCallback} instead.
+     * It is recommended to use {@link UserManager.signinCallback} instead.
      *
      * @returns A promise containing the authenticated `User`.
      *
@@ -261,7 +261,7 @@ export class UserManager {
     }
     /**
      * Notify the opening window of response (callback) from the authorization endpoint.
-     * It is recommend to use {@link UserManager.signinCallback} instead.
+     * It is recommended to use {@link UserManager.signinCallback} instead.
      *
      * @returns A promise
      *
@@ -344,7 +344,7 @@ export class UserManager {
     /**
      *
      * Notify the parent window of response (callback) from the authorization endpoint.
-     * It is recommend to use {@link UserManager.signinCallback} instead.
+     * It is recommended to use {@link UserManager.signinCallback} instead.
      *
      * @returns A promise
      *
@@ -363,7 +363,7 @@ export class UserManager {
      * - {@link UserManager.signinPopupCallback}
      * - {@link UserManager.signinSilentCallback}
      *
-     * @throws `Error` If request_type is unknown or signout can not processed.
+     * @throws `Error` If request_type is unknown or signout cannot be processed.
      */
     public async signinCallback(url = window.location.href): Promise<User | void> {
         const { state } = await this._client.readSigninResponseState(url);
@@ -386,7 +386,7 @@ export class UserManager {
      * - {@link UserManager.signoutPopupCallback}
      * - {@link UserManager.signoutSilentCallback}
      *
-     * @throws `Error` If request_type is unknown or signout can not processed.
+     * @throws `Error` If request_type is unknown or signout cannot be processed.
      */
     public async signoutCallback(url = window.location.href, keepOpen = false): Promise<void> {
         const { state } = await this._client.readSignoutResponseState(url);
@@ -543,7 +543,7 @@ export class UserManager {
 
     /**
      * Process response (callback) from the end session endpoint.
-     * It is recommend to use {@link UserManager.signoutCallback} instead.
+     * It is recommended to use {@link UserManager.signoutCallback} instead.
      *
      * @returns A promise containing signout response
      *
@@ -557,7 +557,7 @@ export class UserManager {
     }
 
     /**
-     * Trigger a redirect of a popup window window to the end session endpoint.
+     * Trigger a redirect of a popup window to the end session endpoint.
      *
      * @returns A promise
      */
@@ -587,7 +587,7 @@ export class UserManager {
 
     /**
      * Process response (callback) from the end session endpoint from a popup window.
-     * It is recommend to use {@link UserManager.signoutCallback} instead.
+     * It is recommended to use {@link UserManager.signoutCallback} instead.
      *
      * @returns A promise
      *
@@ -676,7 +676,7 @@ export class UserManager {
 
     /**
      * Notify the parent window of response (callback) from the end session endpoint.
-     * It is recommend to use {@link UserManager.signoutCallback} instead.
+     * It is recommended to use {@link UserManager.signoutCallback} instead.
      *
      * @returns A promise
      *

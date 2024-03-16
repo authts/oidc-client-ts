@@ -14,7 +14,7 @@ export interface PopupWindowFeatures {
     status?: boolean | string;
     resizable?: boolean | string;
     scrollbars?: boolean | string;
-    /** Close popup window after time in seconds, by default it is -1. To enable this feature set value greater than 0 */
+    /** Close popup window after time in seconds, by default it is -1. To enable this feature, set value greater than 0. */
     closePopupWindowAfterInSeconds?: number;
 
     [k: string]: boolean | string | number | undefined;
