@@ -13,7 +13,7 @@ The behavior of merging claims has been improved.
   - `userInfoJwtIssuer`
   - `refreshTokenCredentials` use `fetchRequestCredentials`
 - the `mergeClaims` has been replaced by `mergeClaimsStrategy`
-  - if the previous behavior is required `mergeClaimsStrategy: { array: "merge" }` comes close to it
+  - if the previous behavior is required, `mergeClaimsStrategy: { array: "merge" }` comes close to it
 - default of `response_mode` changed from `query` &rarr; `undefined`
 
 

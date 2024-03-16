@@ -5,7 +5,7 @@ If you are unfamiliar with OpenID Connect, then you should learn the
 library is designed as a spec-compliant protocol library.
 
 There are two main classes that you might want to use depend on the level at
-with you use to use the library:
+which you use to use the library:
 
 - [UserManager](classes/UserManager.html) provides a higher level API for
   signing a user in, signing out, managing the user's claims
