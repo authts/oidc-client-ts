@@ -378,11 +378,12 @@ export interface OidcClientSettings {
     staleStateAgeInSeconds?: number;
     stateStore?: StateStore;
     ui_locales?: string;
+    useIdpDefaultScopes?: boolean;
 }
 
 // @public
 export class OidcClientSettingsStore {
-    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, mergeClaimsStrategy, disablePKCE, stateStore, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, extraHeaders, }: OidcClientSettings);
+    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, mergeClaimsStrategy, disablePKCE, stateStore, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, extraHeaders, useIdpDefaultScopes, }: OidcClientSettings);
     // (undocumented)
     readonly acr_values: string | undefined;
     // (undocumented)
@@ -438,7 +439,7 @@ export class OidcClientSettingsStore {
     // (undocumented)
     readonly revokeTokenAdditionalContentTypes?: string[];
     // (undocumented)
-    readonly scope: string;
+    readonly scope: string | undefined;
     // (undocumented)
     readonly signingKeys: SigningKey[] | undefined;
     // (undocumented)
@@ -673,7 +674,7 @@ export interface SigninRequestCreateArgs {
     // (undocumented)
     response_type: string;
     // (undocumented)
-    scope: string;
+    scope?: string;
     // (undocumented)
     skipUserInfo?: boolean;
     state_data?: unknown;
@@ -751,7 +752,7 @@ export class SigninState extends State {
     // (undocumented)
     readonly response_mode: "query" | "fragment" | undefined;
     // (undocumented)
-    readonly scope: string;
+    readonly scope: string | undefined;
     // (undocumented)
     readonly skipUserInfo: boolean | undefined;
     // (undocumented)
@@ -785,7 +786,7 @@ export interface SigninStateArgs {
     // (undocumented)
     response_mode?: "query" | "fragment";
     // (undocumented)
-    scope: string;
+    scope?: string;
     // (undocumented)
     skipUserInfo?: boolean;
     // (undocumented)

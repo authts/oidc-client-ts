@@ -148,7 +148,10 @@ export class TokenClient {
             logger.throw(new Error("A client_id is required"));
         }
 
-        const params = new URLSearchParams({ grant_type, scope });
+        const params = new URLSearchParams({ grant_type });
+        if (scope) {
+            params.set("scope", scope);
+        }
         for (const [key, value] of Object.entries(args)) {
             if (value != null) {
                 params.set(key, value);
