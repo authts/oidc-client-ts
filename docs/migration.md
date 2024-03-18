@@ -2,9 +2,9 @@
 
 The API is largely backwards-compatible.
 
-The "crypto-js" software library has been removed; the native crypto/crypto.subtle module built into the browser is instead used. All modern browsers are expected to support it. If you need to support older browsers stay with v2.4!
+The "crypto-js" software library has been removed; the native crypto/crypto.subtle module built into the browser is instead used. All modern browsers are expected to support it. If you need to support older browsers, stay with v2.4!
 
-The behavior of merging claims  has been improved.
+The behavior of merging claims has been improved.
 
 ### [OidcClientSettings](https://authts.github.io/oidc-client-ts/interfaces/OidcClientSettings.html)
 
@@ -13,7 +13,7 @@ The behavior of merging claims  has been improved.
   - `userInfoJwtIssuer`
   - `refreshTokenCredentials` use `fetchRequestCredentials`
 - the `mergeClaims` has been replaced by `mergeClaimsStrategy`
-  - if the previous behavior is required `mergeClaimsStrategy: { array: "merge" }` comes close to it
+  - if the previous behavior is required, `mergeClaimsStrategy: { array: "merge" }` comes close to it
 - default of `response_mode` changed from `query` &rarr; `undefined`
 
 
@@ -32,7 +32,7 @@ removed.
   - `staleStateAge` &rarr; `staleStateAgeInSeconds`
 - default of `loadUserInfo` changed from `true` &rarr; `false`
 - removed `ResponseValidatorCtor` and `MetadataServiceCtor`
-  - if necessary `OidcClient` / `UserManager` classes may be extended to alter
+  - if necessary, `OidcClient` / `UserManager` classes may be extended to alter
     their behavior
 - restricted `response_type` to `code` flow only. As per [OAuth 2.1](https://oauth.net/2.1/): **PKCE is required** for all OAuth clients using the authorization `code` flow
   - as in oidc-client 1.x, OAuth 2.0 hybrid flows are not supported
