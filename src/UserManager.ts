@@ -18,6 +18,8 @@ import type { SigninResponse } from "./SigninResponse";
 import { IndexedDbCryptoKeyPairStore } from "./IndexedDbCryptoKeyPairStore";
 import { InMemoryWebStorage } from "./InMemoryWebStorage";
 import { WebStorageStateStore } from "./WebStorageStateStore";
+import type { ExtraHeader } from "./OidcClientSettings";
+import { DPoPService } from "./DPoPService";
 
 /**
  * @public
@@ -193,7 +195,7 @@ export class UserManager {
 
     /**
      * Process the response (callback) from the authorization endpoint.
-     * It is recommend to use {@link UserManager.signinCallback} instead.
+     * It is recommended to use {@link UserManager.signinCallback} instead.
      *
      * @returns A promise containing the authenticated `User`.
      *
@@ -275,7 +277,7 @@ export class UserManager {
     }
     /**
      * Notify the opening window of response (callback) from the authorization endpoint.
-     * It is recommend to use {@link UserManager.signinCallback} instead.
+     * It is recommended to use {@link UserManager.signinCallback} instead.
      *
      * @returns A promise
      *
@@ -344,7 +346,13 @@ export class UserManager {
     }
 
     protected async _useRefreshToken(args: UseRefreshTokenArgs): Promise<User> {
+        const extraHeaders: Record<string, ExtraHeader> = {};
+        if (this.settings.dpopSettings.enabled) {
+            const url = await this.metadataService.getTokenEndpoint(false);
+            extraHeaders["DPoP"] = await DPoPService.generateDPoPProof({ url, httpMethod: "POST" });
+        }
         const response = await this._client.useRefreshToken({
+            extraHeaders,
             ...args,
             timeoutInSeconds: this.settings.silentRequestTimeoutInSeconds,
         });
@@ -452,7 +460,12 @@ export class UserManager {
             ...requestArgs,
         }, handle);
         try {
-            const signinResponse = await this._client.processSigninResponse(navResponse.url);
+            const extraHeaders: Record<string, ExtraHeader> = {};
+            if (this.settings.dpopSettings.enabled) {
+                const tokenUrl = await this.metadataService.getTokenEndpoint(false);
+                extraHeaders["DPoP"] = await DPoPService.generateDPoPProof({ url: tokenUrl, httpMethod: "POST" });
+            }
+            const signinResponse = await this._client.processSigninResponse(navResponse.url, extraHeaders);
             logger.debug("got signin response");
 
             if (signinResponse.session_state && signinResponse.profile.sub) {
@@ -510,7 +523,12 @@ export class UserManager {
     }
     protected async _signinEnd(url: string, verifySub?: string): Promise<User> {
         const logger = this._logger.create("_signinEnd");
-        const signinResponse = await this._client.processSigninResponse(url);
+        const extraHeaders: Record<string, ExtraHeader> = {};
+        if (this.settings.dpopSettings.enabled) {
+            const tokenUrl = await this.metadataService.getTokenEndpoint(false);
+            extraHeaders["DPoP"] = await DPoPService.generateDPoPProof({ url: tokenUrl, httpMethod: "POST" });
+        }
+        const signinResponse = await this._client.processSigninResponse(url, extraHeaders);
         logger.debug("got signin response");
 
         const user = await this._buildUser(signinResponse, verifySub);
@@ -557,7 +575,7 @@ export class UserManager {
 
     /**
      * Process response (callback) from the end session endpoint.
-     * It is recommend to use {@link UserManager.signoutCallback} instead.
+     * It is recommended to use {@link UserManager.signoutCallback} instead.
      *
      * @returns A promise containing signout response
      *
