@@ -239,21 +239,6 @@ describe("OidcClientSettings", () => {
         });
     });
 
-    describe("dpop", () => {
-        it("should return value from initial settings", () => {
-            // act
-            const subject = new OidcClientSettingsStore({
-                client_id: "client",
-                redirect_uri: "redirect",
-                authority: "http://sts",
-                dpopSettings: { enabled: true },
-            });
-
-            // assert
-            expect(subject.dpopSettings.enabled).toEqual(true);
-        });
-    });
-
     describe("metadataUrl", () => {
         it("should return value from initial settings", () => {
             // act

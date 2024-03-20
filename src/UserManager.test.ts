@@ -320,6 +320,21 @@ describe("UserManager", () => {
             expect(user).toBeInstanceOf(User);
             spy.mockRestore();
         });
+
+        it("should return a user if DPoP enabled", async () => {
+            // arrange
+            subject.settings.dpopSettings.enabled = true;
+            const spy = jest.spyOn(subject["_client"], "processSigninResponse")
+                .mockResolvedValue({} as SigninResponse);
+
+            // act
+            const user = await subject.signinRedirectCallback("http://app/cb?state=test&code=code");
+
+            // assert
+            expect(spy).toHaveBeenCalledWith("http://app/cb?state=test&code=code", { "DPoP": expect.any(String) });
+            expect(user).toBeInstanceOf(User);
+            spy.mockRestore();
+        });
     });
 
     describe("signinResourceOwnerCredentials", () => {
@@ -421,6 +436,43 @@ describe("UserManager", () => {
                 handle,
             );
         });
+
+        it("should pass dpopJkt arg if dpop is enabled and bind_authorization_code is true", async () => {
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {} as UserProfile,
+            });
+            const handle = { } as PopupWindow;
+            jest.spyOn(subject["_popupNavigator"], "prepare")
+                .mockImplementation(() => Promise.resolve(handle));
+            subject["_signin"] = jest.fn().mockResolvedValue(user);
+            const extraArgs: SigninPopupArgs = {
+                extraQueryParams: { q : "q" },
+                extraTokenParams: { t: "t" },
+                state: "state",
+                nonce: "random_nonce",
+                redirect_uri: "http://app/extra_callback",
+                prompt: "login",
+            };
+            subject.settings.dpopSettings.enabled = true;
+            subject.settings.dpopSettings.bind_authorization_code = true;
+
+            // act
+            await subject.signinPopup(extraArgs);
+
+            // assert
+            expect(subject["_signin"]).toHaveBeenCalledWith(
+                {
+                    request_type: "si:p",
+                    display: "popup",
+                    dpopJkt: expect.any(String),
+                    ...extraArgs,
+                },
+                handle,
+            );
+        });
     });
 
     describe("signinPopupCallback", () => {
@@ -513,6 +565,45 @@ describe("UserManager", () => {
             );
         });
 
+        it("should pass dpopJkt to _signIn if dpop enabled and bind_authorization_code is true", async () => {
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {} as UserProfile,
+            });
+            jest.spyOn(subject["_popupNavigator"], "prepare");
+            subject["_signin"] = jest.fn().mockResolvedValue(user);
+            const extraArgs: SigninSilentArgs = {
+                extraQueryParams: { q : "q" },
+                extraTokenParams: { t: "t" },
+                state: "state",
+                nonce: "random_nonce",
+                redirect_uri: "http://app/extra_callback",
+            };
+            subject.settings.dpopSettings.enabled = true;
+            subject.settings.dpopSettings.bind_authorization_code = true;
+
+            // act
+            await subject.signinSilent(extraArgs);
+
+            // assert
+            expect(subject["_signin"]).toHaveBeenCalledWith(
+                {
+                    request_type: "si:s",
+                    prompt: "none",
+                    id_token_hint: undefined,
+                    dpopJkt: expect.any(String),
+                    ...extraArgs,
+                },
+                expect.objectContaining({
+                    close: expect.any(Function),
+                    navigate: expect.any(Function),
+                }),
+                undefined,
+            );
+        });
+
         it("should work when having no user present", async () => {
             // arrange
             const user = new User({
@@ -561,6 +652,44 @@ describe("UserManager", () => {
                         session_state: null,
                         "profile": { "nickname": "Nick", "sub": "sub" },
                     },
+                }),
+            );
+        });
+
+        it("should use DPoP when enabled when using a refresh token", async () => {
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                refresh_token: "refresh_token",
+                profile: {
+                    sub: "sub",
+                    nickname: "Nick",
+                } as UserProfile,
+            });
+            subject.settings.dpopSettings.enabled = true;
+
+            const useRefreshTokenSpy = jest.spyOn(subject["_client"], "useRefreshToken").mockResolvedValue({
+                access_token: "new_access_token",
+                profile: {
+                    sub: "sub",
+                    nickname: "Nicholas",
+                },
+            } as unknown as SigninResponse);
+            subject["_loadUser"] = jest.fn().mockResolvedValue(user);
+
+            // act
+            const refreshedUser = await subject.signinSilent();
+            expect(refreshedUser).toHaveProperty("access_token", "new_access_token");
+            expect(refreshedUser!.profile).toHaveProperty("nickname", "Nicholas");
+            expect(useRefreshTokenSpy).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    state: {
+                        refresh_token: user.refresh_token,
+                        session_state: null,
+                        "profile": { "nickname": "Nick", "sub": "sub" },
+                    },
+                    extraHeaders: { "DPoP": expect.any(String) },
                 }),
             );
         });

@@ -21,11 +21,6 @@ export type SigningKey = Record<string, string | string[]>;
  */
 export type ExtraHeader = string | (() => string);
 
-export interface DPoPSettings {
-    enabled: boolean;
-    bind_authorization_code?: boolean;
-}
-
 /**
  * The settings used to configure the {@link OidcClient}.
  *
@@ -53,10 +48,6 @@ export interface OidcClientSettings {
     redirect_uri: string;
     /** The OIDC/OAuth2 post-logout redirect URI */
     post_logout_redirect_uri?: string;
-    /** Indicates whether to apply Dynamic Proof Of Possession when requesting an access token
-     *  See https://datatracker.ietf.org/doc/html/rfc9449
-     */
-    dpopSettings?: DPoPSettings;
 
     /**
      * Client authentication method that is used to authenticate when using the token endpoint (default: "client_secret_post")
@@ -170,7 +161,6 @@ export class OidcClientSettingsStore {
     public readonly redirect_uri: string;
     public readonly post_logout_redirect_uri: string | undefined;
     public readonly client_authentication: "client_secret_basic" | "client_secret_post";
-    public readonly dpopSettings: DPoPSettings;
 
     // optional protocol params
     public readonly prompt: string | undefined;
@@ -223,7 +213,6 @@ export class OidcClientSettingsStore {
         extraQueryParams = {},
         extraTokenParams = {},
         extraHeaders = {},
-        dpopSettings = { enabled: false, bind_authorization_code: false },
     }: OidcClientSettings) {
 
         this.authority = authority;
@@ -251,7 +240,6 @@ export class OidcClientSettingsStore {
         this.redirect_uri = redirect_uri;
         this.post_logout_redirect_uri = post_logout_redirect_uri;
         this.client_authentication = client_authentication;
-        this.dpopSettings = dpopSettings;
 
         this.prompt = prompt;
         this.display = display;

@@ -247,6 +247,7 @@ export class UserManager {
      */
     public async signinPopup(args: SigninPopupArgs = {}): Promise<User> {
         const logger = this._logger.create("signinPopup");
+        let dpopJkt: string | undefined;
         const {
             popupWindowFeatures,
             popupWindowTarget,
@@ -257,11 +258,16 @@ export class UserManager {
             logger.throw(new Error("No popup_redirect_uri configured"));
         }
 
+        if (this.settings.dpopSettings.enabled && this.settings.dpopSettings.bind_authorization_code) {
+            dpopJkt = await DPoPService.generateDPoPJkt();
+        }
+
         const handle = await this._popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget });
         const user = await this._signin({
             request_type: "si:p",
             redirect_uri: url,
             display: "popup",
+            dpopJkt,
             ...requestArgs,
         }, handle);
         if (user) {
@@ -313,6 +319,7 @@ export class UserManager {
                 timeoutInSeconds: silentRequestTimeoutInSeconds,
             });
         }
+        let dpopJkt: string | undefined;
 
         const url = this.settings.silent_redirect_uri;
         if (!url) {
@@ -326,11 +333,15 @@ export class UserManager {
         }
 
         const handle = await this._iframeNavigator.prepare({ silentRequestTimeoutInSeconds });
+        if (this.settings.dpopSettings.enabled && this.settings.dpopSettings.bind_authorization_code) {
+            dpopJkt = await DPoPService.generateDPoPJkt();
+        }
         user = await this._signin({
             request_type: "si:s",
             redirect_uri: url,
             prompt: "none",
             id_token_hint: this.settings.includeIdTokenInSilentRenew ? user?.id_token : undefined,
+            dpopJkt,
             ...requestArgs,
         }, handle, verifySub);
         if (user) {

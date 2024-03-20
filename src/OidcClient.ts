@@ -15,7 +15,6 @@ import { SigninState } from "./SigninState";
 import { State } from "./State";
 import { TokenClient } from "./TokenClient";
 import { ClaimsService } from "./ClaimsService";
-import { DPoPService } from "./DPoPService";
 
 /**
  * @public
@@ -25,6 +24,7 @@ export interface CreateSigninRequestArgs
     redirect_uri?: string;
     response_type?: string;
     scope?: string;
+    dpopJkt? : string;
 
     /** custom "state", which can be used by a caller to have "data" round tripped */
     state?: unknown;
@@ -99,6 +99,7 @@ export class OidcClient {
         login_hint,
         skipUserInfo,
         nonce,
+        dpopJkt,
         url_state,
         response_type = this.settings.response_type,
         scope = this.settings.scope,
@@ -121,8 +122,6 @@ export class OidcClient {
 
         const url = await this.metadataService.getAuthorizationEndpoint();
         logger.debug("Received authorization endpoint", url);
-
-        const dpopJkt = this.settings.dpopSettings.enabled && this.settings.dpopSettings.bind_authorization_code ? await DPoPService.generateDPoPJkt() : undefined;
 
         const signinRequest = await SigninRequest.create({
             url,
