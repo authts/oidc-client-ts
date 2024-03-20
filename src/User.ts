@@ -127,6 +127,6 @@ export class User {
     }
 
     public async dpopProof(url: string, httpMethod?: string): Promise<string> {
-        return await DPoPService.generateDPoPProof(url, this.access_token, httpMethod);
+        return await DPoPService.generateDPoPProof({ url, accessToken: this.access_token, httpMethod: httpMethod } );
     }
 }

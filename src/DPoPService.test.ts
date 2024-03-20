@@ -10,7 +10,7 @@ describe("DPoPService", () => {
 
     describe("generateDPoPProof", () => {
         it("should generate a valid proof without an access token", async () => {
-            const proof = await DPoPService.generateDPoPProof("http://example.com");
+            const proof = await DPoPService.generateDPoPProof({ url: "http://example.com" });
             const protectedHeader = decodeProtectedHeader(proof);
             const publicKey = await importJWK(<JWK>protectedHeader.jwk);
             const verifiedResult = await jwtVerify(proof, publicKey);
@@ -20,8 +20,8 @@ describe("DPoPService", () => {
         });
 
         it("should generate a valid proof with an access token", async () => {
-            await DPoPService.generateDPoPProof("http://example.com");
-            const proof = await DPoPService.generateDPoPProof("http://example.com", "some_access_token");
+            await DPoPService.generateDPoPProof({ url: "http://example.com" });
+            const proof = await DPoPService.generateDPoPProof({ url: "http://example.com", accessToken: "some_access_token" });
 
             const protectedHeader = decodeProtectedHeader(proof);
             const publicKey = await importJWK(<JWK>protectedHeader.jwk);

@@ -5,12 +5,18 @@ import { IndexedDbCryptoKeyPairStore } from "./IndexedDbCryptoKeyPairStore";
  * Provides an implementation of Demonstrating Proof of Possession (DPoP) as defined in the
  * OAuth2 spec https://datatracker.ietf.org/doc/html/rfc9449.
  */
+
+export interface GenerateDPoPProofOpts {
+    url: string;
+    accessToken?: string;
+    httpMethod?: string;
+}
 export class DPoPService {
-    public static async generateDPoPProof(
-        url: string,
-        accessToken?: string,
-        httpMethod?: string,
-    ) : Promise<string> {
+    public static async generateDPoPProof({
+        url,
+        accessToken,
+        httpMethod,
+    }: GenerateDPoPProofOpts): Promise<string> {
         let hashedToken: Uint8Array;
         let encodedHash: string;
 

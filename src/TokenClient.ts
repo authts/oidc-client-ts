@@ -128,7 +128,7 @@ export class TokenClient {
 
         const extraHeaders: Record<string, ExtraHeader> = {};
         if (this._settings.dpopSettings.enabled) {
-            extraHeaders["DPoP"] = await DPoPService.generateDPoPProof(url, basicAuth, "POST");
+            extraHeaders["DPoP"] = await DPoPService.generateDPoPProof({ url, httpMethod: "POST" });
         }
 
         const response = await this._jsonService.postForm(url, { body: params, basicAuth, initCredentials: this._settings.fetchRequestCredentials, extraHeaders });
@@ -239,7 +239,7 @@ export class TokenClient {
 
         const extraHeaders: Record<string, ExtraHeader> = {};
         if (this._settings.dpopSettings.enabled) {
-            extraHeaders["DPoP"] = await DPoPService.generateDPoPProof(url, basicAuth, "POST");
+            extraHeaders["DPoP"] = await DPoPService.generateDPoPProof({ url, httpMethod: "POST" });
         }
 
         const response = await this._jsonService.postForm(url, { body: params, basicAuth, timeoutInSeconds, initCredentials: this._settings.fetchRequestCredentials, extraHeaders });
