@@ -11,7 +11,6 @@ describe("JsonService", () => {
     let subject: JsonService;
     let customStaticHeaderSubject: JsonService;
     let customDynamicHeaderSubject: JsonService;
-    let extraHeaders: Record<string, ExtraHeader>;
 
     const staticExtraHeaders = {
         "Custom-Header-1": "this-is-header-1",
@@ -34,9 +33,6 @@ describe("JsonService", () => {
         subject = new JsonService();
         customStaticHeaderSubject = new JsonService(undefined, null, staticExtraHeaders);
         customDynamicHeaderSubject = new JsonService(undefined, null, dynamicExtraHeaders);
-        extraHeaders = {
-            "DPoP": "some random dpop proof",
-        };
     });
 
     describe("getJson", () => {
@@ -344,8 +340,11 @@ describe("JsonService", () => {
             );
         });
 
-        it("should set dpop proof as header if dpop is enabled", async () => {
+        it("should fetch with extraHeaders if supplied", async () => {
             // act
+            const extraHeaders: Record<string, ExtraHeader> = {
+                "DPoP": "some random dpop proof",
+            };
             await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), extraHeaders })).rejects.toThrow();
             await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), basicAuth: "basicAuth", extraHeaders })).rejects.toThrow();
 
