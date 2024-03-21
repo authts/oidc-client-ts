@@ -20,6 +20,7 @@ export interface SigninRequestCreateArgs {
     // optional
     response_mode?: "query" | "fragment";
     nonce?: string;
+    dpopJkt?: string;
     display?: string;
     prompt?: string;
     max_age?: number;
@@ -72,6 +73,7 @@ export class SigninRequest {
         extraQueryParams,
         extraTokenParams,
         disablePKCE,
+        dpopJkt,
         ...optionalParams
     }: SigninRequestCreateArgs): Promise<SigninRequest> {
         if (!url) {
@@ -117,6 +119,9 @@ export class SigninRequest {
         parsedUrl.searchParams.append("scope", scope);
         if (nonce) {
             parsedUrl.searchParams.append("nonce", nonce);
+        }
+        if (dpopJkt) {
+            parsedUrl.searchParams.append("dpop_jkt", dpopJkt);
         }
 
         let stateParam = state.id;

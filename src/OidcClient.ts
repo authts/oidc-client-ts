@@ -3,7 +3,7 @@
 
 import { Logger, UrlUtils } from "./utils";
 import { ErrorResponse } from "./errors";
-import { type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
+import { type ExtraHeader, type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 import { ResponseValidator } from "./ResponseValidator";
 import { MetadataService } from "./MetadataService";
 import type { RefreshState } from "./RefreshState";
@@ -24,6 +24,7 @@ export interface CreateSigninRequestArgs
     redirect_uri?: string;
     response_type?: string;
     scope?: string;
+    dpopJkt? : string;
 
     /** custom "state", which can be used by a caller to have "data" round tripped */
     state?: unknown;
@@ -39,6 +40,8 @@ export interface UseRefreshTokenArgs {
     timeoutInSeconds?: number;
 
     state: RefreshState;
+
+    extraHeaders?: Record<string, ExtraHeader>;
 }
 
 /**
@@ -96,6 +99,7 @@ export class OidcClient {
         login_hint,
         skipUserInfo,
         nonce,
+        dpopJkt,
         url_state,
         response_type = this.settings.response_type,
         scope = this.settings.scope,
@@ -133,6 +137,7 @@ export class OidcClient {
             client_secret: this.settings.client_secret,
             skipUserInfo,
             nonce,
+            dpopJkt,
             disablePKCE: this.settings.disablePKCE,
         });
 
@@ -164,12 +169,12 @@ export class OidcClient {
         return { state, response };
     }
 
-    public async processSigninResponse(url: string): Promise<SigninResponse> {
+    public async processSigninResponse(url: string, extraHeaders?: Record<string, ExtraHeader>): Promise<SigninResponse> {
         const logger = this._logger.create("processSigninResponse");
 
         const { state, response } = await this.readSigninResponseState(url, true);
         logger.debug("received state from storage; validating response");
-        await this._validator.validateSigninResponse(response, state);
+        await this._validator.validateSigninResponse(response, state, extraHeaders);
         return response;
     }
 
@@ -191,6 +196,7 @@ export class OidcClient {
         redirect_uri,
         resource,
         timeoutInSeconds,
+        extraHeaders,
         extraTokenParams,
     }: UseRefreshTokenArgs): Promise<SigninResponse> {
         const logger = this._logger.create("useRefreshToken");
@@ -215,6 +221,7 @@ export class OidcClient {
             redirect_uri,
             resource,
             timeoutInSeconds,
+            extraHeaders,
             ...extraTokenParams,
         });
         const response = new SigninResponse(new URLSearchParams());

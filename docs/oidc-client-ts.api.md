@@ -48,6 +48,8 @@ export class CheckSessionIFrame {
 // @public (undocumented)
 export interface CreateSigninRequestArgs extends Omit<SigninRequestCreateArgs, "url" | "authority" | "client_id" | "redirect_uri" | "response_type" | "scope" | "state_data"> {
     // (undocumented)
+    dpopJkt?: string;
+    // (undocumented)
     redirect_uri?: string;
     // (undocumented)
     response_type?: string;
@@ -137,6 +139,26 @@ export interface INavigator {
     callback(url: string, params?: unknown): Promise<void>;
     // (undocumented)
     prepare(params: unknown): Promise<IWindow>;
+}
+
+// @public (undocumented)
+export class IndexedDbCryptoKeyPairStore {
+    // (undocumented)
+    static createStore<T>(dbName: string, storeName: string): Promise<(txMode: IDBTransactionMode, callback: (store: IDBObjectStore) => T | PromiseLike<T>) => Promise<T>>;
+    // (undocumented)
+    static dbName: string;
+    // (undocumented)
+    static get(key: string): Promise<CryptoKeyPair | null>;
+    // (undocumented)
+    static getAllKeys(): Promise<string[]>;
+    // (undocumented)
+    static promisifyRequest<T = undefined>(request: IDBRequest<T> | IDBTransaction): Promise<T>;
+    // (undocumented)
+    static remove(key: string): Promise<CryptoKeyPair | null>;
+    // (undocumented)
+    static set(key: string, value: CryptoKeyPair): Promise<void>;
+    // (undocumented)
+    static storeName: string;
 }
 
 // @public (undocumented)
@@ -301,7 +323,7 @@ export class OidcClient {
     // (undocumented)
     clearStaleState(): Promise<void>;
     // (undocumented)
-    createSigninRequest({ state, request, request_uri, request_type, id_token_hint, login_hint, skipUserInfo, nonce, url_state, response_type, scope, redirect_uri, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, extraQueryParams, extraTokenParams, }: CreateSigninRequestArgs): Promise<SigninRequest>;
+    createSigninRequest({ state, request, request_uri, request_type, id_token_hint, login_hint, skipUserInfo, nonce, dpopJkt, url_state, response_type, scope, redirect_uri, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, extraQueryParams, extraTokenParams, }: CreateSigninRequestArgs): Promise<SigninRequest>;
     // (undocumented)
     createSignoutRequest({ state, id_token_hint, client_id, request_type, post_logout_redirect_uri, extraQueryParams, }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
     // (undocumented)
@@ -311,7 +333,7 @@ export class OidcClient {
     // (undocumented)
     processResourceOwnerPasswordCredentials({ username, password, skipUserInfo, extraTokenParams, }: ProcessResourceOwnerPasswordCredentialsArgs): Promise<SigninResponse>;
     // (undocumented)
-    processSigninResponse(url: string): Promise<SigninResponse>;
+    processSigninResponse(url: string, extraHeaders?: Record<string, ExtraHeader>): Promise<SigninResponse>;
     // (undocumented)
     processSignoutResponse(url: string): Promise<SignoutResponse>;
     // (undocumented)
@@ -333,7 +355,7 @@ export class OidcClient {
     // (undocumented)
     protected readonly _tokenClient: TokenClient;
     // (undocumented)
-    useRefreshToken({ state, redirect_uri, resource, timeoutInSeconds, extraTokenParams, }: UseRefreshTokenArgs): Promise<SigninResponse>;
+    useRefreshToken({ state, redirect_uri, resource, timeoutInSeconds, extraHeaders, extraTokenParams, }: UseRefreshTokenArgs): Promise<SigninResponse>;
     // Warning: (ae-forgotten-export) The symbol "ResponseValidator" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -623,7 +645,7 @@ export type SigninRedirectArgs = RedirectParams & ExtraSigninRequestArgs;
 // @public (undocumented)
 export class SigninRequest {
     // (undocumented)
-    static create({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, url_state, resource, skipUserInfo, extraQueryParams, extraTokenParams, disablePKCE, ...optionalParams }: SigninRequestCreateArgs): Promise<SigninRequest>;
+    static create({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, url_state, resource, skipUserInfo, extraQueryParams, extraTokenParams, disablePKCE, dpopJkt, ...optionalParams }: SigninRequestCreateArgs): Promise<SigninRequest>;
     // (undocumented)
     readonly state: SigninState;
     // (undocumented)
@@ -644,6 +666,8 @@ export interface SigninRequestCreateArgs {
     disablePKCE?: boolean;
     // (undocumented)
     display?: string;
+    // (undocumented)
+    dpopJkt?: string;
     // (undocumented)
     extraQueryParams?: Record<string, string | number | boolean>;
     // (undocumented)
@@ -902,6 +926,8 @@ export class User {
         url_state?: string;
     });
     access_token: string;
+    // (undocumented)
+    dpopProof(url: string, httpMethod?: string): Promise<string>;
     get expired(): boolean | undefined;
     expires_at?: number;
     get expires_in(): number | undefined;
@@ -925,6 +951,8 @@ export class User {
 // @public (undocumented)
 export interface UseRefreshTokenArgs {
     // (undocumented)
+    extraHeaders?: Record<string, ExtraHeader>;
+    // (undocumented)
     extraTokenParams?: Record<string, unknown>;
     // (undocumented)
     redirect_uri?: string;
@@ -947,6 +975,8 @@ export class UserManager {
     clearStaleState(): Promise<void>;
     // (undocumented)
     protected readonly _client: OidcClient;
+    // (undocumented)
+    protected readonly _dpopNonceStore: WebStorageStateStore | null;
     get events(): UserManagerEvents;
     // (undocumented)
     protected readonly _events: UserManagerEvents;
@@ -1048,6 +1078,8 @@ export interface UserManagerSettings extends OidcClientSettings {
     accessTokenExpiringNotificationTimeInSeconds?: number;
     automaticSilentRenew?: boolean;
     checkSessionIntervalInSeconds?: number;
+    // Warning: (ae-forgotten-export) The symbol "DPoPSettings" needs to be exported by the entry point index.d.ts
+    dpopSettings?: DPoPSettings;
     iframeNotifyParentOrigin?: string;
     iframeScriptOrigin?: string;
     includeIdTokenInSilentRenew?: boolean;
@@ -1083,6 +1115,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     readonly automaticSilentRenew: boolean;
     // (undocumented)
     readonly checkSessionIntervalInSeconds: number;
+    // (undocumented)
+    readonly dpopSettings: DPoPSettings;
     // (undocumented)
     readonly iframeNotifyParentOrigin: string | undefined;
     // (undocumented)

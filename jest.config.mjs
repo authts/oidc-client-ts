@@ -7,9 +7,12 @@ export default {
     clearMocks: true,
     setupFilesAfterEnv: ["./test/setup.ts"],
     testMatch: ["**/{src,test}/**/*.test.ts"],
-    testEnvironment: "jsdom",
+    testEnvironment: "./jest-environment-jsdom.cjs",
     collectCoverage,
     coverageReporters: collectCoverage ? ["lcov"] : ["lcov", "text"],
+    moduleNameMapper: {
+        "^jose": "jose",  // map to jose cjs module otherwise jest breaks
+    },
     transform: {
         "^.+\\.tsx?$": [
             "ts-jest",
