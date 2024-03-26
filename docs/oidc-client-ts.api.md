@@ -369,6 +369,7 @@ export interface OidcClientSettings {
     prompt?: string;
     redirect_uri: string;
     refreshTokenAllowedScope?: string | undefined;
+    requestTimeoutInSeconds?: number | undefined;
     resource?: string | string[];
     response_mode?: "query" | "fragment";
     response_type?: string;
@@ -382,7 +383,7 @@ export interface OidcClientSettings {
 
 // @public
 export class OidcClientSettingsStore {
-    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, mergeClaimsStrategy, disablePKCE, stateStore, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, extraHeaders, }: OidcClientSettings);
+    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, requestTimeoutInSeconds, staleStateAgeInSeconds, mergeClaimsStrategy, disablePKCE, stateStore, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, extraHeaders, }: OidcClientSettings);
     // (undocumented)
     readonly acr_values: string | undefined;
     // (undocumented)
@@ -429,6 +430,8 @@ export class OidcClientSettingsStore {
     readonly redirect_uri: string;
     // (undocumented)
     readonly refreshTokenAllowedScope: string | undefined;
+    // (undocumented)
+    readonly requestTimeoutInSeconds: number | undefined;
     // (undocumented)
     readonly resource: string | string[] | undefined;
     // (undocumented)
