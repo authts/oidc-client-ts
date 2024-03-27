@@ -311,7 +311,7 @@ export class OidcClient {
     // (undocumented)
     processResourceOwnerPasswordCredentials({ username, password, skipUserInfo, extraTokenParams, }: ProcessResourceOwnerPasswordCredentialsArgs): Promise<SigninResponse>;
     // (undocumented)
-    processSigninResponse(url: string): Promise<SigninResponse>;
+    processSigninResponse(url: string, extraHeaders?: Record<string, ExtraHeader>): Promise<SigninResponse>;
     // (undocumented)
     processSignoutResponse(url: string): Promise<SignoutResponse>;
     // (undocumented)
@@ -333,7 +333,7 @@ export class OidcClient {
     // (undocumented)
     protected readonly _tokenClient: TokenClient;
     // (undocumented)
-    useRefreshToken({ state, redirect_uri, resource, timeoutInSeconds, extraTokenParams, }: UseRefreshTokenArgs): Promise<SigninResponse>;
+    useRefreshToken({ state, redirect_uri, resource, timeoutInSeconds, extraHeaders, extraTokenParams, }: UseRefreshTokenArgs): Promise<SigninResponse>;
     // Warning: (ae-forgotten-export) The symbol "ResponseValidator" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -925,6 +925,8 @@ export class User {
 // @public (undocumented)
 export interface UseRefreshTokenArgs {
     // (undocumented)
+    extraHeaders?: Record<string, ExtraHeader>;
+    // (undocumented)
     extraTokenParams?: Record<string, unknown>;
     // (undocumented)
     redirect_uri?: string;
@@ -1007,7 +1009,7 @@ export class UserManager {
     // (undocumented)
     storeUser(user: User | null): Promise<void>;
     // (undocumented)
-    protected _useRefreshToken(args: UseRefreshTokenArgs): Promise<User>;
+    protected _useRefreshToken(args: UseRefreshTokenArgs, extraHeaders?: Record<string, ExtraHeader>): Promise<User>;
     // (undocumented)
     protected get _userStoreKey(): string;
 }

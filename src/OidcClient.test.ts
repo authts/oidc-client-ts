@@ -335,7 +335,7 @@ describe("OidcClient", () => {
             const response = await subject.processSigninResponse("http://app/cb?state=1");
 
             // assert
-            expect(validateSigninResponseMock).toHaveBeenCalledWith(response, item);
+            expect(validateSigninResponseMock).toHaveBeenCalledWith(response, item, undefined);
         });
     });
 

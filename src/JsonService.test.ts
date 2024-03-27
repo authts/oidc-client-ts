@@ -5,7 +5,7 @@ import { ErrorResponse } from "./errors";
 import { JsonService } from "./JsonService";
 
 import { mocked } from "jest-mock";
-import type { ExtraHeader } from "../lib";
+import type { ExtraHeader } from "./OidcClientSettings";
 
 describe("JsonService", () => {
     let subject: JsonService;
