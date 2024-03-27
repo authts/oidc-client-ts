@@ -5,6 +5,7 @@ import { ErrorResponse } from "./errors";
 import { JsonService } from "./JsonService";
 
 import { mocked } from "jest-mock";
+import type { ExtraHeader } from "../lib";
 
 describe("JsonService", () => {
     let subject: JsonService;
@@ -332,6 +333,31 @@ describe("JsonService", () => {
                         Accept: "application/json",
                         Authorization: "Basic basicAuth",
                         "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    method: "POST",
+                    body: new URLSearchParams(),
+                }),
+            );
+        });
+
+        it("should fetch with extraHeaders if supplied", async () => {
+            // act
+            const extraHeaders: Record<string, ExtraHeader> = {
+                "extraHeader": "some random header value",
+            };
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), extraHeaders })).rejects.toThrow();
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), basicAuth: "basicAuth", extraHeaders })).rejects.toThrow();
+
+            // assert
+            expect(fetch).toBeCalledTimes(2);
+            expect(fetch).toHaveBeenLastCalledWith(
+                "http://test",
+                expect.objectContaining({
+                    headers: {
+                        Accept: "application/json",
+                        Authorization: "Basic basicAuth",
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        extraHeader: expect.any(String),
                     },
                     method: "POST",
                     body: new URLSearchParams(),
