@@ -4,7 +4,7 @@
 import { CryptoUtils, Logger } from "./utils";
 import { JsonService } from "./JsonService";
 import type { MetadataService } from "./MetadataService";
-import type { OidcClientSettingsStore } from "./OidcClientSettings";
+import type { ExtraHeader, OidcClientSettingsStore } from "./OidcClientSettings";
 
 /**
  * @internal
@@ -17,6 +17,8 @@ export interface ExchangeCodeArgs {
     grant_type?: string;
     code: string;
     code_verifier?: string;
+
+    extraHeaders?: Record<string, ExtraHeader>;
 }
 
 /**
@@ -47,6 +49,8 @@ export interface ExchangeRefreshTokenArgs {
     resource?: string | string[];
 
     timeoutInSeconds?: number;
+
+    extraHeaders?: Record<string, ExtraHeader>;
 }
 
 /**
@@ -85,6 +89,7 @@ export class TokenClient {
         redirect_uri = this._settings.redirect_uri,
         client_id = this._settings.client_id,
         client_secret = this._settings.client_secret,
+        extraHeaders,
         ...args
     }: ExchangeCodeArgs): Promise<Record<string, unknown>> {
         const logger = this._logger.create("exchangeCode");
@@ -124,7 +129,7 @@ export class TokenClient {
         const url = await this._metadataService.getTokenEndpoint(false);
         logger.debug("got token endpoint");
 
-        const response = await this._jsonService.postForm(url, { body: params, basicAuth, initCredentials: this._settings.fetchRequestCredentials });
+        const response = await this._jsonService.postForm(url, { body: params, basicAuth, initCredentials: this._settings.fetchRequestCredentials, extraHeaders });
         logger.debug("got response");
 
         return response;
@@ -191,6 +196,7 @@ export class TokenClient {
         client_id = this._settings.client_id,
         client_secret = this._settings.client_secret,
         timeoutInSeconds,
+        extraHeaders,
         ...args
     }: ExchangeRefreshTokenArgs): Promise<Record<string, unknown>> {
         const logger = this._logger.create("exchangeRefreshToken");
@@ -230,7 +236,7 @@ export class TokenClient {
         const url = await this._metadataService.getTokenEndpoint(false);
         logger.debug("got token endpoint");
 
-        const response = await this._jsonService.postForm(url, { body: params, basicAuth, timeoutInSeconds, initCredentials: this._settings.fetchRequestCredentials });
+        const response = await this._jsonService.postForm(url, { body: params, basicAuth, timeoutInSeconds, initCredentials: this._settings.fetchRequestCredentials, extraHeaders });
         logger.debug("got response");
 
         return response;

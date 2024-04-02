@@ -15,6 +15,7 @@ import type { SignoutResponse } from "./SignoutResponse";
 import type { MetadataService } from "./MetadataService";
 import { RefreshState } from "./RefreshState";
 import type { SigninResponse } from "./SigninResponse";
+import type { ExtraHeader } from "./OidcClientSettings";
 
 /**
  * @public
@@ -329,10 +330,11 @@ export class UserManager {
         return user;
     }
 
-    protected async _useRefreshToken(args: UseRefreshTokenArgs): Promise<User> {
+    protected async _useRefreshToken(args: UseRefreshTokenArgs, extraHeaders?: Record<string, ExtraHeader>): Promise<User> {
         const response = await this._client.useRefreshToken({
             ...args,
             timeoutInSeconds: this.settings.silentRequestTimeoutInSeconds,
+            extraHeaders,
         });
         const user = new User({ ...args.state, ...response });
 
