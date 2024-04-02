@@ -5,7 +5,7 @@ import { JwtUtils } from "./utils";
 import type { ErrorResponse } from "./errors";
 import type { JwtClaims } from "./Claims";
 import { OidcClient } from "./OidcClient";
-import { type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
+import { type ExtraHeader, type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 import { SigninState } from "./SigninState";
 import { State } from "./State";
 import { SigninRequest } from "./SigninRequest";
@@ -337,6 +337,31 @@ describe("OidcClient", () => {
             // assert
             expect(validateSigninResponseMock).toHaveBeenCalledWith(response, item, undefined);
         });
+
+        it("should pass on extraHeaders if supplied", async () => {
+            // arrange
+            const item = await SigninState.create({
+                id: "1",
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                scope: "scope",
+                request_type: "type",
+            });
+
+            const extraHeaders: Record<string, ExtraHeader> = { "foo": "bar" };
+
+            jest.spyOn(subject.settings.stateStore, "remove")
+                .mockImplementation(async () => item.toStorageString());
+            const validateSigninResponseMock = jest.spyOn(subject["_validator"], "validateSigninResponse")
+                .mockResolvedValue();
+
+            // act
+            const response = await subject.processSigninResponse("http://app/cb?state=1", extraHeaders);
+
+            // assert
+            expect(validateSigninResponseMock).toHaveBeenCalledWith(response, item, extraHeaders);
+        });
     });
 
     describe("processResourceOwnerPasswordCredentials", () => {
@@ -513,6 +538,41 @@ describe("OidcClient", () => {
             await expect(subject.useRefreshToken({ state }))
                 // assert
                 .rejects.toThrow("sub in id_token does not match current sub");
+        });
+
+        it("should pass extraHeaders to tokenClient.exchangeRefreshToken if supplied", async () => {
+            // arrange
+            const tokenResponse = {
+                access_token: "new_access_token",
+            };
+            const exchangeRefreshTokenMock =
+                jest.spyOn(subject["_tokenClient"], "exchangeRefreshToken")
+                    .mockResolvedValue(tokenResponse);
+            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
+            const state = new RefreshState({
+                refresh_token: "refresh_token",
+                id_token: "id_token",
+                session_state: "session_state",
+                scope: "openid",
+                profile: {} as UserProfile,
+            });
+            const extraHeaders: Record<string, ExtraHeader> = { "foo": "bar" };
+
+            // act
+            const response = await subject.useRefreshToken({ state, resource: "resource", extraHeaders: extraHeaders });
+
+            // assert
+            expect(exchangeRefreshTokenMock).toHaveBeenCalledWith( {
+                refresh_token: "refresh_token",
+                scope: "openid",
+                timeoutInSeconds: undefined,
+                resource: "resource",
+                extraHeaders: extraHeaders,
+            });
+            expect(response).toBeInstanceOf(SigninResponse);
+            expect(response).toMatchObject(tokenResponse);
+            expect(response).toHaveProperty("session_state", state.session_state);
+            expect(response).toHaveProperty("scope", state.scope);
         });
     });
 

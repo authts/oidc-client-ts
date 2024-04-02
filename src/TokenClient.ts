@@ -33,8 +33,6 @@ export interface ExchangeCredentialsArgs {
 
     username: string;
     password: string;
-
-    extraHeaders?: Record<string, ExtraHeader>;
 }
 
 /**
@@ -147,7 +145,6 @@ export class TokenClient {
         client_id = this._settings.client_id,
         client_secret = this._settings.client_secret,
         scope = this._settings.scope,
-        extraHeaders,
         ...args
     }: ExchangeCredentialsArgs): Promise<Record<string, unknown>> {
         const logger = this._logger.create("exchangeCredentials");
@@ -183,7 +180,7 @@ export class TokenClient {
         const url = await this._metadataService.getTokenEndpoint(false);
         logger.debug("got token endpoint");
 
-        const response = await this._jsonService.postForm(url, { body: params, basicAuth, initCredentials: this._settings.fetchRequestCredentials, extraHeaders });
+        const response = await this._jsonService.postForm(url, { body: params, basicAuth, initCredentials: this._settings.fetchRequestCredentials });
         logger.debug("got response");
 
         return response;
