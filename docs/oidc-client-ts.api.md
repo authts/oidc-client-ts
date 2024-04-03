@@ -48,6 +48,8 @@ export class CheckSessionIFrame {
 // @public (undocumented)
 export interface CreateSigninRequestArgs extends Omit<SigninRequestCreateArgs, "url" | "authority" | "client_id" | "redirect_uri" | "response_type" | "scope" | "state_data"> {
     // (undocumented)
+    dpopJkt?: string;
+    // (undocumented)
     redirect_uri?: string;
     // (undocumented)
     response_type?: string;
@@ -623,7 +625,7 @@ export type SigninRedirectArgs = RedirectParams & ExtraSigninRequestArgs;
 // @public (undocumented)
 export class SigninRequest {
     // (undocumented)
-    static create({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, url_state, resource, skipUserInfo, extraQueryParams, extraTokenParams, disablePKCE, ...optionalParams }: SigninRequestCreateArgs): Promise<SigninRequest>;
+    static create({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, url_state, resource, skipUserInfo, extraQueryParams, extraTokenParams, disablePKCE, dpopJkt, ...optionalParams }: SigninRequestCreateArgs): Promise<SigninRequest>;
     // (undocumented)
     readonly state: SigninState;
     // (undocumented)
@@ -644,6 +646,8 @@ export interface SigninRequestCreateArgs {
     disablePKCE?: boolean;
     // (undocumented)
     display?: string;
+    // (undocumented)
+    dpopJkt?: string;
     // (undocumented)
     extraQueryParams?: Record<string, string | number | boolean>;
     // (undocumented)
@@ -902,6 +906,8 @@ export class User {
         url_state?: string;
     });
     access_token: string;
+    // (undocumented)
+    dpopProof(url: string, httpMethod?: string): Promise<string>;
     get expired(): boolean | undefined;
     expires_at?: number;
     get expires_in(): number | undefined;
@@ -949,6 +955,8 @@ export class UserManager {
     clearStaleState(): Promise<void>;
     // (undocumented)
     protected readonly _client: OidcClient;
+    // (undocumented)
+    protected readonly _dpopNonceStore: WebStorageStateStore | null;
     get events(): UserManagerEvents;
     // (undocumented)
     protected readonly _events: UserManagerEvents;

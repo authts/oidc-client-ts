@@ -24,6 +24,7 @@ export interface CreateSigninRequestArgs
     redirect_uri?: string;
     response_type?: string;
     scope?: string;
+    dpopJkt?: string;
 
     /** custom "state", which can be used by a caller to have "data" round tripped */
     state?: unknown;

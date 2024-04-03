@@ -3,6 +3,7 @@
 
 import { Logger, Timer } from "./utils";
 import type { IdTokenClaims } from "./Claims";
+import { DPoPService } from "./DPoPService";
 
 /**
  * Holds claims represented by a combination of the `id_token` and the user info endpoint.
@@ -123,5 +124,9 @@ export class User {
     public static fromStorageString(storageString: string): User {
         Logger.createStatic("User", "fromStorageString");
         return new User(JSON.parse(storageString));
+    }
+
+    public async dpopProof(url: string, httpMethod?: string): Promise<string> {
+        return await DPoPService.generateDPoPProof({ url, accessToken: this.access_token, httpMethod: httpMethod } );
     }
 }

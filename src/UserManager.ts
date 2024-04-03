@@ -15,6 +15,11 @@ import type { SignoutResponse } from "./SignoutResponse";
 import type { MetadataService } from "./MetadataService";
 import { RefreshState } from "./RefreshState";
 import type { SigninResponse } from "./SigninResponse";
+import type { ExtraHeader } from "./OidcClientSettings";
+import { IndexedDbCryptoKeyPairStore } from "./IndexedDbCryptoKeyPairStore";
+import { InMemoryWebStorage } from "./InMemoryWebStorage";
+import { WebStorageStateStore } from "./WebStorageStateStore";
+import { DPoPService } from "./DPoPService";
 
 /**
  * @public
@@ -88,6 +93,7 @@ export class UserManager {
     protected readonly _events: UserManagerEvents;
     protected readonly _silentRenewService: SilentRenewService;
     protected readonly _sessionMonitor: SessionMonitor | null;
+    protected readonly _dpopNonceStore: WebStorageStateStore | null;
 
     public constructor(settings: UserManagerSettings, redirectNavigator?: INavigator, popupNavigator?: INavigator, iframeNavigator?: INavigator) {
         this.settings = new UserManagerSettingsStore(settings);
@@ -111,6 +117,11 @@ export class UserManager {
             this._sessionMonitor = new SessionMonitor(this);
         }
 
+        this._dpopNonceStore = null;
+        if (this.settings.dpopSettings.enabled) {
+            const store = typeof window !== "undefined" ? window.sessionStorage : new InMemoryWebStorage();
+            this._dpopNonceStore = new WebStorageStateStore( { store });
+        }
     }
 
     /**
@@ -154,6 +165,11 @@ export class UserManager {
         const logger = this._logger.create("removeUser");
         await this.storeUser(null);
         logger.info("user removed from storage");
+        if (this.settings.dpopSettings.enabled) {
+            await this._dpopNonceStore?.remove("dpop_nonce");
+            await IndexedDbCryptoKeyPairStore.remove("oidc.dpop");
+            logger.debug("removed dpop cyptokeys from storage");
+        }
         await this._events.unload();
     }
 
@@ -231,6 +247,7 @@ export class UserManager {
      */
     public async signinPopup(args: SigninPopupArgs = {}): Promise<User> {
         const logger = this._logger.create("signinPopup");
+        let dpopJkt: string | undefined;
         const {
             popupWindowFeatures,
             popupWindowTarget,
@@ -241,11 +258,16 @@ export class UserManager {
             logger.throw(new Error("No popup_redirect_uri configured"));
         }
 
+        if (this.settings.dpopSettings.enabled && this.settings.dpopSettings.bind_authorization_code) {
+            dpopJkt = await DPoPService.generateDPoPJkt();
+        }
+
         const handle = await this._popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget });
         const user = await this._signin({
             request_type: "si:p",
             redirect_uri: url,
             display: "popup",
+            dpopJkt,
             ...requestArgs,
         }, handle);
         if (user) {
@@ -289,14 +311,21 @@ export class UserManager {
         if (user?.refresh_token) {
             logger.debug("using refresh token");
             const state = new RefreshState(user as Required<User>);
+            const extraHeaders: Record<string, ExtraHeader> = {};
+            if (this.settings.dpopSettings.enabled) {
+                const url = await this.metadataService.getTokenEndpoint(false);
+                extraHeaders["DPoP"] = await DPoPService.generateDPoPProof({ url, httpMethod: "POST" });
+            }
             return await this._useRefreshToken({
                 state,
                 redirect_uri: requestArgs.redirect_uri,
                 resource: requestArgs.resource,
                 extraTokenParams: requestArgs.extraTokenParams,
                 timeoutInSeconds: silentRequestTimeoutInSeconds,
+                extraHeaders: extraHeaders,
             });
         }
+        let dpopJkt: string | undefined;
 
         const url = this.settings.silent_redirect_uri;
         if (!url) {
@@ -310,11 +339,15 @@ export class UserManager {
         }
 
         const handle = await this._iframeNavigator.prepare({ silentRequestTimeoutInSeconds });
+        if (this.settings.dpopSettings.enabled && this.settings.dpopSettings.bind_authorization_code) {
+            dpopJkt = await DPoPService.generateDPoPJkt();
+        }
         user = await this._signin({
             request_type: "si:s",
             redirect_uri: url,
             prompt: "none",
             id_token_hint: this.settings.includeIdTokenInSilentRenew ? user?.id_token : undefined,
+            dpopJkt,
             ...requestArgs,
         }, handle, verifySub);
         if (user) {
@@ -438,7 +471,12 @@ export class UserManager {
             ...requestArgs,
         }, handle);
         try {
-            const signinResponse = await this._client.processSigninResponse(navResponse.url);
+            const extraHeaders: Record<string, ExtraHeader> = {};
+            if (this.settings.dpopSettings.enabled) {
+                const tokenUrl = await this.metadataService.getTokenEndpoint(false);
+                extraHeaders["DPoP"] = await DPoPService.generateDPoPProof({ url: tokenUrl, httpMethod: "POST" });
+            }
+            const signinResponse = await this._client.processSigninResponse(navResponse.url, extraHeaders);
             logger.debug("got signin response");
 
             if (signinResponse.session_state && signinResponse.profile.sub) {
@@ -496,7 +534,12 @@ export class UserManager {
     }
     protected async _signinEnd(url: string, verifySub?: string): Promise<User> {
         const logger = this._logger.create("_signinEnd");
-        const signinResponse = await this._client.processSigninResponse(url);
+        const extraHeaders: Record<string, ExtraHeader> = {};
+        if (this.settings.dpopSettings.enabled) {
+            const tokenUrl = await this.metadataService.getTokenEndpoint(false);
+            extraHeaders["DPoP"] = await DPoPService.generateDPoPProof({ url: tokenUrl, httpMethod: "POST" });
+        }
+        const signinResponse = await this._client.processSigninResponse(url, extraHeaders);
         logger.debug("got signin response");
 
         const user = await this._buildUser(signinResponse, verifySub);
