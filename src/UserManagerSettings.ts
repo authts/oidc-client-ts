@@ -17,6 +17,11 @@ const DefaultAccessTokenExpiringNotificationTimeInSeconds = 60;
 const DefaultCheckSessionIntervalInSeconds = 2;
 export const DefaultSilentRequestTimeoutInSeconds = 10;
 
+export interface DPoPSettings {
+    enabled: boolean;
+    bind_authorization_code?: boolean;
+}
+
 /**
  * The settings used to configure the {@link UserManager}.
  *
@@ -55,7 +60,10 @@ export interface UserManagerSettings extends OidcClientSettings {
     validateSubOnSilentRenew?: boolean;
     /** Flag to control if id_token is included as id_token_hint in silent renew calls (default: false) */
     includeIdTokenInSilentRenew?: boolean;
-
+    /** Indicates whether to apply Dynamic Proof Of Possession when requesting an access token
+     *  See https://datatracker.ietf.org/doc/html/rfc9449
+     */
+    dpopSettings?: DPoPSettings;
     /** Will raise events for when user has performed a signout at the OP (default: false) */
     monitorSession?: boolean;
     monitorAnonymousSession?: boolean;
@@ -110,6 +118,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
     public readonly monitorSession: boolean;
     public readonly monitorAnonymousSession: boolean;
+    public readonly dpopSettings: DPoPSettings;
     public readonly checkSessionIntervalInSeconds: number;
     public readonly query_status_response_type: string;
     public readonly stopCheckSessionOnError: boolean;
@@ -142,6 +151,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
             monitorSession = false,
             monitorAnonymousSession = false,
+            dpopSettings = { enabled: false, bind_authorization_code: false },
             checkSessionIntervalInSeconds = DefaultCheckSessionIntervalInSeconds,
             query_status_response_type = "code",
             stopCheckSessionOnError = true,
@@ -175,6 +185,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
         this.monitorSession = monitorSession;
         this.monitorAnonymousSession = monitorAnonymousSession;
+        this.dpopSettings = dpopSettings;
         this.checkSessionIntervalInSeconds = checkSessionIntervalInSeconds;
         this.stopCheckSessionOnError = stopCheckSessionOnError;
         this.query_status_response_type = query_status_response_type;
