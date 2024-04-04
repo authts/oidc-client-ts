@@ -45,4 +45,12 @@ describe("User", () => {
             expect(subject.scopes).toEqual(["foo", "bar", "baz"]);
         });
     });
+
+    describe("dpopProof", () => {
+        it("should return a DPoP proof", async () => {
+            const subject = new User({ scope: "foo" } as never);
+            const dpopProof = await subject.dpopProof("http://example.com", "GET");
+            expect(dpopProof).toEqual(expect.any(String));
+        });
+    });
 });
