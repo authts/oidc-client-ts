@@ -320,21 +320,21 @@ describe("UserManager", () => {
             expect(user).toBeInstanceOf(User);
             spy.mockRestore();
         });
-    });
 
-    it("should return a user if DPoP enabled", async () => {
-        // arrange
-        subject.settings.dpopSettings.enabled = true;
-        const spy = jest.spyOn(subject["_client"], "processSigninResponse")
-            .mockResolvedValue({} as SigninResponse);
+        it("should return a user if DPoP enabled", async () => {
+            // arrange
+            subject.settings.dpopSettings.enabled = true;
+            const spy = jest.spyOn(subject["_client"], "processSigninResponse")
+                .mockResolvedValue({} as SigninResponse);
 
-        // act
-        const user = await subject.signinRedirectCallback("http://app/cb?state=test&code=code");
+            // act
+            const user = await subject.signinRedirectCallback("http://app/cb?state=test&code=code");
 
-        // assert
-        expect(spy).toHaveBeenCalledWith("http://app/cb?state=test&code=code", { "DPoP": expect.any(String) });
-        expect(user).toBeInstanceOf(User);
-        spy.mockRestore();
+            // assert
+            expect(spy).toHaveBeenCalledWith("http://app/cb?state=test&code=code", { "DPoP": expect.any(String) });
+            expect(user).toBeInstanceOf(User);
+            spy.mockRestore();
+        });
     });
 
     describe("signinResourceOwnerCredentials", () => {
