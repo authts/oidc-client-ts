@@ -1009,7 +1009,7 @@ export class UserManager {
     // (undocumented)
     storeUser(user: User | null): Promise<void>;
     // (undocumented)
-    protected _useRefreshToken(args: UseRefreshTokenArgs, extraHeaders?: Record<string, ExtraHeader>): Promise<User>;
+    protected _useRefreshToken(args: UseRefreshTokenArgs): Promise<User>;
     // (undocumented)
     protected get _userStoreKey(): string;
 }
