@@ -44,6 +44,9 @@ describe("UserManager", () => {
                 token_endpoint: "http://sts/oidc/token",
                 revocation_endpoint: "http://sts/oidc/revoke",
             },
+            dpopSettings: {
+                enabled: true,
+            },
         });
     });
 
@@ -1146,6 +1149,19 @@ describe("UserManager", () => {
             // assert
             const storageString = await subject.settings.userStore.get(subject["_userStoreKey"]);
             expect(storageString).toBeNull();
+        });
+    });
+
+    describe("dpopProof", () => {
+        it("should return a DPoP proof", async () => {
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {} as UserProfile,
+            });
+            const dpopProof = await subject.dpopProof("http://example.com", user);
+            expect(dpopProof).toEqual(expect.any(String));
         });
     });
 });

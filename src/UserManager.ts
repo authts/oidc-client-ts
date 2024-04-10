@@ -91,6 +91,7 @@ export class UserManager {
     protected readonly _events: UserManagerEvents;
     protected readonly _silentRenewService: SilentRenewService;
     protected readonly _sessionMonitor: SessionMonitor | null;
+    protected readonly _dpopService: DPoPService | null;
 
     public constructor(settings: UserManagerSettings, redirectNavigator?: INavigator, popupNavigator?: INavigator, iframeNavigator?: INavigator) {
         this.settings = new UserManagerSettingsStore(settings);
@@ -112,6 +113,11 @@ export class UserManager {
         this._sessionMonitor = null;
         if (this.settings.monitorSession) {
             this._sessionMonitor = new SessionMonitor(this);
+        }
+
+        this._dpopService = null;
+        if (this.settings.dpopSettings.enabled) {
+            this._dpopService = new DPoPService();
         }
     }
 
@@ -248,8 +254,8 @@ export class UserManager {
             logger.throw(new Error("No popup_redirect_uri configured"));
         }
 
-        if (this.settings.dpopSettings.enabled && this.settings.dpopSettings.bind_authorization_code) {
-            dpopJkt = await DPoPService.generateDPoPJkt();
+        if (this._dpopService && this.settings.dpopSettings.bind_authorization_code) {
+            dpopJkt = await this._dpopService.generateDPoPJkt();
         }
 
         const handle = await this._popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget });
@@ -302,9 +308,9 @@ export class UserManager {
             logger.debug("using refresh token");
             const state = new RefreshState(user as Required<User>);
             const extraHeaders: Record<string, ExtraHeader> = {};
-            if (this.settings.dpopSettings.enabled) {
+            if (this._dpopService) {
                 const url = await this.metadataService.getTokenEndpoint(false);
-                extraHeaders["DPoP"] = await DPoPService.generateDPoPProof({ url, httpMethod: "POST" });
+                extraHeaders["DPoP"] = await this._dpopService.generateDPoPProof({ url, httpMethod: "POST" });
             }
             return await this._useRefreshToken({
                 state,
@@ -329,8 +335,8 @@ export class UserManager {
         }
 
         const handle = await this._iframeNavigator.prepare({ silentRequestTimeoutInSeconds });
-        if (this.settings.dpopSettings.enabled && this.settings.dpopSettings.bind_authorization_code) {
-            dpopJkt = await DPoPService.generateDPoPJkt();
+        if (this._dpopService && this.settings.dpopSettings.bind_authorization_code) {
+            dpopJkt = await this._dpopService.generateDPoPJkt();
         }
         user = await this._signin({
             request_type: "si:s",
@@ -433,6 +439,20 @@ export class UserManager {
     }
 
     /**
+     * Dynamically generates a DPoP proof for a given user, URL and optional Http method.
+     * This method is useful when you need to make a request to a resource server
+     * with fetch or similar, and you need to include a DPoP proof in a DPoP header.
+     * @param url - The URL to generate the DPoP proof for
+     * @param user - The user object to generate the DPoP proof for
+     * @param httpMethod - Optional, defaults to "GET"
+     *
+     * @returns A promise containing the DPoP proof
+     */
+    public async dpopProof(url: string, user: User, httpMethod?: string): Promise<string | undefined> {
+        return await this._dpopService?.generateDPoPProof({ url, accessToken: user.access_token, httpMethod: httpMethod });
+    }
+
+    /**
      * Query OP for user's current signin status.
      *
      * @returns A promise object with session_state and subject identifier.
@@ -462,9 +482,9 @@ export class UserManager {
         }, handle);
         try {
             const extraHeaders: Record<string, ExtraHeader> = {};
-            if (this.settings.dpopSettings.enabled) {
+            if (this._dpopService) {
                 const tokenUrl = await this.metadataService.getTokenEndpoint(false);
-                extraHeaders["DPoP"] = await DPoPService.generateDPoPProof({ url: tokenUrl, httpMethod: "POST" });
+                extraHeaders["DPoP"] = await this._dpopService.generateDPoPProof({ url: tokenUrl, httpMethod: "POST" });
             }
             const signinResponse = await this._client.processSigninResponse(navResponse.url, extraHeaders);
             logger.debug("got signin response");
@@ -525,9 +545,9 @@ export class UserManager {
     protected async _signinEnd(url: string, verifySub?: string): Promise<User> {
         const logger = this._logger.create("_signinEnd");
         const extraHeaders: Record<string, ExtraHeader> = {};
-        if (this.settings.dpopSettings.enabled) {
+        if (this._dpopService) {
             const tokenUrl = await this.metadataService.getTokenEndpoint(false);
-            extraHeaders["DPoP"] = await DPoPService.generateDPoPProof({ url: tokenUrl, httpMethod: "POST" });
+            extraHeaders["DPoP"] = await this._dpopService.generateDPoPProof({ url: tokenUrl, httpMethod: "POST" });
         }
         const signinResponse = await this._client.processSigninResponse(url, extraHeaders);
         logger.debug("got signin response");
