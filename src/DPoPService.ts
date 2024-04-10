@@ -12,7 +12,10 @@ export interface GenerateDPoPProofOpts {
     httpMethod?: string;
 }
 export class DPoPService {
-    public static async generateDPoPProof({
+
+    public constructor() {}
+
+    public async generateDPoPProof({
         url,
         accessToken,
         httpMethod,
@@ -57,7 +60,7 @@ export class DPoPService {
         }
     }
 
-    public static async generateDPoPJkt() : Promise<string> {
+    public async generateDPoPJkt() : Promise<string> {
         try {
             const keyPair = await this.loadKeyPair();
             const publicJwk = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
@@ -71,7 +74,7 @@ export class DPoPService {
         }
     }
 
-    protected static async loadKeyPair() : Promise<CryptoKeyPair> {
+    protected async loadKeyPair() : Promise<CryptoKeyPair> {
         try {
             const allKeys = await IndexedDbCryptoKeyPairStore.getAllKeys();
             let keyPair: CryptoKeyPair;
@@ -91,7 +94,7 @@ export class DPoPService {
         }
     }
 
-    protected static async generateKeys() : Promise<CryptoKeyPair> {
+    protected async generateKeys() : Promise<CryptoKeyPair> {
         return await window.crypto.subtle.generateKey(
             {
                 name: "ECDSA",

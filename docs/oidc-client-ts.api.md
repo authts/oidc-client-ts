@@ -906,8 +906,6 @@ export class User {
         url_state?: string;
     });
     access_token: string;
-    // (undocumented)
-    dpopProof(url: string, httpMethod?: string): Promise<string>;
     get expired(): boolean | undefined;
     expires_at?: number;
     get expires_in(): number | undefined;
@@ -955,6 +953,11 @@ export class UserManager {
     clearStaleState(): Promise<void>;
     // (undocumented)
     protected readonly _client: OidcClient;
+    dpopProof(url: string, user: User, httpMethod?: string): Promise<string | undefined>;
+    // Warning: (ae-forgotten-export) The symbol "DPoPService" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    protected readonly _dpopService: DPoPService | null;
     get events(): UserManagerEvents;
     // (undocumented)
     protected readonly _events: UserManagerEvents;
