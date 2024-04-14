@@ -1,13 +1,14 @@
 import { DPoPService } from "./DPoPService";
 import { jwtVerify, decodeProtectedHeader, importJWK, type JWK } from "jose";
 import { IndexedDbCryptoKeyPairStore as idb } from "./IndexedDbCryptoKeyPairStore";
+import { DPoPStorageStateStore } from "./DPoPStorageStateStore";
 
 describe("DPoPService", () => {
     let subject: DPoPService;
 
     beforeEach(async () => {
         await idb.remove("oidc.dpop");
-        subject = new DPoPService();
+        subject = new DPoPService(new DPoPStorageStateStore());
     });
 
     describe("generateDPoPProof", () => {

@@ -129,7 +129,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
     public readonly accessTokenExpiringNotificationTimeInSeconds: number;
 
-    public readonly userStore: WebStorageStateStore;
+    public userStore: WebStorageStateStore;
 
     public constructor(args: UserManagerSettings) {
         const {

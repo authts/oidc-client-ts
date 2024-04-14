@@ -52,7 +52,7 @@ export class State {
         return Promise.resolve(new State(JSON.parse(storageString)));
     }
 
-    public static async clearStaleState(storage: StateStore, age: number): Promise<void> {
+    public static async clearStaleState(storage: StateStore<string | null>, age: number): Promise<void> {
         const logger = Logger.createStatic("State", "clearStaleState");
         const cutoff = Timer.getEpochTime() - age;
 

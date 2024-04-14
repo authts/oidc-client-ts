@@ -16,8 +16,8 @@ import type { MetadataService } from "./MetadataService";
 import { RefreshState } from "./RefreshState";
 import type { SigninResponse } from "./SigninResponse";
 import type { ExtraHeader } from "./OidcClientSettings";
-import { IndexedDbCryptoKeyPairStore } from "./IndexedDbCryptoKeyPairStore";
 import { DPoPService } from "./DPoPService";
+import { DPoPStorageStateStore } from "./DPoPStorageStateStore";
 
 /**
  * @public
@@ -117,7 +117,8 @@ export class UserManager {
 
         this._dpopService = null;
         if (this.settings.dpopSettings.enabled) {
-            this._dpopService = new DPoPService();
+            this.settings.userStore = new DPoPStorageStateStore();
+            this._dpopService = new DPoPService(this.settings.userStore as DPoPStorageStateStore);
         }
     }
 
@@ -162,10 +163,6 @@ export class UserManager {
         const logger = this._logger.create("removeUser");
         await this.storeUser(null);
         logger.info("user removed from storage");
-        if (this.settings.dpopSettings.enabled) {
-            await IndexedDbCryptoKeyPairStore.remove("oidc.dpop");
-            logger.debug("removed dpop cyptokeys from storage");
-        }
         await this._events.unload();
     }
 

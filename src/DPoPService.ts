@@ -1,5 +1,5 @@
 import { CryptoUtils, JwtUtils } from "./utils";
-import { IndexedDbCryptoKeyPairStore } from "./IndexedDbCryptoKeyPairStore";
+import { DPoPStorageStateStore } from "./DPoPStorageStateStore";
 
 /**
  * Provides an implementation of Demonstrating Proof of Possession (DPoP) as defined in the
@@ -12,8 +12,11 @@ export interface GenerateDPoPProofOpts {
     httpMethod?: string;
 }
 export class DPoPService {
+    readonly _dpopStorageStateStore;
 
-    public constructor() {}
+    public constructor(dpopStorageStateStore: DPoPStorageStateStore) {
+        this._dpopStorageStateStore = dpopStorageStateStore;
+    }
 
     public async generateDPoPProof({
         url,
@@ -76,13 +79,13 @@ export class DPoPService {
 
     protected async loadKeyPair() : Promise<CryptoKeyPair> {
         try {
-            const allKeys = await IndexedDbCryptoKeyPairStore.getAllKeys();
+            const allKeys = await this._dpopStorageStateStore.getAllKeys();
             let keyPair: CryptoKeyPair;
             if (!allKeys.includes("oidc.dpop")) {
                 keyPair = await this.generateKeys();
-                await IndexedDbCryptoKeyPairStore.set("oidc.dpop", keyPair);
+                await this._dpopStorageStateStore.set("oidc.dpop", keyPair);
             } else {
-                keyPair = await IndexedDbCryptoKeyPairStore.get("oidc.dpop") as CryptoKeyPair;
+                keyPair = await this._dpopStorageStateStore.getDpop("oidc.dpop") as CryptoKeyPair;
             }
             return keyPair;
         } catch (err) {

@@ -378,7 +378,7 @@ export interface OidcClientSettings {
     scope?: string;
     signingKeys?: SigningKey[];
     staleStateAgeInSeconds?: number;
-    stateStore?: StateStore;
+    stateStore?: StateStore<string | null>;
     ui_locales?: string;
 }
 
@@ -446,7 +446,7 @@ export class OidcClientSettingsStore {
     // (undocumented)
     readonly staleStateAgeInSeconds: number;
     // (undocumented)
-    readonly stateStore: StateStore;
+    readonly stateStore: StateStore<string | null>;
     // (undocumented)
     readonly ui_locales: string | undefined;
 }
@@ -863,7 +863,7 @@ export class State {
         url_state?: string;
     });
     // (undocumented)
-    static clearStaleState(storage: StateStore, age: number): Promise<void>;
+    static clearStaleState(storage: StateStore<string | null>, age: number): Promise<void>;
     // (undocumented)
     readonly created: number;
     readonly data?: unknown;
@@ -880,15 +880,15 @@ export class State {
 }
 
 // @public (undocumented)
-export interface StateStore {
+export interface StateStore<T extends string | null | CryptoKeyPair> {
     // (undocumented)
-    get(key: string): Promise<string | null>;
+    get(key: string): Promise<T>;
     // (undocumented)
     getAllKeys(): Promise<string[]>;
     // (undocumented)
-    remove(key: string): Promise<string | null>;
+    remove(key: string): Promise<T>;
     // (undocumented)
-    set(key: string, value: string): Promise<void>;
+    set(key: string, value: T): Promise<void>;
 }
 
 // @public (undocumented)
@@ -1135,7 +1135,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     // (undocumented)
     readonly stopCheckSessionOnError: boolean;
     // (undocumented)
-    readonly userStore: WebStorageStateStore;
+    userStore: WebStorageStateStore;
     // (undocumented)
     readonly validateSubOnSilentRenew: boolean;
 }
@@ -1159,7 +1159,7 @@ export type UserUnloadedCallback = () => Promise<void> | void;
 export const Version: string;
 
 // @public (undocumented)
-export class WebStorageStateStore implements StateStore {
+export class WebStorageStateStore implements StateStore<string | null> {
     constructor({ prefix, store, }?: {
         prefix?: string;
         store?: AsyncStorage | Storage;

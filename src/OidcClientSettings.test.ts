@@ -405,7 +405,7 @@ describe("OidcClientSettings", () => {
 
         it("should return value from initial settings", () => {
             // arrange
-            const temp = {} as StateStore;
+            const temp = {} as StateStore<string | null>;
 
             // act
             const subject = new OidcClientSettingsStore({
@@ -424,7 +424,7 @@ describe("OidcClientSettings", () => {
 
         it("should return value from initial settings", () => {
             // arrange
-            const temp = {} as StateStore;
+            const temp = {} as StateStore<string | null>;
 
             // act
             const subject = new OidcClientSettingsStore({

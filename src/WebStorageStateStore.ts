@@ -8,7 +8,7 @@ import type { AsyncStorage } from "./AsyncStorage";
 /**
  * @public
  */
-export class WebStorageStateStore implements StateStore {
+export class WebStorageStateStore implements StateStore<string | null> {
     private readonly _logger = new Logger("WebStorageStateStore");
 
     private readonly _store: AsyncStorage | Storage;
