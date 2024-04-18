@@ -449,7 +449,7 @@ export class OidcClientSettingsStore {
     readonly ui_locales: string | undefined;
 }
 
-// @public (undocumented)
+// @public
 export interface OidcMetadata {
     acr_values_supported: string[];
     authorization_endpoint: string;
