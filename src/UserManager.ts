@@ -505,7 +505,7 @@ export class UserManager {
 
     protected async _buildUser(signinResponse: SigninResponse, verifySub?: string) {
         const logger = this._logger.create("_buildUser");
-        const user = new User(signinResponse);
+        const user = new User(signinResponse, this.settings.extraTokenResponseKeys);
         if (verifySub) {
             if (verifySub !== user.profile.sub) {
                 logger.debug("current user does not match user returned from signin. sub from signin:", user.profile.sub);
