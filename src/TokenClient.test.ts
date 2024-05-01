@@ -1,7 +1,7 @@
 import { CryptoUtils } from "./utils";
 import { TokenClient } from "./TokenClient";
 import { MetadataService } from "./MetadataService";
-import { type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
+import { type ExtraHeader, type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 
 describe("TokenClient", () => {
     let settings: OidcClientSettings;
@@ -139,6 +139,28 @@ describe("TokenClient", () => {
                 expect.objectContaining({
                     body: expect.any(URLSearchParams),
                     basicAuth: undefined,
+                }),
+            );
+        });
+
+        it("should call postForm with extraHeaders if extraHeaders are supplied", async () => {
+            // arrange
+            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+                .mockResolvedValue("http://sts/token_endpoint");
+            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+                .mockResolvedValue({});
+            const extraHeaders: Record<string, ExtraHeader> = { "foo": "bar" };
+            // act
+            await subject.exchangeCode({ code: "code", code_verifier: "code_verifier", extraHeaders: extraHeaders });
+
+            // assert
+            expect(getTokenEndpointMock).toHaveBeenCalledWith(false);
+            expect(postFormMock).toHaveBeenCalledWith(
+                "http://sts/token_endpoint",
+                expect.objectContaining({
+                    body: expect.any(URLSearchParams),
+                    basicAuth: undefined,
+                    extraHeaders: extraHeaders,
                 }),
             );
         });
@@ -357,6 +379,29 @@ describe("TokenClient", () => {
                     body: expect.any(URLSearchParams),
                     basicAuth: undefined,
                     timeoutInSeconds: undefined,
+                }),
+            );
+        });
+
+        it("should call postForm with extraHeaders if extraHeaders are supplied", async () => {
+            // arrange
+            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+                .mockResolvedValue("http://sts/token_endpoint");
+            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+                .mockResolvedValue({});
+            const extraHeaders: Record<string, ExtraHeader> = { "foo": "bar" };
+            // act
+            await subject.exchangeRefreshToken({ refresh_token: "refresh_token", extraHeaders: extraHeaders });
+
+            // assert
+            expect(getTokenEndpointMock).toHaveBeenCalledWith(false);
+            expect(postFormMock).toHaveBeenCalledWith(
+                "http://sts/token_endpoint",
+                expect.objectContaining({
+                    body: expect.any(URLSearchParams),
+                    basicAuth: undefined,
+                    timeoutInSeconds: undefined,
+                    extraHeaders: extraHeaders,
                 }),
             );
         });

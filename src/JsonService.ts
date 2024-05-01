@@ -27,6 +27,7 @@ export interface PostFormOpts {
     basicAuth?: string;
     timeoutInSeconds?: number;
     initCredentials?: "same-origin" | "include" | "omit";
+    extraHeaders?: Record<string, ExtraHeader>;
 }
 
 /**
@@ -133,11 +134,13 @@ export class JsonService {
         basicAuth,
         timeoutInSeconds,
         initCredentials,
+        extraHeaders,
     }: PostFormOpts): Promise<Record<string, unknown>> {
         const logger = this._logger.create("postForm");
         const headers: HeadersInit = {
             "Accept": this._contentTypes.join(", "),
             "Content-Type": "application/x-www-form-urlencoded",
+            ...extraHeaders,
         };
         if (basicAuth !== undefined) {
             headers["Authorization"] = "Basic " + basicAuth;
