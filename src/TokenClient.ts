@@ -134,6 +134,7 @@ export class TokenClient {
             basicAuth,
             timeoutInSeconds: this._settings.requestTimeoutInSeconds,
             initCredentials: this._settings.fetchRequestCredentials,
+            extraHeaders,
         });
 
         logger.debug("got response");
