@@ -136,7 +136,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
             requestTimeoutInSeconds,
             silent_redirect_uri = args.redirect_uri,
-            silentRequestTimeoutInSeconds = DefaultSilentRequestTimeoutInSeconds,
+            silentRequestTimeoutInSeconds,
             automaticSilentRenew = true,
             validateSubOnSilentRenew = true,
             includeIdTokenInSilentRenew = false,
@@ -169,7 +169,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         this.iframeScriptOrigin = iframeScriptOrigin;
 
         this.silent_redirect_uri = silent_redirect_uri;
-        this.silentRequestTimeoutInSeconds = silentRequestTimeoutInSeconds ?? requestTimeoutInSeconds;
+        this.silentRequestTimeoutInSeconds = silentRequestTimeoutInSeconds || requestTimeoutInSeconds || DefaultSilentRequestTimeoutInSeconds;
         this.automaticSilentRenew = automaticSilentRenew;
         this.validateSubOnSilentRenew = validateSubOnSilentRenew;
         this.includeIdTokenInSilentRenew = includeIdTokenInSilentRenew;
