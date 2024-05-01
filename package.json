@@ -1,7 +1,7 @@
 {
-  "name": "oidc-client-ts",
-  "version": "3.0.1",
-  "description": "OpenID Connect (OIDC) & OAuth2 client library",
+  "name": "oidc-client-ts-lumeris",
+  "version": "1.0.0",
+  "description": "Lumeris OpenID Connect (OIDC) & OAuth2 client library",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/authts/oidc-client-ts.git"
