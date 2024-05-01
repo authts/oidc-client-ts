@@ -1,12 +1,12 @@
 {
-  "name": "oidc-client-ts",
-  "version": "3.0.1",
-  "description": "OpenID Connect (OIDC) & OAuth2 client library",
+  "name": "oidc-client-ts-lumeris",
+  "version": "1.0.0",
+  "description": "Lumeris fork of OpenID Connect (OIDC) & OAuth2 client library",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/authts/oidc-client-ts.git"
+    "url": "git+https://github.com/benMain/oidc-client-ts.git"
   },
-  "homepage": "https://github.com/authts/oidc-client-ts#readme",
+  "homepage": "https://github.com/benMain/oidc-client-ts#readme",
   "license": "Apache-2.0",
   "main": "dist/umd/oidc-client-ts.js",
   "types": "dist/types/oidc-client-ts.d.ts",
@@ -26,7 +26,8 @@
     "oauth2",
     "oidc",
     "openid",
-    "OpenID Connect"
+    "OpenID Connect",
+    "lumeris"
   ],
   "scripts": {
     "build": "node scripts/build.js && npm run build-types",
