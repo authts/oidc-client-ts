@@ -365,18 +365,21 @@ export class UserManager {
      *
      * @throws `Error` If request_type is unknown or signout cannot be processed.
      */
-    public async signinCallback(url = window.location.href): Promise<User | void> {
+    public async signinCallback(url = window.location.href): Promise<User | undefined> {
         const { state } = await this._client.readSigninResponseState(url);
         switch (state.request_type) {
             case "si:r":
                 return await this.signinRedirectCallback(url);
             case "si:p":
-                return await this.signinPopupCallback(url);
+                await this.signinPopupCallback(url);
+                break;
             case "si:s":
-                return await this.signinSilentCallback(url);
+                await this.signinSilentCallback(url);
+                break;
             default:
                 throw new Error("invalid response_type in state");
         }
+        return undefined;
     }
 
     /**

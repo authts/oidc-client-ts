@@ -975,7 +975,7 @@ export class UserManager {
     readonly settings: UserManagerSettingsStore;
     // (undocumented)
     protected _signin(args: CreateSigninRequestArgs, handle: IWindow, verifySub?: string): Promise<User>;
-    signinCallback(url?: string): Promise<User | void>;
+    signinCallback(url?: string): Promise<User | undefined>;
     // (undocumented)
     protected _signinEnd(url: string, verifySub?: string): Promise<User>;
     signinPopup(args?: SigninPopupArgs): Promise<User>;
