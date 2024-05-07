@@ -311,7 +311,7 @@ export class OidcClient {
     // (undocumented)
     processResourceOwnerPasswordCredentials({ username, password, skipUserInfo, extraTokenParams, }: ProcessResourceOwnerPasswordCredentialsArgs): Promise<SigninResponse>;
     // (undocumented)
-    processSigninResponse(url: string): Promise<SigninResponse>;
+    processSigninResponse(url: string, extraHeaders?: Record<string, ExtraHeader>): Promise<SigninResponse>;
     // (undocumented)
     processSignoutResponse(url: string): Promise<SignoutResponse>;
     // (undocumented)
@@ -333,7 +333,7 @@ export class OidcClient {
     // (undocumented)
     protected readonly _tokenClient: TokenClient;
     // (undocumented)
-    useRefreshToken({ state, redirect_uri, resource, timeoutInSeconds, extraTokenParams, }: UseRefreshTokenArgs): Promise<SigninResponse>;
+    useRefreshToken({ state, redirect_uri, resource, timeoutInSeconds, extraHeaders, extraTokenParams, }: UseRefreshTokenArgs): Promise<SigninResponse>;
     // Warning: (ae-forgotten-export) The symbol "ResponseValidator" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -451,7 +451,7 @@ export class OidcClientSettingsStore {
     readonly ui_locales: string | undefined;
 }
 
-// @public (undocumented)
+// @public
 export interface OidcMetadata {
     acr_values_supported: string[];
     authorization_endpoint: string;
@@ -927,6 +927,8 @@ export class User {
 // @public (undocumented)
 export interface UseRefreshTokenArgs {
     // (undocumented)
+    extraHeaders?: Record<string, ExtraHeader>;
+    // (undocumented)
     extraTokenParams?: Record<string, unknown>;
     // (undocumented)
     redirect_uri?: string;
@@ -975,7 +977,7 @@ export class UserManager {
     readonly settings: UserManagerSettingsStore;
     // (undocumented)
     protected _signin(args: CreateSigninRequestArgs, handle: IWindow, verifySub?: string): Promise<User>;
-    signinCallback(url?: string): Promise<User | void>;
+    signinCallback(url?: string): Promise<User | undefined>;
     // (undocumented)
     protected _signinEnd(url: string, verifySub?: string): Promise<User>;
     signinPopup(args?: SigninPopupArgs): Promise<User>;
