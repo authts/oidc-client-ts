@@ -23,7 +23,7 @@ describe("SigninRequest", () => {
     });
 
     describe("constructor", () => {
-        it.each(["url", "client_id", "redirect_uri", "response_type", "authority"])("should require a %s param", async (param) => {
+        it.each(["url", "client_id", "redirect_uri", "response_type", "scope", "authority"])("should require a %s param", async (param) => {
             // arrange
             Object.assign(settings, { [param]: undefined });
 

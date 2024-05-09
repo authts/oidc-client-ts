@@ -87,6 +87,7 @@ describe("OidcClientSettings", () => {
             // assert
             expect(subject.scope).toEqual("openid");
         });
+
     });
 
     describe("redirect_uri", () => {

@@ -92,6 +92,10 @@ export class SigninRequest {
             this._logger.error("create: No response_type passed");
             throw new Error("response_type");
         }
+        if (!scope) {
+            this._logger.error("create: No scope passed");
+            throw new Error("scope");
+        }
         if (!authority) {
             this._logger.error("create: No authority passed");
             throw new Error("authority");
@@ -112,7 +116,7 @@ export class SigninRequest {
         parsedUrl.searchParams.append("client_id", client_id);
         parsedUrl.searchParams.append("redirect_uri", redirect_uri);
         parsedUrl.searchParams.append("response_type", response_type);
-        if (omitScopeWhenRequesting !== true) {
+        if (!omitScopeWhenRequesting) {
             parsedUrl.searchParams.append("scope", scope);
         }
         if (nonce) {

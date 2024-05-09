@@ -154,7 +154,7 @@ export class TokenClient {
         }
 
         const params = new URLSearchParams({ grant_type });
-        if (scope) {
+        if (!this._settings.omitScopeWhenRequesting) {
             params.set("scope", scope);
         }
         for (const [key, value] of Object.entries(args)) {
