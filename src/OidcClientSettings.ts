@@ -163,7 +163,7 @@ export class OidcClientSettingsStore {
     public readonly client_id: string;
     public readonly client_secret: string | undefined;
     public readonly response_type: string;
-    public readonly scope: string | undefined;
+    public readonly scope: string;
     public readonly redirect_uri: string;
     public readonly post_logout_redirect_uri: string | undefined;
     public readonly client_authentication: "client_secret_basic" | "client_secret_post";
@@ -182,6 +182,7 @@ export class OidcClientSettingsStore {
     public readonly loadUserInfo: boolean;
     public readonly staleStateAgeInSeconds: number;
     public readonly mergeClaimsStrategy: { array: "replace" | "merge" };
+    public readonly omitScopeWhenRequesting: boolean;
 
     public readonly stateStore: StateStore;
 
@@ -236,11 +237,6 @@ export class OidcClientSettingsStore {
             }
         }
 
-        this.scope = scope;
-        if (omitScopeWhenRequesting) {
-            this.scope = undefined;
-        }
-
         this.metadata = metadata;
         this.metadataSeed = metadataSeed;
         this.signingKeys = signingKeys;
@@ -248,6 +244,7 @@ export class OidcClientSettingsStore {
         this.client_id = client_id;
         this.client_secret = client_secret;
         this.response_type = response_type;
+        this.scope = scope;
         this.redirect_uri = redirect_uri;
         this.post_logout_redirect_uri = post_logout_redirect_uri;
         this.client_authentication = client_authentication;
@@ -264,6 +261,7 @@ export class OidcClientSettingsStore {
         this.loadUserInfo = !!loadUserInfo;
         this.staleStateAgeInSeconds = staleStateAgeInSeconds;
         this.mergeClaimsStrategy = mergeClaimsStrategy;
+        this.omitScopeWhenRequesting = omitScopeWhenRequesting;
         this.disablePKCE = !!disablePKCE;
         this.revokeTokenAdditionalContentTypes = revokeTokenAdditionalContentTypes;
 

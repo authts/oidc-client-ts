@@ -16,7 +16,7 @@ export interface SigninStateArgs {
     authority: string;
     client_id: string;
     redirect_uri: string;
-    scope?: string;
+    scope: string;
     client_secret?: string;
     extraTokenParams?: Record<string, unknown>;
     response_mode?: "query" | "fragment";
@@ -47,7 +47,7 @@ export class SigninState extends State {
     /** @see {@link OidcClientSettings.redirect_uri} */
     public readonly redirect_uri: string;
     /** @see {@link OidcClientSettings.scope} */
-    public readonly scope: string | undefined;
+    public readonly scope: string;
     /** @see {@link OidcClientSettings.client_secret} */
     public readonly client_secret: string | undefined;
     /** @see {@link OidcClientSettings.extraTokenParams} */

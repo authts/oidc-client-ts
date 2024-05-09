@@ -423,6 +423,8 @@ export class OidcClientSettingsStore {
     // (undocumented)
     readonly metadataUrl: string;
     // (undocumented)
+    readonly omitScopeWhenRequesting: boolean;
+    // (undocumented)
     readonly post_logout_redirect_uri: string | undefined;
     // (undocumented)
     readonly prompt: string | undefined;
@@ -439,7 +441,7 @@ export class OidcClientSettingsStore {
     // (undocumented)
     readonly revokeTokenAdditionalContentTypes?: string[];
     // (undocumented)
-    readonly scope: string | undefined;
+    readonly scope: string;
     // (undocumented)
     readonly signingKeys: SigningKey[] | undefined;
     // (undocumented)
@@ -624,7 +626,7 @@ export type SigninRedirectArgs = RedirectParams & ExtraSigninRequestArgs;
 // @public (undocumented)
 export class SigninRequest {
     // (undocumented)
-    static create({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, url_state, resource, skipUserInfo, extraQueryParams, extraTokenParams, disablePKCE, ...optionalParams }: SigninRequestCreateArgs): Promise<SigninRequest>;
+    static create({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, url_state, resource, skipUserInfo, extraQueryParams, extraTokenParams, disablePKCE, omitScopeWhenRequesting, ...optionalParams }: SigninRequestCreateArgs): Promise<SigninRequest>;
     // (undocumented)
     readonly state: SigninState;
     // (undocumented)
@@ -658,6 +660,8 @@ export interface SigninRequestCreateArgs {
     // (undocumented)
     nonce?: string;
     // (undocumented)
+    omitScopeWhenRequesting?: boolean;
+    // (undocumented)
     prompt?: string;
     // (undocumented)
     redirect_uri: string;
@@ -674,7 +678,7 @@ export interface SigninRequestCreateArgs {
     // (undocumented)
     response_type: string;
     // (undocumented)
-    scope?: string;
+    scope: string;
     // (undocumented)
     skipUserInfo?: boolean;
     state_data?: unknown;
@@ -752,7 +756,7 @@ export class SigninState extends State {
     // (undocumented)
     readonly response_mode: "query" | "fragment" | undefined;
     // (undocumented)
-    readonly scope: string | undefined;
+    readonly scope: string;
     // (undocumented)
     readonly skipUserInfo: boolean | undefined;
     // (undocumented)
@@ -786,7 +790,7 @@ export interface SigninStateArgs {
     // (undocumented)
     response_mode?: "query" | "fragment";
     // (undocumented)
-    scope?: string;
+    scope: string;
     // (undocumented)
     skipUserInfo?: boolean;
     // (undocumented)

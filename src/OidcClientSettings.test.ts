@@ -87,19 +87,6 @@ describe("OidcClientSettings", () => {
             // assert
             expect(subject.scope).toEqual("openid");
         });
-
-        it("should be undefined if omitScopeWhenRequesting is true", () => {
-            // act
-            const subject = new OidcClientSettingsStore({
-                authority: "authority",
-                client_id: "client",
-                redirect_uri: "redirect",
-                omitScopeWhenRequesting: true,
-            });
-
-            // assert
-            expect(subject.scope).toEqual(undefined);
-        });
     });
 
     describe("redirect_uri", () => {
@@ -540,6 +527,34 @@ describe("OidcClientSettings", () => {
 
             // assert
             expect(subject.extraHeaders).toEqual(extraHeaders);
+        });
+    });
+
+    describe("omitScopeWhenRequesting", () => {
+
+        it("should use default value", () => {
+            // act
+            const subject = new OidcClientSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+            });
+
+            // assert
+            expect(subject.omitScopeWhenRequesting).toEqual(false);
+        });
+
+        it("should return value from initial settings", () => {
+            // act
+            const subject = new OidcClientSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                omitScopeWhenRequesting: true,
+            });
+
+            // assert
+            expect(subject.omitScopeWhenRequesting).toEqual(true);
         });
     });
 });
