@@ -88,13 +88,13 @@ describe("OidcClientSettings", () => {
             expect(subject.scope).toEqual("openid");
         });
 
-        it("should be undefined if useIdpDefaultScopes is true", () => {
+        it("should be undefined if omitScopeWhenRequesting is true", () => {
             // act
             const subject = new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                useIdpDefaultScopes: true,
+                omitScopeWhenRequesting: true,
             });
 
             // assert

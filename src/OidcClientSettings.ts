@@ -142,7 +142,7 @@ export interface OidcClientSettings {
      * https://datatracker.ietf.org/doc/html/rfc6749#section-3.3 describes behavior when omitting scopes from sign in requests
      * If the IDP supports default scopes, this setting will ignore the scopes property passed to the config
      */
-    useIdpDefaultScopes?: boolean;
+    omitScopeWhenRequesting?: boolean;
 }
 
 /**
@@ -219,7 +219,7 @@ export class OidcClientSettingsStore {
         extraQueryParams = {},
         extraTokenParams = {},
         extraHeaders = {},
-        useIdpDefaultScopes = false,
+        omitScopeWhenRequesting = false,
     }: OidcClientSettings) {
 
         this.authority = authority;
@@ -237,7 +237,7 @@ export class OidcClientSettingsStore {
         }
 
         this.scope = scope;
-        if (useIdpDefaultScopes) {
+        if (omitScopeWhenRequesting) {
             this.scope = undefined;
         }
 

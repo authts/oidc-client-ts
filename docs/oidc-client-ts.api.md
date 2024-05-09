@@ -365,6 +365,7 @@ export interface OidcClientSettings {
     metadataSeed?: Partial<OidcMetadata>;
     // (undocumented)
     metadataUrl?: string;
+    omitScopeWhenRequesting?: boolean;
     post_logout_redirect_uri?: string;
     prompt?: string;
     redirect_uri: string;
@@ -378,12 +379,11 @@ export interface OidcClientSettings {
     staleStateAgeInSeconds?: number;
     stateStore?: StateStore;
     ui_locales?: string;
-    useIdpDefaultScopes?: boolean;
 }
 
 // @public
 export class OidcClientSettingsStore {
-    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, mergeClaimsStrategy, disablePKCE, stateStore, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, extraHeaders, useIdpDefaultScopes, }: OidcClientSettings);
+    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, mergeClaimsStrategy, disablePKCE, stateStore, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, extraHeaders, omitScopeWhenRequesting, }: OidcClientSettings);
     // (undocumented)
     readonly acr_values: string | undefined;
     // (undocumented)

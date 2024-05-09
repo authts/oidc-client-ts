@@ -361,8 +361,8 @@ describe("TokenClient", () => {
             expect(params).toHaveProperty("client_secret", "client_secret");
         });
 
-        it("should not include scope if useIdpDefaultScopes is true", async () => {
-            settings.useIdpDefaultScopes = true;
+        it("should not include scope if omitScopeWhenRequesting is true", async () => {
+            settings.omitScopeWhenRequesting = true;
             subject = new TokenClient(new OidcClientSettingsStore(settings), metadataService);
             const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
                 .mockResolvedValue("http://sts/token_endpoint");
