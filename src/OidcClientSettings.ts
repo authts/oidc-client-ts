@@ -85,7 +85,7 @@ export interface OidcClientSettings {
      * Should optional OIDC protocol claims be removed from profile or specify the ones to be removed (default: true)
      * When true, the following claims are removed by default: ["nbf", "jti", "auth_time", "nonce", "acr", "amr", "azp", "at_hash"]
      * When specifying claims, the following claims are not allowed: ["sub", "iss", "aud", "exp", "iat"]
-     */
+    */
     filterProtocolClaims?: boolean | string[];
     /** Flag to control if additional identity data is loaded from the user info endpoint in order to populate the user's profile (default: false) */
     loadUserInfo?: boolean;
@@ -141,8 +141,6 @@ export interface OidcClientSettings {
     /**
      * https://datatracker.ietf.org/doc/html/rfc6749#section-3.3 describes behavior when omitting scopes from sign in requests
      * If the IDP supports default scopes, this setting will ignore the scopes property passed to the config
-     *
-     * @deprecated
      */
     useIdpDefaultScopes?: boolean;
 }
@@ -168,9 +166,7 @@ export class OidcClientSettingsStore {
     public readonly scope: string | undefined;
     public readonly redirect_uri: string;
     public readonly post_logout_redirect_uri: string | undefined;
-    public readonly client_authentication:
-    | "client_secret_basic"
-    | "client_secret_post";
+    public readonly client_authentication: "client_secret_basic" | "client_secret_post";
 
     // optional protocol params
     public readonly prompt: string | undefined;
@@ -201,27 +197,13 @@ export class OidcClientSettingsStore {
 
     public constructor({
         // metadata related
-        authority,
-        metadataUrl,
-        metadata,
-        signingKeys,
-        metadataSeed,
+        authority, metadataUrl, metadata, signingKeys, metadataSeed,
         // client related
-        client_id,
-        client_secret,
-        response_type = DefaultResponseType,
-        scope = DefaultScope,
-        redirect_uri,
-        post_logout_redirect_uri,
+        client_id, client_secret, response_type = DefaultResponseType, scope = DefaultScope,
+        redirect_uri, post_logout_redirect_uri,
         client_authentication = DefaultClientAuthentication,
         // optional protocol
-        prompt,
-        display,
-        max_age,
-        ui_locales,
-        acr_values,
-        resource,
-        response_mode,
+        prompt, display, max_age, ui_locales, acr_values, resource, response_mode,
         // behavior flags
         filterProtocolClaims = true,
         loadUserInfo = false,
@@ -239,6 +221,7 @@ export class OidcClientSettingsStore {
         extraHeaders = {},
         useIdpDefaultScopes = false,
     }: OidcClientSettings) {
+
         this.authority = authority;
 
         if (metadataUrl) {
@@ -282,20 +265,15 @@ export class OidcClientSettingsStore {
         this.staleStateAgeInSeconds = staleStateAgeInSeconds;
         this.mergeClaimsStrategy = mergeClaimsStrategy;
         this.disablePKCE = !!disablePKCE;
-        this.revokeTokenAdditionalContentTypes =
-            revokeTokenAdditionalContentTypes;
+        this.revokeTokenAdditionalContentTypes = revokeTokenAdditionalContentTypes;
 
-        this.fetchRequestCredentials = fetchRequestCredentials
-            ? fetchRequestCredentials
-            : "same-origin";
+        this.fetchRequestCredentials = fetchRequestCredentials ? fetchRequestCredentials : "same-origin";
 
         if (stateStore) {
             this.stateStore = stateStore;
-        } else {
-            const store =
-                typeof window !== "undefined"
-                    ? window.localStorage
-                    : new InMemoryWebStorage();
+        }
+        else {
+            const store = typeof window !== "undefined" ? window.localStorage : new InMemoryWebStorage();
             this.stateStore = new WebStorageStateStore({ store });
         }
 

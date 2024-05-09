@@ -378,7 +378,6 @@ export interface OidcClientSettings {
     staleStateAgeInSeconds?: number;
     stateStore?: StateStore;
     ui_locales?: string;
-    // @deprecated
     useIdpDefaultScopes?: boolean;
 }
 
