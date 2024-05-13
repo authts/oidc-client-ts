@@ -151,6 +151,34 @@ describe("OidcClient", () => {
             expect(url.match(/state=.*%3Burl_state/)).toBeTruthy();
         });
 
+        it("should exclude scope from SigninRequest if omitScopeWhenRequesting is true", async () => {
+            // arrange
+            jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
+
+            // act
+            const request = await subject.createSigninRequest({
+                state: "foo",
+                response_type: "code",
+                scope: "baz",
+                redirect_uri: "quux",
+                prompt: "p",
+                display: "d",
+                max_age: 42,
+                ui_locales: "u",
+                id_token_hint: "ith",
+                login_hint: "lh",
+                acr_values: "av",
+                resource: "res",
+                url_state: "url_state",
+                omitScopeWhenRequesting: true,
+            });
+
+            // assert
+            expect(request.state.data).toEqual("foo");
+            const url = request.url;
+            expect(url).not.toContain("scope");
+        });
+
         it("should fail if implicit flow requested", async () => {
             // arrange
             const args = {
