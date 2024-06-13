@@ -15,7 +15,6 @@ import { SigninState } from "./SigninState";
 import { State } from "./State";
 import { TokenClient } from "./TokenClient";
 import { ClaimsService } from "./ClaimsService";
-import { IndexedDbDPoPStore } from "./IndexedDbDPoPStore";
 import type { DPoPStore } from "./DPoPStore";
 
 /**
@@ -80,7 +79,6 @@ export class OidcClient {
     protected readonly _claimsService: ClaimsService;
     protected readonly _validator: ResponseValidator;
     protected readonly _tokenClient: TokenClient;
-    protected readonly _dpopStore: IndexedDbDPoPStore | undefined;
 
     public constructor(settings: OidcClientSettings);
     public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService);
