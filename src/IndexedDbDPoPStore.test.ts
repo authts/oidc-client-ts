@@ -1,7 +1,7 @@
-import { IndexDbDPoPStore } from "./IndexDbDPoPStore";
+import { IndexedDbDPoPStore } from "./IndexedDbDPoPStore";
 
 describe("DPoPStore", () => {
-    const subject = new IndexDbDPoPStore();
+    const subject = new IndexedDbDPoPStore();
 
     let data: CryptoKeyPair;
 

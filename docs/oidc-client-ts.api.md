@@ -306,10 +306,10 @@ export class OidcClient {
     createSigninRequest({ state, request, request_uri, request_type, id_token_hint, login_hint, skipUserInfo, nonce, url_state, response_type, scope, redirect_uri, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, extraQueryParams, extraTokenParams, }: CreateSigninRequestArgs): Promise<SigninRequest>;
     // (undocumented)
     createSignoutRequest({ state, id_token_hint, client_id, request_type, post_logout_redirect_uri, extraQueryParams, }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
-    // Warning: (ae-forgotten-export) The symbol "IndexDbDPoPStore" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "IndexedDbDPoPStore" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    protected readonly _dpopStore: IndexDbDPoPStore | undefined;
+    protected readonly _dpopStore: IndexedDbDPoPStore | undefined;
     // Warning: (ae-forgotten-export) The symbol "DPoPStore" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)

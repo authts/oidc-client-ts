@@ -1,6 +1,6 @@
 import type { DPoPStore } from "./DPoPStore";
 
-export class IndexDbDPoPStore implements DPoPStore {
+export class IndexedDbDPoPStore implements DPoPStore {
     readonly _dbName: string = "oidc";
     readonly _storeName: string = "dpop";
 

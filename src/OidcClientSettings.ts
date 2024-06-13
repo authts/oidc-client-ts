@@ -6,7 +6,7 @@ import type { OidcMetadata } from "./OidcMetadata";
 import type { StateStore } from "./StateStore";
 import { InMemoryWebStorage } from "./InMemoryWebStorage";
 import type { DPoPStore } from "./DPoPStore";
-import { IndexDbDPoPStore } from "./IndexDbDPoPStore";
+import { IndexedDbDPoPStore } from "./IndexedDbDPoPStore";
 
 const DefaultResponseType = "code";
 const DefaultScope = "openid";
@@ -288,6 +288,6 @@ export class OidcClientSettingsStore {
         this.extraTokenParams = extraTokenParams;
         this.extraHeaders = extraHeaders;
         this.dpop = dpop;
-        this.dpopStore = dpop && dpopStore ? dpopStore : new IndexDbDPoPStore();
+        this.dpopStore = dpop && dpopStore ? dpopStore : new IndexedDbDPoPStore();
     }
 }
