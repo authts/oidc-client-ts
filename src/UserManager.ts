@@ -16,7 +16,6 @@ import type { MetadataService } from "./MetadataService";
 import { RefreshState } from "./RefreshState";
 import type { SigninResponse } from "./SigninResponse";
 import type { ExtraHeader } from "./OidcClientSettings";
-import { DPoPStore } from "./DPoPStore";
 
 /**
  * @public
@@ -90,7 +89,6 @@ export class UserManager {
     protected readonly _events: UserManagerEvents;
     protected readonly _silentRenewService: SilentRenewService;
     protected readonly _sessionMonitor: SessionMonitor | null;
-    protected readonly _dpopStore: DPoPStore | undefined;
 
     public constructor(settings: UserManagerSettings, redirectNavigator?: INavigator, popupNavigator?: INavigator, iframeNavigator?: INavigator) {
         this.settings = new UserManagerSettingsStore(settings);
@@ -112,10 +110,6 @@ export class UserManager {
         this._sessionMonitor = null;
         if (this.settings.monitorSession) {
             this._sessionMonitor = new SessionMonitor(this);
-        }
-
-        if (this.settings.dpop) {
-            this._dpopStore = new DPoPStore();
         }
     }
 
@@ -159,8 +153,8 @@ export class UserManager {
     public async removeUser(): Promise<void> {
         const logger = this._logger.create("removeUser");
         await this.storeUser(null);
-        if (this.settings.dpop) {
-            await this._dpopStore?.remove(this.settings.client_id);
+        if (this.settings.dpop && this.settings.dpopStore) {
+            await this.settings.dpopStore.remove(this.settings.client_id);
         }
         logger.info("user removed from storage");
         await this._events.unload();
@@ -803,7 +797,7 @@ export class UserManager {
      * @returns A promise containing the DPoP proof or undefined if DPoP is not enabled/no user is found.
      */
     public async dpopProof(url: string, user: User, httpMethod?: string): Promise<string | undefined> {
-        const dpopKey = await this._dpopStore?.get(this.settings.client_id);
+        const dpopKey = await this.settings.dpopStore?.get(this.settings.client_id);
         if (dpopKey) {
             return await CryptoUtils.generateDPoPProof({
                 url,

@@ -203,8 +203,8 @@ describe("UserManager", () => {
             const storeUserMock = jest.spyOn(subject, "storeUser");
             const unloadMock = jest.spyOn(subject["_events"], "unload");
             let dpopStoreMock;
-            if (subject["_dpopStore"]) {
-                dpopStoreMock = jest.spyOn(subject["_dpopStore"], "remove");
+            if (subject.settings.dpopStore) {
+                dpopStoreMock = jest.spyOn(subject.settings.dpopStore, "remove");
             }
 
             // act
@@ -1070,8 +1070,8 @@ describe("UserManager", () => {
 
             let mockDpopStore;
             const keyPair = await CryptoUtils.generateDPoPKeys();
-            if (subject["_dpopStore"]) {
-                mockDpopStore = jest.spyOn(subject["_dpopStore"], "get").mockResolvedValue(keyPair);
+            if (subject.settings.dpopStore) {
+                mockDpopStore = jest.spyOn(subject.settings.dpopStore, "get").mockResolvedValue(keyPair);
             }
             // act
             const dpopProof = await subject.dpopProof("http://some.url", user, "POST");

@@ -15,7 +15,8 @@ import { SigninState } from "./SigninState";
 import { State } from "./State";
 import { TokenClient } from "./TokenClient";
 import { ClaimsService } from "./ClaimsService";
-import { DPoPStore } from "./DPoPStore";
+import { IndexDbDPoPStore } from "./IndexDbDPoPStore";
+import type { DPoPStore } from "./DPoPStore";
 
 /**
  * @public
@@ -79,7 +80,7 @@ export class OidcClient {
     protected readonly _claimsService: ClaimsService;
     protected readonly _validator: ResponseValidator;
     protected readonly _tokenClient: TokenClient;
-    protected readonly _dpopStore: DPoPStore | undefined;
+    protected readonly _dpopStore: IndexDbDPoPStore | undefined;
 
     public constructor(settings: OidcClientSettings);
     public constructor(settings: OidcClientSettingsStore, metadataService: MetadataService);
@@ -90,10 +91,6 @@ export class OidcClient {
         this._claimsService = new ClaimsService(this.settings);
         this._validator = new ResponseValidator(this.settings, this.metadataService, this._claimsService);
         this._tokenClient = new TokenClient(this.settings, this.metadataService);
-
-        if (this.settings.dpop) {
-            this._dpopStore = new DPoPStore();
-        }
     }
 
     public async createSigninRequest({
@@ -179,22 +176,22 @@ export class OidcClient {
         const { state, response } = await this.readSigninResponseState(url, true);
         logger.debug("received state from storage; validating response");
 
-        if (this.settings.dpop && this._dpopStore) {
-            const dpopProof = await this.getDpopProof(this._dpopStore);
+        if (this.settings.dpop && this.settings.dpopStore) {
+            const dpopProof = await this.getDpopProof(this.settings.dpopStore);
             extraHeaders = { ...extraHeaders, "DPoP": dpopProof };
         }
         await this._validator.validateSigninResponse(response, state, extraHeaders);
         return response;
     }
 
-    async getDpopProof(dpopStore: DPoPStore): Promise<string> {
+    async getDpopProof(dpopStore: DPoPStore<CryptoKeyPair>): Promise<string> {
         let keyPair: CryptoKeyPair;
 
         if (!(await dpopStore.getAllKeys()).includes(this.settings.client_id)) {
             keyPair = await CryptoUtils.generateDPoPKeys();
             await dpopStore.set(this.settings.client_id, keyPair);
         } else {
-            keyPair = await dpopStore.get(this.settings.client_id) as CryptoKeyPair;
+            keyPair = await dpopStore.get(this.settings.client_id);
         }
 
         return await CryptoUtils.generateDPoPProof({
@@ -240,8 +237,8 @@ export class OidcClient {
             scope = providedScopes.filter(s => allowableScopes.includes(s)).join(" ");
         }
 
-        if (this.settings.dpop && this._dpopStore) {
-            const dpopProof = await this.getDpopProof(this._dpopStore);
+        if (this.settings.dpop && this.settings.dpopStore) {
+            const dpopProof = await this.getDpopProof(this.settings.dpopStore);
             extraHeaders = { ...extraHeaders, "DPoP": dpopProof };
         }
 

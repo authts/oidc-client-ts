@@ -5,6 +5,8 @@ import { WebStorageStateStore } from "./WebStorageStateStore";
 import type { OidcMetadata } from "./OidcMetadata";
 import type { StateStore } from "./StateStore";
 import { InMemoryWebStorage } from "./InMemoryWebStorage";
+import type { DPoPStore } from "./DPoPStore";
+import { IndexDbDPoPStore } from "./IndexDbDPoPStore";
 
 const DefaultResponseType = "code";
 const DefaultScope = "openid";
@@ -125,6 +127,11 @@ export interface OidcClientSettings {
     dpop?: boolean;
 
     /**
+     * DPoP store to use
+     */
+    dpopStore?: DPoPStore<CryptoKeyPair>;
+
+    /**
      * Will check the content type header of the response of the revocation endpoint to match these passed values (default: [])
      */
     revokeTokenAdditionalContentTypes?: string[];
@@ -188,6 +195,7 @@ export class OidcClientSettingsStore {
     public readonly extraQueryParams: Record<string, string | number | boolean>;
     public readonly extraTokenParams: Record<string, unknown>;
     public readonly dpop: boolean | undefined;
+    public readonly dpopStore: DPoPStore<CryptoKeyPair> | undefined;
     public readonly extraHeaders: Record<string, ExtraHeader>;
 
     public readonly revokeTokenAdditionalContentTypes?: string[];
@@ -220,6 +228,7 @@ export class OidcClientSettingsStore {
         extraTokenParams = {},
         extraHeaders = {},
         dpop = false,
+        dpopStore,
     }: OidcClientSettings) {
 
         this.authority = authority;
@@ -279,5 +288,6 @@ export class OidcClientSettingsStore {
         this.extraTokenParams = extraTokenParams;
         this.extraHeaders = extraHeaders;
         this.dpop = dpop;
+        this.dpopStore = dpop && dpopStore ? dpopStore : new IndexDbDPoPStore();
     }
 }
