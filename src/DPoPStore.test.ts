@@ -1,7 +1,10 @@
-import { IndexedDbCryptoKeyPairStore as subject } from "./IndexedDbCryptoKeyPairStore";
+import { DPoPStore } from "./DPoPStore";
 
-describe("IndexedDBCryptoKeyPairStore", () => {
+describe("DPoPStore", () => {
+    const subject = new DPoPStore();
+
     let data: CryptoKeyPair;
+
     const createCryptoKeyPair = async () => {
         return await window.crypto.subtle.generateKey(
             {

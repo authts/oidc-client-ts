@@ -376,20 +376,4 @@ describe("UserManagerSettings", () => {
             expect(subject.stopCheckSessionOnError).toEqual(true);
         });
     });
-
-    describe("dpop", () => {
-        it("should return value from initial settings", () => {
-            // act
-            const subject = new UserManagerSettingsStore({
-                authority: "authority",
-                client_id: "client",
-                redirect_uri: "redirect",
-                stopCheckSessionOnError : false,
-                dpopSettings: { enabled: true },
-            });
-
-            // assert
-            expect(subject.dpopSettings.enabled).toEqual(true);
-        });
-    });
 });

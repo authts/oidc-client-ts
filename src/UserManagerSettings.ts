@@ -118,7 +118,6 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
     public readonly monitorSession: boolean;
     public readonly monitorAnonymousSession: boolean;
-    public readonly dpopSettings: DPoPSettings;
     public readonly checkSessionIntervalInSeconds: number;
     public readonly query_status_response_type: string;
     public readonly stopCheckSessionOnError: boolean;
@@ -151,7 +150,6 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
             monitorSession = false,
             monitorAnonymousSession = false,
-            dpopSettings = { enabled: false, bind_authorization_code: false },
             checkSessionIntervalInSeconds = DefaultCheckSessionIntervalInSeconds,
             query_status_response_type = "code",
             stopCheckSessionOnError = true,
@@ -185,7 +183,6 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
         this.monitorSession = monitorSession;
         this.monitorAnonymousSession = monitorAnonymousSession;
-        this.dpopSettings = dpopSettings;
         this.checkSessionIntervalInSeconds = checkSessionIntervalInSeconds;
         this.stopCheckSessionOnError = stopCheckSessionOnError;
         this.query_status_response_type = query_status_response_type;

@@ -306,6 +306,12 @@ export class OidcClient {
     createSigninRequest({ state, request, request_uri, request_type, id_token_hint, login_hint, skipUserInfo, nonce, url_state, response_type, scope, redirect_uri, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, extraQueryParams, extraTokenParams, }: CreateSigninRequestArgs): Promise<SigninRequest>;
     // (undocumented)
     createSignoutRequest({ state, id_token_hint, client_id, request_type, post_logout_redirect_uri, extraQueryParams, }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
+    // Warning: (ae-forgotten-export) The symbol "DPoPStore" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    protected readonly _dpopStore: DPoPStore | undefined;
+    // (undocumented)
+    getDpopProof(dpopStore: DPoPStore): Promise<string>;
     // (undocumented)
     protected readonly _logger: Logger;
     // (undocumented)
@@ -352,6 +358,7 @@ export interface OidcClientSettings {
     client_secret?: string;
     disablePKCE?: boolean;
     display?: string;
+    dpop?: boolean;
     extraHeaders?: Record<string, ExtraHeader>;
     extraQueryParams?: Record<string, string | number | boolean>;
     // (undocumented)
@@ -384,7 +391,7 @@ export interface OidcClientSettings {
 
 // @public
 export class OidcClientSettingsStore {
-    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, mergeClaimsStrategy, disablePKCE, stateStore, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, extraHeaders, }: OidcClientSettings);
+    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, staleStateAgeInSeconds, mergeClaimsStrategy, disablePKCE, stateStore, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, extraHeaders, dpop, }: OidcClientSettings);
     // (undocumented)
     readonly acr_values: string | undefined;
     // (undocumented)
@@ -399,6 +406,8 @@ export class OidcClientSettingsStore {
     readonly disablePKCE: boolean;
     // (undocumented)
     readonly display: string | undefined;
+    // (undocumented)
+    readonly dpop: boolean | undefined;
     // (undocumented)
     readonly extraHeaders: Record<string, ExtraHeader>;
     // (undocumented)
@@ -880,7 +889,7 @@ export class State {
 }
 
 // @public (undocumented)
-export interface StateStore<T extends string | null | CryptoKeyPair> {
+export interface StateStore<T extends string | null> {
     // (undocumented)
     get(key: string): Promise<T>;
     // (undocumented)
@@ -954,10 +963,8 @@ export class UserManager {
     // (undocumented)
     protected readonly _client: OidcClient;
     dpopProof(url: string, user: User, httpMethod?: string): Promise<string | undefined>;
-    // Warning: (ae-forgotten-export) The symbol "DPoPService" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
-    protected readonly _dpopService: DPoPService | null;
+    protected readonly _dpopStore: DPoPStore | undefined;
     get events(): UserManagerEvents;
     // (undocumented)
     protected readonly _events: UserManagerEvents;
@@ -1096,8 +1103,6 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     readonly automaticSilentRenew: boolean;
     // (undocumented)
     readonly checkSessionIntervalInSeconds: number;
-    // (undocumented)
-    readonly dpopSettings: DPoPSettings;
     // (undocumented)
     readonly iframeNotifyParentOrigin: string | undefined;
     // (undocumented)

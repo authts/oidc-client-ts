@@ -1,4 +1,12 @@
 import { Logger } from "./Logger";
+import { JwtUtils } from "./JwtUtils";
+
+export interface GenerateDPoPProofOpts {
+    url: string;
+    accessToken?: string;
+    httpMethod?: string;
+    keyPair: CryptoKeyPair;
+}
 
 const UUID_V4_TEMPLATE = "10000000-1000-4000-8000-100000000000";
 
@@ -121,5 +129,73 @@ export class CryptoUtils {
         }
         const utf8encodedAndHashed = await CryptoUtils.hash("SHA-256", JSON.stringify(jsonObject));
         return CryptoUtils.encodeBase64Url(utf8encodedAndHashed);
+    }
+
+    public static async generateDPoPProof({
+        url,
+        accessToken,
+        httpMethod,
+        keyPair,
+    }: GenerateDPoPProofOpts): Promise<string> {
+        let hashedToken: Uint8Array;
+        let encodedHash: string;
+
+        const payload: Record<string, string | number> = {
+            "jti": window.crypto.randomUUID(),
+            "htm": httpMethod ?? "GET",
+            "htu": url,
+            "iat": Math.floor(Date.now() / 1000),
+        };
+
+        if (accessToken) {
+            hashedToken = await CryptoUtils.hash("SHA-256", accessToken);
+            encodedHash = CryptoUtils.encodeBase64Url(hashedToken);
+            payload.ath = encodedHash;
+        }
+
+        try {
+            const publicJwk = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
+            const header = {
+                "alg": "ES256",
+                "typ": "dpop+jwt",
+                "jwk": {
+                    "crv": publicJwk.crv,
+                    "kty": publicJwk.kty,
+                    "x": publicJwk.x,
+                    "y": publicJwk.y,
+                },
+            };
+            return await JwtUtils.generateSignedJwt(header, payload, keyPair.privateKey);
+        } catch (err) {
+            if (err instanceof TypeError) {
+                throw new Error(`Error exporting dpop public key: ${err.message}`);
+            } else {
+                throw err;
+            }
+        }
+    }
+
+    public static async generateDPoPJkt(keyPair: CryptoKeyPair) : Promise<string> {
+        try {
+            const publicJwk = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
+            return await CryptoUtils.customCalculateJwkThumbprint(publicJwk);
+        } catch (err) {
+            if (err instanceof TypeError) {
+                throw new Error(`Could not retrieve dpop keys from storage: ${err.message}`);
+            } else {
+                throw err;
+            }
+        }
+    }
+
+    public static async generateDPoPKeys() : Promise<CryptoKeyPair> {
+        return await window.crypto.subtle.generateKey(
+            {
+                name: "ECDSA",
+                namedCurve: "P-256",
+            },
+            false,
+            ["sign", "verify"],
+        );
     }
 }

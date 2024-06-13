@@ -120,6 +120,11 @@ export interface OidcClientSettings {
     extraHeaders?: Record<string, ExtraHeader>;
 
     /**
+     * DPoP enabled or disabled
+     */
+    dpop?: boolean;
+
+    /**
      * Will check the content type header of the response of the revocation endpoint to match these passed values (default: [])
      */
     revokeTokenAdditionalContentTypes?: string[];
@@ -182,6 +187,7 @@ export class OidcClientSettingsStore {
     // extra
     public readonly extraQueryParams: Record<string, string | number | boolean>;
     public readonly extraTokenParams: Record<string, unknown>;
+    public readonly dpop: boolean | undefined;
     public readonly extraHeaders: Record<string, ExtraHeader>;
 
     public readonly revokeTokenAdditionalContentTypes?: string[];
@@ -213,6 +219,7 @@ export class OidcClientSettingsStore {
         extraQueryParams = {},
         extraTokenParams = {},
         extraHeaders = {},
+        dpop = false,
     }: OidcClientSettings) {
 
         this.authority = authority;
@@ -271,5 +278,6 @@ export class OidcClientSettingsStore {
         this.extraQueryParams = extraQueryParams;
         this.extraTokenParams = extraTokenParams;
         this.extraHeaders = extraHeaders;
+        this.dpop = dpop;
     }
 }
