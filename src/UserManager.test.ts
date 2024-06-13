@@ -20,6 +20,7 @@ import type { SigninState } from "./SigninState";
 import type { State } from "./State";
 
 import { mocked } from "jest-mock";
+import { CryptoUtils } from "./utils";
 
 describe("UserManager", () => {
     let userStoreMock: WebStorageStateStore;
@@ -42,9 +43,6 @@ describe("UserManager", () => {
                 end_session_endpoint:  "http://sts/oidc/logout",
                 token_endpoint: "http://sts/oidc/token",
                 revocation_endpoint: "http://sts/oidc/revoke",
-            },
-            dpopSettings: {
-                enabled: true,
             },
         });
     });
@@ -183,6 +181,39 @@ describe("UserManager", () => {
             // assert
             expect(storeUserMock).toBeCalledWith(null);
             expect(unloadMock).toBeCalled();
+        });
+
+        it("should remove dpop key from store if DPoP enabled", async () => {
+            // arrange
+            subject = new UserManager({
+                authority: "http://sts/oidc",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                monitorSession : false,
+                userStore: userStoreMock,
+                metadata: {
+                    authorization_endpoint: "http://sts/oidc/authorize",
+                    end_session_endpoint:  "http://sts/oidc/logout",
+                    token_endpoint: "http://sts/oidc/token",
+                    revocation_endpoint: "http://sts/oidc/revoke",
+                },
+                dpop: true,
+            });
+
+            const storeUserMock = jest.spyOn(subject, "storeUser");
+            const unloadMock = jest.spyOn(subject["_events"], "unload");
+            let dpopStoreMock;
+            if (subject["_dpopStore"]) {
+                dpopStoreMock = jest.spyOn(subject["_dpopStore"], "remove");
+            }
+
+            // act
+            await subject.removeUser();
+
+            // assert
+            expect(storeUserMock).toHaveBeenCalledWith(null);
+            expect(unloadMock).toHaveBeenCalled();
+            expect(dpopStoreMock).toHaveBeenCalled();
         });
     });
 
@@ -1014,6 +1045,41 @@ describe("UserManager", () => {
             // assert
             const storageString = await subject.settings.userStore.get(subject["_userStoreKey"]);
             expect(storageString).toBeNull();
+        });
+    });
+
+    describe("getDPoPProof",() => {
+        it("should return a DPoP proof", async () => {
+            // arrange
+            subject = new UserManager({
+                authority: "http://sts/oidc",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                monitorSession : false,
+                userStore: userStoreMock,
+                metadata: {
+                    authorization_endpoint: "http://sts/oidc/authorize",
+                    end_session_endpoint:  "http://sts/oidc/logout",
+                    token_endpoint: "http://sts/oidc/token",
+                    revocation_endpoint: "http://sts/oidc/revoke",
+                },
+                dpop: true,
+            });
+
+            const user = await subject.getUser() as User;
+
+            let mockDpopStore;
+            const keyPair = await CryptoUtils.generateDPoPKeys();
+            if (subject["_dpopStore"]) {
+                mockDpopStore = jest.spyOn(subject["_dpopStore"], "get").mockResolvedValue(keyPair);
+            }
+            // act
+            const dpopProof = await subject.dpopProof("http://some.url", user, "POST");
+
+            // assert
+            expect(mockDpopStore).toHaveBeenCalledWith("client");
+            expect(dpopProof).toBeDefined();
+            expect(typeof dpopProof).toBe("string");
         });
     });
 });
