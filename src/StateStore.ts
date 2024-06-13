@@ -1,9 +1,9 @@
 /**
  * @public
  */
-export interface StateStore<T extends string | null> {
-    set(key: string, value: T): Promise<void>;
-    get(key: string): Promise<T>;
-    remove(key: string): Promise<T>;
+export interface StateStore {
+    set(key: string, value: string): Promise<void>;
+    get(key: string): Promise<string | null>;
+    remove(key: string): Promise<string | null>;
     getAllKeys(): Promise<string[]>;
 }

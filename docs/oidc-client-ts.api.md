@@ -388,7 +388,7 @@ export interface OidcClientSettings {
     scope?: string;
     signingKeys?: SigningKey[];
     staleStateAgeInSeconds?: number;
-    stateStore?: StateStore<string | null>;
+    stateStore?: StateStore;
     ui_locales?: string;
 }
 
@@ -460,7 +460,7 @@ export class OidcClientSettingsStore {
     // (undocumented)
     readonly staleStateAgeInSeconds: number;
     // (undocumented)
-    readonly stateStore: StateStore<string | null>;
+    readonly stateStore: StateStore;
     // (undocumented)
     readonly ui_locales: string | undefined;
 }
@@ -877,7 +877,7 @@ export class State {
         url_state?: string;
     });
     // (undocumented)
-    static clearStaleState(storage: StateStore<string | null>, age: number): Promise<void>;
+    static clearStaleState(storage: StateStore, age: number): Promise<void>;
     // (undocumented)
     readonly created: number;
     readonly data?: unknown;
@@ -894,15 +894,15 @@ export class State {
 }
 
 // @public (undocumented)
-export interface StateStore<T extends string | null> {
+export interface StateStore {
     // (undocumented)
-    get(key: string): Promise<T>;
+    get(key: string): Promise<string | null>;
     // (undocumented)
     getAllKeys(): Promise<string[]>;
     // (undocumented)
-    remove(key: string): Promise<T>;
+    remove(key: string): Promise<string | null>;
     // (undocumented)
-    set(key: string, value: T): Promise<void>;
+    set(key: string, value: string): Promise<void>;
 }
 
 // @public (undocumented)
@@ -1167,7 +1167,7 @@ export type UserUnloadedCallback = () => Promise<void> | void;
 export const Version: string;
 
 // @public (undocumented)
-export class WebStorageStateStore implements StateStore<string | null> {
+export class WebStorageStateStore implements StateStore {
     constructor({ prefix, store, }?: {
         prefix?: string;
         store?: AsyncStorage | Storage;

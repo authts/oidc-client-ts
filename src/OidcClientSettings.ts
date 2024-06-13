@@ -106,7 +106,7 @@ export interface OidcClientSettings {
      * Storage object used to persist interaction state (default: window.localStorage, InMemoryWebStorage iff no window).
      * E.g. `stateStore: new WebStorageStateStore({ store: window.localStorage })`
      */
-    stateStore?: StateStore<string | null>;
+    stateStore?: StateStore;
 
     /**
      * An object containing additional query string parameters to be including in the authorization request.
@@ -189,7 +189,7 @@ export class OidcClientSettingsStore {
     public readonly staleStateAgeInSeconds: number;
     public readonly mergeClaimsStrategy: { array: "replace" | "merge" };
 
-    public readonly stateStore: StateStore<string | null>;
+    public readonly stateStore: StateStore;
 
     // extra
     public readonly extraQueryParams: Record<string, string | number | boolean>;
