@@ -313,7 +313,7 @@ export class OidcClient {
     // Warning: (ae-forgotten-export) The symbol "DPoPStore" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    getDpopProof(dpopStore: DPoPStore<CryptoKeyPair>): Promise<string>;
+    getDpopProof(dpopStore: DPoPStore): Promise<string>;
     // (undocumented)
     protected readonly _logger: Logger;
     // (undocumented)
@@ -361,7 +361,7 @@ export interface OidcClientSettings {
     disablePKCE?: boolean;
     display?: string;
     dpop?: boolean;
-    dpopStore?: DPoPStore<CryptoKeyPair>;
+    dpopStore?: DPoPStore;
     extraHeaders?: Record<string, ExtraHeader>;
     extraQueryParams?: Record<string, string | number | boolean>;
     // (undocumented)
@@ -412,7 +412,7 @@ export class OidcClientSettingsStore {
     // (undocumented)
     readonly dpop: boolean | undefined;
     // (undocumented)
-    readonly dpopStore: DPoPStore<CryptoKeyPair> | undefined;
+    readonly dpopStore: DPoPStore | undefined;
     // (undocumented)
     readonly extraHeaders: Record<string, ExtraHeader>;
     // (undocumented)

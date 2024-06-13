@@ -129,7 +129,7 @@ export interface OidcClientSettings {
     /**
      * DPoP store to use
      */
-    dpopStore?: DPoPStore<CryptoKeyPair>;
+    dpopStore?: DPoPStore;
 
     /**
      * Will check the content type header of the response of the revocation endpoint to match these passed values (default: [])
@@ -195,7 +195,7 @@ export class OidcClientSettingsStore {
     public readonly extraQueryParams: Record<string, string | number | boolean>;
     public readonly extraTokenParams: Record<string, unknown>;
     public readonly dpop: boolean | undefined;
-    public readonly dpopStore: DPoPStore<CryptoKeyPair> | undefined;
+    public readonly dpopStore: DPoPStore | undefined;
     public readonly extraHeaders: Record<string, ExtraHeader>;
 
     public readonly revokeTokenAdditionalContentTypes?: string[];

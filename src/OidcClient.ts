@@ -184,7 +184,7 @@ export class OidcClient {
         return response;
     }
 
-    async getDpopProof(dpopStore: DPoPStore<CryptoKeyPair>): Promise<string> {
+    async getDpopProof(dpopStore: DPoPStore): Promise<string> {
         let keyPair: CryptoKeyPair;
 
         if (!(await dpopStore.getAllKeys()).includes(this.settings.client_id)) {
