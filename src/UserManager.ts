@@ -153,8 +153,8 @@ export class UserManager {
     public async removeUser(): Promise<void> {
         const logger = this._logger.create("removeUser");
         await this.storeUser(null);
-        if (this.settings.dpop && this.settings.dpopStore) {
-            await this.settings.dpopStore.remove(this.settings.client_id);
+        if (this.settings.dpop && this.settings.dpop.store) {
+            await this.settings.dpop.store.remove(this.settings.client_id);
         }
         logger.info("user removed from storage");
         await this._events.unload();
@@ -173,9 +173,21 @@ export class UserManager {
             redirectMethod,
             ...requestArgs
         } = args;
+
+        let dpopJkt: string | undefined;
+        if (this.settings.dpop && this.settings.dpop.bind_authorization_code) {
+            let dpopKeys = await this.settings.dpop.store!.get(this.settings.client_id);
+            if (!dpopKeys) {
+                dpopKeys = await CryptoUtils.generateDPoPKeys();
+                await this.settings.dpop.store!.set(this.settings.client_id, dpopKeys);
+            }
+            dpopJkt = await CryptoUtils.generateDPoPJkt(dpopKeys);
+        }
+
         const handle = await this._redirectNavigator.prepare({ redirectMethod });
         await this._signinStart({
             request_type: "si:r",
+            dpopJkt: dpopJkt,
             ...requestArgs,
         }, handle);
     }
@@ -238,7 +250,17 @@ export class UserManager {
      */
     public async signinPopup(args: SigninPopupArgs = {}): Promise<User> {
         const logger = this._logger.create("signinPopup");
+
         let dpopJkt: string | undefined;
+        if (this.settings.dpop && this.settings.dpop.bind_authorization_code) {
+            let dpopKeys = await this.settings.dpop.store!.get(this.settings.client_id);
+            if (!dpopKeys) {
+                dpopKeys = await CryptoUtils.generateDPoPKeys();
+                await this.settings.dpop.store!.set(this.settings.client_id, dpopKeys);
+            }
+            dpopJkt = await CryptoUtils.generateDPoPJkt(dpopKeys);
+        }
+
         const {
             popupWindowFeatures,
             popupWindowTarget,
@@ -308,7 +330,16 @@ export class UserManager {
                 extraHeaders: extraHeaders,
             });
         }
+
         let dpopJkt: string | undefined;
+        if (this.settings.dpop && this.settings.dpop.bind_authorization_code) {
+            let dpopKeys = await this.settings.dpop.store!.get(this.settings.client_id);
+            if (!dpopKeys) {
+                dpopKeys = await CryptoUtils.generateDPoPKeys();
+                await this.settings.dpop.store!.set(this.settings.client_id, dpopKeys);
+            }
+            dpopJkt = await CryptoUtils.generateDPoPJkt(dpopKeys);
+        }
 
         const url = this.settings.silent_redirect_uri;
         if (!url) {
@@ -797,7 +828,7 @@ export class UserManager {
      * @returns A promise containing the DPoP proof or undefined if DPoP is not enabled/no user is found.
      */
     public async dpopProof(url: string, user: User, httpMethod?: string): Promise<string | undefined> {
-        const dpopKey = await this.settings.dpopStore?.get(this.settings.client_id);
+        const dpopKey = await this.settings.dpop?.store?.get(this.settings.client_id);
         if (dpopKey) {
             return await CryptoUtils.generateDPoPProof({
                 url,

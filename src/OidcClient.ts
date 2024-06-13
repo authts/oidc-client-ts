@@ -115,6 +115,7 @@ export class OidcClient {
         response_mode = this.settings.response_mode,
         extraQueryParams = this.settings.extraQueryParams,
         extraTokenParams = this.settings.extraTokenParams,
+        dpopJkt,
     }: CreateSigninRequestArgs): Promise<SigninRequest> {
         const logger = this._logger.create("createSigninRequest");
 
@@ -134,7 +135,7 @@ export class OidcClient {
             scope,
             state_data: state,
             url_state,
-            prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
+            prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, dpopJkt,
             resource, request, request_uri, extraQueryParams, extraTokenParams, request_type, response_mode,
             client_secret: this.settings.client_secret,
             skipUserInfo,
@@ -176,8 +177,8 @@ export class OidcClient {
         const { state, response } = await this.readSigninResponseState(url, true);
         logger.debug("received state from storage; validating response");
 
-        if (this.settings.dpop && this.settings.dpopStore) {
-            const dpopProof = await this.getDpopProof(this.settings.dpopStore);
+        if (this.settings.dpop && this.settings.dpop.store) {
+            const dpopProof = await this.getDpopProof(this.settings.dpop.store);
             extraHeaders = { ...extraHeaders, "DPoP": dpopProof };
         }
         await this._validator.validateSigninResponse(response, state, extraHeaders);
@@ -237,8 +238,8 @@ export class OidcClient {
             scope = providedScopes.filter(s => allowableScopes.includes(s)).join(" ");
         }
 
-        if (this.settings.dpop && this.settings.dpopStore) {
-            const dpopProof = await this.getDpopProof(this.settings.dpopStore);
+        if (this.settings.dpop && this.settings.dpop.store) {
+            const dpopProof = await this.getDpopProof(this.settings.dpop.store);
             extraHeaders = { ...extraHeaders, "DPoP": dpopProof };
         }
 

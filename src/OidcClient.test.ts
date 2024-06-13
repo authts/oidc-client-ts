@@ -14,6 +14,7 @@ import { SignoutResponse } from "./SignoutResponse";
 import { RefreshState } from "./RefreshState";
 import { SigninResponse } from "./SigninResponse";
 import type { UserProfile } from "./User";
+import { IndexedDbDPoPStore } from "./IndexedDbDPoPStore";
 
 describe("OidcClient", () => {
     let subject: OidcClient;
@@ -369,7 +370,10 @@ describe("OidcClient", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 post_logout_redirect_uri: "http://app",
-                dpop: true,
+                dpop: {
+                    bind_authorization_code: false,
+                    store: new IndexedDbDPoPStore(),
+                },
             });
 
             // arrange
@@ -579,7 +583,10 @@ describe("OidcClient", () => {
                 client_id: "client",
                 redirect_uri: "redirect",
                 post_logout_redirect_uri: "http://app",
-                dpop: true,
+                dpop: {
+                    bind_authorization_code: false,
+                    store: new IndexedDbDPoPStore(),
+                },
             };
 
             subject = new OidcClient(settings);

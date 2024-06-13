@@ -21,6 +21,7 @@ import type { State } from "./State";
 
 import { mocked } from "jest-mock";
 import { CryptoUtils } from "./utils";
+import { IndexedDbDPoPStore } from "./IndexedDbDPoPStore";
 
 describe("UserManager", () => {
     let userStoreMock: WebStorageStateStore;
@@ -197,14 +198,17 @@ describe("UserManager", () => {
                     token_endpoint: "http://sts/oidc/token",
                     revocation_endpoint: "http://sts/oidc/revoke",
                 },
-                dpop: true,
+                dpop: {
+                    bind_authorization_code: false,
+                    store: new IndexedDbDPoPStore(),
+                },
             });
 
             const storeUserMock = jest.spyOn(subject, "storeUser");
             const unloadMock = jest.spyOn(subject["_events"], "unload");
             let dpopStoreMock;
-            if (subject.settings.dpopStore) {
-                dpopStoreMock = jest.spyOn(subject.settings.dpopStore, "remove");
+            if (subject.settings.dpop?.store) {
+                dpopStoreMock = jest.spyOn(subject.settings.dpop.store, "remove");
             }
 
             // act
@@ -449,6 +453,59 @@ describe("UserManager", () => {
                 handle,
             );
         });
+
+        it("should pass dpopJkt to _signin if dpop.bind_authorization_code is true", async () => {
+            // arrange
+            subject = new UserManager({
+                authority: "http://sts/oidc",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                monitorSession : false,
+                userStore: userStoreMock,
+                metadata: {
+                    authorization_endpoint: "http://sts/oidc/authorize",
+                    end_session_endpoint:  "http://sts/oidc/logout",
+                    token_endpoint: "http://sts/oidc/token",
+                    revocation_endpoint: "http://sts/oidc/revoke",
+                },
+                dpop: {
+                    bind_authorization_code: true,
+                    store: new IndexedDbDPoPStore(),
+                },
+            });
+
+            const handle = {} as PopupWindow;
+            jest.spyOn(subject["_popupNavigator"], "prepare")
+                .mockImplementation(() => Promise.resolve(handle));
+
+            const keyPair = await CryptoUtils.generateDPoPKeys();
+            await subject.settings.dpop?.store?.set("client", keyPair);
+
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {
+                    sub: "sub",
+                    nickname: "Nicholas",
+                } as UserProfile,
+            });
+
+            subject["_signin"] = jest.fn().mockResolvedValue(user);
+
+            subject["_loadUser"] = jest.fn().mockResolvedValue(user);
+
+            // act
+            await subject.signinPopup({ resource: "resource" });
+
+            // assert
+            expect(subject["_signin"]).toHaveBeenCalledWith({
+                request_type: "si:p",
+                redirect_uri: "http://app/cb",
+                dpopJkt: expect.any(String),
+                resource: "resource",
+                display: "popup",
+            }, expect.any(Object));
+        });
     });
 
     describe("signinPopupCallback", () => {
@@ -626,6 +683,56 @@ describe("UserManager", () => {
                     resource: "resource",
                 }),
             );
+        });
+
+        it("should pass dpopJkt if dpop.bind_authorization_code is true", async () => {
+            // arrange
+            subject = new UserManager({
+                authority: "http://sts/oidc",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                monitorSession : false,
+                userStore: userStoreMock,
+                metadata: {
+                    authorization_endpoint: "http://sts/oidc/authorize",
+                    end_session_endpoint:  "http://sts/oidc/logout",
+                    token_endpoint: "http://sts/oidc/token",
+                    revocation_endpoint: "http://sts/oidc/revoke",
+                },
+                dpop: {
+                    bind_authorization_code: true,
+                    store: new IndexedDbDPoPStore(),
+                },
+            });
+
+            const keyPair = await CryptoUtils.generateDPoPKeys();
+            await subject.settings.dpop?.store?.set("client", keyPair);
+
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {
+                    sub: "sub",
+                    nickname: "Nicholas",
+                } as UserProfile,
+            });
+
+            subject["_signin"] = jest.fn().mockResolvedValue(user);
+
+            subject["_loadUser"] = jest.fn().mockResolvedValue(user);
+
+            // act
+            await subject.signinSilent({ resource: "resource" });
+
+            // assert
+            expect(subject["_signin"]).toHaveBeenCalledWith({
+                request_type: "si:s",
+                id_token_hint: undefined,
+                redirect_uri: "http://app/cb",
+                prompt: "none",
+                dpopJkt: expect.any(String),
+                resource: "resource",
+            }, expect.any(Object), expect.any(String));
         });
     });
 
@@ -1063,15 +1170,18 @@ describe("UserManager", () => {
                     token_endpoint: "http://sts/oidc/token",
                     revocation_endpoint: "http://sts/oidc/revoke",
                 },
-                dpop: true,
+                dpop: {
+                    bind_authorization_code: false,
+                    store: new IndexedDbDPoPStore(),
+                },
             });
 
             const user = await subject.getUser() as User;
 
             let mockDpopStore;
             const keyPair = await CryptoUtils.generateDPoPKeys();
-            if (subject.settings.dpopStore) {
-                mockDpopStore = jest.spyOn(subject.settings.dpopStore, "get").mockResolvedValue(keyPair);
+            if (subject.settings.dpop?.store) {
+                mockDpopStore = jest.spyOn(subject.settings.dpop.store, "get").mockResolvedValue(keyPair);
             }
             // act
             const dpopProof = await subject.dpopProof("http://some.url", user, "POST");

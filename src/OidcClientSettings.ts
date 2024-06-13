@@ -24,6 +24,15 @@ export type SigningKey = Record<string, string | string[]>;
 export type ExtraHeader = string | (() => string);
 
 /**
+ * Optional DPoP settings
+ * @public
+ */
+export interface DPoPSettings {
+    bind_authorization_code?: boolean;
+    store?: DPoPStore;
+}
+
+/**
  * The settings used to configure the {@link OidcClient}.
  *
  * @public
@@ -124,12 +133,7 @@ export interface OidcClientSettings {
     /**
      * DPoP enabled or disabled
      */
-    dpop?: boolean;
-
-    /**
-     * DPoP store to use
-     */
-    dpopStore?: DPoPStore;
+    dpop?: DPoPSettings | undefined;
 
     /**
      * Will check the content type header of the response of the revocation endpoint to match these passed values (default: [])
@@ -194,8 +198,7 @@ export class OidcClientSettingsStore {
     // extra
     public readonly extraQueryParams: Record<string, string | number | boolean>;
     public readonly extraTokenParams: Record<string, unknown>;
-    public readonly dpop: boolean | undefined;
-    public readonly dpopStore: DPoPStore | undefined;
+    public readonly dpop: DPoPSettings | undefined;
     public readonly extraHeaders: Record<string, ExtraHeader>;
 
     public readonly revokeTokenAdditionalContentTypes?: string[];
@@ -227,8 +230,7 @@ export class OidcClientSettingsStore {
         extraQueryParams = {},
         extraTokenParams = {},
         extraHeaders = {},
-        dpop = false,
-        dpopStore,
+        dpop,
     }: OidcClientSettings) {
 
         this.authority = authority;
@@ -280,6 +282,7 @@ export class OidcClientSettingsStore {
         else {
             const store = typeof window !== "undefined" ? window.localStorage : new InMemoryWebStorage();
             this.stateStore = new WebStorageStateStore({ store });
+            this.stateStore = new WebStorageStateStore({ store });
         }
 
         this.refreshTokenAllowedScope = refreshTokenAllowedScope;
@@ -288,6 +291,8 @@ export class OidcClientSettingsStore {
         this.extraTokenParams = extraTokenParams;
         this.extraHeaders = extraHeaders;
         this.dpop = dpop;
-        this.dpopStore = dpop && dpopStore ? dpopStore : new IndexedDbDPoPStore();
+        if (this.dpop && !dpop?.store) {
+            this.dpop.store = new IndexedDbDPoPStore();
+        }
     }
 }
