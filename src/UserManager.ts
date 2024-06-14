@@ -153,8 +153,8 @@ export class UserManager {
     public async removeUser(): Promise<void> {
         const logger = this._logger.create("removeUser");
         await this.storeUser(null);
-        if (this.settings.dpop && this.settings.dpop.store) {
-            await this.settings.dpop.store.remove(this.settings.client_id);
+        if (this.settings.dpop) {
+            await this.settings.dpop.store!.remove(this.settings.client_id);
         }
         logger.info("user removed from storage");
         await this._events.unload();
@@ -205,7 +205,8 @@ export class UserManager {
         const user = await this._signinEnd(url);
         if (user.profile && user.profile.sub) {
             logger.info("success, signed in subject", user.profile.sub);
-        } else {
+        }
+        else {
             logger.info("no subject");
         }
 
@@ -364,7 +365,8 @@ export class UserManager {
         if (user) {
             if (user.profile?.sub) {
                 logger.info("success, signed in subject", user.profile.sub);
-            } else {
+            }
+            else {
                 logger.info("no subject");
             }
         }

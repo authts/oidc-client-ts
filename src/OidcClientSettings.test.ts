@@ -3,6 +3,7 @@
 
 import { OidcClientSettingsStore } from "./OidcClientSettings";
 import type { StateStore } from "./StateStore";
+import { IndexedDbDPoPStore } from "./IndexedDbDPoPStore";
 
 describe("OidcClientSettings", () => {
     describe("client_id", () => {
@@ -528,6 +529,35 @@ describe("OidcClientSettings", () => {
 
             // assert
             expect(subject.extraHeaders).toEqual(extraHeaders);
+        });
+    });
+
+    describe("dpop", () => {
+        it("should not be defined by default", () => {
+            // act
+            const subject = new OidcClientSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+            });
+
+            // assert
+            expect(subject.dpop).toBeUndefined();
+        });
+
+        it("dpop.store should be an IndexedDBDOoPstore by default when enabled", () => {
+            // act
+            const subject = new OidcClientSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                dpop: { bind_authorization_code: true },
+            });
+
+            // assert
+            expect(subject.dpop).toBeDefined();
+            expect(subject.dpop?.store).toBeDefined();
+            expect(subject.dpop?.store).toBeInstanceOf(IndexedDbDPoPStore);
         });
     });
 });
