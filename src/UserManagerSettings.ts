@@ -60,10 +60,6 @@ export interface UserManagerSettings extends OidcClientSettings {
     validateSubOnSilentRenew?: boolean;
     /** Flag to control if id_token is included as id_token_hint in silent renew calls (default: false) */
     includeIdTokenInSilentRenew?: boolean;
-    /** Indicates whether to apply Dynamic Proof Of Possession when requesting an access token
-     *  See https://datatracker.ietf.org/doc/html/rfc9449
-     */
-    dpopSettings?: DPoPSettings;
     /** Will raise events for when user has performed a signout at the OP (default: false) */
     monitorSession?: boolean;
     monitorAnonymousSession?: boolean;

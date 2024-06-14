@@ -1063,8 +1063,6 @@ export interface UserManagerSettings extends OidcClientSettings {
     accessTokenExpiringNotificationTimeInSeconds?: number;
     automaticSilentRenew?: boolean;
     checkSessionIntervalInSeconds?: number;
-    // Warning: (ae-forgotten-export) The symbol "DPoPSettings_2" needs to be exported by the entry point index.d.ts
-    dpopSettings?: DPoPSettings_2;
     iframeNotifyParentOrigin?: string;
     iframeScriptOrigin?: string;
     includeIdTokenInSilentRenew?: boolean;
