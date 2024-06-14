@@ -45,4 +45,21 @@ describe("User", () => {
             expect(subject.scopes).toEqual(["foo", "bar", "baz"]);
         });
     });
+
+    describe("extraTokenResponseProperties", () => {
+        it("should not provide extraTokenResponseProperties if extraTokenResponseKeys is not provided", () => {
+            const subject = new User({} as never);
+            expect(subject.extraTokenResponseProperties).not.toBeDefined();
+        });
+        it("should provide extraTokenResponseProperties if extraTokenResponseKeys is provided", () => {
+            const patient = "12345";
+            const subject = new User({ access_token: "notAToken", id_token: "not", patient, token_type: "Bearer" } as never, ["patient"]);
+            const actualTokenProps = subject.extraTokenResponseProperties ?? {};
+            const keys = Object.keys(actualTokenProps);
+            const values = Object.values(actualTokenProps);
+            expect(subject.extraTokenResponseProperties).toBeDefined();
+            expect(keys).toContain("patient");
+            expect(values).toContain(patient);
+        });
+    });
 });

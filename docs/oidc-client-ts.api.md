@@ -900,12 +900,13 @@ export class User {
         expires_at?: number;
         userState?: unknown;
         url_state?: string;
-    });
+    }, extraTokenResponseKeys?: string[]);
     access_token: string;
     get expired(): boolean | undefined;
     expires_at?: number;
     get expires_in(): number | undefined;
     set expires_in(value: number | undefined);
+    extraTokenResponseProperties?: Record<string, unknown>;
     // (undocumented)
     static fromStorageString(storageString: string): User;
     id_token?: string;
@@ -1050,6 +1051,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     accessTokenExpiringNotificationTimeInSeconds?: number;
     automaticSilentRenew?: boolean;
     checkSessionIntervalInSeconds?: number;
+    extraTokenResponseKeys?: string[];
     iframeNotifyParentOrigin?: string;
     iframeScriptOrigin?: string;
     includeIdTokenInSilentRenew?: boolean;
@@ -1085,6 +1087,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     readonly automaticSilentRenew: boolean;
     // (undocumented)
     readonly checkSessionIntervalInSeconds: number;
+    // (undocumented)
+    readonly extraTokenResponseKeys: string[];
     // (undocumented)
     readonly iframeNotifyParentOrigin: string | undefined;
     // (undocumented)

@@ -49,6 +49,9 @@ export class User {
     /** The expires at returned from the OIDC provider. */
     public expires_at?: number;
 
+    /** The additional Token response properties the user has requested to keep */
+    public extraTokenResponseProperties?: Record<string, unknown>;
+
     /** custom state data set during the initial signin request */
     public readonly state: unknown;
     public readonly url_state?: string;
@@ -64,7 +67,7 @@ export class User {
         expires_at?: number;
         userState?: unknown;
         url_state?: string;
-    }) {
+    }, extraTokenResponseKeys?: string[]) {
         this.id_token = args.id_token;
         this.session_state = args.session_state ?? null;
         this.access_token = args.access_token;
@@ -76,6 +79,15 @@ export class User {
         this.expires_at = args.expires_at;
         this.state = args.userState;
         this.url_state = args.url_state;
+        if (extraTokenResponseKeys?.length) {
+            this.extraTokenResponseProperties = {};
+            const argsCast = args as Record<string, unknown>;
+            for (const key of extraTokenResponseKeys) {
+                if (argsCast[key]) {
+                    this.extraTokenResponseProperties[key] = argsCast[key];
+                }
+            }
+        }
     }
 
     /** Computed number of seconds the access token has remaining. */
