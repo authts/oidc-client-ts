@@ -15,7 +15,7 @@ import type { SignoutResponse } from "./SignoutResponse";
 import type { MetadataService } from "./MetadataService";
 import { RefreshState } from "./RefreshState";
 import type { SigninResponse } from "./SigninResponse";
-import type { ExtraHeader } from "./OidcClientSettings";
+import type { ExtraHeader, DPoPSettings } from "./OidcClientSettings";
 
 /**
  * @public
@@ -176,12 +176,7 @@ export class UserManager {
 
         let dpopJkt: string | undefined;
         if (this.settings.dpop && this.settings.dpop.bind_authorization_code) {
-            let dpopKeys = await this.settings.dpop.store!.get(this.settings.client_id);
-            if (!dpopKeys) {
-                dpopKeys = await CryptoUtils.generateDPoPKeys();
-                await this.settings.dpop.store!.set(this.settings.client_id, dpopKeys);
-            }
-            dpopJkt = await CryptoUtils.generateDPoPJkt(dpopKeys);
+            dpopJkt = await this.generateDPoPJkt(this.settings.dpop);
         }
 
         const handle = await this._redirectNavigator.prepare({ redirectMethod });
@@ -254,12 +249,7 @@ export class UserManager {
 
         let dpopJkt: string | undefined;
         if (this.settings.dpop && this.settings.dpop.bind_authorization_code) {
-            let dpopKeys = await this.settings.dpop.store!.get(this.settings.client_id);
-            if (!dpopKeys) {
-                dpopKeys = await CryptoUtils.generateDPoPKeys();
-                await this.settings.dpop.store!.set(this.settings.client_id, dpopKeys);
-            }
-            dpopJkt = await CryptoUtils.generateDPoPJkt(dpopKeys);
+            dpopJkt = await this.generateDPoPJkt(this.settings.dpop);
         }
 
         const {
@@ -334,12 +324,7 @@ export class UserManager {
 
         let dpopJkt: string | undefined;
         if (this.settings.dpop && this.settings.dpop.bind_authorization_code) {
-            let dpopKeys = await this.settings.dpop.store!.get(this.settings.client_id);
-            if (!dpopKeys) {
-                dpopKeys = await CryptoUtils.generateDPoPKeys();
-                await this.settings.dpop.store!.set(this.settings.client_id, dpopKeys);
-            }
-            dpopJkt = await CryptoUtils.generateDPoPJkt(dpopKeys);
+            dpopJkt = await this.generateDPoPJkt(this.settings.dpop);
         }
 
         const url = this.settings.silent_redirect_uri;
@@ -840,5 +825,14 @@ export class UserManager {
             });
         }
         return undefined;
+    }
+
+    async generateDPoPJkt(dpopSettings: DPoPSettings): Promise<string | undefined> {
+        let dpopKeys = await dpopSettings.store!.get(this.settings.client_id);
+        if (!dpopKeys) {
+            dpopKeys = await CryptoUtils.generateDPoPKeys();
+            await dpopSettings.store!.set(this.settings.client_id, dpopKeys);
+        }
+        return await CryptoUtils.generateDPoPJkt(dpopKeys);
     }
 }

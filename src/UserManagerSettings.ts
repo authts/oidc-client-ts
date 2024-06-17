@@ -17,11 +17,6 @@ const DefaultAccessTokenExpiringNotificationTimeInSeconds = 60;
 const DefaultCheckSessionIntervalInSeconds = 2;
 export const DefaultSilentRequestTimeoutInSeconds = 10;
 
-export interface DPoPSettings {
-    enabled: boolean;
-    bind_authorization_code?: boolean;
-}
-
 /**
  * The settings used to configure the {@link UserManager}.
  *

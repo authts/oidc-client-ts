@@ -337,6 +337,44 @@ describe("UserManager", () => {
                 }),
             );
         });
+
+        it("should pass dpopJkt to _signin if dpop.bind_authorization_code is true", async () => {
+            // arrange
+            subject = new UserManager({
+                authority: "http://sts/oidc",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                monitorSession : false,
+                userStore: userStoreMock,
+                metadata: {
+                    authorization_endpoint: "http://sts/oidc/authorize",
+                    end_session_endpoint:  "http://sts/oidc/logout",
+                    token_endpoint: "http://sts/oidc/token",
+                    revocation_endpoint: "http://sts/oidc/revoke",
+                },
+                dpop: {
+                    bind_authorization_code: true,
+                    store: new IndexedDbDPoPStore(),
+                },
+            });
+            jest.spyOn(subject["_redirectNavigator"], "prepare");
+            subject["_signinStart"] = jest.fn();
+
+            const generateDPoPJktSpy = jest.spyOn(subject, "generateDPoPJkt");
+
+            const keyPair = await CryptoUtils.generateDPoPKeys();
+            await subject.settings.dpop?.store?.set("client", keyPair);
+
+            // act
+            await subject.signinRedirect();
+
+            // assert
+            expect(generateDPoPJktSpy).toHaveBeenCalled();
+            expect(subject["_signinStart"]).toHaveBeenCalledWith({
+                request_type: "si:r",
+                dpopJkt: expect.any(String),
+            }, expect.any(Object));
+        });
     });
 
     describe("signinRedirectCallback", () => {
@@ -477,6 +515,7 @@ describe("UserManager", () => {
             const handle = {} as PopupWindow;
             jest.spyOn(subject["_popupNavigator"], "prepare")
                 .mockImplementation(() => Promise.resolve(handle));
+            const generateDPoPJktSpy = jest.spyOn(subject, "generateDPoPJkt");
 
             const keyPair = await CryptoUtils.generateDPoPKeys();
             await subject.settings.dpop?.store?.set("client", keyPair);
@@ -498,6 +537,7 @@ describe("UserManager", () => {
             await subject.signinPopup({ resource: "resource" });
 
             // assert
+            expect(generateDPoPJktSpy).toHaveBeenCalled();
             expect(subject["_signin"]).toHaveBeenCalledWith({
                 request_type: "si:p",
                 redirect_uri: "http://app/cb",
@@ -721,10 +761,13 @@ describe("UserManager", () => {
 
             subject["_loadUser"] = jest.fn().mockResolvedValue(user);
 
+            const generateDPoPJktSpy = jest.spyOn(subject, "generateDPoPJkt");
+
             // act
             await subject.signinSilent({ resource: "resource" });
 
             // assert
+            expect(generateDPoPJktSpy).toHaveBeenCalled();
             expect(subject["_signin"]).toHaveBeenCalledWith({
                 request_type: "si:s",
                 id_token_hint: undefined,
