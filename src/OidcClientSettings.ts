@@ -282,7 +282,6 @@ export class OidcClientSettingsStore {
         else {
             const store = typeof window !== "undefined" ? window.localStorage : new InMemoryWebStorage();
             this.stateStore = new WebStorageStateStore({ store });
-            this.stateStore = new WebStorageStateStore({ store });
         }
 
         this.refreshTokenAllowedScope = refreshTokenAllowedScope;
