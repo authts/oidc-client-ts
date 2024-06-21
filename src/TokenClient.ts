@@ -129,7 +129,14 @@ export class TokenClient {
         const url = await this._metadataService.getTokenEndpoint(false);
         logger.debug("got token endpoint");
 
-        const response = await this._jsonService.postForm(url, { body: params, basicAuth, initCredentials: this._settings.fetchRequestCredentials, extraHeaders });
+        const response = await this._jsonService.postForm(url, {
+            body: params,
+            basicAuth,
+            timeoutInSeconds: this._settings.requestTimeoutInSeconds,
+            initCredentials: this._settings.fetchRequestCredentials,
+            extraHeaders,
+        });
+
         logger.debug("got response");
 
         return response;
@@ -180,7 +187,7 @@ export class TokenClient {
         const url = await this._metadataService.getTokenEndpoint(false);
         logger.debug("got token endpoint");
 
-        const response = await this._jsonService.postForm(url, { body: params, basicAuth, initCredentials: this._settings.fetchRequestCredentials });
+        const response = await this._jsonService.postForm(url, { body: params, basicAuth, timeoutInSeconds: this._settings.requestTimeoutInSeconds, initCredentials: this._settings.fetchRequestCredentials });
         logger.debug("got response");
 
         return response;
@@ -268,7 +275,7 @@ export class TokenClient {
             params.set("client_secret", this._settings.client_secret);
         }
 
-        await this._jsonService.postForm(url, { body: params });
+        await this._jsonService.postForm(url, { body: params, timeoutInSeconds: this._settings.requestTimeoutInSeconds });
         logger.debug("got response");
     }
 }
