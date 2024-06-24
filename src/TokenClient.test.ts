@@ -361,6 +361,32 @@ describe("TokenClient", () => {
             expect(params).toHaveProperty("client_secret", "client_secret");
         });
 
+        it("should not include scope if omitScopeWhenRequesting is true", async () => {
+            settings.omitScopeWhenRequesting = true;
+            subject = new TokenClient(new OidcClientSettingsStore(settings), metadataService);
+            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+                .mockResolvedValue("http://sts/token_endpoint");
+            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+                .mockResolvedValue({});
+
+            // act
+            await subject.exchangeRefreshToken({ refresh_token: "refresh_token" });
+
+            // assert
+            expect(getTokenEndpointMock).toHaveBeenCalledWith(false);
+            expect(postFormMock).toHaveBeenCalledWith(
+                "http://sts/token_endpoint",
+                expect.objectContaining({
+                    body: expect.any(URLSearchParams),
+                    basicAuth: undefined,
+                    timeoutInSeconds: undefined,
+                }),
+            );
+            const opts = postFormMock.mock.calls[0][1];
+            const params = Object.fromEntries(opts.body);
+            expect(params).not.toHaveProperty("scope");
+        });
+
         it("should call postForm", async () => {
             // arrange
             const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")

@@ -530,4 +530,32 @@ describe("OidcClientSettings", () => {
             expect(subject.extraHeaders).toEqual(extraHeaders);
         });
     });
+
+    describe("omitScopeWhenRequesting", () => {
+
+        it("should use default value", () => {
+            // act
+            const subject = new OidcClientSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+            });
+
+            // assert
+            expect(subject.omitScopeWhenRequesting).toEqual(false);
+        });
+
+        it("should return value from initial settings", () => {
+            // act
+            const subject = new OidcClientSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                omitScopeWhenRequesting: true,
+            });
+
+            // assert
+            expect(subject.omitScopeWhenRequesting).toEqual(true);
+        });
+    });
 });

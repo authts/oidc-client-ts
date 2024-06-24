@@ -301,7 +301,7 @@ export class OidcClient {
     // (undocumented)
     clearStaleState(): Promise<void>;
     // (undocumented)
-    createSigninRequest({ state, request, request_uri, request_type, id_token_hint, login_hint, skipUserInfo, nonce, url_state, response_type, scope, redirect_uri, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, extraQueryParams, extraTokenParams, }: CreateSigninRequestArgs): Promise<SigninRequest>;
+    createSigninRequest({ state, request, request_uri, request_type, id_token_hint, login_hint, skipUserInfo, nonce, url_state, response_type, scope, redirect_uri, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, extraQueryParams, extraTokenParams, omitScopeWhenRequesting, }: CreateSigninRequestArgs): Promise<SigninRequest>;
     // (undocumented)
     createSignoutRequest({ state, id_token_hint, client_id, request_type, post_logout_redirect_uri, extraQueryParams, }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
     // (undocumented)
@@ -365,6 +365,7 @@ export interface OidcClientSettings {
     metadataSeed?: Partial<OidcMetadata>;
     // (undocumented)
     metadataUrl?: string;
+    omitScopeWhenRequesting?: boolean;
     post_logout_redirect_uri?: string;
     prompt?: string;
     redirect_uri: string;
@@ -383,7 +384,7 @@ export interface OidcClientSettings {
 
 // @public
 export class OidcClientSettingsStore {
-    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, requestTimeoutInSeconds, staleStateAgeInSeconds, mergeClaimsStrategy, disablePKCE, stateStore, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, extraHeaders, }: OidcClientSettings);
+    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, requestTimeoutInSeconds, staleStateAgeInSeconds, mergeClaimsStrategy, disablePKCE, stateStore, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, extraHeaders, omitScopeWhenRequesting, }: OidcClientSettings);
     // (undocumented)
     readonly acr_values: string | undefined;
     // (undocumented)
@@ -422,6 +423,8 @@ export class OidcClientSettingsStore {
     readonly metadataSeed: Partial<OidcMetadata> | undefined;
     // (undocumented)
     readonly metadataUrl: string;
+    // (undocumented)
+    readonly omitScopeWhenRequesting: boolean;
     // (undocumented)
     readonly post_logout_redirect_uri: string | undefined;
     // (undocumented)
@@ -626,7 +629,7 @@ export type SigninRedirectArgs = RedirectParams & ExtraSigninRequestArgs;
 // @public (undocumented)
 export class SigninRequest {
     // (undocumented)
-    static create({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, url_state, resource, skipUserInfo, extraQueryParams, extraTokenParams, disablePKCE, ...optionalParams }: SigninRequestCreateArgs): Promise<SigninRequest>;
+    static create({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, url_state, resource, skipUserInfo, extraQueryParams, extraTokenParams, disablePKCE, omitScopeWhenRequesting, ...optionalParams }: SigninRequestCreateArgs): Promise<SigninRequest>;
     // (undocumented)
     readonly state: SigninState;
     // (undocumented)
@@ -659,6 +662,8 @@ export interface SigninRequestCreateArgs {
     max_age?: number;
     // (undocumented)
     nonce?: string;
+    // (undocumented)
+    omitScopeWhenRequesting?: boolean;
     // (undocumented)
     prompt?: string;
     // (undocumented)
