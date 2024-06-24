@@ -331,8 +331,8 @@ export class UserManager {
 
     protected async _useRefreshToken(args: UseRefreshTokenArgs): Promise<User> {
         const response = await this._client.useRefreshToken({
-            ...args,
             timeoutInSeconds: this.settings.silentRequestTimeoutInSeconds,
+            ...args,
         });
         const user = new User({ ...args.state, ...response });
 
@@ -363,7 +363,7 @@ export class UserManager {
      * - {@link UserManager.signinPopupCallback}
      * - {@link UserManager.signinSilentCallback}
      *
-     * @throws `Error` If request_type is unknown or signout cannot be processed.
+     * @throws `Error` If request_type is unknown or signin cannot be processed.
      */
     public async signinCallback(url = window.location.href): Promise<User | undefined> {
         const { state } = await this._client.readSigninResponseState(url);
