@@ -55,6 +55,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     validateSubOnSilentRenew?: boolean;
     /** Flag to control if id_token is included as id_token_hint in silent renew calls (default: false) */
     includeIdTokenInSilentRenew?: boolean;
+
     /** Will raise events for when user has performed a signout at the OP (default: false) */
     monitorSession?: boolean;
     monitorAnonymousSession?: boolean;

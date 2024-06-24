@@ -551,7 +551,10 @@ describe("OidcClientSettings", () => {
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
-                dpop: { bind_authorization_code: true },
+                dpop: {
+                    bind_authorization_code: true,
+                    store: new IndexedDbDPoPStore(),
+                },
             });
 
             // assert

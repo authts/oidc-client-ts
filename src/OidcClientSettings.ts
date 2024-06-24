@@ -6,7 +6,6 @@ import type { OidcMetadata } from "./OidcMetadata";
 import type { StateStore } from "./StateStore";
 import { InMemoryWebStorage } from "./InMemoryWebStorage";
 import type { DPoPStore } from "./DPoPStore";
-import { IndexedDbDPoPStore } from "./IndexedDbDPoPStore";
 
 const DefaultResponseType = "code";
 const DefaultScope = "openid";
@@ -29,7 +28,7 @@ export type ExtraHeader = string | (() => string);
  */
 export interface DPoPSettings {
     bind_authorization_code?: boolean;
-    store?: DPoPStore;
+    store: DPoPStore;
 }
 
 /**
@@ -289,9 +288,7 @@ export class OidcClientSettingsStore {
         this.extraQueryParams = extraQueryParams;
         this.extraTokenParams = extraTokenParams;
         this.extraHeaders = extraHeaders;
+
         this.dpop = dpop;
-        if (this.dpop && !dpop?.store) {
-            this.dpop.store = new IndexedDbDPoPStore();
-        }
     }
 }

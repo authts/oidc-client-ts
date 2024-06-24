@@ -154,7 +154,7 @@ export class UserManager {
         const logger = this._logger.create("removeUser");
         await this.storeUser(null);
         if (this.settings.dpop) {
-            await this.settings.dpop.store!.remove(this.settings.client_id);
+            await this.settings.dpop.store.remove(this.settings.client_id);
         }
         logger.info("user removed from storage");
         await this._events.unload();
@@ -175,14 +175,14 @@ export class UserManager {
         } = args;
 
         let dpopJkt: string | undefined;
-        if (this.settings.dpop && this.settings.dpop.bind_authorization_code) {
+        if (this.settings.dpop?.bind_authorization_code) {
             dpopJkt = await this.generateDPoPJkt(this.settings.dpop);
         }
 
         const handle = await this._redirectNavigator.prepare({ redirectMethod });
         await this._signinStart({
             request_type: "si:r",
-            dpopJkt: dpopJkt,
+            dpopJkt,
             ...requestArgs,
         }, handle);
     }
@@ -248,7 +248,7 @@ export class UserManager {
         const logger = this._logger.create("signinPopup");
 
         let dpopJkt: string | undefined;
-        if (this.settings.dpop && this.settings.dpop.bind_authorization_code) {
+        if (this.settings.dpop?.bind_authorization_code) {
             dpopJkt = await this.generateDPoPJkt(this.settings.dpop);
         }
 
@@ -311,19 +311,17 @@ export class UserManager {
         if (user?.refresh_token) {
             logger.debug("using refresh token");
             const state = new RefreshState(user as Required<User>);
-            const extraHeaders: Record<string, ExtraHeader> = {};
             return await this._useRefreshToken({
                 state,
                 redirect_uri: requestArgs.redirect_uri,
                 resource: requestArgs.resource,
                 extraTokenParams: requestArgs.extraTokenParams,
                 timeoutInSeconds: silentRequestTimeoutInSeconds,
-                extraHeaders: extraHeaders,
             });
         }
 
         let dpopJkt: string | undefined;
-        if (this.settings.dpop && this.settings.dpop.bind_authorization_code) {
+        if (this.settings.dpop?.bind_authorization_code) {
             dpopJkt = await this.generateDPoPJkt(this.settings.dpop);
         }
 
@@ -828,10 +826,10 @@ export class UserManager {
     }
 
     async generateDPoPJkt(dpopSettings: DPoPSettings): Promise<string | undefined> {
-        let dpopKeys = await dpopSettings.store!.get(this.settings.client_id);
+        let dpopKeys = await dpopSettings.store.get(this.settings.client_id);
         if (!dpopKeys) {
             dpopKeys = await CryptoUtils.generateDPoPKeys();
-            await dpopSettings.store!.set(this.settings.client_id, dpopKeys);
+            await dpopSettings.store.set(this.settings.client_id, dpopKeys);
         }
         return await CryptoUtils.generateDPoPJkt(dpopKeys);
     }

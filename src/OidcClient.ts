@@ -179,6 +179,7 @@ export class OidcClient {
             const dpopProof = await this.getDpopProof(this.settings.dpop.store);
             extraHeaders = { ...extraHeaders, "DPoP": dpopProof };
         }
+
         await this._validator.validateSigninResponse(response, state, extraHeaders);
         return response;
     }

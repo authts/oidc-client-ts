@@ -141,6 +141,28 @@ export interface INavigator {
     prepare(params: unknown): Promise<IWindow>;
 }
 
+// Warning: (ae-forgotten-export) The symbol "DPoPStore" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export class IndexedDbDPoPStore implements DPoPStore {
+    // (undocumented)
+    createStore<T>(dbName: string, storeName: string): Promise<(txMode: IDBTransactionMode, callback: (store: IDBObjectStore) => T | PromiseLike<T>) => Promise<T>>;
+    // (undocumented)
+    readonly _dbName: string;
+    // (undocumented)
+    get(key: string): Promise<CryptoKeyPair>;
+    // (undocumented)
+    getAllKeys(): Promise<string[]>;
+    // (undocumented)
+    promisifyRequest<T = undefined>(request: IDBRequest<T> | IDBTransaction): Promise<T>;
+    // (undocumented)
+    remove(key: string): Promise<CryptoKeyPair>;
+    // (undocumented)
+    set(key: string, value: CryptoKeyPair): Promise<void>;
+    // (undocumented)
+    readonly _storeName: string;
+}
+
 // @public (undocumented)
 export class InMemoryWebStorage implements Storage {
     // (undocumented)
@@ -306,8 +328,6 @@ export class OidcClient {
     createSigninRequest({ state, request, request_uri, request_type, id_token_hint, login_hint, skipUserInfo, nonce, url_state, response_type, scope, redirect_uri, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, extraQueryParams, extraTokenParams, dpopJkt, }: CreateSigninRequestArgs): Promise<SigninRequest>;
     // (undocumented)
     createSignoutRequest({ state, id_token_hint, client_id, request_type, post_logout_redirect_uri, extraQueryParams, }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
-    // Warning: (ae-forgotten-export) The symbol "DPoPStore" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     getDpopProof(dpopStore: DPoPStore): Promise<string>;
     // (undocumented)
