@@ -137,7 +137,7 @@ export class OidcClient {
             skipUserInfo,
             nonce,
             disablePKCE: this.settings.disablePKCE,
-            omitScopeWhenRequesting: omitScopeWhenRequesting,
+            omitScopeWhenRequesting,
         });
 
         // house cleaning
