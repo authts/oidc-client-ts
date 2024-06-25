@@ -114,6 +114,7 @@ export class OidcClient {
         extraQueryParams = this.settings.extraQueryParams,
         extraTokenParams = this.settings.extraTokenParams,
         dpopJkt,
+        omitScopeWhenRequesting = this.settings.omitScopeWhenRequesting,
     }: CreateSigninRequestArgs): Promise<SigninRequest> {
         const logger = this._logger.create("createSigninRequest");
 
@@ -139,6 +140,7 @@ export class OidcClient {
             skipUserInfo,
             nonce,
             disablePKCE: this.settings.disablePKCE,
+            omitScopeWhenRequesting,
         });
 
         // house cleaning

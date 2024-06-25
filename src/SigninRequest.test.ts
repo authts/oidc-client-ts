@@ -66,6 +66,18 @@ describe("SigninRequest", () => {
             expect(url).toContain("scope=openid");
         });
 
+        it("should not include scope if omitScopeWhenRequesting is true", async () => {
+            // arrange
+            settings.omitScopeWhenRequesting = true;
+
+            // act
+            subject = await SigninRequest.create(settings);
+            url = subject.url;
+
+            // assert
+            expect(url).not.toContain("scope");
+        });
+
         it("should include state", () => {
             // assert
             expect(url).toContain("state=" + subject.state.id);

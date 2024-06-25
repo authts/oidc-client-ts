@@ -44,6 +44,7 @@ export interface SigninRequestCreateArgs {
     /** custom "state", which can be used by a caller to have "data" round tripped */
     state_data?: unknown;
     url_state?: string;
+    omitScopeWhenRequesting?: boolean;
 }
 
 /**
@@ -74,6 +75,7 @@ export class SigninRequest {
         extraTokenParams,
         disablePKCE,
         dpopJkt,
+        omitScopeWhenRequesting,
         ...optionalParams
     }: SigninRequestCreateArgs): Promise<SigninRequest> {
         if (!url) {
@@ -116,7 +118,9 @@ export class SigninRequest {
         parsedUrl.searchParams.append("client_id", client_id);
         parsedUrl.searchParams.append("redirect_uri", redirect_uri);
         parsedUrl.searchParams.append("response_type", response_type);
-        parsedUrl.searchParams.append("scope", scope);
+        if (!omitScopeWhenRequesting) {
+            parsedUrl.searchParams.append("scope", scope);
+        }
         if (nonce) {
             parsedUrl.searchParams.append("nonce", nonce);
         }

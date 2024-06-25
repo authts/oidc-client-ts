@@ -152,6 +152,17 @@ export interface OidcClientSettings {
      * Only scopes in this list will be passed in the token refresh request.
      */
     refreshTokenAllowedScope?: string | undefined;
+
+    /**
+     * Defines request timeouts globally across all requests made to the authorisation server
+     */
+    requestTimeoutInSeconds?: number | undefined;
+
+    /**
+     * https://datatracker.ietf.org/doc/html/rfc6749#section-3.3 describes behavior when omitting scopes from sign in requests
+     * If the IDP supports default scopes, this setting will ignore the scopes property passed to the config. (Default: false)
+     */
+    omitScopeWhenRequesting?: boolean;
 }
 
 /**
@@ -191,6 +202,7 @@ export class OidcClientSettingsStore {
     public readonly loadUserInfo: boolean;
     public readonly staleStateAgeInSeconds: number;
     public readonly mergeClaimsStrategy: { array: "replace" | "merge" };
+    public readonly omitScopeWhenRequesting: boolean;
 
     public readonly stateStore: StateStore;
 
@@ -204,6 +216,7 @@ export class OidcClientSettingsStore {
     public readonly fetchRequestCredentials: RequestCredentials;
     public readonly refreshTokenAllowedScope: string | undefined;
     public readonly disablePKCE: boolean;
+    public readonly requestTimeoutInSeconds: number | undefined;
 
     public constructor({
         // metadata related
@@ -217,6 +230,7 @@ export class OidcClientSettingsStore {
         // behavior flags
         filterProtocolClaims = true,
         loadUserInfo = false,
+        requestTimeoutInSeconds,
         staleStateAgeInSeconds = DefaultStaleStateAgeInSeconds,
         mergeClaimsStrategy = { array: "replace" },
         disablePKCE = false,
@@ -230,6 +244,7 @@ export class OidcClientSettingsStore {
         extraTokenParams = {},
         extraHeaders = {},
         dpop,
+        omitScopeWhenRequesting = false,
     }: OidcClientSettings) {
 
         this.authority = authority;
@@ -270,10 +285,12 @@ export class OidcClientSettingsStore {
         this.loadUserInfo = !!loadUserInfo;
         this.staleStateAgeInSeconds = staleStateAgeInSeconds;
         this.mergeClaimsStrategy = mergeClaimsStrategy;
+        this.omitScopeWhenRequesting = omitScopeWhenRequesting;
         this.disablePKCE = !!disablePKCE;
         this.revokeTokenAdditionalContentTypes = revokeTokenAdditionalContentTypes;
 
         this.fetchRequestCredentials = fetchRequestCredentials ? fetchRequestCredentials : "same-origin";
+        this.requestTimeoutInSeconds = requestTimeoutInSeconds;
 
         if (stateStore) {
             this.stateStore = stateStore;

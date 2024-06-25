@@ -1,5 +1,10 @@
 import type { DPoPStore } from "./DPoPStore";
 
+/**
+ * Provides a default implementation of the DPoP store using IndexedDB.
+ *
+ * @public
+ */
 export class IndexedDbDPoPStore implements DPoPStore {
     readonly _dbName: string = "oidc";
     readonly _storeName: string = "dpop";

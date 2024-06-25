@@ -36,6 +36,7 @@ export class UserInfoService {
         const claims = await this._jsonService.getJson(url, {
             token,
             credentials: this._settings.fetchRequestCredentials,
+            timeoutInSeconds: this._settings.requestTimeoutInSeconds,
         });
         logger.debug("got claims", claims);
 
