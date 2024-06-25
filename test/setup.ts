@@ -1,4 +1,5 @@
 import { Log } from "../src";
+import "fake-indexeddb/auto";
 import { TextEncoder } from "util";
 import { webcrypto } from "node:crypto";
 

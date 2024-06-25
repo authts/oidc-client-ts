@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Logger, UrlUtils } from "./utils";
+import { CryptoUtils, Logger, UrlUtils } from "./utils";
 import { ErrorResponse } from "./errors";
 import { type ExtraHeader, type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 import { ResponseValidator } from "./ResponseValidator";
@@ -15,6 +15,7 @@ import { SigninState } from "./SigninState";
 import { State } from "./State";
 import { TokenClient } from "./TokenClient";
 import { ClaimsService } from "./ClaimsService";
+import type { DPoPStore } from "./DPoPStore";
 
 /**
  * @public
@@ -24,6 +25,7 @@ export interface CreateSigninRequestArgs
     redirect_uri?: string;
     response_type?: string;
     scope?: string;
+    dpopJkt?: string;
 
     /** custom "state", which can be used by a caller to have "data" round tripped */
     state?: unknown;
@@ -111,6 +113,7 @@ export class OidcClient {
         response_mode = this.settings.response_mode,
         extraQueryParams = this.settings.extraQueryParams,
         extraTokenParams = this.settings.extraTokenParams,
+        dpopJkt,
         omitScopeWhenRequesting = this.settings.omitScopeWhenRequesting,
     }: CreateSigninRequestArgs): Promise<SigninRequest> {
         const logger = this._logger.create("createSigninRequest");
@@ -131,7 +134,7 @@ export class OidcClient {
             scope,
             state_data: state,
             url_state,
-            prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
+            prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, dpopJkt,
             resource, request, request_uri, extraQueryParams, extraTokenParams, request_type, response_mode,
             client_secret: this.settings.client_secret,
             skipUserInfo,
@@ -173,8 +176,31 @@ export class OidcClient {
 
         const { state, response } = await this.readSigninResponseState(url, true);
         logger.debug("received state from storage; validating response");
+
+        if (this.settings.dpop && this.settings.dpop.store) {
+            const dpopProof = await this.getDpopProof(this.settings.dpop.store);
+            extraHeaders = { ...extraHeaders, "DPoP": dpopProof };
+        }
+
         await this._validator.validateSigninResponse(response, state, extraHeaders);
         return response;
+    }
+
+    async getDpopProof(dpopStore: DPoPStore): Promise<string> {
+        let keyPair: CryptoKeyPair;
+
+        if (!(await dpopStore.getAllKeys()).includes(this.settings.client_id)) {
+            keyPair = await CryptoUtils.generateDPoPKeys();
+            await dpopStore.set(this.settings.client_id, keyPair);
+        } else {
+            keyPair = await dpopStore.get(this.settings.client_id);
+        }
+
+        return await CryptoUtils.generateDPoPProof({
+            url: await this.metadataService.getTokenEndpoint(false),
+            httpMethod: "POST",
+            keyPair: keyPair,
+        });
     }
 
     public async processResourceOwnerPasswordCredentials({
@@ -211,6 +237,11 @@ export class OidcClient {
             const providedScopes = state.scope?.split(" ") || [];
 
             scope = providedScopes.filter(s => allowableScopes.includes(s)).join(" ");
+        }
+
+        if (this.settings.dpop && this.settings.dpop.store) {
+            const dpopProof = await this.getDpopProof(this.settings.dpop.store);
+            extraHeaders = { ...extraHeaders, "DPoP": dpopProof };
         }
 
         const result = await this._tokenClient.exchangeRefreshToken({

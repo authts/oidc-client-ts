@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Logger } from "./utils";
+import { CryptoUtils, Logger } from "./utils";
 import { ErrorResponse } from "./errors";
 import { type NavigateResponse, type PopupWindowParams, type IWindow, type IFrameWindowParams, type RedirectParams, RedirectNavigator, PopupNavigator, IFrameNavigator, type INavigator } from "./navigators";
 import { OidcClient, type CreateSigninRequestArgs, type CreateSignoutRequestArgs, type ProcessResourceOwnerPasswordCredentialsArgs, type UseRefreshTokenArgs } from "./OidcClient";
@@ -15,6 +15,7 @@ import type { SignoutResponse } from "./SignoutResponse";
 import type { MetadataService } from "./MetadataService";
 import { RefreshState } from "./RefreshState";
 import type { SigninResponse } from "./SigninResponse";
+import type { ExtraHeader, DPoPSettings } from "./OidcClientSettings";
 
 /**
  * @public
@@ -110,7 +111,6 @@ export class UserManager {
         if (this.settings.monitorSession) {
             this._sessionMonitor = new SessionMonitor(this);
         }
-
     }
 
     /**
@@ -170,9 +170,16 @@ export class UserManager {
             redirectMethod,
             ...requestArgs
         } = args;
+
+        let dpopJkt: string | undefined;
+        if (this.settings.dpop?.bind_authorization_code) {
+            dpopJkt = await this.generateDPoPJkt(this.settings.dpop);
+        }
+
         const handle = await this._redirectNavigator.prepare({ redirectMethod });
         await this._signinStart({
             request_type: "si:r",
+            dpopJkt,
             ...requestArgs,
         }, handle);
     }
@@ -211,7 +218,12 @@ export class UserManager {
     }: SigninResourceOwnerCredentialsArgs): Promise<User> {
         const logger = this._logger.create("signinResourceOwnerCredential");
 
-        const signinResponse = await this._client.processResourceOwnerPasswordCredentials({ username, password, skipUserInfo, extraTokenParams: this.settings.extraTokenParams });
+        const signinResponse = await this._client.processResourceOwnerPasswordCredentials({
+            username,
+            password,
+            skipUserInfo,
+            extraTokenParams: this.settings.extraTokenParams,
+        });
         logger.debug("got signin response");
 
         const user = await this._buildUser(signinResponse);
@@ -231,6 +243,12 @@ export class UserManager {
      */
     public async signinPopup(args: SigninPopupArgs = {}): Promise<User> {
         const logger = this._logger.create("signinPopup");
+
+        let dpopJkt: string | undefined;
+        if (this.settings.dpop?.bind_authorization_code) {
+            dpopJkt = await this.generateDPoPJkt(this.settings.dpop);
+        }
+
         const {
             popupWindowFeatures,
             popupWindowTarget,
@@ -246,19 +264,20 @@ export class UserManager {
             request_type: "si:p",
             redirect_uri: url,
             display: "popup",
+            dpopJkt,
             ...requestArgs,
         }, handle);
         if (user) {
             if (user.profile && user.profile.sub) {
                 logger.info("success, signed in subject", user.profile.sub);
-            }
-            else {
+            } else {
                 logger.info("no subject");
             }
         }
 
         return user;
     }
+
     /**
      * Notify the opening window of response (callback) from the authorization endpoint.
      * It is recommended to use {@link UserManager.signinCallback} instead.
@@ -298,6 +317,11 @@ export class UserManager {
             });
         }
 
+        let dpopJkt: string | undefined;
+        if (this.settings.dpop?.bind_authorization_code) {
+            dpopJkt = await this.generateDPoPJkt(this.settings.dpop);
+        }
+
         const url = this.settings.silent_redirect_uri;
         if (!url) {
             logger.throw(new Error("No silent_redirect_uri configured"));
@@ -315,6 +339,7 @@ export class UserManager {
             redirect_uri: url,
             prompt: "none",
             id_token_hint: this.settings.includeIdTokenInSilentRenew ? user?.id_token : undefined,
+            dpopJkt,
             ...requestArgs,
         }, handle, verifySub);
         if (user) {
@@ -441,7 +466,8 @@ export class UserManager {
             ...requestArgs,
         }, handle);
         try {
-            const signinResponse = await this._client.processSigninResponse(navResponse.url);
+            const extraHeaders: Record<string, ExtraHeader> = {};
+            const signinResponse = await this._client.processSigninResponse(navResponse.url, extraHeaders);
             logger.debug("got signin response");
 
             if (signinResponse.session_state && signinResponse.profile.sub) {
@@ -454,8 +480,7 @@ export class UserManager {
 
             logger.info("success, user not authenticated");
             return null;
-        }
-        catch (err) {
+        } catch (err) {
             if (this.settings.monitorAnonymousSession && err instanceof ErrorResponse) {
                 switch (err.error) {
                     case "login_required":
@@ -477,6 +502,7 @@ export class UserManager {
         const navResponse = await this._signinStart(args, handle);
         return await this._signinEnd(navResponse.url, verifySub);
     }
+
     protected async _signinStart(args: CreateSigninRequestArgs, handle: IWindow): Promise<NavigateResponse> {
         const logger = this._logger.create("_signinStart");
 
@@ -490,16 +516,17 @@ export class UserManager {
                 response_mode: signinRequest.state.response_mode,
                 scriptOrigin: this.settings.iframeScriptOrigin,
             });
-        }
-        catch (err) {
+        } catch (err) {
             logger.debug("error after preparing navigator, closing navigator window");
             handle.close();
             throw err;
         }
     }
+
     protected async _signinEnd(url: string, verifySub?: string): Promise<User> {
         const logger = this._logger.create("_signinEnd");
-        const signinResponse = await this._client.processSigninResponse(url);
+        const extraHeaders: Record<string, ExtraHeader> = {};
+        const signinResponse = await this._client.processSigninResponse(url, extraHeaders);
         logger.debug("got signin response");
 
         const user = await this._buildUser(signinResponse, verifySub);
@@ -606,6 +633,7 @@ export class UserManager {
         const navResponse = await this._signoutStart(args, handle);
         return await this._signoutEnd(navResponse.url);
     }
+
     protected async _signoutStart(args: CreateSignoutRequestArgs = {}, handle: IWindow): Promise<NavigateResponse> {
         const logger = this._logger.create("_signoutStart");
 
@@ -634,13 +662,13 @@ export class UserManager {
                 state: signoutRequest.state?.id,
                 scriptOrigin: this.settings.iframeScriptOrigin,
             });
-        }
-        catch (err) {
+        } catch (err) {
             logger.debug("error after preparing navigator, closing navigator window");
             handle.close();
             throw err;
         }
     }
+
     protected async _signoutEnd(url: string): Promise<SignoutResponse> {
         const logger = this._logger.create("_signoutEnd");
         const signoutResponse = await this._client.processSignoutResponse(url);
@@ -761,10 +789,12 @@ export class UserManager {
             logger.debug("storing user");
             const storageString = user.toStorageString();
             await this.settings.userStore.set(this._userStoreKey, storageString);
-        }
-        else {
+        } else {
             this._logger.debug("removing user");
             await this.settings.userStore.remove(this._userStoreKey);
+            if (this.settings.dpop) {
+                await this.settings.dpop.store.remove(this.settings.client_id);
+            }
         }
     }
 
@@ -773,5 +803,37 @@ export class UserManager {
      */
     public async clearStaleState(): Promise<void> {
         await this._client.clearStaleState();
+    }
+
+    /**
+     * Dynamically generates a DPoP proof for a given user, URL and optional Http method.
+     * This method is useful when you need to make a request to a resource server
+     * with fetch or similar, and you need to include a DPoP proof in a DPoP header.
+     * @param url - The URL to generate the DPoP proof for
+     * @param user - The user to generate the DPoP proof for
+     * @param httpMethod - Optional, defaults to "GET"
+     *
+     * @returns A promise containing the DPoP proof or undefined if DPoP is not enabled/no user is found.
+     */
+    public async dpopProof(url: string, user: User, httpMethod?: string): Promise<string | undefined> {
+        const dpopKey = await this.settings.dpop?.store?.get(this.settings.client_id);
+        if (dpopKey) {
+            return await CryptoUtils.generateDPoPProof({
+                url,
+                accessToken: user?.access_token,
+                httpMethod: httpMethod,
+                keyPair: dpopKey,
+            });
+        }
+        return undefined;
+    }
+
+    async generateDPoPJkt(dpopSettings: DPoPSettings): Promise<string | undefined> {
+        let dpopKeys = await dpopSettings.store.get(this.settings.client_id);
+        if (!dpopKeys) {
+            dpopKeys = await CryptoUtils.generateDPoPKeys();
+            await dpopSettings.store.set(this.settings.client_id, dpopKeys);
+        }
+        return await CryptoUtils.generateDPoPJkt(dpopKeys);
     }
 }

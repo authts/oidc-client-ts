@@ -14,6 +14,7 @@ import { SignoutResponse } from "./SignoutResponse";
 import { RefreshState } from "./RefreshState";
 import { SigninResponse } from "./SigninResponse";
 import type { UserProfile } from "./User";
+import { IndexedDbDPoPStore } from "./IndexedDbDPoPStore";
 
 describe("OidcClient", () => {
     let subject: OidcClient;
@@ -390,6 +391,41 @@ describe("OidcClient", () => {
             // assert
             expect(validateSigninResponseMock).toHaveBeenCalledWith(response, item, extraHeaders);
         });
+
+        it("should pass DPoP extraHeader if enabled", async () => {
+            subject = new OidcClient({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                post_logout_redirect_uri: "http://app",
+                dpop: {
+                    bind_authorization_code: false,
+                    store: new IndexedDbDPoPStore(),
+                },
+            });
+
+            // arrange
+            const item = await SigninState.create({
+                id: "1",
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                scope: "scope",
+                request_type: "type",
+            });
+            jest.spyOn(subject.settings.stateStore, "remove")
+                .mockImplementation(async () => item.toStorageString());
+            const validateSigninResponseMock = jest.spyOn(subject["_validator"], "validateSigninResponse")
+                .mockResolvedValue();
+            const metadataServiceMock = jest.spyOn(subject["metadataService"], "getTokenEndpoint").mockResolvedValue("http://sts/token");
+
+            // act
+            const response = await subject.processSigninResponse("http://app/cb?state=1");
+
+            // assert
+            expect(metadataServiceMock).toHaveBeenCalled();
+            expect(validateSigninResponseMock).toHaveBeenCalledWith(response, item, { "DPoP": expect.any(String) });
+        });
     });
 
     describe("processResourceOwnerPasswordCredentials", () => {
@@ -566,6 +602,56 @@ describe("OidcClient", () => {
             await expect(subject.useRefreshToken({ state }))
                 // assert
                 .rejects.toThrow("sub in id_token does not match current sub");
+        });
+
+        it("should pass DPoP extraHeader to tokenClient.exchangeRefreshToken if DPoP enabled", async () => {
+            // arrange
+            const settings: OidcClientSettings = {
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                post_logout_redirect_uri: "http://app",
+                dpop: {
+                    bind_authorization_code: false,
+                    store: new IndexedDbDPoPStore(),
+                },
+            };
+
+            subject = new OidcClient(settings);
+
+            const tokenResponse = {
+                access_token: "new_access_token",
+            };
+            const exchangeRefreshTokenMock =
+                jest.spyOn(subject["_tokenClient"], "exchangeRefreshToken")
+                    .mockResolvedValue(tokenResponse);
+            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
+            const mockMetaDataService = jest.spyOn(subject["metadataService"], "getTokenEndpoint").mockResolvedValue("http://sts/token");
+
+            const state = new RefreshState({
+                refresh_token: "refresh_token",
+                id_token: "id_token",
+                session_state: "session_state",
+                scope: "openid",
+                profile: {} as UserProfile,
+            });
+
+            // act
+            const response = await subject.useRefreshToken({ state, resource: "resource" });
+
+            // assert
+            expect(mockMetaDataService).toHaveBeenCalled();
+            expect(exchangeRefreshTokenMock).toHaveBeenCalledWith( {
+                refresh_token: "refresh_token",
+                scope: "openid",
+                timeoutInSeconds: undefined,
+                resource: "resource",
+                extraHeaders: { "DPoP": expect.any(String) },
+            });
+            expect(response).toBeInstanceOf(SigninResponse);
+            expect(response).toMatchObject(tokenResponse);
+            expect(response).toHaveProperty("session_state", state.session_state);
+            expect(response).toHaveProperty("scope", state.scope);
         });
 
         it("should pass extraHeaders to tokenClient.exchangeRefreshToken if supplied", async () => {

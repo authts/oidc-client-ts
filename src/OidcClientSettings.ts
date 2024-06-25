@@ -5,6 +5,7 @@ import { WebStorageStateStore } from "./WebStorageStateStore";
 import type { OidcMetadata } from "./OidcMetadata";
 import type { StateStore } from "./StateStore";
 import { InMemoryWebStorage } from "./InMemoryWebStorage";
+import type { DPoPStore } from "./DPoPStore";
 
 const DefaultResponseType = "code";
 const DefaultScope = "openid";
@@ -20,6 +21,15 @@ export type SigningKey = Record<string, string | string[]>;
  * @public
  */
 export type ExtraHeader = string | (() => string);
+
+/**
+ * Optional DPoP settings
+ * @public
+ */
+export interface DPoPSettings {
+    bind_authorization_code?: boolean;
+    store: DPoPStore;
+}
 
 /**
  * The settings used to configure the {@link OidcClient}.
@@ -120,6 +130,11 @@ export interface OidcClientSettings {
     extraHeaders?: Record<string, ExtraHeader>;
 
     /**
+     * DPoP enabled or disabled
+     */
+    dpop?: DPoPSettings | undefined;
+
+    /**
      * Will check the content type header of the response of the revocation endpoint to match these passed values (default: [])
      */
     revokeTokenAdditionalContentTypes?: string[];
@@ -194,6 +209,7 @@ export class OidcClientSettingsStore {
     // extra
     public readonly extraQueryParams: Record<string, string | number | boolean>;
     public readonly extraTokenParams: Record<string, unknown>;
+    public readonly dpop: DPoPSettings | undefined;
     public readonly extraHeaders: Record<string, ExtraHeader>;
 
     public readonly revokeTokenAdditionalContentTypes?: string[];
@@ -227,6 +243,7 @@ export class OidcClientSettingsStore {
         extraQueryParams = {},
         extraTokenParams = {},
         extraHeaders = {},
+        dpop,
         omitScopeWhenRequesting = false,
     }: OidcClientSettings) {
 
@@ -288,5 +305,10 @@ export class OidcClientSettingsStore {
         this.extraQueryParams = extraQueryParams;
         this.extraTokenParams = extraTokenParams;
         this.extraHeaders = extraHeaders;
+
+        this.dpop = dpop;
+        if (this.dpop && !this.dpop?.store) {
+            throw new Error("A DPoPStore is required when dpop is enabled");
+        }
     }
 }

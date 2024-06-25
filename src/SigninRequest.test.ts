@@ -292,5 +292,16 @@ describe("SigninRequest", () => {
             // assert
             expect(subject.url).toContain("state=" + subject.state.id + encodeURIComponent(URL_STATE_DELIMITER + "foo"));
         });
+
+        it("should include dpop_jkt", async () => {
+            // arrange
+            settings.dpopJkt = "foo";
+
+            // act
+            subject = await SigninRequest.create(settings);
+
+            // assert
+            expect(subject.url).toContain("dpop_jkt=foo");
+        });
     });
 });
