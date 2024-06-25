@@ -290,5 +290,8 @@ export class OidcClientSettingsStore {
         this.extraHeaders = extraHeaders;
 
         this.dpop = dpop;
+        if (this.dpop && !this.dpop?.store) {
+            throw new Error("A DPoPStore is required when dpop is enabled");
+        }
     }
 }

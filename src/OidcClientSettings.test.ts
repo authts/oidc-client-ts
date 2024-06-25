@@ -3,7 +3,6 @@
 
 import { OidcClientSettingsStore } from "./OidcClientSettings";
 import type { StateStore } from "./StateStore";
-import { IndexedDbDPoPStore } from "./IndexedDbDPoPStore";
 
 describe("OidcClientSettings", () => {
     describe("client_id", () => {
@@ -545,22 +544,18 @@ describe("OidcClientSettings", () => {
             expect(subject.dpop).toBeUndefined();
         });
 
-        it("dpop.store should be an IndexedDBDOoPstore by default when enabled", () => {
+        it("should throw if dpop is configured without a store", () => {
             // act
-            const subject = new OidcClientSettingsStore({
+            expect(() => new OidcClientSettingsStore({
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 dpop: {
                     bind_authorization_code: true,
-                    store: new IndexedDbDPoPStore(),
                 },
-            });
-
-            // assert
-            expect(subject.dpop).toBeDefined();
-            expect(subject.dpop?.store).toBeDefined();
-            expect(subject.dpop?.store).toBeInstanceOf(IndexedDbDPoPStore);
+            })).toThrow("A DPoPStore is required when dpop is enabled");
         });
     });
 });
