@@ -1196,6 +1196,42 @@ describe("UserManager", () => {
             const storageString = await subject.settings.userStore.get(subject["_userStoreKey"]);
             expect(storageString).toBeNull();
         });
+
+        it("should remove dpop keys from the dpop store if dpop enabled", async () => {
+            // arrange
+            subject = new UserManager({
+                authority: "http://sts/oidc",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                monitorSession : false,
+                userStore: userStoreMock,
+                metadata: {
+                    authorization_endpoint: "http://sts/oidc/authorize",
+                    end_session_endpoint:  "http://sts/oidc/logout",
+                    token_endpoint: "http://sts/oidc/token",
+                    revocation_endpoint: "http://sts/oidc/revoke",
+                },
+                dpop: { store: new IndexedDbDPoPStore() },
+            });
+
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {} as UserProfile,
+            });
+            await subject.storeUser(user);
+            const dpopKeyPair = await CryptoUtils.generateDPoPKeys();
+            await subject.settings.dpop?.store.set("client", dpopKeyPair);
+
+            // act
+            await subject.storeUser(null);
+
+            // assert
+            const storageString = await subject.settings.userStore.get(subject["_userStoreKey"]);
+            expect(storageString).toBeNull();
+            const dpopKeys = await subject.settings.dpop?.store.get("client");
+            expect(dpopKeys).toBeUndefined();
+        });
     });
 
     describe("getDPoPProof",() => {

@@ -153,9 +153,6 @@ export class UserManager {
     public async removeUser(): Promise<void> {
         const logger = this._logger.create("removeUser");
         await this.storeUser(null);
-        if (this.settings.dpop) {
-            await this.settings.dpop.store.remove(this.settings.client_id);
-        }
         logger.info("user removed from storage");
         await this._events.unload();
     }
@@ -795,6 +792,9 @@ export class UserManager {
         } else {
             this._logger.debug("removing user");
             await this.settings.userStore.remove(this._userStoreKey);
+            if (this.settings.dpop) {
+                await this.settings.dpop.store.remove(this.settings.client_id);
+            }
         }
     }
 
