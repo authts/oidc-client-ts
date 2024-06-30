@@ -150,15 +150,17 @@ export class IndexedDbDPoPStore implements DPoPStore {
     // (undocumented)
     readonly _dbName: string;
     // (undocumented)
-    get(key: string): Promise<CryptoKeyPair>;
+    get(key: string): Promise<DPoPState>;
     // (undocumented)
     getAllKeys(): Promise<string[]>;
     // (undocumented)
     promisifyRequest<T = undefined>(request: IDBRequest<T> | IDBTransaction): Promise<T>;
     // (undocumented)
-    remove(key: string): Promise<CryptoKeyPair>;
+    remove(key: string): Promise<DPoPState>;
+    // Warning: (ae-forgotten-export) The symbol "DPoPState" needs to be exported by the entry point index.d.ts
+    //
     // (undocumented)
-    set(key: string, value: CryptoKeyPair): Promise<void>;
+    set(key: string, value: DPoPState): Promise<void>;
     // (undocumented)
     readonly _storeName: string;
 }
@@ -329,7 +331,7 @@ export class OidcClient {
     // (undocumented)
     createSignoutRequest({ state, id_token_hint, client_id, request_type, post_logout_redirect_uri, extraQueryParams, }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
     // (undocumented)
-    getDpopProof(dpopStore: DPoPStore): Promise<string>;
+    getDpopProof(dpopStore: DPoPStore, nonce?: string): Promise<string>;
     // (undocumented)
     protected readonly _logger: Logger;
     // (undocumented)
@@ -989,7 +991,7 @@ export class UserManager {
     clearStaleState(): Promise<void>;
     // (undocumented)
     protected readonly _client: OidcClient;
-    dpopProof(url: string, user: User, httpMethod?: string): Promise<string | undefined>;
+    dpopProof(url: string, user: User, httpMethod?: string, nonce?: string): Promise<string | undefined>;
     get events(): UserManagerEvents;
     // (undocumented)
     protected readonly _events: UserManagerEvents;
