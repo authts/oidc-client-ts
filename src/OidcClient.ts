@@ -15,7 +15,8 @@ import { SigninState } from "./SigninState";
 import { State } from "./State";
 import { TokenClient } from "./TokenClient";
 import { ClaimsService } from "./ClaimsService";
-import type { DPoPStore } from "./DPoPStore";
+import { DPoPState, type DPoPStore } from "./DPoPStore";
+import { ErrorDPoPNonce } from "./errors/ErrorDPoPNonce";
 
 /**
  * @public
@@ -182,24 +183,39 @@ export class OidcClient {
             extraHeaders = { ...extraHeaders, "DPoP": dpopProof };
         }
 
-        await this._validator.validateSigninResponse(response, state, extraHeaders);
+        try {
+            await this._validator.validateSigninResponse(response, state, extraHeaders);
+        }
+        catch (err) {
+            if (err instanceof ErrorDPoPNonce) {
+                const dpopProof = await this.getDpopProof(this.settings.dpop!.store, err.nonce);
+                extraHeaders!["DPoP"] = dpopProof;
+                await this._validator.validateSigninResponse(response, state, extraHeaders);
+            } else {
+                throw err;
+            }
+        }
+
         return response;
     }
 
-    async getDpopProof(dpopStore: DPoPStore): Promise<string> {
+    async getDpopProof(dpopStore: DPoPStore, nonce?: string): Promise<string> {
         let keyPair: CryptoKeyPair;
+        let dpopState: DPoPState;
 
         if (!(await dpopStore.getAllKeys()).includes(this.settings.client_id)) {
             keyPair = await CryptoUtils.generateDPoPKeys();
-            await dpopStore.set(this.settings.client_id, keyPair);
+            dpopState = new DPoPState(keyPair);
+            await dpopStore.set(this.settings.client_id, dpopState);
         } else {
-            keyPair = await dpopStore.get(this.settings.client_id);
+            dpopState = await dpopStore.get(this.settings.client_id);
         }
 
         return await CryptoUtils.generateDPoPProof({
             url: await this.metadataService.getTokenEndpoint(false),
             httpMethod: "POST",
-            keyPair: keyPair,
+            keyPair: dpopState.keys,
+            nonce: nonce,
         });
     }
 
@@ -244,16 +260,36 @@ export class OidcClient {
             extraHeaders = { ...extraHeaders, "DPoP": dpopProof };
         }
 
-        const result = await this._tokenClient.exchangeRefreshToken({
-            refresh_token: state.refresh_token,
-            // provide the (possible filtered) scope list
-            scope,
-            redirect_uri,
-            resource,
-            timeoutInSeconds,
-            extraHeaders,
-            ...extraTokenParams,
-        });
+        let result;
+        try {
+            result = await this._tokenClient.exchangeRefreshToken({
+                refresh_token: state.refresh_token,
+                // provide the (possible filtered) scope list
+                scope,
+                redirect_uri,
+                resource,
+                timeoutInSeconds,
+                extraHeaders,
+                ...extraTokenParams,
+            });
+        } catch (err) {
+            if (err instanceof ErrorDPoPNonce) {
+                extraHeaders!["DPoP"] = await this.getDpopProof(this.settings.dpop!.store, err.nonce);
+                result = await this._tokenClient.exchangeRefreshToken({
+                    refresh_token: state.refresh_token,
+                    // provide the (possible filtered) scope list
+                    scope,
+                    redirect_uri,
+                    resource,
+                    timeoutInSeconds,
+                    extraHeaders,
+                    ...extraTokenParams,
+                });
+            } else {
+                throw err;
+            }
+        }
+
         const response = new SigninResponse(new URLSearchParams());
         Object.assign(response, result);
         logger.debug("validating response", response);

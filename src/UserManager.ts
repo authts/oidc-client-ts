@@ -16,6 +16,7 @@ import type { MetadataService } from "./MetadataService";
 import { RefreshState } from "./RefreshState";
 import type { SigninResponse } from "./SigninResponse";
 import type { ExtraHeader, DPoPSettings } from "./OidcClientSettings";
+import { DPoPState } from "./DPoPStore";
 
 /**
  * @public
@@ -812,28 +813,31 @@ export class UserManager {
      * @param url - The URL to generate the DPoP proof for
      * @param user - The user to generate the DPoP proof for
      * @param httpMethod - Optional, defaults to "GET"
+     * @param nonce = Optional nonce provided by the resource server
      *
      * @returns A promise containing the DPoP proof or undefined if DPoP is not enabled/no user is found.
      */
-    public async dpopProof(url: string, user: User, httpMethod?: string): Promise<string | undefined> {
-        const dpopKey = await this.settings.dpop?.store?.get(this.settings.client_id);
-        if (dpopKey) {
+    public async dpopProof(url: string, user: User, httpMethod?: string, nonce?: string): Promise<string | undefined> {
+        const dpopState = await this.settings.dpop?.store?.get(this.settings.client_id);
+        if (dpopState) {
             return await CryptoUtils.generateDPoPProof({
                 url,
                 accessToken: user?.access_token,
                 httpMethod: httpMethod,
-                keyPair: dpopKey,
+                keyPair: dpopState.keys,
+                nonce,
             });
         }
         return undefined;
     }
 
     async generateDPoPJkt(dpopSettings: DPoPSettings): Promise<string | undefined> {
-        let dpopKeys = await dpopSettings.store.get(this.settings.client_id);
-        if (!dpopKeys) {
-            dpopKeys = await CryptoUtils.generateDPoPKeys();
-            await dpopSettings.store.set(this.settings.client_id, dpopKeys);
+        let dpopState = await dpopSettings.store.get(this.settings.client_id);
+        if (!dpopState) {
+            const dpopKeys = await CryptoUtils.generateDPoPKeys();
+            dpopState = new DPoPState(dpopKeys);
+            await dpopSettings.store.set(this.settings.client_id, dpopState);
         }
-        return await CryptoUtils.generateDPoPJkt(dpopKeys);
+        return await CryptoUtils.generateDPoPJkt(dpopState.keys);
     }
 }
