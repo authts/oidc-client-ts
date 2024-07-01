@@ -63,6 +63,15 @@ export type CreateSignoutRequestArgs = Omit<SignoutRequestArgs, "url" | "state_d
     state?: unknown;
 };
 
+// @public (undocumented)
+export class DPoPState {
+    constructor(keys: CryptoKeyPair, nonce?: string | undefined);
+    // (undocumented)
+    readonly keys: CryptoKeyPair;
+    // (undocumented)
+    nonce?: string | undefined;
+}
+
 // @public
 export class ErrorResponse extends Error {
     constructor(args: {
@@ -157,8 +166,6 @@ export class IndexedDbDPoPStore implements DPoPStore {
     promisifyRequest<T = undefined>(request: IDBRequest<T> | IDBTransaction): Promise<T>;
     // (undocumented)
     remove(key: string): Promise<DPoPState>;
-    // Warning: (ae-forgotten-export) The symbol "DPoPState" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     set(key: string, value: DPoPState): Promise<void>;
     // (undocumented)
