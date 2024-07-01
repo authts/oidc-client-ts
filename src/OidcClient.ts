@@ -205,10 +205,16 @@ export class OidcClient {
 
         if (!(await dpopStore.getAllKeys()).includes(this.settings.client_id)) {
             keyPair = await CryptoUtils.generateDPoPKeys();
-            dpopState = new DPoPState(keyPair);
+            dpopState = new DPoPState(keyPair, nonce);
             await dpopStore.set(this.settings.client_id, dpopState);
         } else {
             dpopState = await dpopStore.get(this.settings.client_id);
+
+            // if the server supplied nonce has changed since the last request, update the nonce
+            if (dpopState.nonce !== nonce && nonce) {
+                dpopState.nonce = nonce;
+                await dpopStore.set(this.settings.client_id, dpopState);
+            }
         }
 
         return await CryptoUtils.generateDPoPProof({

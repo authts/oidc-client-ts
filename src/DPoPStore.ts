@@ -11,6 +11,6 @@ export interface DPoPStore {
 export class DPoPState {
     public constructor(
         public readonly keys: CryptoKeyPair,
-        public readonly nonce?: string,
+        public nonce?: string,
     ) { }
 }
