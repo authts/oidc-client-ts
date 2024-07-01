@@ -813,7 +813,7 @@ export class UserManager {
      * @param url - The URL to generate the DPoP proof for
      * @param user - The user to generate the DPoP proof for
      * @param httpMethod - Optional, defaults to "GET"
-     * @param nonce = Optional nonce provided by the resource server
+     * @param nonce - Optional nonce provided by the resource server
      *
      * @returns A promise containing the DPoP proof or undefined if DPoP is not enabled/no user is found.
      */

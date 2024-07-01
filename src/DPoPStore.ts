@@ -8,6 +8,9 @@ export interface DPoPStore {
     getAllKeys(): Promise<string[]>;
 }
 
+/**
+ * @public
+ */
 export class DPoPState {
     public constructor(
         public readonly keys: CryptoKeyPair,
