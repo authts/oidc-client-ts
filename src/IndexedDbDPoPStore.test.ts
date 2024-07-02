@@ -1,9 +1,10 @@
 import { IndexedDbDPoPStore } from "./IndexedDbDPoPStore";
+import { DPoPState } from "./DPoPStore";
 
 describe("DPoPStore", () => {
     const subject = new IndexedDbDPoPStore();
 
-    let data: CryptoKeyPair;
+    let data: DPoPState;
 
     const createCryptoKeyPair = async () => {
         return await window.crypto.subtle.generateKey(
@@ -17,7 +18,8 @@ describe("DPoPStore", () => {
     };
 
     beforeEach(async () => {
-        data = await createCryptoKeyPair();
+        const crytoKeys = await createCryptoKeyPair();
+        data = new DPoPState(crytoKeys);
     });
 
     describe("set", () => {
@@ -36,6 +38,16 @@ describe("DPoPStore", () => {
             const result = await subject.get("foo");
 
             expect(result).toEqual(data);
+        });
+
+        it("should store a nonce if provided in IndexedDB", async () => {
+            data = new DPoPState(data.keys, "some-nonce");
+            await subject.set("foo", data);
+
+            const result = await subject.get("foo");
+
+            expect(result).toEqual(data);
+            expect(result.nonce).toEqual("some-nonce");
         });
     });
 
@@ -82,7 +94,8 @@ describe("DPoPStore", () => {
 
         it("should get all keys in IndexedDB", async () => {
             await subject.set("foo", data);
-            const dataTwo = await createCryptoKeyPair();
+            const crytoKeys = await createCryptoKeyPair();
+            const dataTwo = new DPoPState(crytoKeys);
             await subject.set("boo", dataTwo);
 
             const result = await subject.getAllKeys();

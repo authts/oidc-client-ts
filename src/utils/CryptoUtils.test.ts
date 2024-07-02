@@ -109,5 +109,27 @@ describe("CryptoUtils", () => {
             exportKeyMock.mockRestore();
             generateSignedJwtMock.mockRestore();
         });
+
+        it("should generate a valid proof with a nonce", async () => {
+            // arrange
+            const url = "https://localhost:5005/identity";
+            const httpMethod = "GET";
+            const accessToken = "access_token";
+            const keyPair = await CryptoUtils.generateDPoPKeys();
+            const nonce = "some-nonce";
+
+            // act
+            const dpopProof = await CryptoUtils.generateDPoPProof({ url, accessToken, httpMethod, keyPair, nonce });
+            const protectedHeader = decodeProtectedHeader(dpopProof);
+            const publicKey = await importJWK(<JWK>protectedHeader.jwk);
+            const verifiedResult = await jwtVerify(dpopProof, publicKey);
+
+            // assert
+            expect(verifiedResult.payload).toHaveProperty("htu");
+            expect(verifiedResult.payload).toHaveProperty("htm");
+            expect(verifiedResult.payload).toHaveProperty("ath");
+            expect(verifiedResult.payload).toHaveProperty("nonce");
+            expect(verifiedResult.payload.nonce).toEqual(nonce);
+        });
     });
 });

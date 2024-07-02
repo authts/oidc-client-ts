@@ -1,4 +1,4 @@
-import type { DPoPStore } from "./DPoPStore";
+import { DPoPState, type DPoPStore } from "./DPoPStore";
 
 /**
  * Provides a default implementation of the DPoP store using IndexedDB.
@@ -9,7 +9,7 @@ export class IndexedDbDPoPStore implements DPoPStore {
     readonly _dbName: string = "oidc";
     readonly _storeName: string = "dpop";
 
-    public async set(key: string, value: CryptoKeyPair): Promise<void> {
+    public async set(key: string, value: DPoPState): Promise<void> {
         const store = await this.createStore(this._dbName, this._storeName);
         await store("readwrite", (str: IDBObjectStore) => {
             str.put(value, key);
@@ -17,14 +17,14 @@ export class IndexedDbDPoPStore implements DPoPStore {
         });
     }
 
-    public async get(key: string): Promise<CryptoKeyPair> {
+    public async get(key: string): Promise<DPoPState> {
         const store = await this.createStore(this._dbName, this._storeName);
         return await store("readonly", (str) => {
             return this.promisifyRequest(str.get(key));
-        }) as CryptoKeyPair;
+        }) as DPoPState;
     }
 
-    public async remove(key: string): Promise<CryptoKeyPair> {
+    public async remove(key: string): Promise<DPoPState> {
         const item = await this.get(key);
         const store = await this.createStore(this._dbName, this._storeName);
         await store("readwrite", (str) => {

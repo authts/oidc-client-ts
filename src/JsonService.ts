@@ -4,6 +4,7 @@
 import { ErrorResponse, ErrorTimeout } from "./errors";
 import type { ExtraHeader } from "./OidcClientSettings";
 import { Logger } from "./utils";
+import { ErrorDPoPNonce } from "./errors/ErrorDPoPNonce";
 
 /**
  * @internal
@@ -180,6 +181,10 @@ export class JsonService {
 
         if (!response.ok) {
             logger.error("Error from server:", json);
+            if (response.headers.has("dpop-nonce")) {
+                const nonce = response.headers.get("dpop-nonce") as string;
+                throw new ErrorDPoPNonce(nonce, `${JSON.stringify(json)}`);
+            }
             if (json.error) {
                 throw new ErrorResponse(json, body);
             }

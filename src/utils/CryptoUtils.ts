@@ -6,6 +6,7 @@ export interface GenerateDPoPProofOpts {
     accessToken?: string;
     httpMethod?: string;
     keyPair: CryptoKeyPair;
+    nonce?: string;
 }
 
 const UUID_V4_TEMPLATE = "10000000-1000-4000-8000-100000000000";
@@ -136,6 +137,7 @@ export class CryptoUtils {
         accessToken,
         httpMethod,
         keyPair,
+        nonce,
     }: GenerateDPoPProofOpts): Promise<string> {
         let hashedToken: Uint8Array;
         let encodedHash: string;
@@ -151,6 +153,10 @@ export class CryptoUtils {
             hashedToken = await CryptoUtils.hash("SHA-256", accessToken);
             encodedHash = CryptoUtils.encodeBase64Url(hashedToken);
             payload.ath = encodedHash;
+        }
+
+        if (nonce) {
+            payload.nonce = nonce;
         }
 
         try {
