@@ -221,7 +221,7 @@ export class OidcClient {
             url: await this.metadataService.getTokenEndpoint(false),
             httpMethod: "POST",
             keyPair: dpopState.keys,
-            nonce: nonce,
+            nonce: dpopState.nonce,
         });
     }
 
