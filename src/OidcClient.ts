@@ -183,12 +183,20 @@ export class OidcClient {
             extraHeaders = { ...extraHeaders, "DPoP": dpopProof };
         }
 
+        /**
+         * The DPoP spec describes a method for Authorization Servers to supply a nonce value
+         * in order to limit the lifetime of a given DPoP proof.
+         * See https://datatracker.ietf.org/doc/html/rfc9449#name-authorization-server-provid
+         * This involves the AS returning a 400 bad request with a DPoP-Nonce header containing
+         * the nonce value. The client must then retry the request with a recomputed DPoP proof
+         * containing the supplied nonce value.
+         */
         try {
             await this._validator.validateSigninResponse(response, state, extraHeaders);
         }
         catch (err) {
-            if (err instanceof ErrorDPoPNonce) {
-                const dpopProof = await this.getDpopProof(this.settings.dpop!.store, err.nonce);
+            if (err instanceof ErrorDPoPNonce && this.settings.dpop) {
+                const dpopProof = await this.getDpopProof(this.settings.dpop.store, err.nonce);
                 extraHeaders!["DPoP"] = dpopProof;
                 await this._validator.validateSigninResponse(response, state, extraHeaders);
             } else {
@@ -266,6 +274,14 @@ export class OidcClient {
             extraHeaders = { ...extraHeaders, "DPoP": dpopProof };
         }
 
+        /**
+         * The DPoP spec describes a method for Authorization Servers to supply a nonce value
+         * in order to limit the lifetime of a given DPoP proof.
+         * See https://datatracker.ietf.org/doc/html/rfc9449#name-authorization-server-provid
+         * This involves the AS returning a 400 bad request with a DPoP-Nonce header containing
+         * the nonce value. The client must then retry the request with a recomputed DPoP proof
+         * containing the supplied nonce value.
+         */
         let result;
         try {
             result = await this._tokenClient.exchangeRefreshToken({
@@ -279,8 +295,8 @@ export class OidcClient {
                 ...extraTokenParams,
             });
         } catch (err) {
-            if (err instanceof ErrorDPoPNonce) {
-                extraHeaders!["DPoP"] = await this.getDpopProof(this.settings.dpop!.store, err.nonce);
+            if (err instanceof ErrorDPoPNonce && this.settings.dpop) {
+                extraHeaders!["DPoP"] = await this.getDpopProof(this.settings.dpop.store, err.nonce);
                 result = await this._tokenClient.exchangeRefreshToken({
                     refresh_token: state.refresh_token,
                     // provide the (possible filtered) scope list
