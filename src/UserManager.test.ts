@@ -22,6 +22,7 @@ import type { State } from "./State";
 import { mocked } from "jest-mock";
 import { CryptoUtils } from "./utils";
 import { IndexedDbDPoPStore } from "./IndexedDbDPoPStore";
+import { DPoPState } from "./DPoPStore";
 
 describe("UserManager", () => {
     let userStoreMock: WebStorageStateStore;
@@ -361,7 +362,8 @@ describe("UserManager", () => {
             const generateDPoPJktSpy = jest.spyOn(subject, "generateDPoPJkt");
 
             const keyPair = await CryptoUtils.generateDPoPKeys();
-            await subject.settings.dpop?.store?.set("client", keyPair);
+
+            await subject.settings.dpop?.store?.set("client", new DPoPState(keyPair));
 
             // act
             await subject.signinRedirect();
@@ -516,7 +518,7 @@ describe("UserManager", () => {
             const generateDPoPJktSpy = jest.spyOn(subject, "generateDPoPJkt");
 
             const keyPair = await CryptoUtils.generateDPoPKeys();
-            await subject.settings.dpop?.store?.set("client", keyPair);
+            await subject.settings.dpop?.store?.set("client", new DPoPState(keyPair));
 
             const user = new User({
                 access_token: "access_token",
@@ -744,7 +746,7 @@ describe("UserManager", () => {
             });
 
             const keyPair = await CryptoUtils.generateDPoPKeys();
-            await subject.settings.dpop?.store?.set("client", keyPair);
+            await subject.settings.dpop?.store?.set("client", new DPoPState(keyPair));
 
             const user = new User({
                 access_token: "access_token",
@@ -1219,7 +1221,7 @@ describe("UserManager", () => {
             });
             await subject.storeUser(user);
             const dpopKeyPair = await CryptoUtils.generateDPoPKeys();
-            await subject.settings.dpop?.store.set("client", dpopKeyPair);
+            await subject.settings.dpop?.store.set("client", new DPoPState(dpopKeyPair));
 
             // act
             await subject.storeUser(null);
@@ -1255,7 +1257,7 @@ describe("UserManager", () => {
 
             const user = await subject.getUser() as User;
             const keyPair = await CryptoUtils.generateDPoPKeys();
-            const mockDpopStore = jest.spyOn(subject.settings.dpop!.store, "get").mockResolvedValue(keyPair);
+            const mockDpopStore = jest.spyOn(subject.settings.dpop!.store, "get").mockResolvedValue(new DPoPState(keyPair));
 
             // act
             const dpopProof = await subject.dpopProof("http://some.url", user, "POST");

@@ -15,7 +15,8 @@ import { SigninState } from "./SigninState";
 import { State } from "./State";
 import { TokenClient } from "./TokenClient";
 import { ClaimsService } from "./ClaimsService";
-import type { DPoPStore } from "./DPoPStore";
+import { DPoPState, type DPoPStore } from "./DPoPStore";
+import { ErrorDPoPNonce } from "./errors/ErrorDPoPNonce";
 
 /**
  * @public
@@ -182,24 +183,53 @@ export class OidcClient {
             extraHeaders = { ...extraHeaders, "DPoP": dpopProof };
         }
 
-        await this._validator.validateSigninResponse(response, state, extraHeaders);
+        /**
+         * The DPoP spec describes a method for Authorization Servers to supply a nonce value
+         * in order to limit the lifetime of a given DPoP proof.
+         * See https://datatracker.ietf.org/doc/html/rfc9449#name-authorization-server-provid
+         * This involves the AS returning a 400 bad request with a DPoP-Nonce header containing
+         * the nonce value. The client must then retry the request with a recomputed DPoP proof
+         * containing the supplied nonce value.
+         */
+        try {
+            await this._validator.validateSigninResponse(response, state, extraHeaders);
+        }
+        catch (err) {
+            if (err instanceof ErrorDPoPNonce && this.settings.dpop) {
+                const dpopProof = await this.getDpopProof(this.settings.dpop.store, err.nonce);
+                extraHeaders!["DPoP"] = dpopProof;
+                await this._validator.validateSigninResponse(response, state, extraHeaders);
+            } else {
+                throw err;
+            }
+        }
+
         return response;
     }
 
-    async getDpopProof(dpopStore: DPoPStore): Promise<string> {
+    async getDpopProof(dpopStore: DPoPStore, nonce?: string): Promise<string> {
         let keyPair: CryptoKeyPair;
+        let dpopState: DPoPState;
 
         if (!(await dpopStore.getAllKeys()).includes(this.settings.client_id)) {
             keyPair = await CryptoUtils.generateDPoPKeys();
-            await dpopStore.set(this.settings.client_id, keyPair);
+            dpopState = new DPoPState(keyPair, nonce);
+            await dpopStore.set(this.settings.client_id, dpopState);
         } else {
-            keyPair = await dpopStore.get(this.settings.client_id);
+            dpopState = await dpopStore.get(this.settings.client_id);
+
+            // if the server supplied nonce has changed since the last request, update the nonce
+            if (dpopState.nonce !== nonce && nonce) {
+                dpopState.nonce = nonce;
+                await dpopStore.set(this.settings.client_id, dpopState);
+            }
         }
 
         return await CryptoUtils.generateDPoPProof({
             url: await this.metadataService.getTokenEndpoint(false),
             httpMethod: "POST",
-            keyPair: keyPair,
+            keyPair: dpopState.keys,
+            nonce: dpopState.nonce,
         });
     }
 
@@ -244,16 +274,44 @@ export class OidcClient {
             extraHeaders = { ...extraHeaders, "DPoP": dpopProof };
         }
 
-        const result = await this._tokenClient.exchangeRefreshToken({
-            refresh_token: state.refresh_token,
-            // provide the (possible filtered) scope list
-            scope,
-            redirect_uri,
-            resource,
-            timeoutInSeconds,
-            extraHeaders,
-            ...extraTokenParams,
-        });
+        /**
+         * The DPoP spec describes a method for Authorization Servers to supply a nonce value
+         * in order to limit the lifetime of a given DPoP proof.
+         * See https://datatracker.ietf.org/doc/html/rfc9449#name-authorization-server-provid
+         * This involves the AS returning a 400 bad request with a DPoP-Nonce header containing
+         * the nonce value. The client must then retry the request with a recomputed DPoP proof
+         * containing the supplied nonce value.
+         */
+        let result;
+        try {
+            result = await this._tokenClient.exchangeRefreshToken({
+                refresh_token: state.refresh_token,
+                // provide the (possible filtered) scope list
+                scope,
+                redirect_uri,
+                resource,
+                timeoutInSeconds,
+                extraHeaders,
+                ...extraTokenParams,
+            });
+        } catch (err) {
+            if (err instanceof ErrorDPoPNonce && this.settings.dpop) {
+                extraHeaders!["DPoP"] = await this.getDpopProof(this.settings.dpop.store, err.nonce);
+                result = await this._tokenClient.exchangeRefreshToken({
+                    refresh_token: state.refresh_token,
+                    // provide the (possible filtered) scope list
+                    scope,
+                    redirect_uri,
+                    resource,
+                    timeoutInSeconds,
+                    extraHeaders,
+                    ...extraTokenParams,
+                });
+            } else {
+                throw err;
+            }
+        }
+
         const response = new SigninResponse(new URLSearchParams());
         Object.assign(response, result);
         logger.debug("validating response", response);
