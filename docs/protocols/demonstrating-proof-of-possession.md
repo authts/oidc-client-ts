@@ -43,3 +43,31 @@ IndexedDb is used as storage because it is the only storage mechanism that is av
 with non-extractable private keys securely. The object itself, when retrieved from storage, is still available to perform signing operations but the key material can
 never be extracted directly. Storing CryptoKeyPair objects as plain text in storage mechanisms such as `localStorage` or `sessionStorage`
 is not recommended as it exposes the private key material to potential attackers.
+
+## DPoP Proofs and Protected Resources
+
+Once an access token has been issued that is bound to a DPoP public key, [resource servers](https://datatracker.ietf.org/doc/html/rfc9449#name-protected-resource-access) that support DPoP
+require that an authenticated request include a DPoP Proof. Additionally, DPoP replaces the Bearer authentication [scheme](https://datatracker.ietf.org/doc/html/rfc9449#section-7.1):
+
+The `UserManager.dpopProof` method is provided which allows easily generating a DPoP proof for a given request. E.g.
+
+```typescript
+// settings include the DPoP configuration
+
+const mgr = new UserManager(settings);
+
+// sign the user in and receive an access token
+
+// generate a DPoP proof and make a request to a protected resource
+const DPoPProof = await mgr.dpopProof("https://localhost:5005/api", user);
+const token = user?.access_token;
+const response = await fetch("https://localhost:5005/api", {
+    credentials: "include",
+    mode: "cors",
+    method: "GET",
+    headers: {
+        Authorization: `DPoP ${token}`,
+        DPoP: DPoPProof,
+    },
+});
+```
