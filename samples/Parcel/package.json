@@ -9,10 +9,10 @@
   },
   "dependencies": {
     "express": "^4.19.2",
-    "jsrsasign": "^11.0.0"
+    "jsrsasign": "^11.1.0"
   },
   "devDependencies": {
     "concurrently": "^7.5.0",
-    "parcel": "^2.7.0"
+    "parcel": "^2.12.0"
   }
 }
