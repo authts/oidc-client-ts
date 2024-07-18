@@ -19,6 +19,7 @@ support</li>
 <li><a href="https://github.com/authts/oidc-client-ts/blob/main/docs/protocols/resource-owner-password-credentials-grant.md">Resource Owner Password Credentials (ROPC) Grant</a></li>
 <li><a href="https://github.com/authts/oidc-client-ts/blob/main/docs/protocols/refresh-token-grant.md">Refresh Token Grant</a></li>
 <li><a href="https://github.com/authts/oidc-client-ts/blob/main/docs/protocols/silent-refresh-token-in-iframe-flow.md">Silent Refresh Token in iframe Flow</a></li>
+<li><a href="https://github.com/authts/oidc-client-ts/blob/main/docs/protocols/demonstrating-proof-of-possession.md">Demonstrating Proof of Possession</a></li>
 </ul>
 <a id="md:usermanager" class="tsd-anchor"></a><h1 class="tsd-anchor-link">UserManager<a href="#md:usermanager" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1><a id="md:configuration" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Configuration<a href="#md:configuration" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The <a href="classes/UserManager.html">UserManager</a> constructor requires a settings
 object as a parameter:</p>
@@ -91,8 +92,8 @@ enable logging in the browser is to simply add this code:</p>
 </code><button type="button">Copy</button></pre>
 
 <p>The <code>url_state</code> will be appended to the opaque, unique value created by the library when sending the request. It should survive the round trip to your authentication server and will be part of the <a href="classes/User.html#url_state">User</a> object as <code>url_state</code>.</p>
-<a id="md:hash-mode-router-spa" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Hash-mode router (SPA)<a href="#md:hash-mode-router-spa" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1><p>If your app is using hash-based routing, be aware that many OIDC providers append the query string after the hash instead of inserting it before:<br>
-<strong>Correct:</strong> <code>https://your.org/?code=ab&amp;state=cd#/oidc-callback</code><br>
+<a id="md:hash-mode-router-spa" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Hash-mode router (SPA)<a href="#md:hash-mode-router-spa" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1><p>If your app is using hash-based routing, be aware that many OIDC providers append the query string after the hash instead of inserting it before:
+<strong>Correct:</strong> <code>https://your.org/?code=ab&amp;state=cd#/oidc-callback</code>
 <strong>Wrong:</strong> <code>https://your.org/#/oidc-callback?code=ab&amp;state=cd</code></p>
 <p>Check out <a href="%5Bhttps://github.com/authts/oidc-client-ts/issues/734#issuecomment-1298381823%5D(https://github.com/authts/oidc-client-ts/issues/734)">this issue</a> for details. (There are also workarounds, as long as your provider doesn't fix the issue)</p>
 <a id="md:projects-using-oidc-client-ts" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Projects using oidc-client-ts<a href="#md:projects-using-oidc-client-ts" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1><ul>
