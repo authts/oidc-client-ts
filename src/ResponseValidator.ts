@@ -21,14 +21,17 @@ import type { ClaimsService } from "./ClaimsService";
  */
 export class ResponseValidator {
     protected readonly _logger = new Logger("ResponseValidator");
-    protected readonly _userInfoService = new UserInfoService(this._settings, this._metadataService);
-    protected readonly _tokenClient = new TokenClient(this._settings, this._metadataService);
+    protected readonly _userInfoService: UserInfoService;
+    protected readonly _tokenClient: TokenClient;
 
     public constructor(
         protected readonly _settings: OidcClientSettingsStore,
         protected readonly _metadataService: MetadataService,
         protected readonly _claimsService: ClaimsService,
-    ) {}
+    ) {
+        this._userInfoService = new UserInfoService(this._settings, this._metadataService);
+        this._tokenClient = new TokenClient(this._settings, this._metadataService);
+    }
 
     public async validateSigninResponse(response: SigninResponse, state: SigninState, extraHeaders?: Record<string, ExtraHeader>): Promise<void> {
         const logger = this._logger.create("validateSigninResponse");
