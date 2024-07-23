@@ -61,7 +61,7 @@
     "lint-staged": "^15.2.7",
     "ts-jest": "^29.2.2",
     "typedoc": "^0.26.4",
-    "typescript": "~5.4.2",
+    "typescript": "~5.5.4",
     "yn": "^5.0.0"
   },
   "engines": {
