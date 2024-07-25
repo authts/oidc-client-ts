@@ -82,18 +82,19 @@ The [User](classes/User.html) type is returned from the [UserManager](classes/Us
 
 
 # Logging
-The oidc-client-ts library supports logging. You can set a logger by assigning `Oidc.Log.logger` to anything that supports a `info`, `warn`, and `error` methods that accept a params array. By default, no logger is configured.
+The oidc-client-ts library supports logging. You can set a logger to anything that supports a `info`, `warn`, and `error` methods that accept a params array by calling `Log.setLogger()`. By default, no logger is configured.
 
 The `console` object in the browser supports these, so a common way to easily
 enable logging in the browser is to simply add this code:
 
 ```javascript
-Oidc.Log.setLogger(console);
+import { Log } from 'oidc-client-ts';
+Log.setLogger(console);
 ```
 
 Also, logging has levels so you can control the verbosity by calling
-`Oidc.Log.setLevel()` with one of `Oidc.Log.NONE`, `Oidc.Log.ERROR`,
-`Oidc.Log.WARN`, or `Oidc.Log.INFO`. The default is `Oidc.Log.INFO`.
+`Log.setLevel()` with one of `Log.NONE`, `Log.ERROR`,
+`Log.WARN`, or `Log.INFO`. The default is `Log.INFO`.
 
 # Provider specific settings
 Additional provider specific settings may be needed for a flawless operation:
