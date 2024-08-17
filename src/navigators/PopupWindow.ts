@@ -38,7 +38,7 @@ export class PopupWindow extends AbstractChildWindow {
 
         if (popupSignal) {
             popupSignal.addEventListener("abort", () => {
-                void this._abort.raise(new Error("Popup aborted"));
+                void this._abort.raise(new Error(popupSignal.reason ?? "Popup aborted"));
             });
         }
 
