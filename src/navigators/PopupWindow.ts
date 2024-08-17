@@ -37,9 +37,9 @@ export class PopupWindow extends AbstractChildWindow {
         this._window = window.open(undefined, popupWindowTarget, PopupUtils.serialize(centeredPopup));
 
         if (popupSignal) {
-            popupSignal.addEventListener('abort', () => {
+            popupSignal.addEventListener("abort", () => {
                 void this._abort.raise(new Error("Popup aborted"));
-            })
+            });
         }
 
         if (popupWindowFeatures.closePopupWindowAfterInSeconds && popupWindowFeatures.closePopupWindowAfterInSeconds > 0) {
