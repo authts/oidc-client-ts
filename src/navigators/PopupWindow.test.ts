@@ -141,6 +141,18 @@ describe("PopupWindow", () => {
         jest.runAllTimers();
     });
 
+    it("should reject when the window is aborted by signal", async () => {
+        const customReason = "Custom reason";
+        const controller = new AbortController();
+        const popupWindow = new PopupWindow({ popupSignal: controller.signal });
+
+        const promise = popupWindow.navigate({ url: "http://sts/authorize?x=y", state: "someid" });
+        controller.abort(customReason);
+
+        await expect(promise).rejects.toThrow(customReason);
+        jest.runAllTimers();
+    });
+
     it("should notify the parent window", async () => {
         PopupWindow.notifyOpener("http://sts/authorize?x=y", false);
         expect((window.opener as WindowProxy).postMessage).toHaveBeenCalledWith({

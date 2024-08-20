@@ -15,6 +15,8 @@ const second = 1000;
 export interface PopupWindowParams {
     popupWindowFeatures?: PopupWindowFeatures;
     popupWindowTarget?: string;
+    /** An AbortSignal to set request's signal. */
+    popupSignal?: AbortSignal | null;
 }
 
 /**
@@ -28,10 +30,18 @@ export class PopupWindow extends AbstractChildWindow {
     public constructor({
         popupWindowTarget = DefaultPopupTarget,
         popupWindowFeatures = {},
+        popupSignal,
     }: PopupWindowParams) {
         super();
         const centeredPopup = PopupUtils.center({ ...DefaultPopupWindowFeatures, ...popupWindowFeatures });
         this._window = window.open(undefined, popupWindowTarget, PopupUtils.serialize(centeredPopup));
+
+        if (popupSignal) {
+            popupSignal.addEventListener("abort", () => {
+                void this._abort.raise(new Error(popupSignal.reason ?? "Popup aborted"));
+            });
+        }
+
         if (popupWindowFeatures.closePopupWindowAfterInSeconds && popupWindowFeatures.closePopupWindowAfterInSeconds > 0) {
             setTimeout(() => {
                 if (!this._window || typeof this._window.closed !== "boolean" || this._window.closed) {
