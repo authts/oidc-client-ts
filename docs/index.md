@@ -140,7 +140,7 @@ If your app is using hash-based routing, be aware that many OIDC providers appen
 **Correct:** `https://your.org/?code=ab&state=cd#/oidc-callback`
 **Wrong:** `https://your.org/#/oidc-callback?code=ab&state=cd`
 
-Check out [this issue]([https://github.com/authts/oidc-client-ts/issues/734#issuecomment-1298381823](https://github.com/authts/oidc-client-ts/issues/734)) for details. (There are also workarounds, as long as your provider doesn't fix the issue)
+Check out [this issue](https://github.com/authts/oidc-client-ts/issues/734#issuecomment-1298381823) for details. (There are also workarounds, as long as your provider doesn't fix the issue)
 
 # Projects using oidc-client-ts
 
