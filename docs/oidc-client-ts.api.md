@@ -1042,7 +1042,7 @@ export class UserManager {
     protected _signinStart(args: CreateSigninRequestArgs, handle: IWindow): Promise<NavigateResponse>;
     // (undocumented)
     protected _signout(args: CreateSignoutRequestArgs, handle: IWindow): Promise<SignoutResponse>;
-    signoutCallback(url?: string, keepOpen?: boolean): Promise<void>;
+    signoutCallback(url?: string, keepOpen?: boolean): Promise<SignoutResponse | undefined>;
     // (undocumented)
     protected _signoutEnd(url: string): Promise<SignoutResponse>;
     signoutPopup(args?: SignoutPopupArgs): Promise<void>;
