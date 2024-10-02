@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [release/v2]
   pull_request:
 
 jobs:
@@ -25,7 +25,7 @@ jobs:
           key: build-${{ github.head_ref }}-${{ github.sha }}
           restore-keys: |
             build-${{ github.head_ref }}-
-            build-refs/heads/main-
+            build-refs/heads/release/v2-
 
       - run: npm ci
       - run: npm pack --dry-run
@@ -56,7 +56,7 @@ jobs:
           key: test-${{ github.head_ref }}-${{ github.sha }}
           restore-keys: |
             test-${{ github.head_ref }}-
-            test-refs/heads/main-
+            test-refs/heads/release/v2-
 
       - run: npm ci
       - run: npm run lint
