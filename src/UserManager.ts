@@ -332,16 +332,15 @@ export class UserManager {
         }
     }
 
-    public async signoutCallback(url = window.location.href, keepOpen = false): Promise<void> {
+    public async signoutCallback(url = window.location.href, keepOpen = false): Promise<SignoutResponse | void> {
         const { state } = await this._client.readSignoutResponseState(url);
         if (!state) {
-            return;
+            return undefined;
         }
 
         switch (state.request_type) {
             case "so:r":
-                await this.signoutRedirectCallback(url);
-                break;
+                return await this.signoutRedirectCallback(url);
             case "so:p":
                 await this.signoutPopupCallback(url, keepOpen);
                 break;
@@ -351,6 +350,7 @@ export class UserManager {
             default:
                 throw new Error("invalid response_type in state");
         }
+        return undefined;
     }
 
     /**

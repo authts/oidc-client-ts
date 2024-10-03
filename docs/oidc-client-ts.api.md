@@ -967,7 +967,7 @@ export class UserManager {
     // (undocumented)
     protected _signout(args: CreateSignoutRequestArgs, handle: IWindow): Promise<SignoutResponse>;
     // (undocumented)
-    signoutCallback(url?: string, keepOpen?: boolean): Promise<void>;
+    signoutCallback(url?: string, keepOpen?: boolean): Promise<SignoutResponse | void>;
     // (undocumented)
     protected _signoutEnd(url: string): Promise<SignoutResponse>;
     signoutPopup(args?: SignoutPopupArgs): Promise<void>;
