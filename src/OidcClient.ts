@@ -172,10 +172,10 @@ export class OidcClient {
         return { state, response };
     }
 
-    public async processSigninResponse(url: string, extraHeaders?: Record<string, ExtraHeader>): Promise<SigninResponse> {
+    public async processSigninResponse(url: string, extraHeaders?: Record<string, ExtraHeader>, removeState = true): Promise<SigninResponse> {
         const logger = this._logger.create("processSigninResponse");
 
-        const { state, response } = await this.readSigninResponseState(url, true);
+        const { state, response } = await this.readSigninResponseState(url, removeState);
         logger.debug("received state from storage; validating response");
 
         if (this.settings.dpop && this.settings.dpop.store) {
