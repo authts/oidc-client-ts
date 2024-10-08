@@ -478,7 +478,8 @@ describe("OidcClient", () => {
             });
             const getStateMock = jest.spyOn(subject.settings.stateStore, "get")
                 .mockImplementation(async () => item.toStorageString());
-            const removeStateMock = jest.spyOn(subject.settings.stateStore, "remove").mockImplementation(async () => item.toStorageString());
+            const removeStateMock = jest.spyOn(subject.settings.stateStore, "remove")
+                .mockImplementation(async () => item.toStorageString());
             jest.spyOn(subject["_validator"], "validateSigninResponse").mockResolvedValue();
 
             // act
