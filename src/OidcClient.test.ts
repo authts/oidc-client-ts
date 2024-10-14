@@ -465,6 +465,30 @@ describe("OidcClient", () => {
             expect(getDpopProofMock).toHaveBeenCalledTimes(2);
             expect(getDpopProofMock).toHaveBeenNthCalledWith(2, { "_dbName": "oidc", "_storeName": "dpop" }, "some-nonce");
         });
+
+        it("should not delete state when removeState = false", async () => {
+            // arrange
+            const item = await SigninState.create({
+                id: "1",
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                scope: "scope",
+                request_type: "type",
+            });
+            const getStateMock = jest.spyOn(subject.settings.stateStore, "get")
+                .mockImplementation(async () => item.toStorageString());
+            const removeStateMock = jest.spyOn(subject.settings.stateStore, "remove")
+                .mockImplementation(async () => item.toStorageString());
+            jest.spyOn(subject["_validator"], "validateSigninResponse").mockResolvedValue();
+
+            // act
+            await subject.processSigninResponse("http://app/cb?state=1", undefined, false);
+
+            // assert
+            expect(getStateMock).toHaveBeenCalled();
+            expect(removeStateMock).not.toHaveBeenCalled();
+        });
     });
 
     describe("processResourceOwnerPasswordCredentials", () => {
