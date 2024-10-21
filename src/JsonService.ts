@@ -91,7 +91,7 @@ export class JsonService {
             headers["Authorization"] = "Bearer " + token;
         }
 
-        this.appendExtraHeaders(headers);
+        this._appendExtraHeaders(headers);
 
         let response: Response;
         try {
@@ -147,7 +147,7 @@ export class JsonService {
             headers["Authorization"] = "Basic " + basicAuth;
         }
 
-        this.appendExtraHeaders(headers);
+        this._appendExtraHeaders(headers);
 
         let response: Response;
         try {
@@ -194,22 +194,29 @@ export class JsonService {
         return json;
     }
 
-    private appendExtraHeaders(
+    private _appendExtraHeaders(
         headers: Record<string, string>,
     ): void {
         const logger = this._logger.create("appendExtraHeaders");
         const customKeys = Object.keys(this._extraHeaders);
         const protectedHeaders = [
-            "authorization",
             "accept",
             "content-type",
+        ];
+        const preventOverride = [
+            "authorization",
         ];
         if (customKeys.length === 0) {
             return;
         }
         customKeys.forEach((headerName) => {
             if (protectedHeaders.includes(headerName.toLocaleLowerCase())) {
-                logger.warn("Protected header could not be overridden", headerName, protectedHeaders);
+                logger.warn("Protected header could not be set", headerName, protectedHeaders);
+                return;
+            }
+            if (preventOverride.includes(headerName.toLocaleLowerCase()) &&
+                Object.keys(headers).includes(headerName)) {
+                logger.warn("Header could not be overridden", headerName, preventOverride);
                 return;
             }
             const content = (typeof this._extraHeaders[headerName] === "function") ?

@@ -17,7 +17,6 @@ describe("JsonService", () => {
         "Custom-Header-1": "this-is-header-1",
         "Custom-Header-2": "this-is-header-2",
         "acCept" : "application/fake",
-        "AuthoriZation" : "not good",
         "Content-Type": "application/fail",
     };
     const dynamicExtraHeaders = {
@@ -26,7 +25,6 @@ describe("JsonService", () => {
             return "my-name-is-header-2";
         },
         "acCept" : () => "nothing",
-        "AuthoriZation" : () => "not good",
         "Content-Type": "application/fail",
     };
 
@@ -585,6 +583,88 @@ describe("JsonService", () => {
 
             // assert
             expect(result).toEqual(json);
+        });
+    });
+
+    describe("_appendExtraHeaders", () => {
+        it("should add extra static headers", () => {
+            // arrange
+            const headers = {
+                "Accept": "application/json",
+            };
+            subject["_extraHeaders"] = {
+                "foo": "bar",
+            };
+
+            // act
+            subject["_appendExtraHeaders"](headers);
+
+            // assert
+            expect(headers).toMatchObject({
+                "Accept": "application/json",
+                "foo": "bar",
+            });
+        });
+
+        it("should add extra dynamic headers", () => {
+            // arrange
+            const headers = {
+                "Accept": "application/json",
+            };
+            subject["_extraHeaders"] = {
+                "foo": () => {
+                    return "bar";
+                },
+            };
+
+            // act
+            subject["_appendExtraHeaders"](headers);
+
+            // assert
+            expect(headers).toMatchObject({
+                "Accept": "application/json",
+                "foo": "bar",
+            });
+        });
+
+        it("should skip protected special headers", () => {
+            // arrange
+            const headers = {
+                "Accept": "application/json",
+            };
+            subject["_extraHeaders"] = {
+                "foo": "bar",
+                "accept": "application/xml",
+            };
+
+            // act
+            subject["_appendExtraHeaders"](headers);
+
+            // assert
+            expect(headers).toMatchObject({
+                "Accept": "application/json",
+                "foo": "bar",
+            });
+        });
+
+        it("should skip override special headers", () => {
+            // arrange
+            const headers = {
+                "Authorization": "Bearer 1",
+            };
+            subject["_extraHeaders"] = {
+                "foo": "bar",
+                "Authorization": "Bearer 2",
+            };
+
+            // act
+            subject["_appendExtraHeaders"](headers);
+
+            // assert
+            expect(headers).toMatchObject({
+                "Authorization": "Bearer 1",
+                "foo": "bar",
+            });
         });
     });
 });
