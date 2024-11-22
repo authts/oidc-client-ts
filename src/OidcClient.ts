@@ -152,7 +152,7 @@ export class OidcClient {
         return signinRequest;
     }
 
-    public async readSigninResponseState(url: string, removeState = false): Promise<{ state: SigninState; response: SigninResponse }> {
+    public async readSigninResponseState(url: string, removeState = false): Promise<{ state: SigninState|undefined; response: SigninResponse }> {
         const logger = this._logger.create("readSigninResponseState");
 
         const response = new SigninResponse(UrlUtils.readParams(url, this.settings.response_mode));
@@ -163,12 +163,8 @@ export class OidcClient {
         }
 
         const storedStateString = await this.settings.stateStore[removeState ? "remove" : "get"](response.state);
-        if (!storedStateString) {
-            logger.throw(new Error("No matching state found in storage"));
-            throw null; // https://github.com/microsoft/TypeScript/issues/46972
-        }
 
-        const state = await SigninState.fromStorageString(storedStateString);
+        const state = storedStateString ? await SigninState.fromStorageString(storedStateString) : undefined;
         return { state, response };
     }
 
@@ -181,6 +177,11 @@ export class OidcClient {
         if (this.settings.dpop && this.settings.dpop.store) {
             const dpopProof = await this.getDpopProof(this.settings.dpop.store);
             extraHeaders = { ...extraHeaders, "DPoP": dpopProof };
+        }
+
+        if (!state) {
+            logger.throw(new Error("No state was found in storage or response"));
+            throw null; //
         }
 
         /**
