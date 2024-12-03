@@ -112,7 +112,7 @@ export class TokenClient {
         let basicAuth: string | undefined;
         switch (this._settings.client_authentication) {
             case "client_secret_basic":
-                if (!client_secret) {
+                if (client_secret === undefined || client_secret === null) {
                     logger.throw(new Error("A client_secret is required"));
                     throw null; // https://github.com/microsoft/TypeScript/issues/46972
                 }
@@ -173,7 +173,7 @@ export class TokenClient {
         let basicAuth: string | undefined;
         switch (this._settings.client_authentication) {
             case "client_secret_basic":
-                if (!client_secret) {
+                if (client_secret === undefined || client_secret === null) {
                     logger.throw(new Error("A client_secret is required"));
                     throw null; // https://github.com/microsoft/TypeScript/issues/46972
                 }
@@ -229,7 +229,7 @@ export class TokenClient {
         let basicAuth: string | undefined;
         switch (this._settings.client_authentication) {
             case "client_secret_basic":
-                if (!client_secret) {
+                if (client_secret === undefined || client_secret === null) {
                     logger.throw(new Error("A client_secret is required"));
                     throw null; // https://github.com/microsoft/TypeScript/issues/46972
                 }
