@@ -13,6 +13,6 @@
   },
   "devDependencies": {
     "concurrently": "^7.5.0",
-    "parcel": "^2.12.0"
+    "parcel": "^2.13.2"
   }
 }
