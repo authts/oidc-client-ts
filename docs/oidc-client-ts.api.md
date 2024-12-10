@@ -351,7 +351,7 @@ export class OidcClient {
     processSignoutResponse(url: string): Promise<SignoutResponse>;
     // (undocumented)
     readSigninResponseState(url: string, removeState?: boolean): Promise<{
-        state: SigninState;
+        state: SigninState | undefined;
         response: SigninResponse;
     }>;
     // (undocumented)
