@@ -394,6 +394,13 @@ export class UserManager {
      */
     public async signinCallback(url = window.location.href): Promise<User | undefined> {
         const { state } = await this._client.readSigninResponseState(url);
+
+        // if no state from storage, assume signin popup
+        if (state === undefined) {
+            await this.signinPopupCallback(url);
+            return undefined;
+        }
+
         switch (state.request_type) {
             case "si:r":
                 return await this.signinRedirectCallback(url);
