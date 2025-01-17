@@ -223,7 +223,7 @@ export class JsonService {
                 (this._extraHeaders[headerName] as ()=>string)() :
                 this._extraHeaders[headerName];
             if (content && content !== "") {
-                headers[headerName] = content as string;
+                headers[headerName] = content;
             }
         });
     }
