@@ -44,7 +44,7 @@ export class IndexedDbDPoPStore implements DPoPStore {
         request: IDBRequest<T> | IDBTransaction): Promise<T> {
         return new Promise<T>((resolve, reject) => {
             (request as IDBTransaction).oncomplete = (request as IDBRequest<T>).onsuccess = () => resolve((request as IDBRequest<T>).result);
-            (request as IDBTransaction).onabort = (request as IDBRequest<T>).onerror = () => reject((request as IDBRequest<T>).error);
+            (request as IDBTransaction).onabort = (request as IDBRequest<T>).onerror = () => reject((request as IDBRequest<T>).error as Error);
         });
     }
 

@@ -159,12 +159,14 @@ export class OidcClient {
         if (!response.state) {
             logger.throw(new Error("No state in response"));
             // need to throw within this function's body for type narrowing to work
+            // eslint-disable-next-line @typescript-eslint/only-throw-error
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
         const storedStateString = await this.settings.stateStore[removeState ? "remove" : "get"](response.state);
         if (!storedStateString) {
             logger.throw(new Error("No matching state found in storage"));
+            // eslint-disable-next-line @typescript-eslint/only-throw-error
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
@@ -337,6 +339,7 @@ export class OidcClient {
         const url = await this.metadataService.getEndSessionEndpoint();
         if (!url) {
             logger.throw(new Error("No end session endpoint"));
+            // eslint-disable-next-line @typescript-eslint/only-throw-error
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
@@ -387,6 +390,7 @@ export class OidcClient {
         const storedStateString = await this.settings.stateStore[removeState ? "remove" : "get"](response.state);
         if (!storedStateString) {
             logger.throw(new Error("No matching state found in storage"));
+            // eslint-disable-next-line @typescript-eslint/only-throw-error
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 

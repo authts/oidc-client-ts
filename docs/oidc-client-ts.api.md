@@ -15,13 +15,13 @@ export class AccessTokenEvents {
     addAccessTokenExpired(cb: AccessTokenCallback): () => void;
     addAccessTokenExpiring(cb: AccessTokenCallback): () => void;
     // (undocumented)
-    load(container: User): Promise<void>;
+    load(container: User): void;
     // (undocumented)
     protected readonly _logger: Logger;
     removeAccessTokenExpired(cb: AccessTokenCallback): void;
     removeAccessTokenExpiring(cb: AccessTokenCallback): void;
     // (undocumented)
-    unload(): Promise<void>;
+    unload(): void;
 }
 
 // @public (undocumented)

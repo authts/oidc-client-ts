@@ -491,7 +491,6 @@ export class UserManager {
                     case "account_selection_required":
                         logger.info("success for anonymous user");
                         return {
-                            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                             session_state: err.session_state!,
                         };
                 }
@@ -741,7 +740,7 @@ export class UserManager {
         // don't Promise.all, order matters
         for (const type of typesPresent) {
             await this._client.revokeToken(
-                user[type]!, // eslint-disable-line @typescript-eslint/no-non-null-assertion
+                user[type]!,  
                 type,
             );
             logger.info(`${type} revoked successfully`);
