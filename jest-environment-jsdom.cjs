@@ -1,11 +1,11 @@
-'use strict';
+"use strict";
 
-const { TextEncoder, TextDecoder } = require('util');
-const { default: $JSDOMEnvironment, TestEnvironment } = require('jest-environment-jsdom');
+const { TextEncoder, TextDecoder } = require("util");
+const { default: $JSDOMEnvironment, TestEnvironment } = require("jest-environment-jsdom");
 const crypto = require("crypto");
 
-Object.defineProperty(exports, '__esModule', {
-    value: true
+Object.defineProperty(exports, "__esModule", {
+    value: true,
 });
 
 class JSDOMEnvironment extends $JSDOMEnvironment {

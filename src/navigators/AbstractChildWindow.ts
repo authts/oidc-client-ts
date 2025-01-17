@@ -53,7 +53,7 @@ export abstract class AbstractChildWindow implements IWindow {
                         return;
                     }
                 }
-                catch (err) {
+                catch {
                     this._dispose();
                     reject(new Error("Invalid response from window"));
                 }

@@ -11,7 +11,7 @@ export default {
     collectCoverage,
     coverageReporters: collectCoverage ? ["lcov"] : ["lcov", "text"],
     moduleNameMapper: {
-        "^jose": "jose",  // map to jose cjs module otherwise jest breaks
+        "^jose": "jose", // map to jose cjs module otherwise jest breaks
     },
     transform: {
         "^.+\\.tsx?$": [

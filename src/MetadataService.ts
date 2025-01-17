@@ -56,7 +56,8 @@ export class MetadataService {
 
         if (!this._metadataUrl) {
             logger.throw(new Error("No authority or metadataUrl configured on settings"));
-            throw null;
+            // eslint-disable-next-line @typescript-eslint/only-throw-error
+            throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
         logger.debug("getting metadata from", this._metadataUrl);
@@ -138,6 +139,7 @@ export class MetadataService {
 
         if (!Array.isArray(keySet.keys)) {
             logger.throw(new Error("Missing keys on keyset"));
+            // eslint-disable-next-line @typescript-eslint/only-throw-error
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 

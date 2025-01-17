@@ -114,6 +114,7 @@ export class TokenClient {
             case "client_secret_basic":
                 if (client_secret === undefined || client_secret === null) {
                     logger.throw(new Error("A client_secret is required"));
+                    // eslint-disable-next-line @typescript-eslint/only-throw-error
                     throw null; // https://github.com/microsoft/TypeScript/issues/46972
                 }
                 basicAuth = CryptoUtils.generateBasicAuth(client_id, client_secret);
@@ -175,6 +176,7 @@ export class TokenClient {
             case "client_secret_basic":
                 if (client_secret === undefined || client_secret === null) {
                     logger.throw(new Error("A client_secret is required"));
+                    // eslint-disable-next-line @typescript-eslint/only-throw-error
                     throw null; // https://github.com/microsoft/TypeScript/issues/46972
                 }
                 basicAuth = CryptoUtils.generateBasicAuth(client_id, client_secret);
@@ -231,6 +233,7 @@ export class TokenClient {
             case "client_secret_basic":
                 if (client_secret === undefined || client_secret === null) {
                     logger.throw(new Error("A client_secret is required"));
+                    // eslint-disable-next-line @typescript-eslint/only-throw-error
                     throw null; // https://github.com/microsoft/TypeScript/issues/46972
                 }
                 basicAuth = CryptoUtils.generateBasicAuth(client_id, client_secret);
