@@ -108,7 +108,7 @@ export type ExtraHeader = string | (() => string);
 export type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "nonce" | "extraQueryParams" | "extraTokenParams" | "state" | "redirect_uri" | "prompt" | "acr_values" | "login_hint" | "scope" | "max_age" | "ui_locales" | "resource" | "url_state">;
 
 // @public (undocumented)
-export type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQueryParams" | "state" | "id_token_hint" | "post_logout_redirect_uri">;
+export type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQueryParams" | "state" | "id_token_hint" | "post_logout_redirect_uri" | "url_state">;
 
 // Warning: (ae-forgotten-export) The symbol "Mandatory" needs to be exported by the entry point index.d.ts
 //
@@ -336,7 +336,7 @@ export class OidcClient {
     // (undocumented)
     createSigninRequest({ state, request, request_uri, request_type, id_token_hint, login_hint, skipUserInfo, nonce, url_state, response_type, scope, redirect_uri, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, extraQueryParams, extraTokenParams, dpopJkt, omitScopeWhenRequesting, }: CreateSigninRequestArgs): Promise<SigninRequest>;
     // (undocumented)
-    createSignoutRequest({ state, id_token_hint, client_id, request_type, post_logout_redirect_uri, extraQueryParams, }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
+    createSignoutRequest({ state, id_token_hint, client_id, request_type, url_state, post_logout_redirect_uri, extraQueryParams, }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
     // (undocumented)
     getDpopProof(dpopStore: DPoPStore, nonce?: string): Promise<string>;
     // (undocumented)
