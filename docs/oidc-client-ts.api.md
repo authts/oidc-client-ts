@@ -855,7 +855,7 @@ export type SignoutRedirectArgs = RedirectParams & ExtraSignoutRequestArgs;
 
 // @public (undocumented)
 export class SignoutRequest {
-    constructor({ url, state_data, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type, client_id, }: SignoutRequestArgs);
+    constructor({ url, state_data, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type, client_id, url_state, }: SignoutRequestArgs);
     // (undocumented)
     readonly state?: State;
     // (undocumented)
@@ -877,6 +877,8 @@ export interface SignoutRequestArgs {
     state_data?: unknown;
     // (undocumented)
     url: string;
+    // (undocumented)
+    url_state?: string;
 }
 
 // @public (undocumented)
@@ -890,6 +892,8 @@ export class SignoutResponse {
     error_uri: string | null;
     // (undocumented)
     readonly state: string | null;
+    // (undocumented)
+    url_state?: string;
     userState: unknown;
 }
 
