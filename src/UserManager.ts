@@ -131,7 +131,7 @@ export class UserManager {
     /**
      * Load the `User` object for the currently authenticated user.
      *
-     * @param raiseEvent If `true`, the `UserLoaded` event will be raised. Defaults to false.
+     * @param raiseEvent - If `true`, the `UserLoaded` event will be raised. Defaults to false.
      * @returns A promise
      */
     public async getUser(raiseEvent = false): Promise<User | null> {
@@ -741,7 +741,7 @@ export class UserManager {
         // don't Promise.all, order matters
         for (const type of typesPresent) {
             await this._client.revokeToken(
-                user[type]!,  
+                user[type]!,
                 type,
             );
             logger.info(`${type} revoked successfully`);
