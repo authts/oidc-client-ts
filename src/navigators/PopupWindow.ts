@@ -59,7 +59,7 @@ export class PopupWindow extends AbstractChildWindow {
 
         const popupClosedInterval = setInterval(() => {
             if (!this._window || this._window.closed) {
-                void this._abort.raise(new Error("Popup closed by user"));
+                this._logger.debug("Popup closed by user or isolated by redirect");
             }
         }, checkForPopupClosedInterval);
         this._disposeHandlers.add(() => clearInterval(popupClosedInterval));
@@ -79,8 +79,18 @@ export class PopupWindow extends AbstractChildWindow {
 
     public static notifyOpener(url: string, keepOpen: boolean): void {
         if (!window.opener) {
-            throw new Error("No window.opener. Can't complete notification.");
+            const logger = new Logger("PopupWindow");
+            logger.debug("No window.opener. Using BroadcastChannel.");
+            const state = new URL(url).searchParams.get("state");
+            if (!state) {
+                throw new Error("No window.opener and no state in URL. Can't complete notification.");
+            }
+            const channel = new BroadcastChannel(`oidc-client-popup-${state}`);
+            super._notifyParent(channel, url, keepOpen);
+            channel.close();
+            window.close();
+            return;
         }
-        return super._notifyParent(window.opener, url, keepOpen);
+        super._notifyParent(window.opener, url, keepOpen);
     }
 }

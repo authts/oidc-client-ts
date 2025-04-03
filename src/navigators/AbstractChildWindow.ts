@@ -61,6 +61,9 @@ export abstract class AbstractChildWindow implements IWindow {
             };
             window.addEventListener("message", listener, false);
             this._disposeHandlers.add(() => window.removeEventListener("message", listener, false));
+            const channel = new BroadcastChannel(`oidc-client-popup-${params.state}`);
+            channel.addEventListener("message", listener, false);
+            this._disposeHandlers.add(() => channel.close());
             this._disposeHandlers.add(this._abort.addHandler((reason) => {
                 this._dispose();
                 reject(reason);
@@ -87,7 +90,7 @@ export abstract class AbstractChildWindow implements IWindow {
         this._disposeHandlers.clear();
     }
 
-    protected static _notifyParent(parent: Window, url: string, keepOpen = false, targetOrigin = window.location.origin): void {
+    protected static _notifyParent(parent: Window | BroadcastChannel, url: string, keepOpen = false, targetOrigin = window.location.origin): void {
         parent.postMessage({
             source: messageSource,
             url,
