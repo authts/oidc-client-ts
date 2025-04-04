@@ -53,13 +53,14 @@ export class ResponseValidator {
 
     public async validateCredentialsResponse(response: SigninResponse, skipUserInfo: boolean): Promise<void> {
         const logger = this._logger.create("validateCredentialsResponse");
+        const shouldValidateSubClaim = response.isOpenId && !!response.id_token;
 
-        if (response.isOpenId && !!response.id_token) {
+        if (shouldValidateSubClaim) {
             this._validateIdTokenAttributes(response);
         }
         logger.debug("tokens validated");
 
-        await this._processClaims(response, skipUserInfo, response.isOpenId);
+        await this._processClaims(response, skipUserInfo, shouldValidateSubClaim);
         logger.debug("claims processed");
     }
 
