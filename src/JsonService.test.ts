@@ -5,12 +5,33 @@ import { ErrorResponse } from "./errors";
 import { JsonService } from "./JsonService";
 
 import { mocked } from "jest-mock";
+import type { ExtraHeader } from "./OidcClientSettings";
+import { ErrorDPoPNonce } from "./errors/ErrorDPoPNonce";
 
 describe("JsonService", () => {
     let subject: JsonService;
+    let customStaticHeaderSubject: JsonService;
+    let customDynamicHeaderSubject: JsonService;
+
+    const staticExtraHeaders = {
+        "Custom-Header-1": "this-is-header-1",
+        "Custom-Header-2": "this-is-header-2",
+        "acCept" : "application/fake",
+        "Content-Type": "application/fail",
+    };
+    const dynamicExtraHeaders = {
+        "Custom-Header-1": () => "my-name-is-header-1",
+        "Custom-Header-2": () => {
+            return "my-name-is-header-2";
+        },
+        "acCept" : () => "nothing",
+        "Content-Type": "application/fail",
+    };
 
     beforeEach(() =>{
         subject = new JsonService();
+        customStaticHeaderSubject = new JsonService(undefined, null, staticExtraHeaders);
+        customDynamicHeaderSubject = new JsonService(undefined, null, dynamicExtraHeaders);
     });
 
     describe("getJson", () => {
@@ -19,10 +40,46 @@ describe("JsonService", () => {
             await expect(subject.getJson("http://test")).rejects.toThrow();
 
             // assert
-            expect(fetch).toBeCalledWith(
+            expect(fetch).toHaveBeenCalledWith(
                 "http://test",
                 expect.objectContaining({
                     headers: { Accept: "application/json" },
+                    method: "GET",
+                }),
+            );
+        });
+
+        it("should make GET request to url with static custom headers", async () => {
+            // act
+            await expect(customStaticHeaderSubject.getJson("http://test")).rejects.toThrow();
+
+            // assert
+            expect(fetch).toHaveBeenCalledWith(
+                "http://test",
+                expect.objectContaining({
+                    headers: {
+                        Accept: "application/json",
+                        "Custom-Header-1": "this-is-header-1",
+                        "Custom-Header-2": "this-is-header-2",
+                    },
+                    method: "GET",
+                }),
+            );
+        });
+
+        it("should make GET request to url with dynamic custom headers", async () => {
+            // act
+            await expect(customDynamicHeaderSubject.getJson("http://test")).rejects.toThrow();
+
+            // assert
+            expect(fetch).toHaveBeenCalledWith(
+                "http://test",
+                expect.objectContaining({
+                    headers: {
+                        Accept: "application/json",
+                        "Custom-Header-1": "my-name-is-header-1",
+                        "Custom-Header-2": "my-name-is-header-2",
+                    },
                     method: "GET",
                 }),
             );
@@ -33,10 +90,48 @@ describe("JsonService", () => {
             await expect(subject.getJson("http://test", { token: "token" })).rejects.toThrow();
 
             // assert
-            expect(fetch).toBeCalledWith(
+            expect(fetch).toHaveBeenCalledWith(
                 "http://test",
                 expect.objectContaining({
                     headers: { Accept: "application/json", Authorization: "Bearer token" },
+                    method: "GET",
+                }),
+            );
+        });
+
+        it("should set token as authorization header with static custom headers", async () => {
+            // act
+            await expect(customStaticHeaderSubject.getJson("http://test", { token: "token" })).rejects.toThrow();
+
+            // assert
+            expect(fetch).toHaveBeenCalledWith(
+                "http://test",
+                expect.objectContaining({
+                    headers: {
+                        Accept: "application/json",
+                        Authorization: "Bearer token",
+                        "Custom-Header-1": "this-is-header-1",
+                        "Custom-Header-2": "this-is-header-2",
+                    },
+                    method: "GET",
+                }),
+            );
+        });
+
+        it("should set token as authorization header with dynamic custom headers", async () => {
+            // act
+            await expect(customDynamicHeaderSubject.getJson("http://test", { token: "token" })).rejects.toThrow();
+
+            // assert
+            expect(fetch).toHaveBeenCalledWith(
+                "http://test",
+                expect.objectContaining({
+                    headers: {
+                        Accept: "application/json",
+                        Authorization: "Bearer token",
+                        "Custom-Header-1": "my-name-is-header-1",
+                        "Custom-Header-2": "my-name-is-header-2",
+                    },
                     method: "GET",
                 }),
             );
@@ -162,7 +257,7 @@ describe("JsonService", () => {
             await subject.getJson("http://test");
 
             // assert
-            expect(jwtHandler).toBeCalledWith(text);
+            expect(jwtHandler).toHaveBeenCalledWith(text);
         });
     });
 
@@ -172,7 +267,7 @@ describe("JsonService", () => {
             await expect(subject.postForm("http://test", { body: new URLSearchParams("a=b") })).rejects.toThrow();
 
             // assert
-            expect(fetch).toBeCalledWith(
+            expect(fetch).toHaveBeenCalledWith(
                 "http://test",
                 expect.objectContaining({
                     headers: {
@@ -185,18 +280,83 @@ describe("JsonService", () => {
             );
         });
 
+        it("should make POST request to url with custom static headers", async () => {
+            // act
+            await expect(customStaticHeaderSubject.postForm("http://test", { body: new URLSearchParams("a=b") })).rejects.toThrow();
+
+            // assert
+            expect(fetch).toHaveBeenCalledWith(
+                "http://test",
+                expect.objectContaining({
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "Custom-Header-1": "this-is-header-1",
+                        "Custom-Header-2": "this-is-header-2",
+                    },
+                    method: "POST",
+                    body: new URLSearchParams(),
+                }),
+            );
+        });
+
+        it("should make POST request to url with custom dynamic headers", async () => {
+            // act
+            await expect(customDynamicHeaderSubject.postForm("http://test", { body: new URLSearchParams("a=b") })).rejects.toThrow();
+
+            // assert
+            expect(fetch).toHaveBeenCalledWith(
+                "http://test",
+                expect.objectContaining({
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "Custom-Header-1": "my-name-is-header-1",
+                        "Custom-Header-2": "my-name-is-header-2",
+                    },
+                    method: "POST",
+                    body: new URLSearchParams(),
+                }),
+            );
+        });
+
         it("should set basicAuth as authorization header", async () => {
             // act
             await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), basicAuth: "basicAuth" })).rejects.toThrow();
 
             // assert
-            expect(fetch).toBeCalledWith(
+            expect(fetch).toHaveBeenCalledWith(
                 "http://test",
                 expect.objectContaining({
                     headers: {
                         Accept: "application/json",
                         Authorization: "Basic basicAuth",
                         "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    method: "POST",
+                    body: new URLSearchParams(),
+                }),
+            );
+        });
+
+        it("should fetch with extraHeaders if supplied", async () => {
+            // act
+            const extraHeaders: Record<string, ExtraHeader> = {
+                "extraHeader": "some random header value",
+            };
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), extraHeaders })).rejects.toThrow();
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), basicAuth: "basicAuth", extraHeaders })).rejects.toThrow();
+
+            // assert
+            expect(fetch).toBeCalledTimes(2);
+            expect(fetch).toHaveBeenLastCalledWith(
+                "http://test",
+                expect.objectContaining({
+                    headers: {
+                        Accept: "application/json",
+                        Authorization: "Basic basicAuth",
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        extraHeader: expect.any(String),
                     },
                     method: "POST",
                     body: new URLSearchParams(),
@@ -212,7 +372,7 @@ describe("JsonService", () => {
             const body = new URLSearchParams();
             body.set("payload", "dummy");
 
-            expect(fetch).toBeCalledWith(
+            expect(fetch).toHaveBeenCalledWith(
                 "http://test",
                 expect.objectContaining({
                     headers: {
@@ -369,6 +529,24 @@ describe("JsonService", () => {
                 .rejects.toThrow("Invalid response Content-Type: text/html");
         });
 
+        it("should reject promise and throw ErrorDPoPNonce error when http response is 400 and response headers include dpop-nonce", async () => {
+            // arrange
+            const json = { foo: 1, bar: "test" };
+            mocked(fetch).mockResolvedValue({
+                status: 400,
+                ok: false,
+                headers: new Headers({
+                    "dpop-nonce": "some-nonce",
+                }),
+                text: () => Promise.resolve(JSON.stringify(json)),
+            } as Response);
+
+            // act
+            await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy") }))
+                // assert
+                .rejects.toThrow(ErrorDPoPNonce);
+        });
+
         it("should reject promise when http response is not 200", async () => {
             // arrange
             const json = {};
@@ -405,6 +583,88 @@ describe("JsonService", () => {
 
             // assert
             expect(result).toEqual(json);
+        });
+    });
+
+    describe("_appendExtraHeaders", () => {
+        it("should add extra static headers", () => {
+            // arrange
+            const headers = {
+                "Accept": "application/json",
+            };
+            subject["_extraHeaders"] = {
+                "foo": "bar",
+            };
+
+            // act
+            subject["_appendExtraHeaders"](headers);
+
+            // assert
+            expect(headers).toMatchObject({
+                "Accept": "application/json",
+                "foo": "bar",
+            });
+        });
+
+        it("should add extra dynamic headers", () => {
+            // arrange
+            const headers = {
+                "Accept": "application/json",
+            };
+            subject["_extraHeaders"] = {
+                "foo": () => {
+                    return "bar";
+                },
+            };
+
+            // act
+            subject["_appendExtraHeaders"](headers);
+
+            // assert
+            expect(headers).toMatchObject({
+                "Accept": "application/json",
+                "foo": "bar",
+            });
+        });
+
+        it("should skip protected special headers", () => {
+            // arrange
+            const headers = {
+                "Accept": "application/json",
+            };
+            subject["_extraHeaders"] = {
+                "foo": "bar",
+                "accept": "application/xml",
+            };
+
+            // act
+            subject["_appendExtraHeaders"](headers);
+
+            // assert
+            expect(headers).toMatchObject({
+                "Accept": "application/json",
+                "foo": "bar",
+            });
+        });
+
+        it("should skip override special headers", () => {
+            // arrange
+            const headers = {
+                "Authorization": "Bearer 1",
+            };
+            subject["_extraHeaders"] = {
+                "foo": "bar",
+                "Authorization": "Bearer 2",
+            };
+
+            // act
+            subject["_appendExtraHeaders"](headers);
+
+            // assert
+            expect(headers).toMatchObject({
+                "Authorization": "Bearer 1",
+                "foo": "bar",
+            });
         });
     });
 });

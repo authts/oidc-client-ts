@@ -5,6 +5,7 @@ import { Logger, JwtUtils } from "./utils";
 import { JsonService } from "./JsonService";
 import type { MetadataService } from "./MetadataService";
 import type { JwtClaims } from "./Claims";
+import type { OidcClientSettingsStore } from "./OidcClientSettings";
 
 /**
  * @internal
@@ -13,8 +14,14 @@ export class UserInfoService {
     protected readonly _logger = new Logger("UserInfoService");
     private readonly _jsonService: JsonService;
 
-    public constructor(private readonly _metadataService: MetadataService) {
-        this._jsonService = new JsonService(undefined, this._getClaimsFromJwt);
+    public constructor(private readonly _settings: OidcClientSettingsStore,
+        private readonly _metadataService: MetadataService,
+    ) {
+        this._jsonService = new JsonService(
+            undefined,
+            this._getClaimsFromJwt,
+            this._settings.extraHeaders,
+        );
     }
 
     public async getClaims(token: string): Promise<JwtClaims> {
@@ -26,7 +33,11 @@ export class UserInfoService {
         const url = await this._metadataService.getUserInfoEndpoint();
         logger.debug("got userinfo url", url);
 
-        const claims = await this._jsonService.getJson(url, { token });
+        const claims = await this._jsonService.getJson(url, {
+            token,
+            credentials: this._settings.fetchRequestCredentials,
+            timeoutInSeconds: this._settings.requestTimeoutInSeconds,
+        });
         logger.debug("got claims", claims);
 
         return claims;
@@ -39,8 +50,7 @@ export class UserInfoService {
             logger.debug("JWT decoding successful");
 
             return payload;
-        }
-        catch (err) {
+        } catch (err) {
             logger.error("Error parsing JWT response");
             throw err;
         }

@@ -1,9 +1,18 @@
 import { mocked } from "jest-mock";
 import { PopupWindow } from "./PopupWindow";
+import { Log } from "../utils";
 
 function firstSuccessfulResult<T>(fn: () => T): T {
     expect(fn).toHaveReturned();
     return mocked(fn).mock.results[0].value as T;
+}
+
+function definePopupWindowClosedProperty(closed: boolean) {
+    const popupFromWindowOpen = firstSuccessfulResult(window.open);
+    Object.defineProperty(popupFromWindowOpen, "closed", {
+        enumerable: true,
+        value: closed,
+    });
 }
 
 describe("PopupWindow", () => {
@@ -115,11 +124,7 @@ describe("PopupWindow", () => {
         const popupWindow = new PopupWindow({});
 
         const promise = popupWindow.navigate({ url: "http://sts/authorize?x=y", state: "someid" });
-        const popupFromWindowOpen = firstSuccessfulResult(window.open);
-        Object.defineProperty(popupFromWindowOpen, "closed", {
-            enumerable: true,
-            value: true,
-        });
+        definePopupWindowClosedProperty(true);
 
         jest.runOnlyPendingTimers();
         await expect(promise).rejects.toThrow("Popup closed by user");
@@ -136,6 +141,18 @@ describe("PopupWindow", () => {
         jest.runAllTimers();
     });
 
+    it("should reject when the window is aborted by signal", async () => {
+        const customReason = "Custom reason";
+        const controller = new AbortController();
+        const popupWindow = new PopupWindow({ popupSignal: controller.signal });
+
+        const promise = popupWindow.navigate({ url: "http://sts/authorize?x=y", state: "someid" });
+        controller.abort(customReason);
+
+        await expect(promise).rejects.toThrow(customReason);
+        jest.runAllTimers();
+    });
+
     it("should notify the parent window", async () => {
         PopupWindow.notifyOpener("http://sts/authorize?x=y", false);
         expect((window.opener as WindowProxy).postMessage).toHaveBeenCalledWith({
@@ -143,5 +160,70 @@ describe("PopupWindow", () => {
             url: "http://sts/authorize?x=y",
             keepOpen: false,
         }, window.location.origin);
+    });
+
+    it("should run setTimeout when closePopupWindowAfterInSeconds is greater than 0", async () => {
+        jest.spyOn(global, "setTimeout");
+
+        new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: 1 } });
+
+        jest.runOnlyPendingTimers();
+        expect(setTimeout).toHaveBeenCalledTimes(1);
+        jest.runAllTimers();
+    });
+
+    it("shouldn't run setTimeout when closePopupWindowAfterInSeconds is equal to 0", async () => {
+        jest.spyOn(global, "setTimeout");
+
+        new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: 0 } });
+
+        jest.runOnlyPendingTimers();
+        expect(setTimeout).toHaveBeenCalledTimes(0);
+        jest.runAllTimers();
+    });
+
+    it("shouldn't run setTimeout when closePopupWindowAfterInSeconds is less than 0", async () => {
+        jest.spyOn(global, "setTimeout");
+
+        new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: -120 } });
+
+        jest.runOnlyPendingTimers();
+        expect(setTimeout).toHaveBeenCalledTimes(0);
+        jest.runAllTimers();
+    });
+
+    it("should invoke close popup window when closePopupWindowAfterInSeconds is greater than 0 and window is open", async () => {
+        const popupWindow = new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: 1 } });
+        definePopupWindowClosedProperty(false);
+        const closeWindowSpy = jest.spyOn(popupWindow, "close");
+
+        jest.runOnlyPendingTimers();
+
+        expect(closeWindowSpy).toHaveBeenCalledTimes(1);
+        jest.runAllTimers();
+    });
+
+    it("shouldn't invoke close popup window when closePopupWindowAfterInSeconds is greater than 0 and window is not open", async () => {
+        const popupWindow = new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: 1 } });
+        definePopupWindowClosedProperty(true);
+        const closeWindowSpy = jest.spyOn(popupWindow, "close");
+
+        jest.runOnlyPendingTimers();
+
+        expect(closeWindowSpy).not.toHaveBeenCalled();
+        jest.runAllTimers();
+    });
+
+    it("should show error when closePopupWindowAfterInSeconds is greater than 0 and window is not open", async () => {
+        Log.setLevel(Log.DEBUG);
+        const popupWindow = new PopupWindow({ popupWindowFeatures: { closePopupWindowAfterInSeconds: 1 } });
+        const consoleDebugSpy = jest.spyOn(console, "debug");
+        const promise = popupWindow.navigate({ url: "http://sts/authorize?x=y", state: "someid" });
+
+        jest.runOnlyPendingTimers();
+
+        await expect(promise).rejects.toThrow("Popup blocked by user");
+        expect(consoleDebugSpy).toHaveBeenCalled();
+        jest.runAllTimers();
     });
 });

@@ -4,6 +4,31 @@
 import { Logger, CryptoUtils } from "./utils";
 import { State } from "./State";
 
+/** @public */
+export interface SigninStateArgs {
+    id?: string;
+    data?: unknown;
+    created?: number;
+    request_type?: string;
+
+    code_verifier?: string;
+    code_challenge?: string;
+    authority: string;
+    client_id: string;
+    redirect_uri: string;
+    scope: string;
+    client_secret?: string;
+    extraTokenParams?: Record<string, unknown>;
+    response_mode?: "query" | "fragment";
+    skipUserInfo?: boolean;
+    url_state?: string;
+}
+
+/** @public */
+export type SigninStateCreateArgs = Omit<SigninStateArgs, "code_verifier"> & {
+    code_verifier?: string | boolean;
+};
+
 /**
  * @public
  */
@@ -32,35 +57,11 @@ export class SigninState extends State {
 
     public readonly skipUserInfo: boolean | undefined;
 
-    public constructor(args: {
-        id?: string;
-        data?: unknown;
-        created?: number;
-        request_type?: string;
-
-        code_verifier?: string | boolean;
-        authority: string;
-        client_id: string;
-        redirect_uri: string;
-        scope: string;
-        client_secret?: string;
-        extraTokenParams?: Record<string, unknown>;
-        response_mode?: "query" | "fragment";
-        skipUserInfo?: boolean;
-    }) {
+    private constructor(args: SigninStateArgs) {
         super(args);
 
-        if (args.code_verifier === true) {
-            this.code_verifier = CryptoUtils.generateCodeVerifier();
-        }
-        else if (args.code_verifier) {
-            this.code_verifier = args.code_verifier;
-        }
-
-        if (this.code_verifier) {
-            this.code_challenge = CryptoUtils.generateCodeChallenge(this.code_verifier);
-        }
-
+        this.code_verifier = args.code_verifier;
+        this.code_challenge = args.code_challenge;
         this.authority = args.authority;
         this.client_id = args.client_id;
         this.redirect_uri = args.redirect_uri;
@@ -72,6 +73,17 @@ export class SigninState extends State {
         this.skipUserInfo = args.skipUserInfo;
     }
 
+    public static async create(args: SigninStateCreateArgs): Promise<SigninState> {
+        const code_verifier = args.code_verifier === true ? CryptoUtils.generateCodeVerifier() : (args.code_verifier || undefined);
+        const code_challenge = code_verifier ? (await CryptoUtils.generateCodeChallenge(code_verifier)) : undefined;
+
+        return new SigninState({
+            ...args,
+            code_verifier,
+            code_challenge,
+        });
+    }
+
     public toStorageString(): string {
         new Logger("SigninState").create("toStorageString");
         return JSON.stringify({
@@ -79,6 +91,7 @@ export class SigninState extends State {
             data: this.data,
             created: this.created,
             request_type: this.request_type,
+            url_state: this.url_state,
 
             code_verifier: this.code_verifier,
             authority: this.authority,
@@ -92,9 +105,9 @@ export class SigninState extends State {
         });
     }
 
-    public static fromStorageString(storageString: string): SigninState {
+    public static fromStorageString(storageString: string): Promise<SigninState> {
         Logger.createStatic("SigninState", "fromStorageString");
         const data = JSON.parse(storageString);
-        return new SigninState(data);
+        return SigninState.create(data);
     }
 }

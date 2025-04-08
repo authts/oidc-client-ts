@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
+import { type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 import type { PopupWindowFeatures } from "./utils/PopupUtils";
 import { WebStorageStateStore } from "./WebStorageStateStore";
 import { InMemoryWebStorage } from "./InMemoryWebStorage";
@@ -10,6 +10,7 @@ export const DefaultPopupWindowFeatures: PopupWindowFeatures = {
     location: false,
     toolbar: false,
     height: 640,
+    closePopupWindowAfterInSeconds: -1,
 };
 export const DefaultPopupTarget = "_blank";
 const DefaultAccessTokenExpiringNotificationTimeInSeconds = 60;
@@ -28,19 +29,27 @@ export interface UserManagerSettings extends OidcClientSettings {
     /**
      * The features parameter to window.open for the popup signin window. By default, the popup is
      * placed centered in front of the window opener.
-     * (default: \{ location: false, menubar: false, height: 640 \})
+     * (default: \{ location: false, menubar: false, height: 640, closePopupWindowAfterInSeconds: -1 \})
      */
     popupWindowFeatures?: PopupWindowFeatures;
     /** The target parameter to window.open for the popup signin window (default: "_blank") */
     popupWindowTarget?: string;
     /** The methods window.location method used to redirect (default: "assign") */
     redirectMethod?: "replace" | "assign";
+    /** The methods target window being redirected (default: "self") */
+    redirectTarget?: "top" | "self";
+
+    /** The target to pass while calling postMessage inside iframe for callback (default: window.location.origin) */
+    iframeNotifyParentOrigin?: string;
+
+    /** The script origin to check during 'message' callback execution while performing silent auth via iframe (default: window.location.origin) */
+    iframeScriptOrigin?: string;
 
     /** The URL for the page containing the code handling the silent renew */
     silent_redirect_uri?: string;
     /** Number of seconds to wait for the silent renew to return before assuming it has failed or timed out (default: 10) */
     silentRequestTimeoutInSeconds?: number;
-    /** Flag to indicate if there should be an automatic attempt to renew the access token prior to its expiration (default: true) */
+    /** Flag to indicate if there should be an automatic attempt to renew the access token prior to its expiration. The automatic renew attempt starts 1 minute before the access token expires (default: true) */
     automaticSilentRenew?: boolean;
     /** Flag to validate user.profile.sub in silent renew calls (default: true) */
     validateSubOnSilentRenew?: boolean;
@@ -63,6 +72,9 @@ export interface UserManagerSettings extends OidcClientSettings {
     revokeTokenTypes?: ("access_token" | "refresh_token")[];
     /** Will invoke the revocation endpoint on signout if there is an access token for the user (default: false) */
     revokeTokensOnSignout?: boolean;
+    /** Flag to control if id_token is included as id_token_hint in silent signout calls (default: false) */
+    includeIdTokenInSilentSignout?: boolean;
+
     /** The number of seconds before an access token is to expire to raise the accessTokenExpiring event (default: 60) */
     accessTokenExpiringNotificationTimeInSeconds?: number;
 
@@ -85,6 +97,10 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly popupWindowFeatures: PopupWindowFeatures;
     public readonly popupWindowTarget: string;
     public readonly redirectMethod: "replace" | "assign";
+    public readonly redirectTarget: "top" | "self";
+
+    public readonly iframeNotifyParentOrigin: string | undefined;
+    public readonly iframeScriptOrigin: string | undefined;
 
     public readonly silent_redirect_uri: string;
     public readonly silentRequestTimeoutInSeconds: number;
@@ -100,6 +116,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
     public readonly revokeTokenTypes: ("access_token" | "refresh_token")[];
     public readonly revokeTokensOnSignout: boolean;
+    public readonly includeIdTokenInSilentSignout: boolean;
+
     public readonly accessTokenExpiringNotificationTimeInSeconds: number;
 
     public readonly userStore: WebStorageStateStore;
@@ -111,9 +129,14 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             popupWindowFeatures = DefaultPopupWindowFeatures,
             popupWindowTarget = DefaultPopupTarget,
             redirectMethod = "assign",
+            redirectTarget = "self",
 
+            iframeNotifyParentOrigin = args.iframeNotifyParentOrigin,
+            iframeScriptOrigin = args.iframeScriptOrigin,
+
+            requestTimeoutInSeconds,
             silent_redirect_uri = args.redirect_uri,
-            silentRequestTimeoutInSeconds = DefaultSilentRequestTimeoutInSeconds,
+            silentRequestTimeoutInSeconds,
             automaticSilentRenew = true,
             validateSubOnSilentRenew = true,
             includeIdTokenInSilentRenew = false,
@@ -126,6 +149,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
             revokeTokenTypes = ["access_token", "refresh_token"],
             revokeTokensOnSignout = false,
+            includeIdTokenInSilentSignout = false,
+
             accessTokenExpiringNotificationTimeInSeconds = DefaultAccessTokenExpiringNotificationTimeInSeconds,
 
             userStore,
@@ -138,9 +163,13 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         this.popupWindowFeatures = popupWindowFeatures;
         this.popupWindowTarget = popupWindowTarget;
         this.redirectMethod = redirectMethod;
+        this.redirectTarget = redirectTarget;
+
+        this.iframeNotifyParentOrigin = iframeNotifyParentOrigin;
+        this.iframeScriptOrigin = iframeScriptOrigin;
 
         this.silent_redirect_uri = silent_redirect_uri;
-        this.silentRequestTimeoutInSeconds = silentRequestTimeoutInSeconds;
+        this.silentRequestTimeoutInSeconds = silentRequestTimeoutInSeconds || requestTimeoutInSeconds || DefaultSilentRequestTimeoutInSeconds;
         this.automaticSilentRenew = automaticSilentRenew;
         this.validateSubOnSilentRenew = validateSubOnSilentRenew;
         this.includeIdTokenInSilentRenew = includeIdTokenInSilentRenew;
@@ -153,6 +182,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
         this.revokeTokenTypes = revokeTokenTypes;
         this.revokeTokensOnSignout = revokeTokensOnSignout;
+        this.includeIdTokenInSilentSignout = includeIdTokenInSilentSignout;
+
         this.accessTokenExpiringNotificationTimeInSeconds = accessTokenExpiringNotificationTimeInSeconds;
 
         if (userStore) {

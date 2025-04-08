@@ -42,7 +42,6 @@ export class IFrameWindow extends AbstractChildWindow {
         iframe.style.top = "0";
         iframe.width = "0";
         iframe.height = "0";
-        iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms");
 
         window.document.body.appendChild(iframe);
         return iframe;
@@ -50,7 +49,7 @@ export class IFrameWindow extends AbstractChildWindow {
 
     public async navigate(params: NavigateParams): Promise<NavigateResponse> {
         this._logger.debug("navigate: Using timeout of:", this._timeoutInSeconds);
-        const timer = setTimeout(() => this._abort.raise(new ErrorTimeout("IFrame timed out without a response")), this._timeoutInSeconds * 1000);
+        const timer = setTimeout(() => void this._abort.raise(new ErrorTimeout("IFrame timed out without a response")), this._timeoutInSeconds * 1000);
         this._disposeHandlers.add(() => clearTimeout(timer));
 
         return await super.navigate(params);
@@ -62,7 +61,7 @@ export class IFrameWindow extends AbstractChildWindow {
                 this._frame.addEventListener("load", (ev) => {
                     const frame = ev.target as HTMLIFrameElement;
                     frame.parentNode?.removeChild(frame);
-                    this._abort.raise(new Error("IFrame removed from DOM"));
+                    void this._abort.raise(new Error("IFrame removed from DOM"));
                 }, true);
                 this._frame.contentWindow?.location.replace("about:blank");
             }
@@ -71,7 +70,7 @@ export class IFrameWindow extends AbstractChildWindow {
         this._window = null;
     }
 
-    public static notifyParent(url: string): void {
-        return super._notifyParent(window.parent, url);
+    public static notifyParent(url: string, targetOrigin?: string): void {
+        return super._notifyParent(window.parent, url, false, targetOrigin);
     }
 }

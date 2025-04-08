@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { MetadataService } from "./MetadataService";
-import { OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
+import { type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 
 describe("MetadataService", () => {
     let settings: OidcClientSettings;
@@ -58,7 +58,7 @@ describe("MetadataService", () => {
             await subject.getMetadata();
 
             // assert
-            expect(getJsonMock).toBeCalledWith("authority/.well-known/openid-configuration");
+            expect(getJsonMock).toHaveBeenCalledWith("authority/.well-known/openid-configuration", { credentials: "same-origin", timeoutInSeconds: undefined } );
         });
 
         it("should fail when no authority or metadataUrl configured", async () => {
@@ -93,7 +93,7 @@ describe("MetadataService", () => {
             await subject.getMetadata();
 
             // assert
-            expect(getJsonMock).toBeCalledWith("http://sts/metadata");
+            expect(getJsonMock).toHaveBeenCalledWith("http://sts/metadata", { credentials: "same-origin", timeoutInSeconds: undefined });
         });
 
         it("should return metadata from json call", async () => {
@@ -148,7 +148,7 @@ describe("MetadataService", () => {
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
-            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({ jwks_uri: "two" }));
+            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({ issuer: "two", jwks_uri: "two" }));
 
             // act
             const result = await subject.getMetadata();
@@ -176,6 +176,27 @@ describe("MetadataService", () => {
             await expect(subject.getMetadata())
                 // assert
                 .rejects.toThrow(error);
+        });
+
+        it("should use getRequestCredentials to make json call when set", async () => {
+            // arrange
+            settings = {
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                metadataUrl: "http://sts/metadata",
+                fetchRequestCredentials: "include",
+            };
+            subject = new MetadataService(new OidcClientSettingsStore(settings));
+            const jsonService = subject["_jsonService"]; // access private member
+            const getJsonMock = jest.spyOn(jsonService, "getJson")
+                .mockResolvedValue({ foo: "bar" });
+
+            // act
+            await subject.getMetadata();
+
+            // assert
+            expect(getJsonMock).toHaveBeenCalledWith("http://sts/metadata", { credentials: "include", timeoutInSeconds: undefined });
         });
     });
 
@@ -514,7 +535,7 @@ describe("MetadataService", () => {
             await subject.getSigningKeys();
 
             // assert
-            expect(getJsonMock).toBeCalledWith("http://sts/metadata/keys");
+            expect(getJsonMock).toHaveBeenCalledWith("http://sts/metadata/keys", { "timeoutInSeconds": undefined });
         });
 
         it("should return keys from jwks_uri", async () => {

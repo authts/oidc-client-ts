@@ -1,7 +1,7 @@
 {
   "name": "@carbonext/oidc-client-ts",
-  "version": "1.0.2",
-  "description": "OpenID Connect (OIDC) & OAuth2 client library",
+  "version": "2.0.0",
+  "description": "OpenID Connect (OIDC) & OAuth2 client library | Carbonext",
   "repository": {
     "type": "git",
     "url": "git+https://github.com:carbonext-tech/oidc-client-ts.git"
@@ -12,15 +12,12 @@
   "types": "dist/types/oidc-client-ts.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/types/oidc-client-ts.d.ts",
       "import": "./dist/esm/oidc-client-ts.js",
       "require": "./dist/umd/oidc-client-ts.js"
     },
     "./package.json": "./package.json"
   },
-  "workspaces": [
-    "samples/*",
-    "website"
-  ],
   "files": [
     "dist"
   ],
@@ -39,34 +36,40 @@
     "test": "tsc && jest",
     "typedoc": "typedoc",
     "lint": "eslint --max-warnings=0 --cache .",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "dependencies": {
-    "crypto-js": "^4.1.1",
-    "jwt-decode": "^3.1.2"
+    "jwt-decode": "^4.0.0"
   },
   "devDependencies": {
-    "@microsoft/api-extractor": "^7.18.10",
-    "@testing-library/jest-dom": "^5.5.0",
-    "@types/crypto-js": "^4.0.2",
-    "@types/jest": "^27.0.2",
-    "@typescript-eslint/eslint-plugin": "^5.8.0",
-    "@typescript-eslint/parser": "^5.8.0",
-    "esbuild": "^0.14.0",
-    "eslint": "^8.5.0",
-    "eslint-plugin-testing-library": "^5.0.1",
-    "http-proxy-middleware": "^2.0.1",
-    "husky": "^7.0.2",
-    "jest": "^27.2.0",
-    "jest-mock": "^27.4.2",
-    "lint-staged": "^12.0.2",
-    "ts-jest": "^27.0.5",
-    "typedoc": "^0.22.7",
-    "typescript": "~4.5.4",
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.18.0",
+    "@microsoft/api-extractor": "^7.49.1",
+    "@stylistic/eslint-plugin": "^2.13.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.20.0",
+    "@typescript-eslint/parser": "^8.20.0",
+    "esbuild": "^0.25.0",
+    "eslint": "^9.18.0",
+    "eslint-plugin-testing-library": "^7.1.1",
+    "fake-indexeddb": "^6.0.0",
+    "globals": "^16.0.0",
+    "http-proxy-middleware": "^3.0.3",
+    "husky": "^9.1.7",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jest-mock": "^29.7.0",
+    "jose": "^5.9.6",
+    "lint-staged": "^15.2.10",
+    "ts-jest": "^29.2.5",
+    "typedoc": "^0.28.0",
+    "typescript": "~5.8.2",
     "yn": "^5.0.0"
   },
   "engines": {
-    "node": ">=12.13.0"
+    "node": ">=18"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint --cache --fix"

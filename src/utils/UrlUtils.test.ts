@@ -24,5 +24,32 @@ describe("UrlUtils", () => {
             // assert
             expect(resultObj).toHaveProperty("bar", "test_fragment");
         });
+
+        it("should return query params when path is relative", () => {
+            // act
+            const result = UrlUtils.readParams("/app/?foo=test");
+            const resultObj = Object.fromEntries(result);
+
+            // assert
+            expect(resultObj).toHaveProperty("foo", "test");
+        });
+
+        it("should return fragment params for response_mode=fragment when path is relative", () => {
+            // act
+            const result = UrlUtils.readParams("/app/?foo=test#bar=test_fragment", "fragment");
+            const resultObj = Object.fromEntries(result);
+
+            // assert
+            expect(resultObj).toHaveProperty("bar", "test_fragment");
+        });
+
+        it("should throw an error when url is undefined", () => {
+            // act
+            const call = () => UrlUtils.readParams("");
+
+            // assert
+            expect(call).toThrow(new TypeError("Invalid URL"));
+        });
+
     });
 });

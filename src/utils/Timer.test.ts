@@ -105,14 +105,14 @@ describe("Timer", () => {
             jest.runOnlyPendingTimers();
 
             // assert
-            expect(cb).toBeCalledTimes(0);
+            expect(cb).toHaveBeenCalledTimes(0);
 
             // act
             now += 1;
             jest.runOnlyPendingTimers();
 
             // assert
-            expect(cb).toBeCalledTimes(1);
+            expect(cb).toHaveBeenCalledTimes(1);
         });
 
         it("should fire if timer late", () => {
@@ -129,13 +129,13 @@ describe("Timer", () => {
             jest.runOnlyPendingTimers();
 
             // assert
-            expect(cb).toBeCalledTimes(0);
+            expect(cb).toHaveBeenCalledTimes(0);
 
             now += 2;
             jest.runOnlyPendingTimers();
 
             // assert
-            expect(cb).toBeCalledTimes(1);
+            expect(cb).toHaveBeenCalledTimes(1);
         });
 
         it("should cancel window timer", () => {
@@ -180,7 +180,7 @@ describe("Timer", () => {
 
     describe("addHandler", () => {
 
-        it("should allow callback to be invoked", () => {
+        it("should allow callback to be invoked", async () => {
             // arrange
             const cb = jest.fn();
 
@@ -188,13 +188,13 @@ describe("Timer", () => {
             subject.addHandler(cb);
             subject.init(10);
             now += 10;
-            jest.runOnlyPendingTimers();
+            await jest.runOnlyPendingTimersAsync();
 
             // assert
-            expect(cb).toBeCalled();
+            expect(cb).toHaveBeenCalled();
         });
 
-        it("should allow multiple callbacks", () => {
+        it("should allow multiple callbacks", async () => {
             // arrange
             const cb = jest.fn();
 
@@ -205,10 +205,10 @@ describe("Timer", () => {
             subject.addHandler(cb);
             subject.init(10);
             now += 10;
-            jest.runOnlyPendingTimers();
+            await jest.runOnlyPendingTimersAsync();
 
             // assert
-            expect(cb).toBeCalledTimes(4);
+            expect(cb).toHaveBeenCalledTimes(4);
         });
     });
 
@@ -226,7 +226,7 @@ describe("Timer", () => {
             jest.runOnlyPendingTimers();
 
             // assert
-            expect(cb).toBeCalledTimes(0);
+            expect(cb).toHaveBeenCalledTimes(0);
         });
 
         it("should remove individual callback", () => {
@@ -245,8 +245,8 @@ describe("Timer", () => {
             jest.runOnlyPendingTimers();
 
             // assert
-            expect(cb1).toBeCalledTimes(0);
-            expect(cb2).toBeCalledTimes(1);
+            expect(cb1).toHaveBeenCalledTimes(0);
+            expect(cb2).toHaveBeenCalledTimes(1);
         });
     });
 });

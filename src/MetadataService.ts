@@ -8,19 +8,25 @@ import type { OidcMetadata } from "./OidcMetadata";
 
 /**
  * @public
+ * @see https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata
  */
 export class MetadataService {
     private readonly _logger = new Logger("MetadataService");
-    private readonly _jsonService = new JsonService(["application/jwk-set+json"]);
+    private readonly _jsonService;
 
     // cache
     private _metadataUrl: string;
     private _signingKeys: SigningKey[] | null = null;
     private _metadata: Partial<OidcMetadata> | null = null;
+    private _fetchRequestCredentials: RequestCredentials | undefined;
 
     public constructor(private readonly _settings: OidcClientSettingsStore) {
         this._metadataUrl = this._settings.metadataUrl;
-
+        this._jsonService = new JsonService(
+            ["application/jwk-set+json"],
+            null,
+            this._settings.extraHeaders,
+        );
         if (this._settings.signingKeys) {
             this._logger.debug("using signingKeys from settings");
             this._signingKeys = this._settings.signingKeys;
@@ -29,6 +35,11 @@ export class MetadataService {
         if (this._settings.metadata) {
             this._logger.debug("using metadata from settings");
             this._metadata = this._settings.metadata;
+        }
+
+        if (this._settings.fetchRequestCredentials) {
+            this._logger.debug("using fetchRequestCredentials from settings");
+            this._fetchRequestCredentials = this._settings.fetchRequestCredentials;
         }
     }
 
@@ -45,14 +56,15 @@ export class MetadataService {
 
         if (!this._metadataUrl) {
             logger.throw(new Error("No authority or metadataUrl configured on settings"));
-            throw null;
+            // eslint-disable-next-line @typescript-eslint/only-throw-error
+            throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
         logger.debug("getting metadata from", this._metadataUrl);
-        const metadata = await this._jsonService.getJson(this._metadataUrl);
+        const metadata = await this._jsonService.getJson(this._metadataUrl, { credentials: this._fetchRequestCredentials, timeoutInSeconds: this._settings.requestTimeoutInSeconds });
 
         logger.debug("merging remote JSON with seed metadata");
-        this._metadata = Object.assign({}, this._settings.metadataSeed, metadata);
+        this._metadata = Object.assign({}, metadata, this._settings.metadataSeed);
         return this._metadata;
     }
 
@@ -122,11 +134,12 @@ export class MetadataService {
         const jwks_uri = await this.getKeysEndpoint(false);
         logger.debug("got jwks_uri", jwks_uri);
 
-        const keySet = await this._jsonService.getJson(jwks_uri);
+        const keySet = await this._jsonService.getJson(jwks_uri, { timeoutInSeconds: this._settings.requestTimeoutInSeconds });
         logger.debug("got key set", keySet);
 
         if (!Array.isArray(keySet.keys)) {
             logger.throw(new Error("Missing keys on keyset"));
+            // eslint-disable-next-line @typescript-eslint/only-throw-error
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 

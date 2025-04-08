@@ -320,6 +320,17 @@ describe("OidcClientSettings", () => {
 
             // assert
             expect(subject.filterProtocolClaims).toEqual(false);
+
+            // act
+            subject = new OidcClientSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                filterProtocolClaims: ["a", "b", "c"],
+            });
+
+            // assert
+            expect(subject.filterProtocolClaims).toEqual(["a", "b", "c"]);
         });
     });
 
@@ -387,34 +398,6 @@ describe("OidcClientSettings", () => {
 
             // assert
             expect(subject.staleStateAgeInSeconds).toEqual(100);
-        });
-    });
-
-    describe("clockSkew", () => {
-
-        it("should use default value", () => {
-            // act
-            const subject = new OidcClientSettingsStore({
-                authority: "authority",
-                client_id: "client",
-                redirect_uri: "redirect",
-            });
-
-            // assert
-            expect(subject.clockSkewInSeconds).toEqual(5 * 60); // 5 mins
-        });
-
-        it("should return value from initial settings", () => {
-            // act
-            const subject = new OidcClientSettingsStore({
-                authority: "authority",
-                client_id: "client",
-                redirect_uri: "redirect",
-                clockSkewInSeconds: 10,
-            });
-
-            // assert
-            expect(subject.clockSkewInSeconds).toEqual(10);
         });
     });
 
@@ -513,6 +496,93 @@ describe("OidcClientSettings", () => {
 
             // assert
             expect(subject.extraTokenParams).toEqual({ "resourceServer": "abc" });
+        });
+    });
+
+    describe("extraHeaders", () => {
+
+        it("should use default value", () => {
+            // act
+            const subject = new OidcClientSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+            });
+
+            // assert
+            expect(subject.extraHeaders).toEqual({});
+        });
+
+        it("should return value from initial settings", () => {
+            // act
+            const extraHeaders = {
+                "Header-1": "this-is-a-test",
+                "Header-3": () => "dynamic header",
+            };
+            const subject = new OidcClientSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                extraHeaders: extraHeaders,
+            });
+
+            // assert
+            expect(subject.extraHeaders).toEqual(extraHeaders);
+        });
+    });
+
+    describe("dpop", () => {
+        it("should not be defined by default", () => {
+            // act
+            const subject = new OidcClientSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+            });
+
+            expect(subject.dpop).toBeUndefined();
+        });
+
+        it("should throw if dpop is configured without a store", () => {
+            // act
+            expect(() => new OidcClientSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                dpop: {
+                    bind_authorization_code: true,
+                },
+            })).toThrow("A DPoPStore is required when dpop is enabled");
+        });
+
+        describe("omitScopeWhenRequesting", () => {
+
+            it("should use default value", () => {
+                // act
+                const subject = new OidcClientSettingsStore({
+                    authority: "authority",
+                    client_id: "client",
+                    redirect_uri: "redirect",
+                });
+
+                // assert
+                expect(subject.omitScopeWhenRequesting).toEqual(false);
+            });
+
+            it("should return value from initial settings", () => {
+                // act
+                const subject = new OidcClientSettingsStore({
+                    authority: "authority",
+                    client_id: "client",
+                    redirect_uri: "redirect",
+                    omitScopeWhenRequesting: true,
+                });
+
+                // assert
+                expect(subject.omitScopeWhenRequesting).toEqual(true);
+            });
         });
     });
 });

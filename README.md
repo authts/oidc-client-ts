@@ -4,7 +4,7 @@
 [![CI](https://github.com/authts/oidc-client-ts/actions/workflows/ci.yml/badge.svg)](https://github.com/authts/oidc-client-ts/actions/workflows/ci.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/authts/oidc-client-ts)](https://app.codecov.io/gh/authts/oidc-client-ts)
 
-Esta biblioteca é uma fork da [oidc-client-ts](https://github.com/authts/oidc-client-ts) (v2.0.2) com adição de um register redirect.
+Esta biblioteca é um fork da [oidc-client-ts](https://github.com/authts/oidc-client-ts) (v3.2.0) com adição de um register redirect.
 
 Library to provide OpenID Connect (OIDC) and OAuth2 protocol support for
 client-side, browser-based JavaScript client applications. Also included is
@@ -24,9 +24,11 @@ available [here](docs/migration.md).
 Implements the following OAuth 2.0 protocols and supports
 [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html):
 
-- [Authorization Code Grant](https://oauth.net/2/grant-types/authorization-code/)
-  with [PKCE](https://oauth.net/2/pkce/)
-- [Refresh Token Grant](https://oauth.net/2/grant-types/refresh-token/)
+- [Authorization Code Grant with Proof Key for Code Exchange (PKCE)](docs/protocols/authorization-code-grant-with-pkce.md)
+- [Authorization Code Grant](docs/protocols/authorization-code-grant.md)
+- [Resource Owner Password Credentials (ROPC) Grant](docs/protocols/resource-owner-password-credentials-grant.md)
+- [Refresh Token Grant](docs/protocols/refresh-token-grant.md)
+- [Silent Refresh Token in iframe Flow](docs/protocols/silent-refresh-token-in-iframe-flow.md)
 
 ## Table of Contents
 
@@ -41,13 +43,13 @@ Implements the following OAuth 2.0 protocols and supports
 Using [npm](https://npmjs.org/)
 
 ```sh
-$ npm install oidc-client-ts --save
+$ npm install @carbonext/oidc-client-ts --save
 ```
 
 ## Building the Source
 
 ```sh
-$ git clone https://github.com/authts/oidc-client-ts.git
+$ git clone https://github.com/carbonext-tech/oidc-client-ts.git
 $ cd oidc-client-ts
 $ npm install
 $ npm run build
@@ -58,7 +60,9 @@ $ npm run build
 **Parcel project**
 
 ```sh
-$ npm run -w parcel-sample start
+$ cd samples/Parcel
+$ npm install
+$ npm run start
 ```
 
 and then browse to [http://localhost:1234](http://localhost:1234).
@@ -82,3 +86,4 @@ We appreciate feedback and contribution to this repo!
 This project is licensed under the Apache-2.0 license. See the
 [LICENSE](https://github.com/authts/oidc-client-ts/blob/main/LICENSE) file for
 more info.
+

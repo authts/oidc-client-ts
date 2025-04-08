@@ -13,19 +13,19 @@ describe("Event", () => {
 
     describe("addHandler", () => {
 
-        it("should allow callback to be invoked", () => {
+        it("should allow callback to be invoked", async () => {
             // arrange
             const cb = jest.fn();
 
             // act
             subject.addHandler(cb);
-            subject.raise();
+            await subject.raise();
 
             // assert
-            expect(cb).toBeCalled();
+            expect(cb).toHaveBeenCalled();
         });
 
-        it("should allow multiple callbacks", () => {
+        it("should allow multiple callbacks", async () => {
             // arrange
             const cb = jest.fn();
 
@@ -34,29 +34,29 @@ describe("Event", () => {
             subject.addHandler(cb);
             subject.addHandler(cb);
             subject.addHandler(cb);
-            subject.raise();
+            await subject.raise();
 
             // assert
-            expect(cb).toBeCalledTimes(4);
+            expect(cb).toHaveBeenCalledTimes(4);
         });
     });
 
     describe("removeHandler", () => {
 
-        it("should remove callback from being invoked", () => {
+        it("should remove callback from being invoked", async () => {
             // arrange
             const cb = jest.fn();
 
             // act
             subject.addHandler(cb);
             subject.removeHandler(cb);
-            subject.raise();
+            await subject.raise();
 
             // assert
-            expect(cb).toBeCalledTimes(0);
+            expect(cb).toHaveBeenCalledTimes(0);
         });
 
-        it("should remove individual callback", () => {
+        it("should remove individual callback", async () => {
             // arrange
             const cb1 = jest.fn();
             const cb2 = jest.fn();
@@ -68,17 +68,17 @@ describe("Event", () => {
             subject.removeHandler(cb1);
             subject.removeHandler(cb1);
 
-            subject.raise();
+            await subject.raise();
 
             // assert
-            expect(cb1).toBeCalledTimes(0);
-            expect(cb2).toBeCalledTimes(1);
+            expect(cb1).toHaveBeenCalledTimes(0);
+            expect(cb2).toHaveBeenCalledTimes(1);
         });
     });
 
     describe("raise", () => {
 
-        it("should pass params", () => {
+        it("should pass params", async () => {
             // arrange
             const typedSubject = subject as Event<[number, number, number]>;
             let a = 10;
@@ -92,7 +92,7 @@ describe("Event", () => {
             typedSubject.addHandler(cb);
 
             // act
-            typedSubject.raise(1, 2, 3);
+            await typedSubject.raise(1, 2, 3);
 
             // assert
             expect(a).toEqual(1);

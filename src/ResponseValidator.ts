@@ -6,60 +6,40 @@ import { ErrorResponse } from "./errors";
 import type { MetadataService } from "./MetadataService";
 import { UserInfoService } from "./UserInfoService";
 import { TokenClient } from "./TokenClient";
-import type { OidcClientSettingsStore } from "./OidcClientSettings";
+import type { ExtraHeader, OidcClientSettingsStore } from "./OidcClientSettings";
 import type { SigninState } from "./SigninState";
 import type { SigninResponse } from "./SigninResponse";
 import type { State } from "./State";
 import type { SignoutResponse } from "./SignoutResponse";
 import type { UserProfile } from "./User";
 import type { RefreshState } from "./RefreshState";
-import type { JwtClaims, IdTokenClaims } from "./Claims";
-
-/**
- * Derived from the following sets of claims:
- * - {@link https://datatracker.ietf.org/doc/html/rfc7519.html#section-4.1}
- * - {@link https://openid.net/specs/openid-connect-core-1_0.html#IDToken}
- * - {@link https://openid.net/specs/openid-connect-core-1_0.html#CodeIDToken}
- *
- * @internal
- */
-const ProtocolClaims = [
-    "iss",
-    // "sub" should never be excluded, we need access to it internally
-    "aud",
-    "exp",
-    "nbf",
-    "iat",
-    "jti",
-    "auth_time",
-    "nonce",
-    "acr",
-    "amr",
-    "azp",
-    // https://openid.net/specs/openid-connect-core-1_0.html#CodeIDToken
-    "at_hash",
-] as const;
+import type { IdTokenClaims } from "./Claims";
+import type { ClaimsService } from "./ClaimsService";
 
 /**
  * @internal
  */
 export class ResponseValidator {
     protected readonly _logger = new Logger("ResponseValidator");
-    protected readonly _userInfoService = new UserInfoService(this._metadataService);
-    protected readonly _tokenClient = new TokenClient(this._settings, this._metadataService);
+    protected readonly _userInfoService: UserInfoService;
+    protected readonly _tokenClient: TokenClient;
 
     public constructor(
         protected readonly _settings: OidcClientSettingsStore,
         protected readonly _metadataService: MetadataService,
-    ) {}
+        protected readonly _claimsService: ClaimsService,
+    ) {
+        this._userInfoService = new UserInfoService(this._settings, this._metadataService);
+        this._tokenClient = new TokenClient(this._settings, this._metadataService);
+    }
 
-    public async validateSigninResponse(response: SigninResponse, state: SigninState): Promise<void> {
+    public async validateSigninResponse(response: SigninResponse, state: SigninState, extraHeaders?: Record<string, ExtraHeader>): Promise<void> {
         const logger = this._logger.create("validateSigninResponse");
 
         this._processSigninState(response, state);
         logger.debug("state processed");
 
-        await this._processCode(response, state);
+        await this._processCode(response, state, extraHeaders);
         logger.debug("code processed");
 
         if (response.isOpenId) {
@@ -67,7 +47,19 @@ export class ResponseValidator {
         }
         logger.debug("tokens validated");
 
-        await this._processClaims(response, state?.skipUserInfo);
+        await this._processClaims(response, state?.skipUserInfo, response.isOpenId);
+        logger.debug("claims processed");
+    }
+
+    public async validateCredentialsResponse(response: SigninResponse, skipUserInfo: boolean): Promise<void> {
+        const logger = this._logger.create("validateCredentialsResponse");
+
+        if (response.isOpenId && !!response.id_token) {
+            this._validateIdTokenAttributes(response);
+        }
+        logger.debug("tokens validated");
+
+        await this._processClaims(response, skipUserInfo, response.isOpenId);
         logger.debug("claims processed");
     }
 
@@ -75,6 +67,8 @@ export class ResponseValidator {
         const logger = this._logger.create("validateRefreshResponse");
 
         response.userState = state.data;
+        // if there's no session_state on the response, copy over session_state from original request
+        response.session_state ??= state.session_state;
         // if there's no scope on the response, then assume all scopes granted (per-spec) and copy over scopes from original request
         response.scope ??= state.scope;
 
@@ -82,9 +76,18 @@ export class ResponseValidator {
         // https://openid.net/specs/openid-connect-core-1_0.html#RefreshTokenResponse
         if (response.isOpenId && !!response.id_token) {
             this._validateIdTokenAttributes(response, state.id_token);
+            logger.debug("ID Token validated");
         }
-        logger.debug("tokens validated");
-        await this._processClaims(response);
+
+        if (!response.id_token) {
+            // if there's no id_token on the response, copy over id_token from original request
+            response.id_token = state.id_token;
+            // and decoded part too
+            response.profile = state.profile;
+        }
+
+        const hasIdToken = response.isOpenId && !!response.id_token;
+        await this._processClaims(response, false, hasIdToken);
         logger.debug("claims processed");
     }
 
@@ -133,6 +136,7 @@ export class ResponseValidator {
         // this is important for both success & error outcomes
         logger.debug("state validated");
         response.userState = state.data;
+        response.url_state = state.url_state;
         // if there's no scope on the response, then assume all scopes granted (per-spec) and copy over scopes from original request
         response.scope ??= state.scope;
 
@@ -145,14 +149,11 @@ export class ResponseValidator {
             logger.throw(new Error("Expected code in response"));
         }
 
-        if (!state.code_verifier && response.code) {
-            logger.throw(new Error("Unexpected code in response"));
-        }
     }
 
-    protected async _processClaims(response: SigninResponse, skipUserInfo = false): Promise<void> {
+    protected async _processClaims(response: SigninResponse, skipUserInfo = false, validateSub = true): Promise<void> {
         const logger = this._logger.create("_processClaims");
-        response.profile = this._filterProtocolClaims(response.profile);
+        response.profile = this._claimsService.filterProtocolClaims(response.profile);
 
         if (skipUserInfo || !this._settings.loadUserInfo || !response.access_token) {
             logger.debug("not loading user info");
@@ -163,55 +164,15 @@ export class ResponseValidator {
         const claims = await this._userInfoService.getClaims(response.access_token);
         logger.debug("user info claims received from user info endpoint");
 
-        if (response.isOpenId && claims.sub !== response.profile.sub) {
+        if (validateSub && claims.sub !== response.profile.sub) {
             logger.throw(new Error("subject from UserInfo response does not match subject in ID Token"));
         }
 
-        response.profile = this._mergeClaims(response.profile, this._filterProtocolClaims(claims as IdTokenClaims));
+        response.profile = this._claimsService.mergeClaims(response.profile, this._claimsService.filterProtocolClaims(claims as IdTokenClaims));
         logger.debug("user info claims received, updated profile:", response.profile);
     }
 
-    protected _mergeClaims(claims1: UserProfile, claims2: JwtClaims): UserProfile {
-        const result = { ...claims1 };
-
-        for (const [claim, values] of Object.entries(claims2)) {
-            for (const value of Array.isArray(values) ? values : [values]) {
-                const previousValue = result[claim];
-                if (!previousValue) {
-                    result[claim] = value;
-                }
-                else if (Array.isArray(previousValue)) {
-                    if (!previousValue.includes(value)) {
-                        previousValue.push(value);
-                    }
-                }
-                else if (result[claim] !== value) {
-                    if (typeof value === "object" && this._settings.mergeClaims) {
-                        result[claim] = this._mergeClaims(previousValue as UserProfile, value);
-                    }
-                    else {
-                        result[claim] = [previousValue, value];
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
-
-    protected _filterProtocolClaims(claims: UserProfile): UserProfile {
-        const result = { ...claims };
-
-        if (this._settings.filterProtocolClaims) {
-            for (const type of ProtocolClaims) {
-                delete result[type];
-            }
-        }
-
-        return result;
-    }
-
-    protected async _processCode(response: SigninResponse, state: SigninState): Promise<void> {
+    protected async _processCode(response: SigninResponse, state: SigninState, extraHeaders?: Record<string, ExtraHeader>): Promise<void> {
         const logger = this._logger.create("_processCode");
         if (response.code) {
             logger.debug("Validating code");
@@ -221,6 +182,7 @@ export class ResponseValidator {
                 code: response.code,
                 redirect_uri: state.redirect_uri,
                 code_verifier: state.code_verifier,
+                extraHeaders: extraHeaders,
                 ...state.extraTokenParams,
             });
             Object.assign(response, tokenResponse);
@@ -229,32 +191,32 @@ export class ResponseValidator {
         }
     }
 
-    protected _validateIdTokenAttributes(response: SigninResponse, currentToken?: string): void {
+    protected _validateIdTokenAttributes(response: SigninResponse, existingToken?: string): void {
         const logger = this._logger.create("_validateIdTokenAttributes");
 
         logger.debug("decoding ID Token JWT");
-        const profile = JwtUtils.decode(response.id_token ?? "");
+        const incoming = JwtUtils.decode(response.id_token ?? "");
 
-        if (!profile.sub) {
+        if (!incoming.sub) {
             logger.throw(new Error("ID Token is missing a subject claim"));
         }
 
-        if (currentToken) {
-            const current = JwtUtils.decode(currentToken);
-            if (current.sub !== profile.sub) {
+        if (existingToken) {
+            const existing = JwtUtils.decode(existingToken);
+            if (incoming.sub !== existing.sub) {
                 logger.throw(new Error("sub in id_token does not match current sub"));
             }
-            if (current.auth_time && current.auth_time !== profile.auth_time) {
+            if (incoming.auth_time && incoming.auth_time !== existing.auth_time) {
                 logger.throw(new Error("auth_time in id_token does not match original auth_time"));
             }
-            if (current.azp && current.azp !== profile.azp) {
+            if (incoming.azp && incoming.azp !== existing.azp) {
                 logger.throw(new Error("azp in id_token does not match original azp"));
             }
-            if (!current.azp && profile.azp) {
+            if (!incoming.azp && existing.azp) {
                 logger.throw(new Error("azp not in id_token, but present in original id_token"));
             }
         }
 
-        response.profile = profile as UserProfile;
+        response.profile = incoming as UserProfile;
     }
 }

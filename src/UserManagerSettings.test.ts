@@ -53,6 +53,19 @@ describe("UserManagerSettings", () => {
             expect(subject.popupWindowFeatures).toEqual({ status: true });
         });
 
+        it("should set closePopupWindowAfterInMilliseconds", () => {
+            // act
+            const closePopupWindowAfterInSeconds = 100;
+            const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                popupWindowFeatures: { status: true, closePopupWindowAfterInSeconds },
+            });
+
+            // assert
+            expect(subject.popupWindowFeatures).toEqual({ status: true, closePopupWindowAfterInSeconds });
+        });
     });
 
     describe("popupWindowTarget", () => {
@@ -361,6 +374,50 @@ describe("UserManagerSettings", () => {
 
             // assert
             expect(subject.stopCheckSessionOnError).toEqual(true);
+        });
+    });
+
+    describe("silentRequestTimeoutInSeconds", () => {
+        it("should set if defined in the constructor", () => {
+            const temp = 100;
+
+            // act
+            const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                silentRequestTimeoutInSeconds : temp,
+            });
+
+            // assert
+            expect(subject.silentRequestTimeoutInSeconds).toEqual(temp);
+        });
+
+        it("should set to requestTimeoutInSeconds if defined in the constructor", () => {
+            const temp = 100;
+
+            // act
+            const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                requestTimeoutInSeconds : temp,
+            });
+
+            // assert
+            expect(subject.silentRequestTimeoutInSeconds).toEqual(temp);
+        });
+
+        it("should set to the default if neither requestTimeoutInSeconds are defined", () => {
+            // act
+            const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+            });
+
+            // assert
+            expect(subject.silentRequestTimeoutInSeconds).toEqual(10);
         });
     });
 });

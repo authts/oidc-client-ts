@@ -13,7 +13,6 @@ export class SessionMonitor {
     private readonly _logger = new Logger("SessionMonitor");
 
     private _sub: string | undefined;
-    private _sid: string | undefined;
     private _checkSessionIFrame?: CheckSessionIFrame;
 
     public constructor(private readonly _userManager: UserManager) {
@@ -43,9 +42,8 @@ export class SessionMonitor {
             if (session) {
                 const tmpUser = {
                     session_state: session.session_state,
-                    profile: session.sub && session.sid ? {
+                    profile: session.sub ? {
                         sub: session.sub,
-                        sid: session.sid,
                     } : null,
                 };
                 void this._start(tmpUser);
@@ -56,7 +54,7 @@ export class SessionMonitor {
     protected _start = async (
         user: User | {
             session_state: string;
-            profile: { sub: string; sid: string } | null;
+            profile: { sub: string } | null;
         },
     ): Promise<void> => {
         const session_state = user.session_state;
@@ -67,12 +65,10 @@ export class SessionMonitor {
 
         if (user.profile) {
             this._sub = user.profile.sub;
-            this._sid = user.profile.sid;
             logger.debug("session_state", session_state, ", sub", this._sub);
         }
         else {
             this._sub = undefined;
-            this._sid = undefined;
             logger.debug("session_state", session_state, ", anonymous user");
         }
 
@@ -108,7 +104,6 @@ export class SessionMonitor {
     protected _stop = (): void => {
         const logger = this._logger.create("_stop");
         this._sub = undefined;
-        this._sid = undefined;
 
         if (this._checkSessionIFrame) {
             this._checkSessionIFrame.stop();
@@ -126,9 +121,8 @@ export class SessionMonitor {
                     if (session) {
                         const tmpUser = {
                             session_state: session.session_state,
-                            profile: session.sub && session.sid ? {
+                            profile: session.sub ? {
                                 sub: session.sub,
-                                sid: session.sid,
                             } : null,
                         };
                         void this._start(tmpUser);
@@ -153,13 +147,8 @@ export class SessionMonitor {
                     raiseEvent = false;
                     this._checkSessionIFrame.start(session.session_state);
 
-                    if (session.sid === this._sid) {
-                        logger.debug("same sub still logged in at OP, restarting check session iframe; session_state", session.session_state);
-                    }
-                    else {
-                        logger.debug("same sub still logged in at OP, session state has changed, restarting check session iframe; session_state", session.session_state);
-                        this._userManager.events._raiseUserSessionChanged();
-                    }
+                    logger.debug("same sub still logged in at OP, session state has changed, restarting check session iframe; session_state", session.session_state);
+                    await this._userManager.events._raiseUserSessionChanged();
                 }
                 else {
                     logger.debug("different subject signed into OP", session.sub);
@@ -171,10 +160,10 @@ export class SessionMonitor {
 
             if (raiseEvent) {
                 if (this._sub) {
-                    this._userManager.events._raiseUserSignedOut();
+                    await this._userManager.events._raiseUserSignedOut();
                 }
                 else {
-                    this._userManager.events._raiseUserSignedIn();
+                    await this._userManager.events._raiseUserSignedIn();
                 }
             } else {
                 logger.debug("no change in session detected, no event to raise");
@@ -183,7 +172,7 @@ export class SessionMonitor {
         catch (err) {
             if (this._sub) {
                 logger.debug("Error calling queryCurrentSigninSession; raising signed out event", err);
-                this._userManager.events._raiseUserSignedOut();
+                await this._userManager.events._raiseUserSignedOut();
             }
         }
     };

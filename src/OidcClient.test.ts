@@ -1,11 +1,11 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { JwtUtils } from "./utils";
+import { CryptoUtils, JwtUtils, URL_STATE_DELIMITER } from "./utils";
 import type { ErrorResponse } from "./errors";
 import type { JwtClaims } from "./Claims";
 import { OidcClient } from "./OidcClient";
-import { OidcClientSettingsStore } from "./OidcClientSettings";
+import { type ExtraHeader, type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 import { SigninState } from "./SigninState";
 import { State } from "./State";
 import { SigninRequest } from "./SigninRequest";
@@ -13,6 +13,10 @@ import { SignoutRequest } from "./SignoutRequest";
 import { SignoutResponse } from "./SignoutResponse";
 import { RefreshState } from "./RefreshState";
 import { SigninResponse } from "./SigninResponse";
+import type { UserProfile } from "./User";
+import { IndexedDbDPoPStore } from "./IndexedDbDPoPStore";
+import { ErrorDPoPNonce } from "./errors/ErrorDPoPNonce";
+import { DPoPState } from "./DPoPStore";
 
 describe("OidcClient", () => {
     let subject: OidcClient;
@@ -85,6 +89,8 @@ describe("OidcClient", () => {
                 resource: "res",
                 request: "req",
                 request_uri: "req_uri",
+                nonce: "rnd",
+                url_state: "url_state",
             });
 
             // assert
@@ -105,6 +111,8 @@ describe("OidcClient", () => {
             expect(url).toContain("request=req");
             expect(url).toContain("request_uri=req_uri");
             expect(url).toContain("response_mode=fragment");
+            expect(url).toContain("nonce=rnd");
+            expect(url.match(/state=.*%3Burl_state/)).toBeTruthy();
         });
 
         it("should pass state in place of data to SigninRequest", async () => {
@@ -125,6 +133,7 @@ describe("OidcClient", () => {
                 login_hint: "lh",
                 acr_values: "av",
                 resource: "res",
+                url_state: "url_state",
             });
 
             // assert
@@ -142,6 +151,35 @@ describe("OidcClient", () => {
             expect(url).toContain("login_hint=lh");
             expect(url).toContain("acr_values=av");
             expect(url).toContain("resource=res");
+            expect(url.match(/state=.*%3Burl_state/)).toBeTruthy();
+        });
+
+        it("should exclude scope from SigninRequest if omitScopeWhenRequesting is true", async () => {
+            // arrange
+            jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
+
+            // act
+            const request = await subject.createSigninRequest({
+                state: "foo",
+                response_type: "code",
+                scope: "baz",
+                redirect_uri: "quux",
+                prompt: "p",
+                display: "d",
+                max_age: 42,
+                ui_locales: "u",
+                id_token_hint: "ith",
+                login_hint: "lh",
+                acr_values: "av",
+                resource: "res",
+                url_state: "url_state",
+                omitScopeWhenRequesting: true,
+            });
+
+            // assert
+            expect(request.state.data).toEqual("foo");
+            const url = request.url;
+            expect(url).not.toContain("scope");
         });
 
         it("should fail if implicit flow requested", async () => {
@@ -218,7 +256,7 @@ describe("OidcClient", () => {
             await subject.createSigninRequest(args);
 
             // assert
-            expect(setMock).toBeCalled();
+            expect(setMock).toHaveBeenCalled();
         });
     });
 
@@ -256,15 +294,15 @@ describe("OidcClient", () => {
 
         it("should deserialize stored state and return state and response", async () => {
             // arrange
-            const item = new SigninState({
+            const item = await SigninState.create({
                 id: "1",
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "http://app/cb",
                 scope: "scope",
                 request_type: "type",
-            }).toStorageString();
-            jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item));
+            });
+            jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item.toStorageString()));
 
             // act
             const { state, response } = await subject.readSigninResponseState("http://app/cb?state=1");
@@ -311,7 +349,7 @@ describe("OidcClient", () => {
 
         it("should deserialize stored state and call validator", async () => {
             // arrange
-            const item = new SigninState({
+            const item = await SigninState.create({
                 id: "1",
                 authority: "authority",
                 client_id: "client",
@@ -328,8 +366,177 @@ describe("OidcClient", () => {
             const response = await subject.processSigninResponse("http://app/cb?state=1");
 
             // assert
-            expect(validateSigninResponseMock).toBeCalledWith(response, item);
+            expect(validateSigninResponseMock).toHaveBeenCalledWith(response, item, undefined);
         });
+
+        it("should pass on extraHeaders if supplied", async () => {
+            // arrange
+            const item = await SigninState.create({
+                id: "1",
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                scope: "scope",
+                request_type: "type",
+            });
+
+            const extraHeaders: Record<string, ExtraHeader> = { "foo": "bar" };
+
+            jest.spyOn(subject.settings.stateStore, "remove")
+                .mockImplementation(async () => item.toStorageString());
+            const validateSigninResponseMock = jest.spyOn(subject["_validator"], "validateSigninResponse")
+                .mockResolvedValue();
+
+            // act
+            const response = await subject.processSigninResponse("http://app/cb?state=1", extraHeaders);
+
+            // assert
+            expect(validateSigninResponseMock).toHaveBeenCalledWith(response, item, extraHeaders);
+        });
+
+        it("should pass DPoP extraHeader if enabled", async () => {
+            subject = new OidcClient({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                post_logout_redirect_uri: "http://app",
+                dpop: {
+                    bind_authorization_code: false,
+                    store: new IndexedDbDPoPStore(),
+                },
+            });
+
+            // arrange
+            const item = await SigninState.create({
+                id: "1",
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                scope: "scope",
+                request_type: "type",
+            });
+            jest.spyOn(subject.settings.stateStore, "remove")
+                .mockImplementation(async () => item.toStorageString());
+            const validateSigninResponseMock = jest.spyOn(subject["_validator"], "validateSigninResponse")
+                .mockResolvedValue();
+            const metadataServiceMock = jest.spyOn(subject["metadataService"], "getTokenEndpoint").mockResolvedValue("http://sts/token");
+
+            // act
+            const response = await subject.processSigninResponse("http://app/cb?state=1");
+
+            // assert
+            expect(metadataServiceMock).toHaveBeenCalled();
+            expect(validateSigninResponseMock).toHaveBeenCalledWith(response, item, { "DPoP": expect.any(String) });
+        });
+
+        it("should retry code request if original fails with ErrorDPoPNonce exception", async () => {
+            subject = new OidcClient({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                post_logout_redirect_uri: "http://app",
+                dpop: {
+                    bind_authorization_code: false,
+                    store: new IndexedDbDPoPStore(),
+                },
+            });
+
+            // arrange
+            const item = await SigninState.create({
+                id: "1",
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                scope: "scope",
+                request_type: "type",
+            });
+            jest.spyOn(subject.settings.stateStore, "remove")
+                .mockImplementation(async () => item.toStorageString());
+            const validateSigninResponseMock = jest.spyOn(subject["_validator"], "validateSigninResponse")
+                .mockRejectedValueOnce(new ErrorDPoPNonce("some-nonce"));
+            const getDpopProofMock = jest.spyOn(subject, "getDpopProof");
+            const metadataServiceMock = jest.spyOn(subject["metadataService"], "getTokenEndpoint").mockResolvedValue("http://sts/token");
+            // act
+            await subject.processSigninResponse("http://app/cb?state=1");
+
+            // assert
+            expect(metadataServiceMock).toHaveBeenCalled();
+            expect(validateSigninResponseMock).toHaveBeenCalledTimes(2);
+            expect(getDpopProofMock).toHaveBeenCalledTimes(2);
+            expect(getDpopProofMock).toHaveBeenNthCalledWith(2, { "_dbName": "oidc", "_storeName": "dpop" }, "some-nonce");
+        });
+
+        it("should not delete state when removeState = false", async () => {
+            // arrange
+            const item = await SigninState.create({
+                id: "1",
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                scope: "scope",
+                request_type: "type",
+            });
+            const getStateMock = jest.spyOn(subject.settings.stateStore, "get")
+                .mockImplementation(async () => item.toStorageString());
+            const removeStateMock = jest.spyOn(subject.settings.stateStore, "remove")
+                .mockImplementation(async () => item.toStorageString());
+            jest.spyOn(subject["_validator"], "validateSigninResponse").mockResolvedValue();
+
+            // act
+            await subject.processSigninResponse("http://app/cb?state=1", undefined, false);
+
+            // assert
+            expect(getStateMock).toHaveBeenCalled();
+            expect(removeStateMock).not.toHaveBeenCalled();
+        });
+    });
+
+    describe("processResourceOwnerPasswordCredentials", () => {
+
+        it("should fail on wrong credentials", async () => {
+            // arrange
+            jest.spyOn(subject["_tokenClient"], "exchangeCredentials").mockRejectedValue(new Error("Wrong credentials"));
+
+            // act
+            await expect(subject.processResourceOwnerPasswordCredentials({ username: "u", password: "p", skipUserInfo: false }))
+                // assert
+                .rejects.toThrow(Error);
+        });
+
+        it("should fail on invalid response", async () => {
+            // arrange
+            jest.spyOn(subject["_tokenClient"], "exchangeCredentials").mockResolvedValue({});
+            jest.spyOn(subject["_validator"], "validateCredentialsResponse").mockRejectedValue(new Error("Wrong response"));
+
+            // act
+            await expect(subject.processResourceOwnerPasswordCredentials({ username: "u", password: "p", skipUserInfo: false }))
+                // assert
+                .rejects.toThrow(Error);
+        });
+
+        it("should return response on success", async () => {
+            // arrange
+            jest.spyOn(subject["_tokenClient"], "exchangeCredentials").mockResolvedValue({
+                access_token: "access_token",
+                id_token: "id_token",
+                scope: "openid profile email",
+            });
+            jest.spyOn(subject["_validator"], "validateCredentialsResponse").mockImplementation(
+                async (response: SigninResponse): Promise<void> => {
+                    Object.assign(response, { profile: { sub: "subsub" } });
+                },
+            );
+
+            // act
+            const signinResponse: SigninResponse = await subject.processResourceOwnerPasswordCredentials({ username: "u", password: "p", skipUserInfo: false });
+
+            // assert
+            expect(signinResponse).toHaveProperty("access_token", "access_token");
+            expect(signinResponse).toHaveProperty("id_token", "id_token");
+            expect(signinResponse).toHaveProperty("scope", "openid profile email");
+            expect(signinResponse).toHaveProperty("profile", { sub: "subsub" });
+        });
+
     });
 
     describe("useRefreshToken", () => {
@@ -343,7 +550,9 @@ describe("OidcClient", () => {
             const state = new RefreshState({
                 refresh_token: "refresh_token",
                 id_token: "id_token",
+                session_state: "session_state",
                 scope: "openid",
+                profile: {} as UserProfile,
             });
 
             // act
@@ -354,7 +563,7 @@ describe("OidcClient", () => {
             expect(response).toMatchObject(tokenResponse);
         });
 
-        it("should preserve the scope", async () => {
+        it("should preserve the session_state and scope", async () => {
             // arrange
             const tokenResponse = {
                 access_token: "new_access_token",
@@ -366,7 +575,51 @@ describe("OidcClient", () => {
             const state = new RefreshState({
                 refresh_token: "refresh_token",
                 id_token: "id_token",
+                session_state: "session_state",
                 scope: "openid",
+                profile: {} as UserProfile,
+            });
+
+            // act
+            const response = await subject.useRefreshToken({ state, resource: "resource" });
+
+            // assert
+            expect(exchangeRefreshTokenMock).toHaveBeenCalledWith( {
+                refresh_token: "refresh_token",
+                scope: "openid",
+                timeoutInSeconds: undefined,
+                resource: "resource",
+            });
+            expect(response).toBeInstanceOf(SigninResponse);
+            expect(response).toMatchObject(tokenResponse);
+            expect(response).toHaveProperty("session_state", state.session_state);
+            expect(response).toHaveProperty("scope", state.scope);
+        });
+
+        it("should filter allowable scopes", async () => {
+            // arrange
+            const settings: OidcClientSettings = {
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                post_logout_redirect_uri: "http://app",
+                refreshTokenAllowedScope: "allowed_scope",
+            };
+            subject = new OidcClient(settings);
+
+            const tokenResponse = {
+                access_token: "new_access_token",
+            };
+            const exchangeRefreshTokenMock =
+                jest.spyOn(subject["_tokenClient"], "exchangeRefreshToken")
+                    .mockResolvedValue(tokenResponse);
+            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
+            const state = new RefreshState({
+                refresh_token: "refresh_token",
+                id_token: "id_token",
+                session_state: "session_state",
+                scope: "unallowed_scope allowed_scope unallowed_scope_2",
+                profile: {} as UserProfile,
             });
 
             // act
@@ -375,11 +628,13 @@ describe("OidcClient", () => {
             // assert
             expect(exchangeRefreshTokenMock).toHaveBeenCalledWith( {
                 refresh_token: "refresh_token",
-                scope: "openid",
+                scope: "allowed_scope",
+                timeoutInSeconds: undefined,
             });
             expect(response).toBeInstanceOf(SigninResponse);
             expect(response).toMatchObject(tokenResponse);
-            expect(response).toHaveProperty("scope", state.scope);
+            expect(response).toHaveProperty("session_state", state.session_state);
+            expect(response).toHaveProperty("scope", "allowed_scope");
         });
 
         it("should enforce a matching sub claim", async () => {
@@ -401,13 +656,144 @@ describe("OidcClient", () => {
             const state = new RefreshState({
                 refresh_token: "refresh_token",
                 id_token: "id_token",
+                session_state: "session_state",
                 scope: "openid",
+                profile: {} as UserProfile,
             });
 
             // act
             await expect(subject.useRefreshToken({ state }))
                 // assert
                 .rejects.toThrow("sub in id_token does not match current sub");
+        });
+
+        it("should pass DPoP extraHeader to tokenClient.exchangeRefreshToken if DPoP enabled", async () => {
+            // arrange
+            const settings: OidcClientSettings = {
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                post_logout_redirect_uri: "http://app",
+                dpop: {
+                    bind_authorization_code: false,
+                    store: new IndexedDbDPoPStore(),
+                },
+            };
+
+            subject = new OidcClient(settings);
+
+            const tokenResponse = {
+                access_token: "new_access_token",
+            };
+            const exchangeRefreshTokenMock =
+                jest.spyOn(subject["_tokenClient"], "exchangeRefreshToken")
+                    .mockResolvedValue(tokenResponse);
+            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
+            const mockMetaDataService = jest.spyOn(subject["metadataService"], "getTokenEndpoint").mockResolvedValue("http://sts/token");
+
+            const state = new RefreshState({
+                refresh_token: "refresh_token",
+                id_token: "id_token",
+                session_state: "session_state",
+                scope: "openid",
+                profile: {} as UserProfile,
+            });
+
+            // act
+            const response = await subject.useRefreshToken({ state, resource: "resource" });
+
+            // assert
+            expect(mockMetaDataService).toHaveBeenCalled();
+            expect(exchangeRefreshTokenMock).toHaveBeenCalledWith( {
+                refresh_token: "refresh_token",
+                scope: "openid",
+                timeoutInSeconds: undefined,
+                resource: "resource",
+                extraHeaders: { "DPoP": expect.any(String) },
+            });
+            expect(response).toBeInstanceOf(SigninResponse);
+            expect(response).toMatchObject(tokenResponse);
+            expect(response).toHaveProperty("session_state", state.session_state);
+            expect(response).toHaveProperty("scope", state.scope);
+        });
+
+        it("should retry token exchange if tokenClient exchange throws ErrorDPoPNonce exception", async () => {
+            // arrange
+            const settings: OidcClientSettings = {
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                post_logout_redirect_uri: "http://app",
+                dpop: {
+                    bind_authorization_code: false,
+                    store: new IndexedDbDPoPStore(),
+                },
+            };
+
+            subject = new OidcClient(settings);
+
+            const tokenResponse = {
+                access_token: "new_access_token",
+            };
+            const exchangeRefreshTokenMock =
+                jest.spyOn(subject["_tokenClient"], "exchangeRefreshToken")
+                    .mockRejectedValueOnce(new ErrorDPoPNonce("some-nonce"))
+                    .mockResolvedValueOnce(tokenResponse);
+            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
+            jest.spyOn(subject["metadataService"], "getTokenEndpoint").mockResolvedValue("http://sts/token");
+            const getDpopProofSpy = jest.spyOn(subject, "getDpopProof");
+
+            const state = new RefreshState({
+                refresh_token: "refresh_token",
+                id_token: "id_token",
+                session_state: "session_state",
+                scope: "openid",
+                profile: {} as UserProfile,
+            });
+
+            // act
+            await subject.useRefreshToken({ state, resource: "resource" });
+
+            // assert
+
+            expect(exchangeRefreshTokenMock).toHaveBeenCalledTimes(2);
+            expect(getDpopProofSpy).toHaveBeenCalledTimes(2);
+            expect(getDpopProofSpy).toHaveBeenNthCalledWith(2, { "_dbName": "oidc", "_storeName": "dpop" }, "some-nonce");
+        });
+
+        it("should pass extraHeaders to tokenClient.exchangeRefreshToken if supplied", async () => {
+            // arrange
+            const tokenResponse = {
+                access_token: "new_access_token",
+            };
+            const exchangeRefreshTokenMock =
+                jest.spyOn(subject["_tokenClient"], "exchangeRefreshToken")
+                    .mockResolvedValue(tokenResponse);
+            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
+            const state = new RefreshState({
+                refresh_token: "refresh_token",
+                id_token: "id_token",
+                session_state: "session_state",
+                scope: "openid",
+                profile: {} as UserProfile,
+            });
+            const extraHeaders: Record<string, ExtraHeader> = { "foo": "bar" };
+
+            // act
+            const response = await subject.useRefreshToken({ state, resource: "resource", extraHeaders: extraHeaders });
+
+            // assert
+            expect(exchangeRefreshTokenMock).toHaveBeenCalledWith( {
+                refresh_token: "refresh_token",
+                scope: "openid",
+                timeoutInSeconds: undefined,
+                resource: "resource",
+                extraHeaders: extraHeaders,
+            });
+            expect(response).toBeInstanceOf(SigninResponse);
+            expect(response).toMatchObject(tokenResponse);
+            expect(response).toHaveProperty("session_state", state.session_state);
+            expect(response).toHaveProperty("scope", state.scope);
         });
     });
 
@@ -452,6 +838,7 @@ describe("OidcClient", () => {
                 state: "foo",
                 post_logout_redirect_uri: "bar",
                 id_token_hint: "baz",
+                url_state: "qux",
             });
 
             // assert
@@ -461,6 +848,46 @@ describe("OidcClient", () => {
             expect(url).toContain("http://sts/signout");
             expect(url).toContain("post_logout_redirect_uri=bar");
             expect(url).toContain("id_token_hint=baz");
+            expect(url).toContain(encodeURIComponent(URL_STATE_DELIMITER + "qux"));
+        });
+
+        it("should pass params to SignoutRequest w/o id_token_hint and client_id", async () => {
+            // arrange
+            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
+
+            // act
+            const request = await subject.createSignoutRequest({
+                state: "foo",
+                post_logout_redirect_uri: "bar",
+            });
+
+            // assert
+            expect(request.state).toBeDefined();
+            expect(request.state?.data).toEqual("foo");
+            const url = request.url;
+            expect(url).toContain("http://sts/signout");
+            expect(url).toContain("post_logout_redirect_uri=bar");
+            expect(url).toContain("client_id=client");
+        });
+
+        it("should pass params to SignoutRequest with client_id", async () => {
+            // arrange
+            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
+
+            // act
+            const request = await subject.createSignoutRequest({
+                state: "foo",
+                post_logout_redirect_uri: "bar",
+                client_id: "baz",
+            });
+
+            // assert
+            expect(request.state).toBeDefined();
+            expect(request.state?.data).toEqual("foo");
+            const url = request.url;
+            expect(url).toContain("http://sts/signout");
+            expect(url).toContain("post_logout_redirect_uri=bar");
+            expect(url).toContain("client_id=baz");
         });
 
         it("should fail if metadata fails", async () => {
@@ -504,7 +931,7 @@ describe("OidcClient", () => {
             });
 
             // assert
-            expect(setMock).toBeCalled();
+            expect(setMock).toHaveBeenCalled();
         });
 
         it("should not generate state if no data", async () => {
@@ -516,7 +943,7 @@ describe("OidcClient", () => {
             await subject.createSignoutRequest();
 
             // assert
-            expect(setMock).not.toBeCalled();
+            expect(setMock).not.toHaveBeenCalled();
         });
     });
 
@@ -597,7 +1024,7 @@ describe("OidcClient", () => {
             const response = await subject.processSignoutResponse("http://app/cb?state=1&error=foo");
 
             // assert
-            expect(validateSignoutResponse).toBeCalledWith(response, item);
+            expect(validateSignoutResponse).toHaveBeenCalledWith(response, item);
         });
     });
 
@@ -662,7 +1089,7 @@ describe("OidcClient", () => {
             const response = await subject.processSignoutResponse("http://app/cb?state=1");
 
             // assert
-            expect(validateSignoutResponse).toBeCalledWith(response, item);
+            expect(validateSignoutResponse).toHaveBeenCalledWith(response, item);
         });
 
         it("should call validator with state even if error in response", async () => {
@@ -681,7 +1108,7 @@ describe("OidcClient", () => {
             const response = await subject.processSignoutResponse("http://app/cb?state=1&error=foo");
 
             // assert
-            expect(validateSignoutResponse).toBeCalledWith(response, item);
+            expect(validateSignoutResponse).toHaveBeenCalledWith(response, item);
         });
     });
 
@@ -695,7 +1122,7 @@ describe("OidcClient", () => {
             await subject.clearStaleState();
 
             // assert
-            expect(clearStaleState).toBeCalled();
+            expect(clearStaleState).toHaveBeenCalled();
         });
     });
 
@@ -712,6 +1139,71 @@ describe("OidcClient", () => {
                 token: "token",
                 token_type_hint: "access_token",
             });
+        });
+    });
+
+    describe("getDpopProof", () => {
+        it("stores a nonce if one is provided", async () => {
+            // arrange
+            const store = new IndexedDbDPoPStore();
+            const keyPair = await CryptoUtils.generateDPoPKeys();
+            jest.spyOn(CryptoUtils, "generateDPoPKeys").mockResolvedValue(keyPair);
+
+            const settings: OidcClientSettings = {
+                authority: "authority",
+                client_id: "dpop_client",
+                redirect_uri: "redirect",
+                post_logout_redirect_uri: "http://app",
+                dpop: {
+                    bind_authorization_code: false,
+                    store: store,
+                },
+            };
+
+            subject = new OidcClient(settings);
+
+            jest.spyOn(subject["metadataService"], "getTokenEndpoint").mockResolvedValue("http://sts/token");
+
+            // act
+            await subject.getDpopProof(store, "some-nonce");
+            const storedDPoPState = await subject.settings.dpop?.store.get("dpop_client");
+            // assert
+
+            expect(storedDPoPState?.nonce).toEqual("some-nonce");
+        });
+
+        it("updates the stored nonce if a new one is provided", async () => {
+            // arrange
+            const store = new IndexedDbDPoPStore();
+            const keyPair = await CryptoUtils.generateDPoPKeys();
+            jest.spyOn(CryptoUtils, "generateDPoPKeys").mockResolvedValue(keyPair);
+            const dpopState = new DPoPState(keyPair, "some-nonce");
+
+            const settings: OidcClientSettings = {
+                authority: "authority",
+                client_id: "dpop_client",
+                redirect_uri: "redirect",
+                post_logout_redirect_uri: "http://app",
+                dpop: {
+                    bind_authorization_code: false,
+                    store: store,
+                },
+            };
+
+            subject = new OidcClient(settings);
+
+            jest.spyOn(subject["metadataService"], "getTokenEndpoint").mockResolvedValue("http://sts/token");
+            await subject.getDpopProof(store, "some-nonce");
+            let storedDPoPState = await subject.settings.dpop?.store.get("dpop_client");
+            expect(storedDPoPState?.nonce).toEqual("some-nonce");
+            dpopState.nonce = "some-other-nonce";
+
+            // act
+            await subject.getDpopProof(store, "some-other-nonce");
+            storedDPoPState = await subject.settings.dpop?.store.get("dpop_client");
+
+            // assert
+            expect(storedDPoPState?.nonce).toEqual("some-other-nonce");
         });
     });
 });

@@ -11,6 +11,7 @@ import type { IWindow } from "./IWindow";
  */
 export interface RedirectParams {
     redirectMethod?: "replace" | "assign";
+    redirectTarget?: "top" | "self";
 }
 
 /**
@@ -23,16 +24,23 @@ export class RedirectNavigator implements INavigator {
 
     public async prepare({
         redirectMethod = this._settings.redirectMethod,
+        redirectTarget = this._settings.redirectTarget,
     }: RedirectParams): Promise<IWindow> {
         this._logger.create("prepare");
-        const redirect = window.location[redirectMethod].bind(window.location) as (url: string) => never;
+        let targetWindow = window.self as Window;
+
+        if (redirectTarget === "top") {
+            targetWindow = window.top ?? window.self;
+        }
+    
+        const redirect = targetWindow.location[redirectMethod].bind(targetWindow.location) as (url: string) => never;
         let abort: (reason: Error) => void;
         return {
             navigate: async (params): Promise<never> => {
                 this._logger.create("navigate");
+                // We use a promise that never resolves to block the caller
                 const promise = new Promise((resolve, reject) => {
                     abort = reject;
-                    window.addEventListener("unload", () => resolve(null));
                 });
                 redirect(params.url);
                 return await (promise as Promise<never>);
@@ -40,8 +48,12 @@ export class RedirectNavigator implements INavigator {
             close: () => {
                 this._logger.create("close");
                 abort?.(new Error("Redirect aborted"));
-                window.stop();
+                targetWindow.stop();
             },
         };
+    }
+
+    public async callback(): Promise<void> {
+        return;
     }
 }

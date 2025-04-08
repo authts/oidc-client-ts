@@ -48,15 +48,16 @@ export class UserManagerEvents extends AccessTokenEvents {
         super({ expiringNotificationTimeInSeconds: settings.accessTokenExpiringNotificationTimeInSeconds });
     }
 
-    public load(user: User, raiseEvent=true): void {
-        super.load(user);
+    public async load(user: User, raiseEvent=true): Promise<void> {
+        await super.load(user);
         if (raiseEvent) {
-            this._userLoaded.raise(user);
+            await this._userLoaded.raise(user);
         }
     }
-    public unload(): void {
-        super.unload();
-        this._userUnloaded.raise();
+
+    public async unload(): Promise<void> {
+        await super.unload();
+        await this._userUnloaded.raise();
     }
 
     /**
@@ -100,18 +101,19 @@ export class UserManagerEvents extends AccessTokenEvents {
     /**
      * @internal
      */
-    public _raiseSilentRenewError(e: Error): void {
-        this._silentRenewError.raise(e);
+    public async _raiseSilentRenewError(e: Error): Promise<void> {
+        await this._silentRenewError.raise(e);
     }
 
     /**
-     * Add callback: Raised when the user is signed in.
+     * Add callback: Raised when the user is signed in (when `monitorSession` is set).
+     * @see {@link UserManagerSettings.monitorSession}
      */
     public addUserSignedIn(cb: UserSignedInCallback): () => void {
         return this._userSignedIn.addHandler(cb);
     }
     /**
-     * Remove callback: Raised when the user is signed in.
+     * Remove callback: Raised when the user is signed in (when `monitorSession` is set).
      */
     public removeUserSignedIn(cb: UserSignedInCallback): void {
         this._userSignedIn.removeHandler(cb);
@@ -119,18 +121,19 @@ export class UserManagerEvents extends AccessTokenEvents {
     /**
      * @internal
      */
-    public _raiseUserSignedIn(): void {
-        this._userSignedIn.raise();
+    public async _raiseUserSignedIn(): Promise<void> {
+        await this._userSignedIn.raise();
     }
 
     /**
-     * Add callback: Raised when the user's sign-in status at the OP has changed.
+     * Add callback: Raised when the user's sign-in status at the OP has changed (when `monitorSession` is set).
+     * @see {@link UserManagerSettings.monitorSession}
      */
     public addUserSignedOut(cb: UserSignedOutCallback): () => void {
         return this._userSignedOut.addHandler(cb);
     }
     /**
-     * Remove callback: Raised when the user's sign-in status at the OP has changed.
+     * Remove callback: Raised when the user's sign-in status at the OP has changed (when `monitorSession` is set).
      */
     public removeUserSignedOut(cb: UserSignedOutCallback): void {
         this._userSignedOut.removeHandler(cb);
@@ -138,18 +141,19 @@ export class UserManagerEvents extends AccessTokenEvents {
     /**
      * @internal
      */
-    public _raiseUserSignedOut(): void {
-        this._userSignedOut.raise();
+    public async _raiseUserSignedOut(): Promise<void> {
+        await this._userSignedOut.raise();
     }
 
     /**
-     * Add callback: Raised when the user session changed (when `monitorSession` is set)
+     * Add callback: Raised when the user session changed (when `monitorSession` is set).
+     * @see {@link UserManagerSettings.monitorSession}
      */
     public addUserSessionChanged(cb: UserSessionChangedCallback): () => void {
         return this._userSessionChanged.addHandler(cb);
     }
     /**
-     * Remove callback: Raised when the user session changed (when `monitorSession` is set)
+     * Remove callback: Raised when the user session changed (when `monitorSession` is set).
      */
     public removeUserSessionChanged(cb: UserSessionChangedCallback): void {
         this._userSessionChanged.removeHandler(cb);
@@ -157,7 +161,7 @@ export class UserManagerEvents extends AccessTokenEvents {
     /**
      * @internal
      */
-    public _raiseUserSessionChanged(): void {
-        this._userSessionChanged.raise();
+    public async _raiseUserSessionChanged(): Promise<void> {
+        await this._userSessionChanged.raise();
     }
 }

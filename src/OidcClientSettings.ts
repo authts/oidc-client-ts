@@ -5,18 +5,31 @@ import { WebStorageStateStore } from "./WebStorageStateStore";
 import type { OidcMetadata } from "./OidcMetadata";
 import type { StateStore } from "./StateStore";
 import { InMemoryWebStorage } from "./InMemoryWebStorage";
+import type { DPoPStore } from "./DPoPStore";
 
 const DefaultResponseType = "code";
 const DefaultScope = "openid";
 const DefaultClientAuthentication = "client_secret_post";
-const DefaultResponseMode = "query";
 const DefaultStaleStateAgeInSeconds = 60 * 15;
-const DefaultClockSkewInSeconds = 60 * 5;
 
 /**
  * @public
  */
 export type SigningKey = Record<string, string | string[]>;
+
+/**
+ * @public
+ */
+export type ExtraHeader = string | (() => string);
+
+/**
+ * Optional DPoP settings
+ * @public
+ */
+export interface DPoPSettings {
+    bind_authorization_code?: boolean;
+    store: DPoPStore;
+}
 
 /**
  * The settings used to configure the {@link OidcClient}.
@@ -66,26 +79,36 @@ export interface OidcClientSettings {
     /** optional protocol param */
     acr_values?: string;
     /** optional protocol param */
-    resource?: string;
-
-    /** optional protocol param (default: "query") */
-    response_mode?: "query" | "fragment";
-
-    /** Should OIDC protocol claims be removed from profile (default: true) */
-    filterProtocolClaims?: boolean;
-    /** Flag to control if additional identity data is loaded from the user info endpoint in order to populate the user's profile (default: false) */
-    loadUserInfo?: boolean;
-    /** Number (in seconds) indicating the age of state entries in storage for authorize requests that are considered abandoned and thus can be cleaned up (default: 300) */
-    staleStateAgeInSeconds?: number;
-    /** The window of time (in seconds) to allow the current time to deviate when validating token's iat, nbf, and exp values (default: 300) */
-    clockSkewInSeconds?: number;
-    userInfoJwtIssuer?: "ANY" | "OP" | string;
+    resource?: string | string[];
 
     /**
-     * Indicates if objects returned from the user info endpoint as claims (e.g. `address`) are merged into the claims from the id token as a single object.
-     * Otherwise, they are added to an array as distinct objects for the claim type. (default: false)
+     * Optional protocol param
+     * The response mode used by the authority server is defined by the response_type unless explicitly specified:
+     * - Response mode for the OAuth 2.0 response type "code" is the "query" encoding
+     * - Response mode for the OAuth 2.0 response type "token" is the "fragment" encoding
+     *
+     * @see https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html#ResponseModes
      */
-    mergeClaims?: boolean;
+    response_mode?: "query" | "fragment";
+
+    /**
+     * Should optional OIDC protocol claims be removed from profile or specify the ones to be removed (default: true)
+     * When true, the following claims are removed by default: ["nbf", "jti", "auth_time", "nonce", "acr", "amr", "azp", "at_hash"]
+     * When specifying claims, the following claims are not allowed: ["sub", "iss", "aud", "exp", "iat"]
+    */
+    filterProtocolClaims?: boolean | string[];
+    /** Flag to control if additional identity data is loaded from the user info endpoint in order to populate the user's profile (default: false) */
+    loadUserInfo?: boolean;
+    /** Number (in seconds) indicating the age of state entries in storage for authorize requests that are considered abandoned and thus can be cleaned up (default: 900) */
+    staleStateAgeInSeconds?: number;
+
+    /**
+     * Indicates how objects returned from the user info endpoint as claims (e.g. `address`) are merged into the claims from the
+     * id token as a single object.  (default: `{ array: "replace" }`)
+     * - array: "replace": natives (string, int, float) and arrays are replaced, objects are merged as distinct objects
+     * - array: "merge": natives (string, int, float) are replaced, arrays and objects are merged as distinct objects
+     */
+    mergeClaimsStrategy?: { array: "replace" | "merge" };
 
     /**
      * Storage object used to persist interaction state (default: window.localStorage, InMemoryWebStorage iff no window).
@@ -100,13 +123,53 @@ export interface OidcClientSettings {
     extraQueryParams?: Record<string, string | number | boolean>;
 
     extraTokenParams?: Record<string, unknown>;
+
+    /**
+     * An object containing additional header to be including in request.
+     */
+    extraHeaders?: Record<string, ExtraHeader>;
+
+    /**
+     * DPoP enabled or disabled
+     */
+    dpop?: DPoPSettings | undefined;
+
+    /**
+     * Will check the content type header of the response of the revocation endpoint to match these passed values (default: [])
+     */
+    revokeTokenAdditionalContentTypes?: string[];
+    /**
+     * Will disable PKCE validation, changing to true will not append to sign in request code_challenge and code_challenge_method. (default: false)
+     */
+    disablePKCE?: boolean;
+    /**
+     * Sets the credentials for fetch requests. (default: "same-origin")
+     * Use this if you need to send cookies to the OIDC/OAuth2 provider or if you are using a proxy that requires cookies
+     */
+    fetchRequestCredentials?: RequestCredentials;
+
+    /**
+     * Only scopes in this list will be passed in the token refresh request.
+     */
+    refreshTokenAllowedScope?: string | undefined;
+
+    /**
+     * Defines request timeouts globally across all requests made to the authorisation server
+     */
+    requestTimeoutInSeconds?: number | undefined;
+
+    /**
+     * https://datatracker.ietf.org/doc/html/rfc6749#section-3.3 describes behavior when omitting scopes from sign in requests
+     * If the IDP supports default scopes, this setting will ignore the scopes property passed to the config. (Default: false)
+     */
+    omitScopeWhenRequesting?: boolean;
 }
 
 /**
  * The settings with defaults applied of the {@link OidcClient}.
- * @see {@link OidcClientSettings}
  *
  * @public
+ * @see {@link OidcClientSettings}
  */
 export class OidcClientSettingsStore {
     // metadata
@@ -131,22 +194,29 @@ export class OidcClientSettingsStore {
     public readonly max_age: number | undefined;
     public readonly ui_locales: string | undefined;
     public readonly acr_values: string | undefined;
-    public readonly resource: string | undefined;
-    public readonly response_mode: "query" | "fragment";
+    public readonly resource: string | string[] | undefined;
+    public readonly response_mode: "query" | "fragment" | undefined;
 
     // behavior flags
-    public readonly filterProtocolClaims: boolean;
+    public readonly filterProtocolClaims: boolean | string[];
     public readonly loadUserInfo: boolean;
     public readonly staleStateAgeInSeconds: number;
-    public readonly clockSkewInSeconds: number;
-    public readonly userInfoJwtIssuer: "ANY" | "OP" | string;
-    public readonly mergeClaims: boolean;
+    public readonly mergeClaimsStrategy: { array: "replace" | "merge" };
+    public readonly omitScopeWhenRequesting: boolean;
 
     public readonly stateStore: StateStore;
 
     // extra
     public readonly extraQueryParams: Record<string, string | number | boolean>;
     public readonly extraTokenParams: Record<string, unknown>;
+    public readonly dpop: DPoPSettings | undefined;
+    public readonly extraHeaders: Record<string, ExtraHeader>;
+
+    public readonly revokeTokenAdditionalContentTypes?: string[];
+    public readonly fetchRequestCredentials: RequestCredentials;
+    public readonly refreshTokenAllowedScope: string | undefined;
+    public readonly disablePKCE: boolean;
+    public readonly requestTimeoutInSeconds: number | undefined;
 
     public constructor({
         // metadata related
@@ -156,19 +226,25 @@ export class OidcClientSettingsStore {
         redirect_uri, post_logout_redirect_uri,
         client_authentication = DefaultClientAuthentication,
         // optional protocol
-        prompt, display, max_age, ui_locales, acr_values, resource, response_mode = DefaultResponseMode,
+        prompt, display, max_age, ui_locales, acr_values, resource, response_mode,
         // behavior flags
         filterProtocolClaims = true,
         loadUserInfo = false,
+        requestTimeoutInSeconds,
         staleStateAgeInSeconds = DefaultStaleStateAgeInSeconds,
-        clockSkewInSeconds = DefaultClockSkewInSeconds,
-        userInfoJwtIssuer = "OP",
-        mergeClaims = false,
+        mergeClaimsStrategy = { array: "replace" },
+        disablePKCE = false,
         // other behavior
         stateStore,
-        // extra query params
+        revokeTokenAdditionalContentTypes,
+        fetchRequestCredentials,
+        refreshTokenAllowedScope,
+        // extra
         extraQueryParams = {},
         extraTokenParams = {},
+        extraHeaders = {},
+        dpop,
+        omitScopeWhenRequesting = false,
     }: OidcClientSettings) {
 
         this.authority = authority;
@@ -205,12 +281,16 @@ export class OidcClientSettingsStore {
         this.resource = resource;
         this.response_mode = response_mode;
 
-        this.filterProtocolClaims = !!filterProtocolClaims;
+        this.filterProtocolClaims = filterProtocolClaims ?? true;
         this.loadUserInfo = !!loadUserInfo;
         this.staleStateAgeInSeconds = staleStateAgeInSeconds;
-        this.clockSkewInSeconds = clockSkewInSeconds;
-        this.userInfoJwtIssuer = userInfoJwtIssuer;
-        this.mergeClaims = !!mergeClaims;
+        this.mergeClaimsStrategy = mergeClaimsStrategy;
+        this.omitScopeWhenRequesting = omitScopeWhenRequesting;
+        this.disablePKCE = !!disablePKCE;
+        this.revokeTokenAdditionalContentTypes = revokeTokenAdditionalContentTypes;
+
+        this.fetchRequestCredentials = fetchRequestCredentials ? fetchRequestCredentials : "same-origin";
+        this.requestTimeoutInSeconds = requestTimeoutInSeconds;
 
         if (stateStore) {
             this.stateStore = stateStore;
@@ -220,7 +300,15 @@ export class OidcClientSettingsStore {
             this.stateStore = new WebStorageStateStore({ store });
         }
 
+        this.refreshTokenAllowedScope = refreshTokenAllowedScope;
+
         this.extraQueryParams = extraQueryParams;
         this.extraTokenParams = extraTokenParams;
+        this.extraHeaders = extraHeaders;
+
+        this.dpop = dpop;
+        if (this.dpop && !this.dpop?.store) {
+            throw new Error("A DPoPStore is required when dpop is enabled");
+        }
     }
 }
