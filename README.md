@@ -1,8 +1,10 @@
-# oidc-client-ts
+# @carbonext/oidc-client-ts
 
 [![Stable Release](https://img.shields.io/npm/v/oidc-client-ts.svg)](https://npm.im/oidc-client-ts)
 [![CI](https://github.com/authts/oidc-client-ts/actions/workflows/ci.yml/badge.svg)](https://github.com/authts/oidc-client-ts/actions/workflows/ci.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/authts/oidc-client-ts)](https://app.codecov.io/gh/authts/oidc-client-ts)
+
+Esta biblioteca é uma fork da [oidc-client-ts](https://github.com/authts/oidc-client-ts) (v2.0.2) com adição de um register redirect.
 
 Library to provide OpenID Connect (OIDC) and OAuth2 protocol support for
 client-side, browser-based JavaScript client applications. Also included is
