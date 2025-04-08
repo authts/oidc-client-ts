@@ -735,6 +735,26 @@ export class UserManager {
 
         return user;
     }
+    protected async _registerRedirectStart(args: CreateRegisterRequestArgs, handle: IWindow): Promise<NavigateResponse> {
+        const logger = this._logger.create("_registerRedirectStart");
+
+        try {
+            const { registration_endpoint, ...argv } = args;
+            const signinRequest = await this._client.createSigninRequest(argv, registration_endpoint);
+            logger.debug("got signin request");
+
+            return await handle.navigate({
+                url: signinRequest.url,
+                state: signinRequest.state.id,
+                response_mode: signinRequest.state.response_mode,
+            });
+        }
+        catch (err) {
+            logger.debug("error after preparing navigator, closing navigator window");
+            handle.close();
+            throw err;
+        }
+    }
 
     /**
      * Trigger a redirect of the current window to the end session endpoint.

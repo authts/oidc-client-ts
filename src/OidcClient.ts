@@ -42,6 +42,13 @@ export interface CreateRegisterRequestArgs extends CreateSigninRequestArgs {
 /**
  * @public
  */
+export interface CreateRegisterRequestArgs extends CreateSigninRequestArgs {
+    registration_endpoint?: string;
+}
+
+/**
+ * @public
+ */
 export interface UseRefreshTokenArgs {
     redirect_uri?: string;
     resource?: string | string[];

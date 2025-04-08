@@ -109,7 +109,6 @@ export class ErrorTimeout extends Error {
 
 // @public (undocumented)
 export type ExtraHeader = string | (() => string);
-
 // @public (undocumented)
 export type ExtraRegisterRequestArgs = Pick<CreateRegisterRequestArgs, "extraQueryParams" | "extraTokenParams" | "state" | "registration_endpoint" | "redirect_uri">;
 
