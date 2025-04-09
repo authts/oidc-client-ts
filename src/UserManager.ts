@@ -268,6 +268,11 @@ export class UserManager {
 
         const { redirectMethod, ...requestArgs } = args;
 
+        let dpopJkt: string | undefined;
+        if (this.settings.dpop?.bind_authorization_code) {
+            dpopJkt = await this.generateDPoPJkt(this.settings.dpop);
+        }
+
         const handle = await this._redirectNavigator.prepare({
             redirectMethod,
         });
@@ -275,6 +280,7 @@ export class UserManager {
         await this._registerRedirectStart(
             {
                 request_type: "si:r",
+                dpopJkt,
                 ...requestArgs,
             },
             handle,
@@ -854,7 +860,7 @@ export class UserManager {
                 await this._revokeInternal(user);
             }
 
-            const id_token = args.id_token_hint || user && user.id_token;
+            const id_token = args.id_token_hint || (user && user.id_token);
             if (id_token) {
                 logger.debug("setting id_token_hint in signout request");
                 args.id_token_hint = id_token;

@@ -1,6 +1,6 @@
 {
   "name": "@carbonext/oidc-client-ts",
-  "version": "2.0.1",
+  "version": "2.0.1-beta",
   "description": "OpenID Connect (OIDC) & OAuth2 client library | Carbonext",
   "repository": {
     "type": "git",
