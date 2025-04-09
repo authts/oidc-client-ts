@@ -854,7 +854,7 @@ export class UserManager {
                 await this._revokeInternal(user);
             }
 
-            const id_token = args.id_token_hint || (user && user.id_token);
+            const id_token = args.id_token_hint || user && user.id_token;
             if (id_token) {
                 logger.debug("setting id_token_hint in signout request");
                 args.id_token_hint = id_token;

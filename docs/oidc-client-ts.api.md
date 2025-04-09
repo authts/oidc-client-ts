@@ -52,12 +52,6 @@ export interface CreateRegisterRequestArgs extends CreateSigninRequestArgs {
 }
 
 // @public (undocumented)
-export interface CreateRegisterRequestArgs extends CreateSigninRequestArgs {
-    // (undocumented)
-    registration_endpoint?: string;
-}
-
-// @public (undocumented)
 export interface CreateSigninRequestArgs extends Omit<SigninRequestCreateArgs, "url" | "authority" | "client_id" | "redirect_uri" | "response_type" | "scope" | "state_data"> {
     // (undocumented)
     dpopJkt?: string;
