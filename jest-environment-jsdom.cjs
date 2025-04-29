@@ -20,6 +20,7 @@ class JSDOMEnvironment extends $JSDOMEnvironment {
         global.crypto.randomUUID = crypto.randomUUID;
         // see https://github.com/dumbmatter/fakeIndexedDB#jsdom-often-used-with-jest
         global.structuredClone = structuredClone;
+        global.BroadcastChannel = BroadcastChannel;
     }
 }
 
