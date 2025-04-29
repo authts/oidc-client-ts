@@ -610,6 +610,22 @@ describe("ResponseValidator", () => {
 
         });
 
+        it("should process an openid signin response without an id_token and userinfo containing sub property, as a non-openid signin response", async () => {
+            Object.assign(stubResponse, {
+                access_token: "access_token",
+                isOpenId: true,
+            });
+
+            jest.spyOn(subject["_userInfoService"], "getClaims").mockResolvedValue({
+                nickname: "Nick",
+                sub: "subsub",
+            });
+
+            // act
+
+            await expect(subject.validateCredentialsResponse(stubResponse, false)).resolves.toBeUndefined();
+        });
+
         it("should process a valid non-openid signin response skipping userInfo", async () => {
             // arrange
             Object.assign(stubResponse, {
