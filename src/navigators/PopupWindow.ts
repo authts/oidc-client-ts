@@ -57,12 +57,15 @@ export class PopupWindow extends AbstractChildWindow {
     public async navigate(params: NavigateParams): Promise<NavigateResponse> {
         this._window?.focus();
 
-        const popupClosedInterval = setInterval(() => {
+        const popupClosedInterval = { id: setInterval(() => {
             if (!this._window || this._window.closed) {
                 this._logger.debug("Popup closed by user or isolated by redirect");
+                clearInterval(popupClosedInterval.id);
+                // appease TypeScript while not clearing twice
+                popupClosedInterval.id = setInterval(() => {}, 1000000);
             }
-        }, checkForPopupClosedInterval);
-        this._disposeHandlers.add(() => clearInterval(popupClosedInterval));
+        }, checkForPopupClosedInterval) };
+        this._disposeHandlers.add(() => clearInterval(popupClosedInterval.id));
 
         return await super.navigate(params);
     }
