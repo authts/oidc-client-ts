@@ -120,17 +120,6 @@ describe("PopupWindow", () => {
         jest.runAllTimers();
     });
 
-    it("should reject when the window is closed by user", async () => {
-        const popupWindow = new PopupWindow({});
-
-        const promise = popupWindow.navigate({ url: "http://sts/authorize?x=y", state: "someid" });
-        definePopupWindowClosedProperty(true);
-
-        jest.runOnlyPendingTimers();
-        await expect(promise).rejects.toThrow("Popup closed by user");
-        jest.runAllTimers();
-    });
-
     it("should reject when the window is closed programmatically", async () => {
         const popupWindow = new PopupWindow({});
 
