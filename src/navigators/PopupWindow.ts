@@ -81,19 +81,9 @@ export class PopupWindow extends AbstractChildWindow {
     }
 
     public static notifyOpener(url: string, keepOpen: boolean): void {
-        if (!window.opener) {
-            const logger = new Logger("PopupWindow");
-            logger.debug("No window.opener. Using BroadcastChannel.");
-            const state = new URL(url).searchParams.get("state");
-            if (!state) {
-                throw new Error("No window.opener and no state in URL. Can't complete notification.");
-            }
-            const channel = new BroadcastChannel(`oidc-client-popup-${state}`);
-            super._notifyParent(channel, url, keepOpen);
-            channel.close();
-            window.close();
-            return;
-        }
         super._notifyParent(window.opener, url, keepOpen);
+        if (!keepOpen && !window.opener) {
+            window.close();
+        }
     }
 }

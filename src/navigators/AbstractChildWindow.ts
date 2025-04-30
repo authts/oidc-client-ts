@@ -90,11 +90,24 @@ export abstract class AbstractChildWindow implements IWindow {
         this._disposeHandlers.clear();
     }
 
-    protected static _notifyParent(parent: Window | BroadcastChannel, url: string, keepOpen = false, targetOrigin = window.location.origin): void {
-        parent.postMessage({
+    protected static _notifyParent(parent: Window | null, url: string, keepOpen = false, targetOrigin = window.location.origin): void {
+        const msgData: MessageData = {
             source: messageSource,
             url,
             keepOpen,
-        } as MessageData, targetOrigin);
+        };
+        if (parent) {
+            parent.postMessage(msgData, targetOrigin);
+        } else {
+            const logger = new Logger("_notifyParent");
+            logger.debug("No parent. Using BroadcastChannel.");
+            const state = new URL(url).searchParams.get("state");
+            if (!state) {
+                throw new Error("No parent and no state in URL. Can't complete notification.");
+            }
+            const channel = new BroadcastChannel(`oidc-client-popup-${state}`);
+            channel.postMessage(msgData);
+            channel.close();
+        }
     }
 }
