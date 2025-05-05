@@ -5,6 +5,7 @@ import { type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSe
 import type { PopupWindowFeatures } from "./utils/PopupUtils";
 import { WebStorageStateStore } from "./WebStorageStateStore";
 import { InMemoryWebStorage } from "./InMemoryWebStorage";
+import type { StateStore } from "./StateStore";
 
 export const DefaultPopupWindowFeatures: PopupWindowFeatures = {
     location: false,
@@ -82,7 +83,7 @@ export interface UserManagerSettings extends OidcClientSettings {
      * Storage object used to persist User for currently authenticated user (default: window.sessionStorage, InMemoryWebStorage iff no window).
      *  E.g. `userStore: new WebStorageStateStore({ store: window.localStorage })`
      */
-    userStore?: WebStorageStateStore;
+    userStore?: StateStore;
 }
 
 /**
@@ -120,7 +121,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
     public readonly accessTokenExpiringNotificationTimeInSeconds: number;
 
-    public readonly userStore: WebStorageStateStore;
+    public readonly userStore: StateStore;
 
     public constructor(args: UserManagerSettings) {
         const {
