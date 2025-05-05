@@ -151,6 +151,33 @@ describe("PopupWindow", () => {
         }, window.location.origin);
     });
 
+    it("should reject when isolated and no state in url", async () => {
+        window.opener = null;
+        expect(() => {
+            PopupWindow.notifyOpener("http://sts/authorize?x=y", false);
+        }).toThrow("No parent and no state in URL. Can't complete notification.");
+    });
+
+    it("should notify the parent window when isolated", async () => {
+        const channelPromise = new Promise((resolve) => {
+            const channel = new BroadcastChannel("oidc-client-popup-someid");
+            const listener = (e: MessageEvent) => {
+                channel.close();
+                resolve(e.data);
+            };
+            channel.addEventListener("message", listener, false);
+        });
+
+        window.opener = null;
+        PopupWindow.notifyOpener("http://sts/authorize?x=y&state=someid", false);
+
+        expect(await channelPromise).toEqual({
+            source: "oidc-client",
+            url: "http://sts/authorize?x=y&state=someid",
+            keepOpen: false,
+        });
+    });
+
     it("should run setTimeout when closePopupWindowAfterInSeconds is greater than 0", async () => {
         jest.spyOn(global, "setTimeout");
 
