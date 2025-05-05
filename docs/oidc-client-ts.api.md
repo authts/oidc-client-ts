@@ -1129,7 +1129,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     silentRequestTimeoutInSeconds?: number;
     // (undocumented)
     stopCheckSessionOnError?: boolean;
-    userStore?: WebStorageStateStore;
+    userStore?: StateStore;
     validateSubOnSilentRenew?: boolean;
 }
 
@@ -1179,7 +1179,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     // (undocumented)
     readonly stopCheckSessionOnError: boolean;
     // (undocumented)
-    readonly userStore: WebStorageStateStore;
+    readonly userStore: StateStore;
     // (undocumented)
     readonly validateSubOnSilentRenew: boolean;
 }
