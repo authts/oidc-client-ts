@@ -13,13 +13,4 @@ export default {
     moduleNameMapper: {
         "^jose": "jose", // map to jose cjs module otherwise jest breaks
     },
-    transform: {
-        "^.+\\.tsx?$": [
-            "ts-jest",
-            {
-                // skip ts-jest type checking, incremental compilation with tsc is much faster
-                isolatedModules: true,
-            },
-        ],
-    },
 };
