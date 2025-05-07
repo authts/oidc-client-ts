@@ -25,6 +25,14 @@ describe("PopupWindow", () => {
             enumerable: true,
             value: {},
         });
+        Object.defineProperty(window, "localStorage", {
+            enumerable: true,
+            value: {},
+        });
+        Object.defineProperty(window, "sessionStorage", {
+            enumerable: true,
+            value: {},
+        });
 
         window.opener = {
             postMessage: jest.fn(),
@@ -32,6 +40,8 @@ describe("PopupWindow", () => {
         window.open = jest.fn(() => ({
             location: { replace: jest.fn() },
             history: { replace: jest.fn() },
+            localStorage: { replace: jest.fn() },
+            sessionStorage: { replace: jest.fn() },
             focus: jest.fn(),
             close: jest.fn(),
         } as unknown as WindowProxy));
