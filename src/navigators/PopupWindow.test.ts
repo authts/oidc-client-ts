@@ -21,12 +21,17 @@ describe("PopupWindow", () => {
             enumerable: true,
             value: { origin: "http://app" },
         });
+        Object.defineProperty(window, "history", {
+            enumerable: true,
+            value: {},
+        });
 
         window.opener = {
             postMessage: jest.fn(),
         };
         window.open = jest.fn(() => ({
             location: { replace: jest.fn() },
+            history: { replace: jest.fn() },
             focus: jest.fn(),
             close: jest.fn(),
         } as unknown as WindowProxy));
