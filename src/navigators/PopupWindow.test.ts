@@ -1,6 +1,7 @@
 import { mocked } from "jest-mock";
 import { PopupWindow } from "./PopupWindow";
 import { Log } from "../utils";
+import { setImmediate } from "timers";
 
 function firstSuccessfulResult<T>(fn: () => T): T {
     expect(fn).toHaveReturned();
@@ -174,13 +175,21 @@ describe("PopupWindow", () => {
     });
 
     it("should notify the parent window when isolated", async () => {
-        const channelPromise = new Promise((resolve) => {
+        const channelPromise = new Promise((resolve, reject) => {
             const channel = new BroadcastChannel("oidc-client-popup-someid");
             const listener = (e: MessageEvent) => {
                 channel.close();
                 resolve(e.data);
             };
             channel.addEventListener("message", listener, false);
+            setImmediate(() => {
+                setImmediate(() => {
+                    setImmediate(() => {
+                        channel.close();
+                        reject(new Error("timed out before receiving message"));
+                    });
+                });
+            });
         });
 
         window.opener = null;
