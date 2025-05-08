@@ -96,10 +96,11 @@ export abstract class AbstractChildWindow implements IWindow {
             url,
             keepOpen,
         };
+        const logger = new Logger("_notifyParent");
         if (parent) {
+            logger.debug("With parent. Using parent.postMessage.");
             parent.postMessage(msgData, targetOrigin);
         } else {
-            const logger = new Logger("_notifyParent");
             logger.debug("No parent. Using BroadcastChannel.");
             const state = new URL(url).searchParams.get("state");
             if (!state) {
