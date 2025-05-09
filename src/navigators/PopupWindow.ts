@@ -59,10 +59,13 @@ export class PopupWindow extends AbstractChildWindow {
 
         const popupClosedInterval = setInterval(() => {
             if (!this._window || this._window.closed) {
-                void this._abort.raise(new Error("Popup closed by user"));
+                this._logger.debug("Popup closed by user or isolated by redirect");
+                clearPopupClosedInterval();
+                this._disposeHandlers.delete(clearPopupClosedInterval);
             }
         }, checkForPopupClosedInterval);
-        this._disposeHandlers.add(() => clearInterval(popupClosedInterval));
+        const clearPopupClosedInterval = () => clearInterval(popupClosedInterval);
+        this._disposeHandlers.add(clearPopupClosedInterval);
 
         return await super.navigate(params);
     }
@@ -78,9 +81,9 @@ export class PopupWindow extends AbstractChildWindow {
     }
 
     public static notifyOpener(url: string, keepOpen: boolean): void {
-        if (!window.opener) {
-            throw new Error("No window.opener. Can't complete notification.");
+        super._notifyParent(window.opener, url, keepOpen);
+        if (!keepOpen && !window.opener) {
+            window.close();
         }
-        return super._notifyParent(window.opener, url, keepOpen);
     }
 }

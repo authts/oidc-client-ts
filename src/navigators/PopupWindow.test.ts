@@ -1,6 +1,7 @@
 import { mocked } from "jest-mock";
 import { PopupWindow } from "./PopupWindow";
 import { Log } from "../utils";
+import { setImmediate } from "timers";
 
 function firstSuccessfulResult<T>(fn: () => T): T {
     expect(fn).toHaveReturned();
@@ -21,12 +22,27 @@ describe("PopupWindow", () => {
             enumerable: true,
             value: { origin: "http://app" },
         });
+        Object.defineProperty(window, "history", {
+            enumerable: true,
+            value: {},
+        });
+        Object.defineProperty(window, "localStorage", {
+            enumerable: true,
+            value: {},
+        });
+        Object.defineProperty(window, "sessionStorage", {
+            enumerable: true,
+            value: {},
+        });
 
         window.opener = {
             postMessage: jest.fn(),
         };
         window.open = jest.fn(() => ({
             location: { replace: jest.fn() },
+            history: { replace: jest.fn() },
+            localStorage: { replace: jest.fn() },
+            sessionStorage: { replace: jest.fn() },
             focus: jest.fn(),
             close: jest.fn(),
         } as unknown as WindowProxy));
@@ -120,17 +136,6 @@ describe("PopupWindow", () => {
         jest.runAllTimers();
     });
 
-    it("should reject when the window is closed by user", async () => {
-        const popupWindow = new PopupWindow({});
-
-        const promise = popupWindow.navigate({ url: "http://sts/authorize?x=y", state: "someid" });
-        definePopupWindowClosedProperty(true);
-
-        jest.runOnlyPendingTimers();
-        await expect(promise).rejects.toThrow("Popup closed by user");
-        jest.runAllTimers();
-    });
-
     it("should reject when the window is closed programmatically", async () => {
         const popupWindow = new PopupWindow({});
 
@@ -160,6 +165,41 @@ describe("PopupWindow", () => {
             url: "http://sts/authorize?x=y",
             keepOpen: false,
         }, window.location.origin);
+    });
+
+    it("should reject when isolated and no state in url", async () => {
+        window.opener = null;
+        expect(() => {
+            PopupWindow.notifyOpener("http://sts/authorize?x=y", false);
+        }).toThrow("No parent and no state in URL. Can't complete notification.");
+    });
+
+    it("should notify the parent window when isolated", async () => {
+        const channelPromise = new Promise((resolve, reject) => {
+            const channel = new BroadcastChannel("oidc-client-popup-someid");
+            const listener = (e: MessageEvent) => {
+                channel.close();
+                resolve(e.data);
+            };
+            channel.addEventListener("message", listener, false);
+            setImmediate(() => {
+                setImmediate(() => {
+                    setImmediate(() => {
+                        channel.close();
+                        reject(new Error("timed out before receiving message"));
+                    });
+                });
+            });
+        });
+
+        window.opener = null;
+        PopupWindow.notifyOpener("http://sts/authorize?x=y&state=someid", false);
+
+        expect(await channelPromise).toEqual({
+            source: "oidc-client",
+            url: "http://sts/authorize?x=y&state=someid",
+            keepOpen: false,
+        });
     });
 
     it("should run setTimeout when closePopupWindowAfterInSeconds is greater than 0", async () => {

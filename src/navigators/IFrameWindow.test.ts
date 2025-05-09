@@ -3,6 +3,12 @@ import type { NavigateParams } from "./IWindow";
 
 const flushPromises = () => new Promise(process.nextTick);
 
+class AbortableIFrameWindow extends IFrameWindow {
+    public abort(): void {
+        void this._abort.raise(new Error("test aborted"));
+    }
+}
+
 describe("IFrameWindow", () => {
     const postMessageMock = jest.fn();
     const fakeWindowOrigin = "https://fake-origin.com";
@@ -112,7 +118,7 @@ describe("IFrameWindow", () => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 jest.spyOn(window, "addEventListener").mockImplementation((_, listener: any) => {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    listener(navigateParamsStub());
+                    setTimeout(() => { listener(navigateParamsStub()); });
                 });
             });
 
@@ -132,13 +138,14 @@ describe("IFrameWindow", () => {
                 let promiseDone = false;
                 navigateParamsStub.mockReturnValue({ ...validNavigateParams, origin: "http://different.com" });
 
-                const frameWindow = new IFrameWindow({});
+                const frameWindow = new AbortableIFrameWindow({});
                 const promise = frameWindow.navigate({ state: fakeState, url: fakeUrl, scriptOrigin: args.passedOrigin });
 
-                void promise.finally(() => promiseDone = true);
+                void promise.catch(() => {}).finally(() => promiseDone = true);
                 await flushPromises();
 
                 expect(promiseDone).toBe(false);
+                frameWindow.abort();
             });
 
             it("and data url parse fails should reject with error", async () => {
@@ -151,13 +158,14 @@ describe("IFrameWindow", () => {
                 let promiseDone = false;
                 navigateParamsStub.mockReturnValue({ ...validNavigateParams, source: {} });
 
-                const frameWindow = new IFrameWindow({});
+                const frameWindow = new AbortableIFrameWindow({});
                 const promise = frameWindow.navigate({ state: "diff_state", url: fakeUrl });
 
-                void promise.finally(() => promiseDone = true);
+                void promise.catch(() => {}).finally(() => promiseDone = true);
                 await flushPromises();
 
                 expect(promiseDone).toBe(false);
+                frameWindow.abort();
             });
         });
     });
