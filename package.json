@@ -62,7 +62,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "jest-mock": "^29.7.0",
     "jose": "^5.9.6",
-    "lint-staged": "^15.2.10",
+    "lint-staged": "^16.0.0",
     "ts-jest": "^29.2.5",
     "typedoc": "^0.28.0",
     "typescript": "~5.8.2",
