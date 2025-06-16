@@ -235,8 +235,8 @@ describe("UserManager", () => {
             await subject.removeUser();
 
             // assert
-            expect(storeUserMock).toBeCalledWith(null);
-            expect(unloadMock).toBeCalled();
+            expect(storeUserMock).toHaveBeenCalledWith(null);
+            expect(unloadMock).toHaveBeenCalled();
         });
 
         it("should remove dpop key from store if DPoP enabled", async () => {

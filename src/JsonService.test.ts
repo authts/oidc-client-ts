@@ -348,7 +348,7 @@ describe("JsonService", () => {
             await expect(subject.postForm("http://test", { body: new URLSearchParams("payload=dummy"), basicAuth: "basicAuth", extraHeaders })).rejects.toThrow();
 
             // assert
-            expect(fetch).toBeCalledTimes(2);
+            expect(fetch).toHaveBeenCalledTimes(2);
             expect(fetch).toHaveBeenLastCalledWith(
                 "http://test",
                 expect.objectContaining({
