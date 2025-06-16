@@ -151,7 +151,7 @@ describe("IFrameWindow", () => {
             it("and data url parse fails should reject with error", async () => {
                 navigateParamsStub.mockReturnValue({ ...validNavigateParams, data: { ...validNavigateParams.data, url: undefined } });
                 const frameWindow = new IFrameWindow({});
-                await expect(frameWindow.navigate({ state: fakeState, url: fakeUrl })).rejects.toThrowError("Invalid response from window");
+                await expect(frameWindow.navigate({ state: fakeState, url: fakeUrl })).rejects.toThrow("Invalid response from window");
             });
 
             it("and args source with state do not match contentWindow should never resolve", async () => {
