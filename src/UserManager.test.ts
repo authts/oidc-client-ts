@@ -831,6 +831,75 @@ describe("UserManager", () => {
                 resource: "resource",
             }, expect.any(Object), expect.any(String));
         });
+
+        it("should force iframe authentication when forceIframeAuth is true, even with refresh token", async () => {
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                refresh_token: "refresh_token", // refresh token is present
+                profile: {
+                    sub: "sub",
+                    nickname: "Nick",
+                } as UserProfile,
+            });
+
+            Object.assign(subject.settings, {
+                silent_redirect_uri: "http://client/silent_callback",
+            });
+
+            subject["_loadUser"] = jest.fn().mockResolvedValue(user);
+            subject["_signin"] = jest.fn().mockResolvedValue(user);
+            const useRefreshTokenSpy = jest.spyOn(subject["_client"], "useRefreshToken");
+
+            // act
+            await subject.signinSilent({ forceIframeAuth: true });
+
+            // assert
+            // Should NOT use refresh token when forceIframeAuth is true
+            expect(useRefreshTokenSpy).not.toHaveBeenCalled();
+            // Should use iframe-based signin instead
+            expect(subject["_signin"]).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    request_type: "si:s",
+                    prompt: "none",
+                }),
+                expect.any(Object),
+                expect.any(String),
+            );
+        });
+
+        it("should use refresh token when forceIframeAuth is false and refresh token is available", async () => {
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                refresh_token: "refresh_token",
+                profile: {
+                    sub: "sub",
+                    nickname: "Nick",
+                } as UserProfile,
+            });
+
+            const useRefreshTokenSpy = jest.spyOn(subject["_client"], "useRefreshToken").mockResolvedValue({
+                access_token: "new_access_token",
+                profile: {
+                    sub: "sub",
+                    nickname: "Nicholas",
+                },
+            } as unknown as SigninResponse);
+            subject["_loadUser"] = jest.fn().mockResolvedValue(user);
+            subject["_signin"] = jest.fn();
+
+            // act
+            await subject.signinSilent({ forceIframeAuth: false });
+
+            // assert
+            // Should use refresh token when forceIframeAuth is false
+            expect(useRefreshTokenSpy).toHaveBeenCalled();
+            // Should NOT use iframe-based signin
+            expect(subject["_signin"]).not.toHaveBeenCalled();
+        });
     });
 
     describe("signinSilentCallback", () => {

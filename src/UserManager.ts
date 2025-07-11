@@ -45,7 +45,15 @@ export type SigninPopupArgs = PopupWindowParams & ExtraSigninRequestArgs;
 /**
  * @public
  */
-export type SigninSilentArgs = IFrameWindowParams & ExtraSigninRequestArgs;
+export type ExtraSignInSilentArgs = { 
+    // forceIframeAuth bypasses refresh token usage and forces iframe-based silent authentication
+    forceIframeAuth?: boolean;
+};
+
+/**
+ * @public
+ */
+export type SigninSilentArgs = IFrameWindowParams & ExtraSigninRequestArgs & ExtraSignInSilentArgs;
 
 /**
  * @public
@@ -308,7 +316,8 @@ export class UserManager {
         } = args;
         // first determine if we have a refresh token, or need to use iframe
         let user = await this._loadUser();
-        if (user?.refresh_token) {
+        // use refresh token unless forceIframeAuth is explicitly true
+        if (!args.forceIframeAuth && user?.refresh_token) {
             logger.debug("using refresh token");
             const state = new RefreshState(user as Required<User>);
             return await this._useRefreshToken({
