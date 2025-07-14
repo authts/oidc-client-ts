@@ -108,6 +108,11 @@ export type ExtraHeader = string | (() => string);
 export type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "nonce" | "extraQueryParams" | "extraTokenParams" | "state" | "redirect_uri" | "prompt" | "acr_values" | "login_hint" | "scope" | "max_age" | "ui_locales" | "resource" | "url_state">;
 
 // @public (undocumented)
+export type ExtraSignInSilentArgs = {
+    forceIframeAuth?: boolean;
+};
+
+// @public (undocumented)
 export type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQueryParams" | "state" | "id_token_hint" | "post_logout_redirect_uri" | "url_state">;
 
 // Warning: (ae-forgotten-export) The symbol "Mandatory" needs to be exported by the entry point index.d.ts
@@ -778,7 +783,7 @@ export class SigninResponse {
 }
 
 // @public (undocumented)
-export type SigninSilentArgs = IFrameWindowParams & ExtraSigninRequestArgs;
+export type SigninSilentArgs = IFrameWindowParams & ExtraSigninRequestArgs & ExtraSignInSilentArgs;
 
 // @public (undocumented)
 export class SigninState extends State {
