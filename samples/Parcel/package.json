@@ -3,16 +3,17 @@
   "private": true,
   "scripts": {
     "start": "concurrently --kill-others \"npm run serve\" \"npm run server\"",
-    "serve": "parcel serve ./src/index.html",
-    "build": "parcel build ./src/index.html",
+    "serve": "vite",
+    "build": "vite build",
     "server": "node ./server.js"
   },
   "dependencies": {
     "express": "^5.1.0",
-    "jsrsasign": "^11.1.0"
+    "jsrsasign": "^11.1.0",
+    "jwt-decode": "^4.0.0"
   },
   "devDependencies": {
     "concurrently": "^9.2.0",
-    "parcel": "^2.15.4"
+    "vite": "^7.0.6"
   }
 }
