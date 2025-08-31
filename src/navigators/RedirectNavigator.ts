@@ -38,9 +38,9 @@ export class RedirectNavigator implements INavigator {
         return {
             navigate: async (params): Promise<never> => {
                 this._logger.create("navigate");
-                // We use a promise that never resolves to block the caller
                 const promise = new Promise((resolve, reject) => {
                     abort = reject;
+                    window.addEventListener("unload", () => resolve(null));
                 });
                 redirect(params.url);
                 return await (promise as Promise<never>);
