@@ -10,17 +10,17 @@ beforeAll(() => {
     });
     globalThis.fetch = jest.fn();
 
-    const unload = () => window.dispatchEvent(new Event("unload"));
+    const pageshow = () => window.dispatchEvent(new Event("pageshow"));
 
     const location = Object.defineProperties({}, {
         ...Object.getOwnPropertyDescriptors(window.location),
         assign: {
             enumerable: true,
-            value: jest.fn(unload),
+            value: jest.fn(pageshow),
         },
         replace: {
             enumerable: true,
-            value: jest.fn(unload),
+            value: jest.fn(pageshow),
         },
     });
     Object.defineProperty(window, "location", {

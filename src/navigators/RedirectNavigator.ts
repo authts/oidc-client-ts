@@ -4,7 +4,7 @@
 import { Logger } from "../utils";
 import type { UserManagerSettingsStore } from "../UserManagerSettings";
 import type { INavigator } from "./INavigator";
-import type { IWindow } from "./IWindow";
+import type { IWindow, NavigateResponse } from "./IWindow";
 
 /**
  * @public
@@ -33,17 +33,17 @@ export class RedirectNavigator implements INavigator {
             targetWindow = window.top ?? window.self;
         }
     
-        const redirect = targetWindow.location[redirectMethod].bind(targetWindow.location) as (url: string) => never;
+        const redirect = targetWindow.location[redirectMethod].bind(targetWindow.location) as (url: string) => void;
         let abort: (reason: Error) => void;
         return {
-            navigate: async (params): Promise<never> => {
+            navigate: async (params): Promise<NavigateResponse> => {
                 this._logger.create("navigate");
                 const promise = new Promise((resolve, reject) => {
                     abort = reject;
-                    window.addEventListener("unload", () => resolve(null));
+                    window.addEventListener("pageshow", () => resolve(window.location.href));
+                    redirect(params.url);
                 });
-                redirect(params.url);
-                return await (promise as Promise<never>);
+                return await (promise as Promise<NavigateResponse>);
             },
             close: () => {
                 this._logger.create("close");
