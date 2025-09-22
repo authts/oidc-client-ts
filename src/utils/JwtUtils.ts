@@ -36,4 +36,19 @@ export class JwtUtils {
         const encodedSignature = CryptoUtils.encodeBase64Url(new Uint8Array(signature));
         return `${encodedToken}.${encodedSignature}`;
     }
+
+    public static async generateSignedJwtWithHmac(header: object, payload: object, secretKey: CryptoKey): Promise<string> {
+        const encodedHeader = CryptoUtils.encodeBase64Url(new TextEncoder().encode(JSON.stringify(header)));
+        const encodedPayload = CryptoUtils.encodeBase64Url(new TextEncoder().encode(JSON.stringify(payload)));
+        const encodedToken = `${encodedHeader}.${encodedPayload}`;
+
+        const signature = await window.crypto.subtle.sign(
+            "HMAC",
+            secretKey,
+            new TextEncoder().encode(encodedToken),
+        );
+
+        const encodedSignature = CryptoUtils.encodeBase64Url(new Uint8Array(signature));
+        return `${encodedToken}.${encodedSignature}`;
+    }
 }

@@ -11,7 +11,7 @@ export interface GenerateDPoPProofOpts {
 
 const UUID_V4_TEMPLATE = "10000000-1000-4000-8000-100000000000";
 
-const toBase64 = (val: ArrayBuffer): string =>
+const toBase64 = (val: ArrayBuffer | Uint8Array): string =>
     btoa([...new Uint8Array(val)]
         .map((chr) => String.fromCharCode(chr))
         .join(""));
@@ -203,5 +203,52 @@ export class CryptoUtils {
             false,
             ["sign", "verify"],
         );
+    }
+
+    /**
+     * Generates a client assertion JWT for client_secret_jwt authentication
+     * @param client_id The client identifier
+     * @param client_secret The client secret
+     * @param audience The token endpoint URL (audience)
+     * @param algorithm The HMAC algorithm to use (HS256, HS384, HS512). Defaults to HS256
+     */
+    public static async generateClientAssertionJwt(client_id: string, client_secret: string, audience: string, algorithm: string = "HS256"): Promise<string> {
+        const now = Math.floor(Date.now() / 1000);
+
+        const header = {
+            "alg": algorithm,
+            "typ": "JWT",
+        };
+
+        const payload = {
+            "iss": client_id,
+            "sub": client_id,
+            "aud": audience,
+            "jti": CryptoUtils.generateUUIDv4(),
+            "exp": now + 300, // 5 minutes
+            "iat": now,
+        };
+
+        const hashMap: Record<string, string> = {
+            "HS256": "SHA-256",
+            "HS384": "SHA-384",
+            "HS512": "SHA-512",
+        };
+
+        const hashFunction = hashMap[algorithm];
+        if (!hashFunction) {
+            throw new Error(`Unsupported algorithm: ${algorithm}. Supported algorithms are: HS256, HS384, HS512`);
+        }
+
+        const encoder = new TextEncoder();
+        const secretKey = await crypto.subtle.importKey(
+            "raw",
+            encoder.encode(client_secret),
+            { name: "HMAC", hash: hashFunction },
+            false,
+            ["sign"],
+        );
+
+        return await JwtUtils.generateSignedJwtWithHmac(header, payload, secretKey);
     }
 }
