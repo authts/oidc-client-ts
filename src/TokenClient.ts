@@ -133,6 +133,7 @@ export class TokenClient {
                 break;
             case "client_secret_jwt": {
                 const clientAssertion = await CryptoUtils.generateClientAssertionJwt(client_id, client_secret!, url, this._settings.token_endpoint_auth_signing_alg);
+                params.append("client_id", client_id);
                 params.append("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
                 params.append("client_assertion", clientAssertion);
                 break;
@@ -204,6 +205,7 @@ export class TokenClient {
                 break;
             case "client_secret_jwt": {
                 const clientAssertion = await CryptoUtils.generateClientAssertionJwt(client_id, client_secret!, url, this._settings.token_endpoint_auth_signing_alg);
+                params.append("client_id", client_id);
                 params.append("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
                 params.append("client_assertion", clientAssertion);
                 break;
@@ -271,6 +273,7 @@ export class TokenClient {
                 break;
             case "client_secret_jwt": {
                 const clientAssertion = await CryptoUtils.generateClientAssertionJwt(client_id, client_secret!, url, this._settings.token_endpoint_auth_signing_alg);
+                params.append("client_id", client_id);
                 params.append("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
                 params.append("client_assertion", clientAssertion);
                 break;
