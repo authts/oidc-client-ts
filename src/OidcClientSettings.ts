@@ -63,10 +63,17 @@ export interface OidcClientSettings {
      * Client authentication method that is used to authenticate when using the token endpoint (default: "client_secret_post")
      * - "client_secret_basic": using the HTTP Basic authentication scheme
      * - "client_secret_post": including the client credentials in the request body
+     * - "client_secret_jwt": using a JWT signed with the client secret
      *
      * See https://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication
      */
-    client_authentication?: "client_secret_basic" | "client_secret_post";
+    client_authentication?: "client_secret_basic" | "client_secret_post" | "client_secret_jwt";
+
+    /**
+     * The signature algorithm to use for client_secret_jwt authentication (default: "HS256")
+     * Supported algorithms: HS256, HS384, HS512
+     */
+    token_endpoint_auth_signing_alg?: "HS256" | "HS384" | "HS512";
 
     /** optional protocol param */
     prompt?: string;
@@ -186,7 +193,8 @@ export class OidcClientSettingsStore {
     public readonly scope: string;
     public readonly redirect_uri: string;
     public readonly post_logout_redirect_uri: string | undefined;
-    public readonly client_authentication: "client_secret_basic" | "client_secret_post";
+    public readonly client_authentication: "client_secret_basic" | "client_secret_post" | "client_secret_jwt";
+    public readonly token_endpoint_auth_signing_alg: "HS256" | "HS384" | "HS512";
 
     // optional protocol params
     public readonly prompt: string | undefined;
@@ -225,6 +233,7 @@ export class OidcClientSettingsStore {
         client_id, client_secret, response_type = DefaultResponseType, scope = DefaultScope,
         redirect_uri, post_logout_redirect_uri,
         client_authentication = DefaultClientAuthentication,
+        token_endpoint_auth_signing_alg = "HS256",
         // optional protocol
         prompt, display, max_age, ui_locales, acr_values, resource, response_mode,
         // behavior flags
@@ -272,6 +281,7 @@ export class OidcClientSettingsStore {
         this.redirect_uri = redirect_uri;
         this.post_logout_redirect_uri = post_logout_redirect_uri;
         this.client_authentication = client_authentication;
+        this.token_endpoint_auth_signing_alg = token_endpoint_auth_signing_alg;
 
         this.prompt = prompt;
         this.display = display;

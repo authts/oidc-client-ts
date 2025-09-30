@@ -384,7 +384,7 @@ export class OidcClient {
 export interface OidcClientSettings {
     acr_values?: string;
     authority: string;
-    client_authentication?: "client_secret_basic" | "client_secret_post";
+    client_authentication?: "client_secret_basic" | "client_secret_post" | "client_secret_jwt";
     client_id: string;
     // (undocumented)
     client_secret?: string;
@@ -421,18 +421,19 @@ export interface OidcClientSettings {
     signingKeys?: SigningKey[];
     staleStateAgeInSeconds?: number;
     stateStore?: StateStore;
+    token_endpoint_auth_signing_alg?: "HS256" | "HS384" | "HS512";
     ui_locales?: string;
 }
 
 // @public
 export class OidcClientSettingsStore {
-    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, requestTimeoutInSeconds, staleStateAgeInSeconds, mergeClaimsStrategy, disablePKCE, stateStore, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, extraHeaders, dpop, omitScopeWhenRequesting, }: OidcClientSettings);
+    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, token_endpoint_auth_signing_alg, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, requestTimeoutInSeconds, staleStateAgeInSeconds, mergeClaimsStrategy, disablePKCE, stateStore, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, extraHeaders, dpop, omitScopeWhenRequesting, }: OidcClientSettings);
     // (undocumented)
     readonly acr_values: string | undefined;
     // (undocumented)
     readonly authority: string;
     // (undocumented)
-    readonly client_authentication: "client_secret_basic" | "client_secret_post";
+    readonly client_authentication: "client_secret_basic" | "client_secret_post" | "client_secret_jwt";
     // (undocumented)
     readonly client_id: string;
     // (undocumented)
@@ -495,6 +496,8 @@ export class OidcClientSettingsStore {
     readonly staleStateAgeInSeconds: number;
     // (undocumented)
     readonly stateStore: StateStore;
+    // (undocumented)
+    readonly token_endpoint_auth_signing_alg: "HS256" | "HS384" | "HS512";
     // (undocumented)
     readonly ui_locales: string | undefined;
 }
