@@ -18,8 +18,14 @@ export class PopupNavigator implements INavigator {
         popupWindowFeatures = this._settings.popupWindowFeatures,
         popupWindowTarget = this._settings.popupWindowTarget,
         popupSignal,
+        popupAbortOnClose,
     }: PopupWindowParams): Promise<PopupWindow> {
-        return new PopupWindow({ popupWindowFeatures, popupWindowTarget, popupSignal });
+        return new PopupWindow({
+            popupWindowFeatures,
+            popupWindowTarget,
+            popupSignal,
+            popupAbortOnClose,
+        });
     }
 
     public async callback(url: string, { keepOpen = false }): Promise<void> {
