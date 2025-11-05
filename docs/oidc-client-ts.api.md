@@ -589,6 +589,7 @@ export interface PopupWindowFeatures {
 
 // @public (undocumented)
 export interface PopupWindowParams {
+    popupAbortOnClose?: boolean;
     popupSignal?: AbortSignal | null;
     // (undocumented)
     popupWindowFeatures?: PopupWindowFeatures;
