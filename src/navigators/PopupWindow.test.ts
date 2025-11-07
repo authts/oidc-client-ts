@@ -120,6 +120,17 @@ describe("PopupWindow", () => {
         expect(popupFromWindowOpen.close).toHaveBeenCalled();
     });
 
+    it("should reject when the window is closed by user", async () => {
+        const popupWindow = new PopupWindow({ popupAbortOnClose: true });
+
+        const promise = popupWindow.navigate({ url: "http://sts/authorize?x=y", state: "someid" });
+        definePopupWindowClosedProperty(true);
+
+        jest.runOnlyPendingTimers();
+        await expect(promise).rejects.toThrow("Popup closed by user");
+        jest.runAllTimers();
+    });
+
     it("should reject when navigate fails", async () => {
         const popupWindow = new PopupWindow({});
 

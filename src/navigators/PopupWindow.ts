@@ -17,6 +17,8 @@ export interface PopupWindowParams {
     popupWindowTarget?: string;
     /** An AbortSignal to set request's signal. */
     popupSignal?: AbortSignal | null;
+    /** Abort navigator when the popup is lost */
+    popupAbortOnClose?: boolean;
 }
 
 /**
@@ -27,14 +29,18 @@ export class PopupWindow extends AbstractChildWindow {
 
     protected _window: WindowProxy | null;
 
+    protected abortOnClose: boolean;
+
     public constructor({
         popupWindowTarget = DefaultPopupTarget,
         popupWindowFeatures = {},
         popupSignal,
+        popupAbortOnClose,
     }: PopupWindowParams) {
         super();
         const centeredPopup = PopupUtils.center({ ...DefaultPopupWindowFeatures, ...popupWindowFeatures });
         this._window = window.open(undefined, popupWindowTarget, PopupUtils.serialize(centeredPopup));
+        this.abortOnClose = Boolean(popupAbortOnClose);
 
         if (popupSignal) {
             popupSignal.addEventListener("abort", () => {
@@ -62,6 +68,10 @@ export class PopupWindow extends AbstractChildWindow {
                 this._logger.debug("Popup closed by user or isolated by redirect");
                 clearPopupClosedInterval();
                 this._disposeHandlers.delete(clearPopupClosedInterval);
+                
+                if (this.abortOnClose) {
+                    void this._abort.raise(new Error("Popup closed by user"));
+                }
             }
         }, checkForPopupClosedInterval);
         const clearPopupClosedInterval = () => clearInterval(popupClosedInterval);
