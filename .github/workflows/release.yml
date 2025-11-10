@@ -3,6 +3,9 @@ on:
   release:
     types: [created]
 
+permissions:
+  id-token: write # Required for provenance
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -22,14 +25,10 @@ jobs:
       - name: Publish package release
         if: "!github.event.release.prerelease"
         run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish package pre-release
         if: "github.event.release.prerelease"
         run: npm publish --tag next
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Generate API documentation
         run: npm run typedoc
