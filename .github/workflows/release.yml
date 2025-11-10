@@ -4,6 +4,7 @@ on:
     types: [created]
 
 permissions:
+  contents: write # Required for pushing docs
   id-token: write # Required for provenance
 
 jobs:
