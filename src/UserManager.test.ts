@@ -493,13 +493,14 @@ describe("UserManager", () => {
                     height: 100,
                 },
                 popupWindowTarget: "popupWindowTarget",
+                popupAbortOnClose: true,
             };
 
             // act
             await subject.signinPopup(navParams);
 
             // assert
-            expect(prepareMock).toHaveBeenCalledWith(navParams);
+            expect(prepareMock).toHaveBeenCalledWith(expect.objectContaining(navParams));
         });
 
         it("should pass extra args to _signinStart", async () => {
