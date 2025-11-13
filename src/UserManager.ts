@@ -263,6 +263,7 @@ export class UserManager {
             popupWindowFeatures,
             popupWindowTarget,
             popupSignal,
+            popupAbortOnClose,
             ...requestArgs
         } = args;
         const url = this.settings.popup_redirect_uri;
@@ -270,7 +271,7 @@ export class UserManager {
             logger.throw(new Error("No popup_redirect_uri configured"));
         }
 
-        const handle = await this._popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget, popupSignal });
+        const handle = await this._popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget, popupSignal, popupAbortOnClose });
         const user = await this._signin({
             request_type: "si:p",
             redirect_uri: url,
