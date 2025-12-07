@@ -1120,6 +1120,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     iframeScriptOrigin?: string;
     includeIdTokenInSilentRenew?: boolean;
     includeIdTokenInSilentSignout?: boolean;
+    maxSilentRenewTimeoutRetries?: number;
     // (undocumented)
     monitorAnonymousSession?: boolean;
     monitorSession?: boolean;
@@ -1159,6 +1160,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     readonly includeIdTokenInSilentRenew: boolean;
     // (undocumented)
     readonly includeIdTokenInSilentSignout: boolean;
+    // (undocumented)
+    readonly maxSilentRenewTimeoutRetries?: number;
     // (undocumented)
     readonly monitorAnonymousSession: boolean;
     // (undocumented)

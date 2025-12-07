@@ -80,6 +80,13 @@ export interface UserManagerSettings extends OidcClientSettings {
     accessTokenExpiringNotificationTimeInSeconds?: number;
 
     /**
+     * Maximum number of timeout retries before raising silentRenewError event.
+     * Set to 0 to fail immediately on timeout.
+     * Undefined means infinite retries (maintains backward compatibility, default behavior).
+     */
+    maxSilentRenewTimeoutRetries?: number;
+
+    /**
      * Storage object used to persist User for currently authenticated user (default: window.sessionStorage, InMemoryWebStorage iff no window).
      *  E.g. `userStore: new WebStorageStateStore({ store: window.localStorage })`
      */
@@ -120,6 +127,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly includeIdTokenInSilentSignout: boolean;
 
     public readonly accessTokenExpiringNotificationTimeInSeconds: number;
+    public readonly maxSilentRenewTimeoutRetries?: number;
 
     public readonly userStore: StateStore;
 
@@ -154,6 +162,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
             accessTokenExpiringNotificationTimeInSeconds = DefaultAccessTokenExpiringNotificationTimeInSeconds,
 
+            maxSilentRenewTimeoutRetries,
+
             userStore,
         } = args;
 
@@ -186,6 +196,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         this.includeIdTokenInSilentSignout = includeIdTokenInSilentSignout;
 
         this.accessTokenExpiringNotificationTimeInSeconds = accessTokenExpiringNotificationTimeInSeconds;
+        this.maxSilentRenewTimeoutRetries = maxSilentRenewTimeoutRetries;
 
         if (userStore) {
             this.userStore = userStore;
