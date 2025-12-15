@@ -13,6 +13,7 @@ export class SilentRenewService {
     protected _logger = new Logger("SilentRenewService");
     private _isStarted = false;
     private readonly _retryTimer = new Timer("Retry Silent Renew");
+    private _timeoutRetryCount = 0;
 
     public constructor(private _userManager: UserManager) {}
 
@@ -48,17 +49,43 @@ export class SilentRenewService {
         const logger = this._logger.create("_tokenExpiring");
         try {
             await this._userManager.signinSilent();
+            this._timeoutRetryCount = 0;
             logger.debug("silent token renewal successful");
         }
         catch (err) {
             if (err instanceof ErrorTimeout) {
+                // Increment timeout retry counter
+                this._timeoutRetryCount++;
+
+                // Check if a max timeout retry limit is configured
+                const maxRetries = this._userManager.settings.maxSilentRenewTimeoutRetries;
+                const hasReachedLimit = maxRetries !== undefined && this._timeoutRetryCount > maxRetries;
+
+                if (hasReachedLimit) {
+                    // Limit reached: raise event to notify application and stop retrying
+                    logger.error(
+                        `Timeout retry limit reached (${this._timeoutRetryCount} > ${maxRetries}), ` +
+                        "raising silentRenewError:",
+                        err,
+                    );
+                    this._timeoutRetryCount = 0;
+                    await this._userManager.events._raiseSilentRenewError(err as Error);
+                    return;
+                }
+
+                // No limit configured (undefined) or limit not reached: continue retrying
                 // no response from authority server, e.g. IFrame timeout, ...
-                logger.warn("ErrorTimeout from signinSilent:", err, "retry in 5s");
+                logger.warn(
+                    `ErrorTimeout from signinSilent (attempt ${this._timeoutRetryCount}), retry in 5s:`,
+                    err,
+                );
                 this._retryTimer.init(5);
                 return;
             }
 
+            // Non-timeout error: reset counter and raise event immediately
             logger.error("Error from signinSilent:", err);
+            this._timeoutRetryCount = 0;
             await this._userManager.events._raiseSilentRenewError(err as Error);
         }
     };
