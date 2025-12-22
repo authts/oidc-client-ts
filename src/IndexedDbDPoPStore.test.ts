@@ -1,5 +1,6 @@
 import { IndexedDbDPoPStore } from "./IndexedDbDPoPStore";
 import { DPoPState } from "./DPoPStore";
+import { beforeEach, describe, expect, it } from "vitest";
 
 describe("DPoPStore", () => {
     const subject = new IndexedDbDPoPStore();

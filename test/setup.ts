@@ -1,14 +1,9 @@
 import { Log } from "../src";
 import "fake-indexeddb/auto";
-import { TextEncoder } from "util";
-import { webcrypto } from "node:crypto";
+import { beforeAll, beforeEach, vi } from "vitest";
 
 beforeAll(() => {
-    globalThis.TextEncoder = TextEncoder;
-    Object.assign(globalThis.crypto, {
-        subtle: webcrypto.subtle,
-    });
-    globalThis.fetch = jest.fn();
+    globalThis.fetch = vi.fn();
 
     const pageshow = () => window.dispatchEvent(new Event("pageshow"));
 
@@ -16,11 +11,11 @@ beforeAll(() => {
         ...Object.getOwnPropertyDescriptors(window.location),
         assign: {
             enumerable: true,
-            value: jest.fn(pageshow),
+            value: vi.fn(pageshow),
         },
         replace: {
             enumerable: true,
-            value: jest.fn(pageshow),
+            value: vi.fn(pageshow),
         },
     });
     Object.defineProperty(window, "location", {

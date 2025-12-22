@@ -1,6 +1,8 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import { fail } from "assert";
+import { describe, beforeEach, it, expect } from "vitest";
 import { SignoutRequest, type SignoutRequestArgs } from "./SignoutRequest";
 import { URL_STATE_DELIMITER } from "./utils";
 
@@ -94,7 +96,7 @@ describe("SignoutRequest", () => {
             // assert
             expect(subject.url).not.toContain("state=");
         });
-        
+
         it("should include url_state", async () => {
             // arrange
             settings.url_state = "foo";

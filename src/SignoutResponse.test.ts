@@ -1,6 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import { describe, it, expect } from "vitest";
 import { SignoutResponse } from "./SignoutResponse";
 
 describe("SignoutResponse", () => {
@@ -38,7 +39,7 @@ describe("SignoutResponse", () => {
             // assert
             expect(subject.state).toEqual("foo");
         });
-        
+
         it("should read url_state", () => {
             // act
             const subject = new SignoutResponse(new URLSearchParams("state=foo;bar"));

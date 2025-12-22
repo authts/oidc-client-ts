@@ -2,6 +2,7 @@ import { CryptoUtils } from "./utils";
 import { TokenClient } from "./TokenClient";
 import { MetadataService } from "./MetadataService";
 import { type ExtraHeader, type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
+import { describe, beforeEach, it, expect, vi } from "vitest";
 
 describe("TokenClient", () => {
     let settings: OidcClientSettings;
@@ -74,11 +75,11 @@ describe("TokenClient", () => {
             settings.client_authentication = "client_secret_basic";
             settings.client_secret = "client_secret";
             subject = new TokenClient(new OidcClientSettingsStore(settings), metadataService);
-            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+            const getTokenEndpointMock = vi.spyOn(subject["_metadataService"], "getTokenEndpoint")
                 .mockResolvedValue("http://sts/token_endpoint");
-            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+            const postFormMock = vi.spyOn(subject["_jsonService"], "postForm")
                 .mockResolvedValue({});
-            const generateBasicAuthSpy = jest.spyOn(CryptoUtils, "generateBasicAuth");
+            const generateBasicAuthSpy = vi.spyOn(CryptoUtils, "generateBasicAuth");
 
             // act
             await subject.exchangeCode({ code: "code", code_verifier: "code_verifier" });
@@ -100,9 +101,9 @@ describe("TokenClient", () => {
             settings.client_authentication = "client_secret_post";
             settings.client_secret = "client_secret";
             subject = new TokenClient(new OidcClientSettingsStore(settings), metadataService);
-            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+            const getTokenEndpointMock = vi.spyOn(subject["_metadataService"], "getTokenEndpoint")
                 .mockResolvedValue("http://sts/token_endpoint");
-            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+            const postFormMock = vi.spyOn(subject["_jsonService"], "postForm")
                 .mockResolvedValue({});
 
             // act
@@ -124,9 +125,9 @@ describe("TokenClient", () => {
 
         it("should call postForm", async () => {
             // arrange
-            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+            const getTokenEndpointMock = vi.spyOn(subject["_metadataService"], "getTokenEndpoint")
                 .mockResolvedValue("http://sts/token_endpoint");
-            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+            const postFormMock = vi.spyOn(subject["_jsonService"], "postForm")
                 .mockResolvedValue({});
 
             // act
@@ -145,9 +146,9 @@ describe("TokenClient", () => {
 
         it("should call postForm with extraHeaders if extraHeaders are supplied", async () => {
             // arrange
-            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+            const getTokenEndpointMock = vi.spyOn(subject["_metadataService"], "getTokenEndpoint")
                 .mockResolvedValue("http://sts/token_endpoint");
-            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+            const postFormMock = vi.spyOn(subject["_jsonService"], "postForm")
                 .mockResolvedValue({});
             const extraHeaders: Record<string, ExtraHeader> = { "foo": "bar" };
             // act
@@ -196,11 +197,11 @@ describe("TokenClient", () => {
             settings.client_authentication = "client_secret_basic";
             settings.client_secret = "client_secret";
             subject = new TokenClient(new OidcClientSettingsStore(settings), metadataService);
-            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+            const getTokenEndpointMock = vi.spyOn(subject["_metadataService"], "getTokenEndpoint")
                 .mockResolvedValue("http://sts/token_endpoint");
-            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+            const postFormMock = vi.spyOn(subject["_jsonService"], "postForm")
                 .mockResolvedValue({});
-            const generateBasicAuthSpy = jest.spyOn(CryptoUtils, "generateBasicAuth");
+            const generateBasicAuthSpy = vi.spyOn(CryptoUtils, "generateBasicAuth");
 
             // act
             await subject.exchangeCredentials({ username: "u", password: "p" });
@@ -222,9 +223,9 @@ describe("TokenClient", () => {
             settings.client_authentication = "client_secret_post";
             settings.client_secret = "client_secret";
             subject = new TokenClient(new OidcClientSettingsStore(settings), metadataService);
-            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+            const getTokenEndpointMock = vi.spyOn(subject["_metadataService"], "getTokenEndpoint")
                 .mockResolvedValue("http://sts/token_endpoint");
-            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+            const postFormMock = vi.spyOn(subject["_jsonService"], "postForm")
                 .mockResolvedValue({});
 
             // act
@@ -246,9 +247,9 @@ describe("TokenClient", () => {
 
         it("should call postForm", async () => {
             // arrange
-            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+            const getTokenEndpointMock = vi.spyOn(subject["_metadataService"], "getTokenEndpoint")
                 .mockResolvedValue("http://sts/token_endpoint");
-            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+            const postFormMock = vi.spyOn(subject["_jsonService"], "postForm")
                 .mockResolvedValue({});
 
             // act
@@ -313,9 +314,9 @@ describe("TokenClient", () => {
             settings.client_authentication = "client_secret_basic";
             settings.client_secret = "client_secret";
             subject = new TokenClient(new OidcClientSettingsStore(settings), metadataService);
-            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+            const getTokenEndpointMock = vi.spyOn(subject["_metadataService"], "getTokenEndpoint")
                 .mockResolvedValue("http://sts/token_endpoint");
-            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+            const postFormMock = vi.spyOn(subject["_jsonService"], "postForm")
                 .mockResolvedValue({});
 
             // act
@@ -338,9 +339,9 @@ describe("TokenClient", () => {
             settings.client_authentication = "client_secret_post";
             settings.client_secret = "client_secret";
             subject = new TokenClient(new OidcClientSettingsStore(settings), metadataService);
-            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+            const getTokenEndpointMock = vi.spyOn(subject["_metadataService"], "getTokenEndpoint")
                 .mockResolvedValue("http://sts/token_endpoint");
-            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+            const postFormMock = vi.spyOn(subject["_jsonService"], "postForm")
                 .mockResolvedValue({});
 
             // act
@@ -364,9 +365,9 @@ describe("TokenClient", () => {
         it("should not include scope if omitScopeWhenRequesting is true", async () => {
             settings.omitScopeWhenRequesting = true;
             subject = new TokenClient(new OidcClientSettingsStore(settings), metadataService);
-            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+            const getTokenEndpointMock = vi.spyOn(subject["_metadataService"], "getTokenEndpoint")
                 .mockResolvedValue("http://sts/token_endpoint");
-            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+            const postFormMock = vi.spyOn(subject["_jsonService"], "postForm")
                 .mockResolvedValue({});
 
             // act
@@ -389,9 +390,9 @@ describe("TokenClient", () => {
 
         it("should call postForm", async () => {
             // arrange
-            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+            const getTokenEndpointMock = vi.spyOn(subject["_metadataService"], "getTokenEndpoint")
                 .mockResolvedValue("http://sts/token_endpoint");
-            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+            const postFormMock = vi.spyOn(subject["_jsonService"], "postForm")
                 .mockResolvedValue({});
 
             // act
@@ -411,9 +412,9 @@ describe("TokenClient", () => {
 
         it("should call postForm with extraHeaders if extraHeaders are supplied", async () => {
             // arrange
-            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getTokenEndpoint")
+            const getTokenEndpointMock = vi.spyOn(subject["_metadataService"], "getTokenEndpoint")
                 .mockResolvedValue("http://sts/token_endpoint");
-            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+            const postFormMock = vi.spyOn(subject["_jsonService"], "postForm")
                 .mockResolvedValue({});
             const extraHeaders: Record<string, ExtraHeader> = { "foo": "bar" };
             // act
@@ -446,9 +447,9 @@ describe("TokenClient", () => {
             settings.client_secret = "client_secret";
             subject = new TokenClient(new OidcClientSettingsStore(settings), metadataService);
 
-            const getTokenEndpointMock = jest.spyOn(subject["_metadataService"], "getRevocationEndpoint")
+            const getTokenEndpointMock = vi.spyOn(subject["_metadataService"], "getRevocationEndpoint")
                 .mockResolvedValue("http://sts/revoke_endpoint");
-            const postFormMock = jest.spyOn(subject["_jsonService"], "postForm")
+            const postFormMock = vi.spyOn(subject["_jsonService"], "postForm")
                 .mockResolvedValue({});
 
             // act

@@ -1,13 +1,13 @@
-import { mocked } from "jest-mock";
 import type { UserManagerSettingsStore } from "../UserManagerSettings";
 import { RedirectNavigator } from "./RedirectNavigator";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 describe("RedirectNavigator", () => {
     const settings = { redirectMethod: "assign" } as UserManagerSettingsStore;
     const navigator = new RedirectNavigator(settings);
 
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     it("should redirect to the authority server using the default redirect method", async () => {
@@ -29,13 +29,13 @@ describe("RedirectNavigator", () => {
         Object.defineProperty(window, "top", {
             value: {
                 location: {
-                    assign: jest.fn(),
+                    assign: vi.fn(),
                 },
             },
         });
 
         const handle = await navigator.prepare({ redirectTarget: "top" });
-        const spy = jest.fn();
+        const spy = vi.fn();
         void handle.navigate({ url: "http://sts/authorize" }).finally(spy);
 
         expect(window.location.assign).toHaveBeenCalledTimes(0);
@@ -45,7 +45,7 @@ describe("RedirectNavigator", () => {
 
     it("should reject when the navigation is stopped programmatically", async () => {
         const handle = await navigator.prepare({});
-        mocked(window.location.assign).mockReturnValue(undefined);
+        vi.mocked(window.location.assign).mockReturnValue(undefined);
         const promise = handle.navigate({ url: "http://sts/authorize" });
 
         handle.close();

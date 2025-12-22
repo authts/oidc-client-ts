@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from "vitest";
 import { CryptoUtils } from "./CryptoUtils";
 import { jwtVerify, decodeProtectedHeader, importJWK, type JWK } from "jose";
 
@@ -102,8 +103,8 @@ describe("CryptoUtils", () => {
 
         it("should throw an exception if there is an error generating the signed JWT", async () => {
             const keyPair = await CryptoUtils.generateDPoPKeys();
-            const exportKeyMock = jest.spyOn(crypto.subtle, "exportKey").mockResolvedValue({} as JsonWebKey);
-            const generateSignedJwtMock = jest.spyOn(crypto.subtle, "sign").mockRejectedValue(new Error("Generate signed JWT error"));
+            const exportKeyMock = vi.spyOn(crypto.subtle, "exportKey").mockResolvedValue({} as JsonWebKey);
+            const generateSignedJwtMock = vi.spyOn(crypto.subtle, "sign").mockRejectedValue(new Error("Generate signed JWT error"));
             await expect(CryptoUtils.generateDPoPProof({
                 url: "http://example.com", keyPair: keyPair })).rejects.toThrow("Generate signed JWT error");
             exportKeyMock.mockRestore();
