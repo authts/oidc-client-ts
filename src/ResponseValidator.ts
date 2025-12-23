@@ -43,7 +43,7 @@ export class ResponseValidator {
         logger.debug("code processed");
 
         if (response.isOpenId) {
-            this._validateIdTokenAttributes(response);
+            this._validateIdTokenAttributes(response, "", state.nonce);
         }
         logger.debug("tokens validated");
 
@@ -192,7 +192,7 @@ export class ResponseValidator {
         }
     }
 
-    protected _validateIdTokenAttributes(response: SigninResponse, existingToken?: string): void {
+    protected _validateIdTokenAttributes(response: SigninResponse, existingToken?: string, nonce?: string): void {
         const logger = this._logger.create("_validateIdTokenAttributes");
 
         logger.debug("decoding ID Token JWT");
@@ -200,6 +200,10 @@ export class ResponseValidator {
 
         if (!incoming.sub) {
             logger.throw(new Error("ID Token is missing a subject claim"));
+        }
+
+        if (nonce && incoming.nonce !== nonce) {
+            logger.throw(new Error("nonce in id_token does not match nonce in client storage"));
         }
 
         if (existingToken) {

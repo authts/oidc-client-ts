@@ -147,6 +147,21 @@ describe("SigninState", () => {
             // assert
             expect(subject.extraTokenParams).toEqual({ "resourceServer" : "abc" });
         });
+
+        it("should accept nonce", async () => {
+            // act
+            const subject = await SigninState.create({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type",
+                nonce: "rnd",
+            });
+
+            // assert
+            expect(subject.nonce).toEqual("rnd");
+        });
     });
 
     it("can serialize and then deserialize", async () => {
@@ -160,6 +175,7 @@ describe("SigninState", () => {
             redirect_uri: "http://cb",
             scope: "scope",
             request_type: "type",
+            nonce: "rnd",
         });
 
         // act

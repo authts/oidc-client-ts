@@ -806,6 +806,8 @@ export class SigninState extends State {
     // (undocumented)
     static fromStorageString(storageString: string): Promise<SigninState>;
     // (undocumented)
+    readonly nonce: string | undefined;
+    // (undocumented)
     readonly redirect_uri: string;
     // (undocumented)
     readonly response_mode: "query" | "fragment" | undefined;
@@ -837,6 +839,8 @@ export interface SigninStateArgs {
     extraTokenParams?: Record<string, unknown>;
     // (undocumented)
     id?: string;
+    // (undocumented)
+    nonce?: string;
     // (undocumented)
     redirect_uri: string;
     // (undocumented)
