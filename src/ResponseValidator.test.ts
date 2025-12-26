@@ -549,6 +549,44 @@ describe("ResponseValidator", () => {
             expect(JwtUtils.decode).toHaveBeenCalledWith("id_token");
             expect(stubResponse).not.toHaveProperty("profile");
         });
+
+        it("should fail if nonce is in state and does not match", async () => {
+            // arrange
+            Object.assign(stubResponse, {
+                id_token: "id_token",
+                isOpenId: true,
+            });
+            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub", nonce: "invalid" });
+            Object.assign(stubState, { nonce: "rnd" });
+
+            // act
+            await expect(
+                subject.validateSigninResponse(stubResponse, stubState),
+            )
+                // assert
+                .rejects.toThrow("nonce in id_token does not match nonce in client storage");
+            expect(JwtUtils.decode).toHaveBeenCalledWith("id_token");
+            expect(stubResponse).not.toHaveProperty("profile");
+        });
+
+        it("should fail if nonce is in state and not in token", async () => {
+            // arrange
+            Object.assign(stubResponse, {
+                id_token: "id_token",
+                isOpenId: true,
+            });
+            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
+            Object.assign(stubState, { nonce: "rnd" });
+
+            // act
+            await expect(
+                subject.validateSigninResponse(stubResponse, stubState),
+            )
+                // assert
+                .rejects.toThrow("nonce in id_token does not match nonce in client storage");
+            expect(JwtUtils.decode).toHaveBeenCalledWith("id_token");
+            expect(stubResponse).not.toHaveProperty("profile");
+        });
     });
 
     describe("validateCredentialsResponse", () => {

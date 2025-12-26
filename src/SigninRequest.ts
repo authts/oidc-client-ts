@@ -112,6 +112,7 @@ export class SigninRequest {
             response_mode,
             client_secret, scope, extraTokenParams,
             skipUserInfo,
+            nonce,
         });
 
         const parsedUrl = new URL(url);

@@ -22,6 +22,7 @@ export interface SigninStateArgs {
     response_mode?: "query" | "fragment";
     skipUserInfo?: boolean;
     url_state?: string;
+    nonce?: string;
 }
 
 /** @public */
@@ -56,6 +57,8 @@ export class SigninState extends State {
     public readonly response_mode: "query" | "fragment" | undefined;
 
     public readonly skipUserInfo: boolean | undefined;
+    /** @see {@link SigninRequestCreateArgs.nonce} */
+    public readonly nonce: string | undefined;
 
     private constructor(args: SigninStateArgs) {
         super(args);
@@ -71,6 +74,7 @@ export class SigninState extends State {
 
         this.response_mode = args.response_mode;
         this.skipUserInfo = args.skipUserInfo;
+        this.nonce = args.nonce;
     }
 
     public static async create(args: SigninStateCreateArgs): Promise<SigninState> {
@@ -102,6 +106,7 @@ export class SigninState extends State {
             extraTokenParams : this.extraTokenParams,
             response_mode: this.response_mode,
             skipUserInfo: this.skipUserInfo,
+            nonce: this.nonce,
         });
     }
 

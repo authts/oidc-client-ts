@@ -282,6 +282,17 @@ describe("SigninRequest", () => {
             expect(url).toContain("nonce=");
         });
 
+        it("should store nonce in state", async () => {
+            // arrange
+            settings.nonce = "random_nonce";
+
+            // act
+            subject = await SigninRequest.create(settings);
+
+            // assert
+            expect(subject.state.nonce).toEqual("random_nonce");
+        });
+
         it("should include url_state", async () => {
             // arrange
             settings.url_state = "foo";
