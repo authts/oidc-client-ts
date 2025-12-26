@@ -556,7 +556,7 @@ describe("ResponseValidator", () => {
                 id_token: "id_token",
                 isOpenId: true,
             });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub", nonce: "invalid" });
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub", nonce: "invalid" });
             Object.assign(stubState, { nonce: "rnd" });
 
             // act
@@ -575,7 +575,7 @@ describe("ResponseValidator", () => {
                 id_token: "id_token",
                 isOpenId: true,
             });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
             Object.assign(stubState, { nonce: "rnd" });
 
             // act
