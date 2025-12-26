@@ -10,7 +10,7 @@ import type { SigninState } from "./SigninState";
 import type { SigninResponse } from "./SigninResponse";
 import type { SignoutResponse } from "./SignoutResponse";
 import type { OidcClientSettingsStore } from "./OidcClientSettings";
-import { mocked } from "jest-mock";
+import { describe, beforeEach, vi, afterEach, it, expect } from "vitest";
 
 describe("ResponseValidator", () => {
     let stubState: SigninState;
@@ -41,16 +41,16 @@ describe("ResponseValidator", () => {
 
         claimsService = new ClaimsService(settings);
         subject = new ResponseValidator(settings, metadataService, claimsService);
-        jest.spyOn(subject["_tokenClient"], "exchangeCode").mockResolvedValue(
+        vi.spyOn(subject["_tokenClient"], "exchangeCode").mockResolvedValue(
             {},
         );
-        jest.spyOn(subject["_userInfoService"], "getClaims").mockResolvedValue({
+        vi.spyOn(subject["_userInfoService"], "getClaims").mockResolvedValue({
             nickname: "Nick",
         });
     });
 
     afterEach(() => {
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
     });
 
     describe("validateSignoutResponse", () => {
@@ -116,7 +116,7 @@ describe("ResponseValidator", () => {
         it("should not process code if state fails", async () => {
             // arrange
             Object.assign(stubResponse, { code: "code", state: "not_the_id" });
-            const exchangeCodeSpy = jest
+            const exchangeCodeSpy = vi
                 .spyOn(subject["_tokenClient"], "exchangeCode")
                 .mockRejectedValue(new Error("should not come here"));
 
@@ -136,8 +136,8 @@ describe("ResponseValidator", () => {
                 access_token: "access_token",
                 id_token: "id_token",
             });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
-            mocked(subject["_userInfoService"].getClaims).mockResolvedValue({
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
+            vi.mocked(subject["_userInfoService"].getClaims).mockResolvedValue({
                 sub: "sub",
             });
 
@@ -272,7 +272,7 @@ describe("ResponseValidator", () => {
                 isOpenId: true,
                 id_token: "id_token",
             });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({
                 sub: "sub",
                 iss: "iss",
                 acr: "acr",
@@ -310,12 +310,12 @@ describe("ResponseValidator", () => {
                 access_token: "access_token",
                 id_token: "id_token",
             });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({
                 sub: "sub",
                 a: "apple",
                 b: "banana",
             });
-            mocked(subject["_userInfoService"].getClaims).mockResolvedValue({
+            vi.mocked(subject["_userInfoService"].getClaims).mockResolvedValue({
                 sub: "sub different",
             });
 
@@ -337,12 +337,12 @@ describe("ResponseValidator", () => {
                 access_token: "access_token",
                 id_token: "id_token",
             });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({
                 sub: "sub",
                 a: "apple",
                 b: "banana",
             });
-            mocked(subject["_userInfoService"].getClaims).mockResolvedValue({
+            vi.mocked(subject["_userInfoService"].getClaims).mockResolvedValue({
                 sub: "sub",
                 c: "carrot",
             });
@@ -385,7 +385,7 @@ describe("ResponseValidator", () => {
                 access_token: "access_token",
                 id_token: "id_token",
             });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({
                 sub: "sub",
                 a: "apple",
                 b: "banana",
@@ -407,7 +407,7 @@ describe("ResponseValidator", () => {
                 isOpenId: true,
                 id_token: "id_token",
             });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({
                 sub: "sub",
                 a: "apple",
                 b: "banana",
@@ -487,10 +487,10 @@ describe("ResponseValidator", () => {
                 scope: "scope",
                 expires_at: "expires_at",
             };
-            mocked(subject["_tokenClient"].exchangeCode).mockResolvedValue(
+            vi.mocked(subject["_tokenClient"].exchangeCode).mockResolvedValue(
                 tokenResponse,
             );
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
 
             // act
             await subject.validateSigninResponse(stubResponse, stubState);
@@ -504,7 +504,7 @@ describe("ResponseValidator", () => {
             Object.assign(stubResponse, { code: "code" });
             Object.assign(stubState, { code_verifier: "code_verifier" });
             const tokenResponse = { expires_in: 42 };
-            mocked(subject["_tokenClient"].exchangeCode).mockResolvedValue(
+            vi.mocked(subject["_tokenClient"].exchangeCode).mockResolvedValue(
                 tokenResponse,
             );
 
@@ -522,7 +522,7 @@ describe("ResponseValidator", () => {
                 isOpenId: true,
             });
             const profile = { sub: "sub" };
-            jest.spyOn(JwtUtils, "decode").mockReturnValue(profile);
+            vi.spyOn(JwtUtils, "decode").mockReturnValue(profile);
 
             // act
             await subject.validateSigninResponse(stubResponse, stubState);
@@ -538,7 +538,7 @@ describe("ResponseValidator", () => {
                 id_token: "id_token",
                 isOpenId: true,
             });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({ a: "a" });
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({ a: "a" });
 
             // act
             await expect(
@@ -596,7 +596,7 @@ describe("ResponseValidator", () => {
                 id_token: "id_token",
                 isOpenId: true,
             });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
 
             // act
             await subject.validateCredentialsResponse(stubResponse, true);
@@ -615,7 +615,7 @@ describe("ResponseValidator", () => {
                 id_token: "id_token",
                 isOpenId: true,
             });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: undefined });
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({ sub: undefined });
 
             // act
             await expect(
@@ -634,7 +634,7 @@ describe("ResponseValidator", () => {
             Object.assign(stubResponse, {
                 isOpenId: true,
             });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
 
             // act
             await subject.validateCredentialsResponse(stubResponse, true);
@@ -654,7 +654,7 @@ describe("ResponseValidator", () => {
                 isOpenId: true,
             });
 
-            jest.spyOn(subject["_userInfoService"], "getClaims").mockResolvedValue({
+            vi.spyOn(subject["_userInfoService"], "getClaims").mockResolvedValue({
                 nickname: "Nick",
                 sub: "subsub",
             });
@@ -670,7 +670,7 @@ describe("ResponseValidator", () => {
                 id_token: "id_token",
                 isOpenId: false,
             });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
 
             // act
             await subject.validateCredentialsResponse(stubResponse, true);
@@ -690,7 +690,7 @@ describe("ResponseValidator", () => {
                 id_token: "id_token",
                 isOpenId: false,
             });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
 
             // act
             await subject.validateCredentialsResponse(stubResponse, false);
@@ -710,7 +710,7 @@ describe("ResponseValidator", () => {
                 isOpenId: false,
                 access_token: "",
             });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
 
             // act
             await subject.validateCredentialsResponse(stubResponse, false);
@@ -730,7 +730,7 @@ describe("ResponseValidator", () => {
                 isOpenId: false,
                 access_token: "access_token",
             });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
 
             // act
             await subject.validateCredentialsResponse(stubResponse, false);
@@ -752,8 +752,8 @@ describe("ResponseValidator", () => {
                 isOpenId: true,
                 access_token: "access_token",
             });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
-            jest.spyOn(
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
+            vi.spyOn(
                 subject["_userInfoService"],
                 "getClaims",
             ).mockResolvedValue({ sub: "anotherSub", nickname: "Nick" });
@@ -778,8 +778,8 @@ describe("ResponseValidator", () => {
                 isOpenId: true,
                 access_token: "access_token",
             });
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
-            jest.spyOn(
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "subsub" });
+            vi.spyOn(
                 subject["_userInfoService"],
                 "getClaims",
             ).mockResolvedValue({ sub: "subsub", nickname: "Nick" });

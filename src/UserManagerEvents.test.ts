@@ -1,6 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import { describe, beforeEach, it, vi, expect } from "vitest";
 import type { User } from "./User";
 import { UserManagerEvents } from "./UserManagerEvents";
 import { UserManagerSettingsStore } from "./UserManagerSettings";
@@ -21,7 +22,7 @@ describe("UserManagerEvents", () => {
     describe("user loaded", () => {
         it("should allow add callback", async () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
 
             // act
             subject.addUserLoaded(cb);
@@ -33,7 +34,7 @@ describe("UserManagerEvents", () => {
 
         it("should allow remove callback", async () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
 
             // act
             subject.addUserLoaded(cb);
@@ -64,7 +65,7 @@ describe("UserManagerEvents", () => {
     describe("user unloaded", () => {
         it("should allow add callback", async () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
 
             // act
             subject.addUserUnloaded(cb);
@@ -76,7 +77,7 @@ describe("UserManagerEvents", () => {
 
         it("should allow remove callback", async () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
 
             // act
             subject.addUserUnloaded(cb);
@@ -91,7 +92,7 @@ describe("UserManagerEvents", () => {
     describe("silent renew error", () => {
         it("should allow add callback", async () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
 
             // act
             subject.addSilentRenewError(cb);
@@ -103,7 +104,7 @@ describe("UserManagerEvents", () => {
 
         it("should allow remove callback", async () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
 
             // act
             subject.addSilentRenewError(cb);
@@ -134,7 +135,7 @@ describe("UserManagerEvents", () => {
     describe("user signed in", () => {
         it("should allow add callback", async () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
 
             // act
             subject.addUserSignedIn(cb);
@@ -146,7 +147,7 @@ describe("UserManagerEvents", () => {
 
         it("should allow remove callback", async () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
 
             // act
             subject.addUserSignedIn(cb);
@@ -161,7 +162,7 @@ describe("UserManagerEvents", () => {
     describe("user signed out", () => {
         it("should allow add callback", async () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
 
             // act
             subject.addUserSignedOut(cb);
@@ -173,7 +174,7 @@ describe("UserManagerEvents", () => {
 
         it("should allow remove callback", async () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
 
             // act
             subject.addUserSignedOut(cb);
@@ -188,7 +189,7 @@ describe("UserManagerEvents", () => {
     describe("user session changed", () => {
         it("should allow add callback", async () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
 
             // act
             subject.addUserSessionChanged(cb);
@@ -200,7 +201,7 @@ describe("UserManagerEvents", () => {
 
         it("should allow remove callback", async () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
 
             // act
             subject.addUserSessionChanged(cb);

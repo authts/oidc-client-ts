@@ -4,6 +4,7 @@
 import { Timer } from "./utils";
 import { AccessTokenEvents } from "./AccessTokenEvents";
 import type { User } from "./User";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("AccessTokenEvents", () => {
 
@@ -142,6 +143,6 @@ class StubTimer extends Timer {
         this.cancelWasCalled = true;
     }
 
-    addHandler = jest.fn();
-    removeHandler = jest.fn();
+    addHandler = vi.fn();
+    removeHandler = vi.fn();
 }

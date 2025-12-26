@@ -1,3 +1,4 @@
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { IFrameWindow } from "./IFrameWindow";
 import type { NavigateParams } from "./IWindow";
 
@@ -10,12 +11,12 @@ class AbortableIFrameWindow extends IFrameWindow {
 }
 
 describe("IFrameWindow", () => {
-    const postMessageMock = jest.fn();
+    const postMessageMock = vi.fn();
     const fakeWindowOrigin = "https://fake-origin.com";
     const fakeUrl = "https://fakeurl.com";
 
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     describe("hidden frame", () => {
@@ -43,10 +44,10 @@ describe("IFrameWindow", () => {
 
     describe("close", () => {
         let subject: IFrameWindow;
-        const parentRemoveChild = jest.fn();
+        const parentRemoveChild = vi.fn();
         beforeEach(() => {
             subject = new IFrameWindow({});
-            jest.spyOn(subject["_frame"]!, "parentNode", "get").mockReturnValue({
+            vi.spyOn(subject["_frame"]!, "parentNode", "get").mockReturnValue({
                 removeChild: parentRemoveChild,
             } as unknown as ParentNode);
         });
@@ -58,8 +59,8 @@ describe("IFrameWindow", () => {
 
         describe("if frame defined", () => {
             it("should set blank url for contentWindow", () => {
-                const replaceMock = jest.fn();
-                jest.spyOn(subject["_frame"]!, "contentWindow", "get")
+                const replaceMock = vi.fn();
+                vi.spyOn(subject["_frame"]!, "contentWindow", "get")
                     .mockReturnValue({ location: { replace: replaceMock } } as unknown as WindowProxy);
 
                 subject.close();
@@ -74,10 +75,10 @@ describe("IFrameWindow", () => {
     });
 
     describe("navigate", () => {
-        const contentWindowMock = jest.fn();
+        const contentWindowMock = vi.fn();
 
         beforeAll(() => {
-            jest.spyOn(window, "parent", "get").mockReturnValue({
+            vi.spyOn(window, "parent", "get").mockReturnValue({
                 postMessage: postMessageMock,
             } as unknown as WindowProxy);
             Object.defineProperty(window, "location", {
@@ -86,11 +87,11 @@ describe("IFrameWindow", () => {
             });
 
             contentWindowMock.mockReturnValue(null);
-            jest.spyOn(window.document.body, "appendChild").mockImplementation();
-            jest.spyOn(window.document, "createElement").mockImplementation(() => ({
+            vi.spyOn(window.document.body, "appendChild").mockImplementation((child) => child);
+            vi.spyOn(window.document, "createElement").mockImplementation(() => ({
                 contentWindow: contentWindowMock(),
                 style: {},
-                setAttribute: jest.fn(),
+                setAttribute: vi.fn(),
             } as unknown as HTMLIFrameElement),
             );
         });
@@ -104,19 +105,19 @@ describe("IFrameWindow", () => {
 
         describe("when message received", () => {
             const fakeState = "fffaaakkkeee_state";
-            const fakeContentWindow = { location: { replace: jest.fn() } };
+            const fakeContentWindow = { location: { replace: vi.fn() } };
             const validNavigateParams = {
                 source: fakeContentWindow,
                 data: { source: "oidc-client",
                     url: `https://test.com?state=${fakeState}` },
                 origin: fakeWindowOrigin,
             };
-            const navigateParamsStub = jest.fn();
+            const navigateParamsStub = vi.fn();
 
             beforeAll(() => {
                 contentWindowMock.mockReturnValue(fakeContentWindow);
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                jest.spyOn(window, "addEventListener").mockImplementation((_, listener: any) => {
+                vi.spyOn(window, "addEventListener").mockImplementation((_, listener: any) => {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     setTimeout(() => { listener(navigateParamsStub()); });
                 });

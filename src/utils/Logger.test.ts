@@ -1,6 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import { beforeEach, vi, describe, it, expect } from "vitest";
 import { Log, Logger, type ILogger } from "./Logger";
 
 let subject: Logger;
@@ -8,10 +9,10 @@ let testLogger: ILogger;
 
 beforeEach(() => {
     testLogger = {
-        debug: jest.fn(),
-        info: jest.fn(),
-        warn: jest.fn(),
-        error: jest.fn(),
+        debug: vi.fn(),
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
     };
     Log.reset();
     subject = new Logger("name");

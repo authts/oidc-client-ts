@@ -107,12 +107,6 @@ export default [{
 }, {
     files: ["src/**/*.test.*", "test/**/*"],
 
-    languageOptions: {
-        globals: {
-            ...globals.jest,
-        },
-    },
-
     rules: {
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/unbound-method": "off",

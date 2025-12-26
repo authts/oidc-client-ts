@@ -1,6 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Event } from "./Event";
 
 describe("Event", () => {
@@ -15,7 +16,7 @@ describe("Event", () => {
 
         it("should allow callback to be invoked", async () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
 
             // act
             subject.addHandler(cb);
@@ -27,7 +28,7 @@ describe("Event", () => {
 
         it("should allow multiple callbacks", async () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
 
             // act
             subject.addHandler(cb);
@@ -45,7 +46,7 @@ describe("Event", () => {
 
         it("should remove callback from being invoked", async () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
 
             // act
             subject.addHandler(cb);
@@ -58,8 +59,8 @@ describe("Event", () => {
 
         it("should remove individual callback", async () => {
             // arrange
-            const cb1 = jest.fn();
-            const cb2 = jest.fn();
+            const cb1 = vi.fn();
+            const cb2 = vi.fn();
 
             // act
             subject.addHandler(cb1);

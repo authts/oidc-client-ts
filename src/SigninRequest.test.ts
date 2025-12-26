@@ -1,6 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import { describe, beforeEach, it, expect } from "vitest";
 import { SigninRequest, type SigninRequestCreateArgs } from "./SigninRequest";
 import { URL_STATE_DELIMITER } from "./utils";
 

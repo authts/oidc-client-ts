@@ -1,3 +1,4 @@
+import { describe, beforeEach, vi, afterEach, it, expect } from "vitest";
 import { User } from "./User";
 import { Timer } from "./utils";
 
@@ -7,11 +8,11 @@ describe("User", () => {
 
     beforeEach(() => {
         now = 0;
-        jest.spyOn(Timer, "getEpochTime").mockImplementation(() => now);
+        vi.spyOn(Timer, "getEpochTime").mockImplementation(() => now);
     });
 
     afterEach(() => {
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
     });
 
     describe("expired", () => {

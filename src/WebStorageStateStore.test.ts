@@ -3,6 +3,7 @@
 
 import { WebStorageStateStore } from "./WebStorageStateStore";
 import { InMemoryWebStorage } from "./InMemoryWebStorage";
+import { describe, beforeEach, it, expect } from "vitest";
 
 describe("WebStorageStateStore", () => {
     let prefix: string;
