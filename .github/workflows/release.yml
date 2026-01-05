@@ -3,26 +3,27 @@ on:
   release:
     types: [created]
 
+permissions:
+  #contents: write # Required for pushing docs
+  id-token: write # Required for provenance
+
 jobs:
   publish:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       # Setup .npmrc file to publish to npm
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         with:
-          node-version: 18.x
+          node-version: 24.x
           cache: npm
           registry-url: https://registry.npmjs.org
 
       - run: npm ci
       - run: npm publish --tag previous
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - run: npm run typedoc
-
 #      - name: Deploy pages
 #        uses: peaceiris/actions-gh-pages@v3
 #        with:
