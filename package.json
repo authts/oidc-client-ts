@@ -47,7 +47,7 @@
     "@microsoft/api-extractor": "^7.49.1",
     "@stylistic/eslint-plugin": "^2.13.0",
     "@testing-library/jest-dom": "^6.6.3",
-    "@types/node": "^24.10.1",
+    "@types/node": "^25.0.3",
     "@typescript-eslint/eslint-plugin": "^8.20.0",
     "@typescript-eslint/parser": "^8.20.0",
     "@vitest/coverage-v8": "^4.0.16",
