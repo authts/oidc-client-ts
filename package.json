@@ -62,7 +62,7 @@
     "jsdom": "^27.3.0",
     "lint-staged": "^16.1.0",
     "typedoc": "^0.28.0",
-    "typescript": "~5.8.2",
+    "typescript": "~5.9.3",
     "vitest": "^4.0.16",
     "yn": "^5.0.0"
   },
