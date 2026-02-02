@@ -339,9 +339,9 @@ export class OidcClient {
     // (undocumented)
     clearStaleState(): Promise<void>;
     // (undocumented)
-    createSigninRequest({ state, request, request_uri, request_type, id_token_hint, login_hint, skipUserInfo, nonce, url_state, response_type, scope, redirect_uri, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, extraQueryParams, extraTokenParams, dpopJkt, omitScopeWhenRequesting, }: CreateSigninRequestArgs): Promise<SigninRequest>;
+    createSigninRequest(input: CreateSigninRequestArgs): Promise<SigninRequest>;
     // (undocumented)
-    createSignoutRequest({ state, id_token_hint, client_id, request_type, url_state, post_logout_redirect_uri, extraQueryParams, }?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
+    createSignoutRequest(input?: CreateSignoutRequestArgs): Promise<SignoutRequest>;
     // (undocumented)
     getDpopProof(dpopStore: DPoPStore, nonce?: string): Promise<string>;
     // (undocumented)
@@ -349,7 +349,7 @@ export class OidcClient {
     // (undocumented)
     readonly metadataService: MetadataService;
     // (undocumented)
-    processResourceOwnerPasswordCredentials({ username, password, skipUserInfo, extraTokenParams, }: ProcessResourceOwnerPasswordCredentialsArgs): Promise<SigninResponse>;
+    processResourceOwnerPasswordCredentials(input: ProcessResourceOwnerPasswordCredentialsArgs): Promise<SigninResponse>;
     // (undocumented)
     processSigninResponse(url: string, extraHeaders?: Record<string, ExtraHeader>, removeState?: boolean): Promise<SigninResponse>;
     // (undocumented)
@@ -373,7 +373,7 @@ export class OidcClient {
     // (undocumented)
     protected readonly _tokenClient: TokenClient;
     // (undocumented)
-    useRefreshToken({ state, redirect_uri, resource, timeoutInSeconds, extraHeaders, extraTokenParams, }: UseRefreshTokenArgs): Promise<SigninResponse>;
+    useRefreshToken(input: UseRefreshTokenArgs): Promise<SigninResponse>;
     // Warning: (ae-forgotten-export) The symbol "ResponseValidator" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -427,7 +427,7 @@ export interface OidcClientSettings {
 
 // @public
 export class OidcClientSettingsStore {
-    constructor({ authority, metadataUrl, metadata, signingKeys, metadataSeed, client_id, client_secret, response_type, scope, redirect_uri, post_logout_redirect_uri, client_authentication, token_endpoint_auth_signing_alg, prompt, display, max_age, ui_locales, acr_values, resource, response_mode, filterProtocolClaims, loadUserInfo, requestTimeoutInSeconds, staleStateAgeInSeconds, mergeClaimsStrategy, disablePKCE, stateStore, revokeTokenAdditionalContentTypes, fetchRequestCredentials, refreshTokenAllowedScope, extraQueryParams, extraTokenParams, extraHeaders, dpop, omitScopeWhenRequesting, }: OidcClientSettings);
+    constructor(input: OidcClientSettings);
     // (undocumented)
     readonly acr_values: string | undefined;
     // (undocumented)
@@ -678,7 +678,7 @@ export type SigninRedirectArgs = RedirectParams & ExtraSigninRequestArgs;
 // @public (undocumented)
 export class SigninRequest {
     // (undocumented)
-    static create({ url, authority, client_id, redirect_uri, response_type, scope, state_data, response_mode, request_type, client_secret, nonce, url_state, resource, skipUserInfo, extraQueryParams, extraTokenParams, disablePKCE, dpopJkt, omitScopeWhenRequesting, ...optionalParams }: SigninRequestCreateArgs): Promise<SigninRequest>;
+    static create(input: SigninRequestCreateArgs): Promise<SigninRequest>;
     // (undocumented)
     readonly state: SigninState;
     // (undocumented)
@@ -868,7 +868,7 @@ export type SignoutRedirectArgs = RedirectParams & ExtraSignoutRequestArgs;
 
 // @public (undocumented)
 export class SignoutRequest {
-    constructor({ url, state_data, id_token_hint, post_logout_redirect_uri, extraQueryParams, request_type, client_id, url_state, }: SignoutRequestArgs);
+    constructor(input: SignoutRequestArgs);
     // (undocumented)
     readonly state?: State;
     // (undocumented)
@@ -1052,7 +1052,7 @@ export class UserManager {
     signinPopupCallback(url?: string, keepOpen?: boolean): Promise<void>;
     signinRedirect(args?: SigninRedirectArgs): Promise<void>;
     signinRedirectCallback(url?: string): Promise<User>;
-    signinResourceOwnerCredentials({ username, password, skipUserInfo, }: SigninResourceOwnerCredentialsArgs): Promise<User>;
+    signinResourceOwnerCredentials(input: SigninResourceOwnerCredentialsArgs): Promise<User>;
     signinSilent(args?: SigninSilentArgs): Promise<User | null>;
     signinSilentCallback(url?: string): Promise<void>;
     // (undocumented)
@@ -1220,7 +1220,7 @@ export const Version: string;
 
 // @public (undocumented)
 export class WebStorageStateStore implements StateStore {
-    constructor({ prefix, store, }?: {
+    constructor(input?: {
         prefix?: string;
         store?: AsyncStorage | Storage;
     });
