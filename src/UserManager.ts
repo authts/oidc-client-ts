@@ -415,7 +415,7 @@ export class UserManager {
                 await this.signinSilentCallback(url);
                 break;
             default:
-                throw new Error("invalid response_type in state");
+                throw new Error("invalid request_type in state");
         }
         return undefined;
     }
@@ -445,7 +445,7 @@ export class UserManager {
                 await this.signoutSilentCallback(url);
                 break;
             default:
-                throw new Error("invalid response_type in state");
+                throw new Error("invalid request_type in state");
         }
         return undefined;
     }
