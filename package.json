@@ -52,7 +52,7 @@
     "@typescript-eslint/parser": "^8.20.0",
     "@vitest/coverage-v8": "^4.0.16",
     "esbuild": "^0.27.0",
-    "eslint": "^9.18.0",
+    "eslint": "^10.0.1",
     "eslint-plugin-testing-library": "^7.1.1",
     "fake-indexeddb": "^6.0.0",
     "globals": "^17.0.0",
