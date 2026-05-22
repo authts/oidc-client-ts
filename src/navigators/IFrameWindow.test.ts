@@ -42,6 +42,21 @@ describe("IFrameWindow", () => {
         });
     });
 
+    describe("attributes", () => {
+        let frameWindow: IFrameWindow;
+
+        beforeAll(() => {
+            frameWindow = new IFrameWindow({ iframeAttributes: { "allow": "local-network-access *", "another_attr": "another_value" } });
+        });
+
+        it("should have custom attributes", () => {
+            const allow = frameWindow["_frame"]!.getAttribute("allow");
+            const anotherAttr = frameWindow["_frame"]!.getAttribute("another_attr");
+            expect(allow).toBe("local-network-access *");
+            expect(anotherAttr).toBe("another_value");
+        });
+    });
+
     describe("close", () => {
         let subject: IFrameWindow;
         const parentRemoveChild = vi.fn();

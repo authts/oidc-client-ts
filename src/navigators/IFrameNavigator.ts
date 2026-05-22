@@ -16,8 +16,9 @@ export class IFrameNavigator implements INavigator {
 
     public async prepare({
         silentRequestTimeoutInSeconds = this._settings.silentRequestTimeoutInSeconds,
+        iframeAttributes = this._settings.iframeAttributes,
     }: IFrameWindowParams): Promise<IFrameWindow> {
-        return new IFrameWindow({ silentRequestTimeoutInSeconds });
+        return new IFrameWindow({ silentRequestTimeoutInSeconds, iframeAttributes });
     }
 
     public async callback(url: string): Promise<void> {

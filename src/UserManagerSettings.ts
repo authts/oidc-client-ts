@@ -17,6 +17,7 @@ export const DefaultPopupTarget = "_blank";
 const DefaultAccessTokenExpiringNotificationTimeInSeconds = 60;
 const DefaultCheckSessionIntervalInSeconds = 2;
 export const DefaultSilentRequestTimeoutInSeconds = 10;
+export const DefaultIFrameAttributes = undefined;
 
 /**
  * The settings used to configure the {@link UserManager}.
@@ -45,6 +46,11 @@ export interface UserManagerSettings extends OidcClientSettings {
 
     /** The script origin to check during 'message' callback execution while performing silent auth via iframe (default: window.location.origin) */
     iframeScriptOrigin?: string;
+
+    /**
+     * Defines additional attributes to add to iframe used by silent login.
+     */
+    iframeAttributes?: Record<string, string> | undefined;
 
     /** The URL for the page containing the code handling the silent renew */
     silent_redirect_uri?: string;
@@ -112,6 +118,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
     public readonly silent_redirect_uri: string;
     public readonly silentRequestTimeoutInSeconds: number;
+    public readonly iframeAttributes?: Record<string, string>;
     public readonly automaticSilentRenew: boolean;
     public readonly validateSubOnSilentRenew: boolean;
     public readonly includeIdTokenInSilentRenew: boolean;
@@ -142,6 +149,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
             iframeNotifyParentOrigin = args.iframeNotifyParentOrigin,
             iframeScriptOrigin = args.iframeScriptOrigin,
+            iframeAttributes = args.iframeAttributes,
 
             requestTimeoutInSeconds,
             silent_redirect_uri = args.redirect_uri,
@@ -178,6 +186,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
         this.iframeNotifyParentOrigin = iframeNotifyParentOrigin;
         this.iframeScriptOrigin = iframeScriptOrigin;
+        this.iframeAttributes = iframeAttributes;
 
         this.silent_redirect_uri = silent_redirect_uri;
         this.silentRequestTimeoutInSeconds = silentRequestTimeoutInSeconds || requestTimeoutInSeconds || DefaultSilentRequestTimeoutInSeconds;
