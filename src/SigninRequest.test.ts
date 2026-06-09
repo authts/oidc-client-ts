@@ -1,6 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import { describe, beforeEach, it, expect } from "vitest";
 import { SigninRequest, type SigninRequestCreateArgs } from "./SigninRequest";
 import { URL_STATE_DELIMITER } from "./utils";
 
@@ -64,6 +65,18 @@ describe("SigninRequest", () => {
         it("should include scope", () => {
             // assert
             expect(url).toContain("scope=openid");
+        });
+
+        it("should not include scope if omitScopeWhenRequesting is true", async () => {
+            // arrange
+            settings.omitScopeWhenRequesting = true;
+
+            // act
+            subject = await SigninRequest.create(settings);
+            url = subject.url;
+
+            // assert
+            expect(url).not.toContain("scope");
         });
 
         it("should include state", () => {
@@ -270,6 +283,17 @@ describe("SigninRequest", () => {
             expect(url).toContain("nonce=");
         });
 
+        it("should store nonce in state", async () => {
+            // arrange
+            settings.nonce = "random_nonce";
+
+            // act
+            subject = await SigninRequest.create(settings);
+
+            // assert
+            expect(subject.state.nonce).toEqual("random_nonce");
+        });
+
         it("should include url_state", async () => {
             // arrange
             settings.url_state = "foo";
@@ -279,6 +303,17 @@ describe("SigninRequest", () => {
 
             // assert
             expect(subject.url).toContain("state=" + subject.state.id + encodeURIComponent(URL_STATE_DELIMITER + "foo"));
+        });
+
+        it("should include dpop_jkt", async () => {
+            // arrange
+            settings.dpopJkt = "foo";
+
+            // act
+            subject = await SigninRequest.create(settings);
+
+            // assert
+            expect(subject.url).toContain("dpop_jkt=foo");
         });
     });
 });

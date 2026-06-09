@@ -2,7 +2,8 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
 
 module.exports = function (app) {
     app.use(
-        createProxyMiddleware("/oidc/", {
+        "/oidc/",
+        createProxyMiddleware({
             target: "http://localhost:15000/",
         })
     );

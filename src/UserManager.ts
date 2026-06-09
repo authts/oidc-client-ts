@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Logger } from "./utils";
+import { CryptoUtils, Logger } from "./utils";
 import { ErrorResponse } from "./errors";
 import { type NavigateResponse, type PopupWindowParams, type IWindow, type IFrameWindowParams, type RedirectParams, RedirectNavigator, PopupNavigator, IFrameNavigator, type INavigator } from "./navigators";
 import { OidcClient, type CreateSigninRequestArgs, type CreateSignoutRequestArgs, type ProcessResourceOwnerPasswordCredentialsArgs, type UseRefreshTokenArgs } from "./OidcClient";
@@ -15,6 +15,8 @@ import type { SignoutResponse } from "./SignoutResponse";
 import type { MetadataService } from "./MetadataService";
 import { RefreshState } from "./RefreshState";
 import type { SigninResponse } from "./SigninResponse";
+import type { ExtraHeader, DPoPSettings } from "./OidcClientSettings";
+import { DPoPState } from "./DPoPStore";
 
 /**
  * @public
@@ -23,7 +25,7 @@ export type ExtraSigninRequestArgs = Pick<CreateSigninRequestArgs, "nonce" | "ex
 /**
  * @public
  */
-export type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQueryParams" | "state" | "id_token_hint" | "post_logout_redirect_uri">;
+export type ExtraSignoutRequestArgs = Pick<CreateSignoutRequestArgs, "extraQueryParams" | "state" | "id_token_hint" | "post_logout_redirect_uri" | "url_state">;
 
 /**
  * @public
@@ -43,7 +45,15 @@ export type SigninPopupArgs = PopupWindowParams & ExtraSigninRequestArgs;
 /**
  * @public
  */
-export type SigninSilentArgs = IFrameWindowParams & ExtraSigninRequestArgs;
+export type ExtraSignInSilentArgs = { 
+    // forceIframeAuth bypasses refresh token usage and forces iframe-based silent authentication
+    forceIframeAuth?: boolean;
+};
+
+/**
+ * @public
+ */
+export type SigninSilentArgs = IFrameWindowParams & ExtraSigninRequestArgs & ExtraSignInSilentArgs;
 
 /**
  * @public
@@ -110,7 +120,6 @@ export class UserManager {
         if (this.settings.monitorSession) {
             this._sessionMonitor = new SessionMonitor(this);
         }
-
     }
 
     /**
@@ -130,14 +139,15 @@ export class UserManager {
     /**
      * Load the `User` object for the currently authenticated user.
      *
+     * @param raiseEvent - If `true`, the `UserLoaded` event will be raised. Defaults to false.
      * @returns A promise
      */
-    public async getUser(): Promise<User | null> {
+    public async getUser(raiseEvent = false): Promise<User | null> {
         const logger = this._logger.create("getUser");
         const user = await this._loadUser();
         if (user) {
             logger.info("user loaded");
-            await this._events.load(user, false);
+            await this._events.load(user, raiseEvent);
             return user;
         }
 
@@ -170,9 +180,16 @@ export class UserManager {
             redirectMethod,
             ...requestArgs
         } = args;
+
+        let dpopJkt: string | undefined;
+        if (this.settings.dpop?.bind_authorization_code) {
+            dpopJkt = await this.generateDPoPJkt(this.settings.dpop);
+        }
+
         const handle = await this._redirectNavigator.prepare({ redirectMethod });
         await this._signinStart({
             request_type: "si:r",
+            dpopJkt,
             ...requestArgs,
         }, handle);
     }
@@ -211,7 +228,12 @@ export class UserManager {
     }: SigninResourceOwnerCredentialsArgs): Promise<User> {
         const logger = this._logger.create("signinResourceOwnerCredential");
 
-        const signinResponse = await this._client.processResourceOwnerPasswordCredentials({ username, password, skipUserInfo, extraTokenParams: this.settings.extraTokenParams });
+        const signinResponse = await this._client.processResourceOwnerPasswordCredentials({
+            username,
+            password,
+            skipUserInfo,
+            extraTokenParams: this.settings.extraTokenParams,
+        });
         logger.debug("got signin response");
 
         const user = await this._buildUser(signinResponse);
@@ -231,9 +253,17 @@ export class UserManager {
      */
     public async signinPopup(args: SigninPopupArgs = {}): Promise<User> {
         const logger = this._logger.create("signinPopup");
+
+        let dpopJkt: string | undefined;
+        if (this.settings.dpop?.bind_authorization_code) {
+            dpopJkt = await this.generateDPoPJkt(this.settings.dpop);
+        }
+
         const {
             popupWindowFeatures,
             popupWindowTarget,
+            popupSignal,
+            popupAbortOnClose,
             ...requestArgs
         } = args;
         const url = this.settings.popup_redirect_uri;
@@ -241,24 +271,25 @@ export class UserManager {
             logger.throw(new Error("No popup_redirect_uri configured"));
         }
 
-        const handle = await this._popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget });
+        const handle = await this._popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget, popupSignal, popupAbortOnClose });
         const user = await this._signin({
             request_type: "si:p",
             redirect_uri: url,
             display: "popup",
+            dpopJkt,
             ...requestArgs,
         }, handle);
         if (user) {
             if (user.profile && user.profile.sub) {
                 logger.info("success, signed in subject", user.profile.sub);
-            }
-            else {
+            } else {
                 logger.info("no subject");
             }
         }
 
         return user;
     }
+
     /**
      * Notify the opening window of response (callback) from the authorization endpoint.
      * It is recommended to use {@link UserManager.signinCallback} instead.
@@ -286,7 +317,8 @@ export class UserManager {
         } = args;
         // first determine if we have a refresh token, or need to use iframe
         let user = await this._loadUser();
-        if (user?.refresh_token) {
+        // use refresh token unless forceIframeAuth is explicitly true
+        if (!args.forceIframeAuth && user?.refresh_token) {
             logger.debug("using refresh token");
             const state = new RefreshState(user as Required<User>);
             return await this._useRefreshToken({
@@ -296,6 +328,11 @@ export class UserManager {
                 extraTokenParams: requestArgs.extraTokenParams,
                 timeoutInSeconds: silentRequestTimeoutInSeconds,
             });
+        }
+
+        let dpopJkt: string | undefined;
+        if (this.settings.dpop?.bind_authorization_code) {
+            dpopJkt = await this.generateDPoPJkt(this.settings.dpop);
         }
 
         const url = this.settings.silent_redirect_uri;
@@ -315,6 +352,7 @@ export class UserManager {
             redirect_uri: url,
             prompt: "none",
             id_token_hint: this.settings.includeIdTokenInSilentRenew ? user?.id_token : undefined,
+            dpopJkt,
             ...requestArgs,
         }, handle, verifySub);
         if (user) {
@@ -331,8 +369,8 @@ export class UserManager {
 
     protected async _useRefreshToken(args: UseRefreshTokenArgs): Promise<User> {
         const response = await this._client.useRefreshToken({
-            ...args,
             timeoutInSeconds: this.settings.silentRequestTimeoutInSeconds,
+            ...args,
         });
         const user = new User({ ...args.state, ...response });
 
@@ -363,20 +401,23 @@ export class UserManager {
      * - {@link UserManager.signinPopupCallback}
      * - {@link UserManager.signinSilentCallback}
      *
-     * @throws `Error` If request_type is unknown or signout cannot be processed.
+     * @throws `Error` If request_type is unknown or signin cannot be processed.
      */
-    public async signinCallback(url = window.location.href): Promise<User | void> {
+    public async signinCallback(url = window.location.href): Promise<User | undefined> {
         const { state } = await this._client.readSigninResponseState(url);
         switch (state.request_type) {
             case "si:r":
                 return await this.signinRedirectCallback(url);
             case "si:p":
-                return await this.signinPopupCallback(url);
+                await this.signinPopupCallback(url);
+                break;
             case "si:s":
-                return await this.signinSilentCallback(url);
+                await this.signinSilentCallback(url);
+                break;
             default:
-                throw new Error("invalid response_type in state");
+                throw new Error("invalid request_type in state");
         }
+        return undefined;
     }
 
     /**
@@ -388,16 +429,15 @@ export class UserManager {
      *
      * @throws `Error` If request_type is unknown or signout cannot be processed.
      */
-    public async signoutCallback(url = window.location.href, keepOpen = false): Promise<void> {
+    public async signoutCallback(url = window.location.href, keepOpen = false): Promise<SignoutResponse | undefined> {
         const { state } = await this._client.readSignoutResponseState(url);
         if (!state) {
-            return;
+            return undefined;
         }
 
         switch (state.request_type) {
             case "so:r":
-                await this.signoutRedirectCallback(url);
-                break;
+                return await this.signoutRedirectCallback(url);
             case "so:p":
                 await this.signoutPopupCallback(url, keepOpen);
                 break;
@@ -405,8 +445,9 @@ export class UserManager {
                 await this.signoutSilentCallback(url);
                 break;
             default:
-                throw new Error("invalid response_type in state");
+                throw new Error("invalid request_type in state");
         }
+        return undefined;
     }
 
     /**
@@ -438,7 +479,8 @@ export class UserManager {
             ...requestArgs,
         }, handle);
         try {
-            const signinResponse = await this._client.processSigninResponse(navResponse.url);
+            const extraHeaders: Record<string, ExtraHeader> = {};
+            const signinResponse = await this._client.processSigninResponse(navResponse.url, extraHeaders);
             logger.debug("got signin response");
 
             if (signinResponse.session_state && signinResponse.profile.sub) {
@@ -451,8 +493,7 @@ export class UserManager {
 
             logger.info("success, user not authenticated");
             return null;
-        }
-        catch (err) {
+        } catch (err) {
             if (this.settings.monitorAnonymousSession && err instanceof ErrorResponse) {
                 switch (err.error) {
                     case "login_required":
@@ -461,7 +502,6 @@ export class UserManager {
                     case "account_selection_required":
                         logger.info("success for anonymous user");
                         return {
-                            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                             session_state: err.session_state!,
                         };
                 }
@@ -474,6 +514,7 @@ export class UserManager {
         const navResponse = await this._signinStart(args, handle);
         return await this._signinEnd(navResponse.url, verifySub);
     }
+
     protected async _signinStart(args: CreateSigninRequestArgs, handle: IWindow): Promise<NavigateResponse> {
         const logger = this._logger.create("_signinStart");
 
@@ -487,16 +528,17 @@ export class UserManager {
                 response_mode: signinRequest.state.response_mode,
                 scriptOrigin: this.settings.iframeScriptOrigin,
             });
-        }
-        catch (err) {
+        } catch (err) {
             logger.debug("error after preparing navigator, closing navigator window");
             handle.close();
             throw err;
         }
     }
+
     protected async _signinEnd(url: string, verifySub?: string): Promise<User> {
         const logger = this._logger.create("_signinEnd");
-        const signinResponse = await this._client.processSigninResponse(url);
+        const extraHeaders: Record<string, ExtraHeader> = {};
+        const signinResponse = await this._client.processSigninResponse(url, extraHeaders);
         logger.debug("got signin response");
 
         const user = await this._buildUser(signinResponse, verifySub);
@@ -566,11 +608,12 @@ export class UserManager {
         const {
             popupWindowFeatures,
             popupWindowTarget,
+            popupSignal,
             ...requestArgs
         } = args;
         const url = this.settings.popup_post_logout_redirect_uri;
 
-        const handle = await this._popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget });
+        const handle = await this._popupNavigator.prepare({ popupWindowFeatures, popupWindowTarget, popupSignal });
         await this._signout({
             request_type: "so:p",
             post_logout_redirect_uri: url,
@@ -603,6 +646,7 @@ export class UserManager {
         const navResponse = await this._signoutStart(args, handle);
         return await this._signoutEnd(navResponse.url);
     }
+
     protected async _signoutStart(args: CreateSignoutRequestArgs = {}, handle: IWindow): Promise<NavigateResponse> {
         const logger = this._logger.create("_signoutStart");
 
@@ -631,13 +675,13 @@ export class UserManager {
                 state: signoutRequest.state?.id,
                 scriptOrigin: this.settings.iframeScriptOrigin,
             });
-        }
-        catch (err) {
+        } catch (err) {
             logger.debug("error after preparing navigator, closing navigator window");
             handle.close();
             throw err;
         }
     }
+
     protected async _signoutEnd(url: string): Promise<SignoutResponse> {
         const logger = this._logger.create("_signoutEnd");
         const signoutResponse = await this._client.processSignoutResponse(url);
@@ -707,7 +751,7 @@ export class UserManager {
         // don't Promise.all, order matters
         for (const type of typesPresent) {
             await this._client.revokeToken(
-                user[type]!, // eslint-disable-line @typescript-eslint/no-non-null-assertion
+                user[type]!,
                 type,
             );
             logger.info(`${type} revoked successfully`);
@@ -758,10 +802,12 @@ export class UserManager {
             logger.debug("storing user");
             const storageString = user.toStorageString();
             await this.settings.userStore.set(this._userStoreKey, storageString);
-        }
-        else {
+        } else {
             this._logger.debug("removing user");
             await this.settings.userStore.remove(this._userStoreKey);
+            if (this.settings.dpop) {
+                await this.settings.dpop.store.remove(this.settings.client_id);
+            }
         }
     }
 
@@ -770,5 +816,40 @@ export class UserManager {
      */
     public async clearStaleState(): Promise<void> {
         await this._client.clearStaleState();
+    }
+
+    /**
+     * Dynamically generates a DPoP proof for a given user, URL and optional Http method.
+     * This method is useful when you need to make a request to a resource server
+     * with fetch or similar, and you need to include a DPoP proof in a DPoP header.
+     * @param url - The URL to generate the DPoP proof for
+     * @param user - The user to generate the DPoP proof for
+     * @param httpMethod - Optional, defaults to "GET"
+     * @param nonce - Optional nonce provided by the resource server
+     *
+     * @returns A promise containing the DPoP proof or undefined if DPoP is not enabled/no user is found.
+     */
+    public async dpopProof(url: string, user: User, httpMethod?: string, nonce?: string): Promise<string | undefined> {
+        const dpopState = await this.settings.dpop?.store?.get(this.settings.client_id);
+        if (dpopState) {
+            return await CryptoUtils.generateDPoPProof({
+                url,
+                accessToken: user?.access_token,
+                httpMethod: httpMethod,
+                keyPair: dpopState.keys,
+                nonce,
+            });
+        }
+        return undefined;
+    }
+
+    async generateDPoPJkt(dpopSettings: DPoPSettings): Promise<string | undefined> {
+        let dpopState = await dpopSettings.store.get(this.settings.client_id);
+        if (!dpopState) {
+            const dpopKeys = await CryptoUtils.generateDPoPKeys();
+            dpopState = new DPoPState(dpopKeys);
+            await dpopSettings.store.set(this.settings.client_id, dpopState);
+        }
+        return await CryptoUtils.generateDPoPJkt(dpopState.keys);
     }
 }

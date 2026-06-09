@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { Logger, UrlUtils } from "./utils";
+import { CryptoUtils, Logger, UrlUtils } from "./utils";
 import { ErrorResponse } from "./errors";
 import { type ExtraHeader, type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 import { ResponseValidator } from "./ResponseValidator";
@@ -15,6 +15,8 @@ import { SigninState } from "./SigninState";
 import { State } from "./State";
 import { TokenClient } from "./TokenClient";
 import { ClaimsService } from "./ClaimsService";
+import { DPoPState, type DPoPStore } from "./DPoPStore";
+import { ErrorDPoPNonce } from "./errors/ErrorDPoPNonce";
 
 /**
  * @public
@@ -24,6 +26,7 @@ export interface CreateSigninRequestArgs
     redirect_uri?: string;
     response_type?: string;
     scope?: string;
+    dpopJkt?: string;
 
     /** custom "state", which can be used by a caller to have "data" round tripped */
     state?: unknown;
@@ -111,6 +114,8 @@ export class OidcClient {
         response_mode = this.settings.response_mode,
         extraQueryParams = this.settings.extraQueryParams,
         extraTokenParams = this.settings.extraTokenParams,
+        dpopJkt,
+        omitScopeWhenRequesting = this.settings.omitScopeWhenRequesting,
     }: CreateSigninRequestArgs): Promise<SigninRequest> {
         const logger = this._logger.create("createSigninRequest");
 
@@ -130,12 +135,13 @@ export class OidcClient {
             scope,
             state_data: state,
             url_state,
-            prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values,
+            prompt, display, max_age, ui_locales, id_token_hint, login_hint, acr_values, dpopJkt,
             resource, request, request_uri, extraQueryParams, extraTokenParams, request_type, response_mode,
             client_secret: this.settings.client_secret,
             skipUserInfo,
             nonce,
             disablePKCE: this.settings.disablePKCE,
+            omitScopeWhenRequesting,
         });
 
         // house cleaning
@@ -153,12 +159,14 @@ export class OidcClient {
         if (!response.state) {
             logger.throw(new Error("No state in response"));
             // need to throw within this function's body for type narrowing to work
+            // eslint-disable-next-line @typescript-eslint/only-throw-error
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
         const storedStateString = await this.settings.stateStore[removeState ? "remove" : "get"](response.state);
         if (!storedStateString) {
             logger.throw(new Error("No matching state found in storage"));
+            // eslint-disable-next-line @typescript-eslint/only-throw-error
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
@@ -166,13 +174,65 @@ export class OidcClient {
         return { state, response };
     }
 
-    public async processSigninResponse(url: string, extraHeaders?: Record<string, ExtraHeader>): Promise<SigninResponse> {
+    public async processSigninResponse(url: string, extraHeaders?: Record<string, ExtraHeader>, removeState = true): Promise<SigninResponse> {
         const logger = this._logger.create("processSigninResponse");
 
-        const { state, response } = await this.readSigninResponseState(url, true);
+        const { state, response } = await this.readSigninResponseState(url, removeState);
         logger.debug("received state from storage; validating response");
-        await this._validator.validateSigninResponse(response, state, extraHeaders);
+
+        if (this.settings.dpop && this.settings.dpop.store) {
+            const dpopProof = await this.getDpopProof(this.settings.dpop.store);
+            extraHeaders = { ...extraHeaders, "DPoP": dpopProof };
+        }
+
+        /**
+         * The DPoP spec describes a method for Authorization Servers to supply a nonce value
+         * in order to limit the lifetime of a given DPoP proof.
+         * See https://datatracker.ietf.org/doc/html/rfc9449#name-authorization-server-provid
+         * This involves the AS returning a 400 bad request with a DPoP-Nonce header containing
+         * the nonce value. The client must then retry the request with a recomputed DPoP proof
+         * containing the supplied nonce value.
+         */
+        try {
+            await this._validator.validateSigninResponse(response, state, extraHeaders);
+        }
+        catch (err) {
+            if (err instanceof ErrorDPoPNonce && this.settings.dpop) {
+                const dpopProof = await this.getDpopProof(this.settings.dpop.store, err.nonce);
+                extraHeaders!["DPoP"] = dpopProof;
+                await this._validator.validateSigninResponse(response, state, extraHeaders);
+            } else {
+                throw err;
+            }
+        }
+
         return response;
+    }
+
+    async getDpopProof(dpopStore: DPoPStore, nonce?: string): Promise<string> {
+        let keyPair: CryptoKeyPair;
+        let dpopState: DPoPState;
+
+        if (!(await dpopStore.getAllKeys()).includes(this.settings.client_id)) {
+            keyPair = await CryptoUtils.generateDPoPKeys();
+            dpopState = new DPoPState(keyPair, nonce);
+            await dpopStore.set(this.settings.client_id, dpopState);
+        } else {
+            dpopState = await dpopStore.get(this.settings.client_id);
+
+            // if the server supplied nonce has changed since the last request, update the nonce
+            if (dpopState.nonce !== nonce && nonce) {
+                dpopState.nonce = nonce;
+                await dpopStore.set(this.settings.client_id, dpopState);
+            }
+        }
+
+        return await CryptoUtils.generateDPoPProof({
+            url: await this.metadataService.getTokenEndpoint(false),
+            httpMethod: "POST",
+            keyPair: dpopState.keys,
+            nonce: dpopState.nonce,
+        });
     }
 
     public async processResourceOwnerPasswordCredentials({
@@ -211,16 +271,49 @@ export class OidcClient {
             scope = providedScopes.filter(s => allowableScopes.includes(s)).join(" ");
         }
 
-        const result = await this._tokenClient.exchangeRefreshToken({
-            refresh_token: state.refresh_token,
-            // provide the (possible filtered) scope list
-            scope,
-            redirect_uri,
-            resource,
-            timeoutInSeconds,
-            extraHeaders,
-            ...extraTokenParams,
-        });
+        if (this.settings.dpop && this.settings.dpop.store) {
+            const dpopProof = await this.getDpopProof(this.settings.dpop.store);
+            extraHeaders = { ...extraHeaders, "DPoP": dpopProof };
+        }
+
+        /**
+         * The DPoP spec describes a method for Authorization Servers to supply a nonce value
+         * in order to limit the lifetime of a given DPoP proof.
+         * See https://datatracker.ietf.org/doc/html/rfc9449#name-authorization-server-provid
+         * This involves the AS returning a 400 bad request with a DPoP-Nonce header containing
+         * the nonce value. The client must then retry the request with a recomputed DPoP proof
+         * containing the supplied nonce value.
+         */
+        let result;
+        try {
+            result = await this._tokenClient.exchangeRefreshToken({
+                refresh_token: state.refresh_token,
+                // provide the (possible filtered) scope list
+                scope,
+                redirect_uri,
+                resource,
+                timeoutInSeconds,
+                extraHeaders,
+                ...extraTokenParams,
+            });
+        } catch (err) {
+            if (err instanceof ErrorDPoPNonce && this.settings.dpop) {
+                extraHeaders!["DPoP"] = await this.getDpopProof(this.settings.dpop.store, err.nonce);
+                result = await this._tokenClient.exchangeRefreshToken({
+                    refresh_token: state.refresh_token,
+                    // provide the (possible filtered) scope list
+                    scope,
+                    redirect_uri,
+                    resource,
+                    timeoutInSeconds,
+                    extraHeaders,
+                    ...extraTokenParams,
+                });
+            } else {
+                throw err;
+            }
+        }
+
         const response = new SigninResponse(new URLSearchParams());
         Object.assign(response, result);
         logger.debug("validating response", response);
@@ -238,6 +331,7 @@ export class OidcClient {
         id_token_hint,
         client_id,
         request_type,
+        url_state,
         post_logout_redirect_uri = this.settings.post_logout_redirect_uri,
         extraQueryParams = this.settings.extraQueryParams,
     }: CreateSignoutRequestArgs = {}): Promise<SignoutRequest> {
@@ -246,6 +340,7 @@ export class OidcClient {
         const url = await this.metadataService.getEndSessionEndpoint();
         if (!url) {
             logger.throw(new Error("No end session endpoint"));
+            // eslint-disable-next-line @typescript-eslint/only-throw-error
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
@@ -264,6 +359,7 @@ export class OidcClient {
             state_data: state,
             extraQueryParams,
             request_type,
+            url_state,
         });
 
         // house cleaning
@@ -296,6 +392,7 @@ export class OidcClient {
         const storedStateString = await this.settings.stateStore[removeState ? "remove" : "get"](response.state);
         if (!storedStateString) {
             logger.throw(new Error("No matching state found in storage"));
+            // eslint-disable-next-line @typescript-eslint/only-throw-error
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 

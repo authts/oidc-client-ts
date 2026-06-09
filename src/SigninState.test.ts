@@ -1,6 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import { describe, expect, it } from "vitest";
 import { SigninState } from "./SigninState";
 
 describe("SigninState", () => {
@@ -147,6 +148,21 @@ describe("SigninState", () => {
             // assert
             expect(subject.extraTokenParams).toEqual({ "resourceServer" : "abc" });
         });
+
+        it("should accept nonce", async () => {
+            // act
+            const subject = await SigninState.create({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://cb",
+                scope: "scope",
+                request_type: "type",
+                nonce: "rnd",
+            });
+
+            // assert
+            expect(subject.nonce).toEqual("rnd");
+        });
     });
 
     it("can serialize and then deserialize", async () => {
@@ -160,6 +176,7 @@ describe("SigninState", () => {
             redirect_uri: "http://cb",
             scope: "scope",
             request_type: "type",
+            nonce: "rnd",
         });
 
         // act

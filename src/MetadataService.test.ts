@@ -1,6 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MetadataService } from "./MetadataService";
 import { type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 
@@ -51,14 +52,14 @@ describe("MetadataService", () => {
         it("should calculate metadataUrl from authority", async () => {
             // arrange
             const jsonService = subject["_jsonService"]; // access private member
-            const getJsonMock = jest.spyOn(jsonService, "getJson")
+            const getJsonMock = vi.spyOn(jsonService, "getJson")
                 .mockResolvedValue({ foo: "bar" });
 
             // act
             await subject.getMetadata();
 
             // assert
-            expect(getJsonMock).toHaveBeenCalledWith("authority/.well-known/openid-configuration", { credentials: "same-origin" });
+            expect(getJsonMock).toHaveBeenCalledWith("authority/.well-known/openid-configuration", { credentials: "same-origin", timeoutInSeconds: undefined } );
         });
 
         it("should fail when no authority or metadataUrl configured", async () => {
@@ -86,14 +87,14 @@ describe("MetadataService", () => {
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
-            const getJsonMock = jest.spyOn(jsonService, "getJson")
+            const getJsonMock = vi.spyOn(jsonService, "getJson")
                 .mockResolvedValue({ foo: "bar" });
 
             // act
             await subject.getMetadata();
 
             // assert
-            expect(getJsonMock).toHaveBeenCalledWith("http://sts/metadata", { credentials: "same-origin" });
+            expect(getJsonMock).toHaveBeenCalledWith("http://sts/metadata", { credentials: "same-origin", timeoutInSeconds: undefined });
         });
 
         it("should return metadata from json call", async () => {
@@ -107,7 +108,7 @@ describe("MetadataService", () => {
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
             const json = { "test": "data" };
-            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
+            vi.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
 
             // act
             const result = await subject.getMetadata();
@@ -127,7 +128,7 @@ describe("MetadataService", () => {
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
             const json = { test: "value" };
-            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
+            vi.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
 
             // act
             await subject.getMetadata();
@@ -148,7 +149,7 @@ describe("MetadataService", () => {
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
-            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({ jwks_uri: "two" }));
+            vi.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({ issuer: "two", jwks_uri: "two" }));
 
             // act
             const result = await subject.getMetadata();
@@ -170,7 +171,7 @@ describe("MetadataService", () => {
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const error = new Error("test");
             const jsonService = subject["_jsonService"]; // access private member
-            jest.spyOn(jsonService, "getJson").mockRejectedValue(error);
+            vi.spyOn(jsonService, "getJson").mockRejectedValue(error);
 
             // act
             await expect(subject.getMetadata())
@@ -189,14 +190,14 @@ describe("MetadataService", () => {
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
-            const getJsonMock = jest.spyOn(jsonService, "getJson")
+            const getJsonMock = vi.spyOn(jsonService, "getJson")
                 .mockResolvedValue({ foo: "bar" });
 
             // act
             await subject.getMetadata();
 
             // assert
-            expect(getJsonMock).toHaveBeenCalledWith("http://sts/metadata", { credentials: "include" });
+            expect(getJsonMock).toHaveBeenCalledWith("http://sts/metadata", { credentials: "include", timeoutInSeconds: undefined });
         });
     });
 
@@ -248,7 +249,7 @@ describe("MetadataService", () => {
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const error = new Error("test");
             const jsonService = subject["_jsonService"]; // access private member
-            jest.spyOn(jsonService, "getJson").mockRejectedValue(error);
+            vi.spyOn(jsonService, "getJson").mockRejectedValue(error);
 
             // act
             await expect(subject.getIssuer())
@@ -502,7 +503,7 @@ describe("MetadataService", () => {
             };
             subject = new MetadataService(new OidcClientSettingsStore(settings));
             const jsonService = subject["_jsonService"]; // access private member
-            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({}));
+            vi.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({}));
 
             // act
             await expect(subject.getSigningKeys())
@@ -528,14 +529,14 @@ describe("MetadataService", () => {
                     kid:"test",
                 }],
             };
-            const getJsonMock = jest.spyOn(jsonService, "getJson")
+            const getJsonMock = vi.spyOn(jsonService, "getJson")
                 .mockImplementation(() => Promise.resolve(json));
 
             // act
             await subject.getSigningKeys();
 
             // assert
-            expect(getJsonMock).toHaveBeenCalledWith("http://sts/metadata/keys");
+            expect(getJsonMock).toHaveBeenCalledWith("http://sts/metadata/keys", { "timeoutInSeconds": undefined });
         });
 
         it("should return keys from jwks_uri", async () => {
@@ -557,7 +558,7 @@ describe("MetadataService", () => {
             const json = {
                 keys: expectedKeys,
             };
-            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
+            vi.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
 
             // act
             const result = await subject.getSigningKeys();
@@ -585,7 +586,7 @@ describe("MetadataService", () => {
             const json = {
                 keys: expectedKeys,
             };
-            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
+            vi.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(json));
 
             // act
             await subject.getSigningKeys();

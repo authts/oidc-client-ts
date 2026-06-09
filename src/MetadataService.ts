@@ -56,14 +56,15 @@ export class MetadataService {
 
         if (!this._metadataUrl) {
             logger.throw(new Error("No authority or metadataUrl configured on settings"));
-            throw null;
+            // eslint-disable-next-line @typescript-eslint/only-throw-error
+            throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 
         logger.debug("getting metadata from", this._metadataUrl);
-        const metadata = await this._jsonService.getJson(this._metadataUrl, { credentials: this._fetchRequestCredentials });
+        const metadata = await this._jsonService.getJson(this._metadataUrl, { credentials: this._fetchRequestCredentials, timeoutInSeconds: this._settings.requestTimeoutInSeconds });
 
         logger.debug("merging remote JSON with seed metadata");
-        this._metadata = Object.assign({}, this._settings.metadataSeed, metadata);
+        this._metadata = Object.assign({}, metadata, this._settings.metadataSeed);
         return this._metadata;
     }
 
@@ -133,11 +134,12 @@ export class MetadataService {
         const jwks_uri = await this.getKeysEndpoint(false);
         logger.debug("got jwks_uri", jwks_uri);
 
-        const keySet = await this._jsonService.getJson(jwks_uri);
+        const keySet = await this._jsonService.getJson(jwks_uri, { timeoutInSeconds: this._settings.requestTimeoutInSeconds });
         logger.debug("got key set", keySet);
 
         if (!Array.isArray(keySet.keys)) {
             logger.throw(new Error("Missing keys on keyset"));
+            // eslint-disable-next-line @typescript-eslint/only-throw-error
             throw null; // https://github.com/microsoft/TypeScript/issues/46972
         }
 

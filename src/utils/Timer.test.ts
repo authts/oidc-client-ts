@@ -1,6 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Timer } from "./Timer";
 
 describe("Timer", () => {
@@ -10,15 +11,15 @@ describe("Timer", () => {
 
     beforeEach(() => {
         subject = new Timer("test name");
-        jest.spyOn(Timer, "getEpochTime").mockImplementation(() => now);
-        jest.useFakeTimers();
-        jest.spyOn(globalThis, "clearInterval");
-        jest.spyOn(globalThis, "setInterval");
+        vi.spyOn(Timer, "getEpochTime").mockImplementation(() => now);
+        vi.useFakeTimers();
+        vi.spyOn(globalThis, "clearInterval");
+        vi.spyOn(globalThis, "setInterval");
     });
 
     afterEach(() => {
-        jest.clearAllMocks();
-        jest.clearAllTimers();
+        vi.clearAllMocks();
+        vi.clearAllTimers();
     });
 
     describe("init", () => {
@@ -92,7 +93,7 @@ describe("Timer", () => {
 
         it("should fire when timer expires", () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
             subject.addHandler(cb);
 
             subject.init(10);
@@ -102,14 +103,14 @@ describe("Timer", () => {
 
             // act
             now += 9;
-            jest.runOnlyPendingTimers();
+            vi.runOnlyPendingTimers();
 
             // assert
             expect(cb).toHaveBeenCalledTimes(0);
 
             // act
             now += 1;
-            jest.runOnlyPendingTimers();
+            vi.runOnlyPendingTimers();
 
             // assert
             expect(cb).toHaveBeenCalledTimes(1);
@@ -117,7 +118,7 @@ describe("Timer", () => {
 
         it("should fire if timer late", () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
             subject.addHandler(cb);
 
             subject.init(10);
@@ -126,13 +127,13 @@ describe("Timer", () => {
             expect(setInterval).toHaveBeenCalledWith(expect.any(Function), expect.any(Number));
 
             now += 9;
-            jest.runOnlyPendingTimers();
+            vi.runOnlyPendingTimers();
 
             // assert
             expect(cb).toHaveBeenCalledTimes(0);
 
             now += 2;
-            jest.runOnlyPendingTimers();
+            vi.runOnlyPendingTimers();
 
             // assert
             expect(cb).toHaveBeenCalledTimes(1);
@@ -146,7 +147,7 @@ describe("Timer", () => {
             expect(setInterval).toHaveBeenCalledWith(expect.any(Function), expect.any(Number));
 
             now += 10;
-            jest.runOnlyPendingTimers();
+            vi.runOnlyPendingTimers();
 
             // assert
             expect(clearInterval).toHaveBeenCalled();
@@ -182,13 +183,13 @@ describe("Timer", () => {
 
         it("should allow callback to be invoked", async () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
 
             // act
             subject.addHandler(cb);
             subject.init(10);
             now += 10;
-            await jest.runOnlyPendingTimersAsync();
+            await vi.runOnlyPendingTimersAsync();
 
             // assert
             expect(cb).toHaveBeenCalled();
@@ -196,7 +197,7 @@ describe("Timer", () => {
 
         it("should allow multiple callbacks", async () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
 
             // act
             subject.addHandler(cb);
@@ -205,7 +206,7 @@ describe("Timer", () => {
             subject.addHandler(cb);
             subject.init(10);
             now += 10;
-            await jest.runOnlyPendingTimersAsync();
+            await vi.runOnlyPendingTimersAsync();
 
             // assert
             expect(cb).toHaveBeenCalledTimes(4);
@@ -216,14 +217,14 @@ describe("Timer", () => {
 
         it("should remove callback from being invoked", () => {
             // arrange
-            const cb = jest.fn();
+            const cb = vi.fn();
             subject.addHandler(cb);
             subject.init(10);
 
             // act
             subject.removeHandler(cb);
             now += 10;
-            jest.runOnlyPendingTimers();
+            vi.runOnlyPendingTimers();
 
             // assert
             expect(cb).toHaveBeenCalledTimes(0);
@@ -231,8 +232,8 @@ describe("Timer", () => {
 
         it("should remove individual callback", () => {
             // arrange
-            const cb1 = jest.fn();
-            const cb2 = jest.fn();
+            const cb1 = vi.fn();
+            const cb2 = vi.fn();
             subject.addHandler(cb1);
             subject.addHandler(cb2);
             subject.addHandler(cb1);
@@ -242,7 +243,7 @@ describe("Timer", () => {
             subject.removeHandler(cb1);
             subject.removeHandler(cb1);
             now += 10;
-            jest.runOnlyPendingTimers();
+            vi.runOnlyPendingTimers();
 
             // assert
             expect(cb1).toHaveBeenCalledTimes(0);

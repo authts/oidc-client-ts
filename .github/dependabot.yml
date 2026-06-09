@@ -6,7 +6,9 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
-    directory: "/"
+    directories:
+      - "/"
+      - "/samples/Parcel"
     schedule:
       interval: "daily"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 20

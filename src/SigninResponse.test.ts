@@ -1,6 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import { describe, beforeEach, vi, afterEach, it, expect } from "vitest";
 import { SigninResponse } from "./SigninResponse";
 import { Timer } from "./utils";
 
@@ -9,11 +10,11 @@ describe("SigninResponse", () => {
 
     beforeEach(() => {
         now = 0;
-        jest.spyOn(Timer, "getEpochTime").mockImplementation(() => now);
+        vi.spyOn(Timer, "getEpochTime").mockImplementation(() => now);
     });
 
     afterEach(() => {
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
     });
 
     describe("constructor", () => {

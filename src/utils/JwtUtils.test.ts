@@ -1,7 +1,9 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import { beforeEach, describe, expect, it } from "vitest";
 import { JwtUtils } from "./JwtUtils";
+import { fail } from "assert";
 
 describe("JwtUtils", () => {
 
@@ -46,6 +48,45 @@ describe("JwtUtils", () => {
                 expect(err).toBeInstanceOf(Error);
                 expect((err as Error).message).toContain("Invalid token specified");
             }
+        });
+    });
+
+    describe("createJwt", () => {
+        it("should be able to create identical jwts two different ways", async () => {
+            const keyPair = await window.crypto.subtle.generateKey(
+                {
+                    name: "ECDSA",
+                    namedCurve: "P-256",
+                },
+                false,
+                ["sign", "verify"]);
+
+            const jti = window.crypto.randomUUID();
+
+            const payload: Record<string, string | number> = {
+                "jti": jti,
+                "htm": "GET",
+                "htu": "http://test.com",
+            };
+
+            const iat = Date.now();
+
+            const header = {
+                "alg": "ES256",
+                "typ": "dpop+jwt",
+            };
+            payload.iat = iat;
+            const jwt = await JwtUtils.generateSignedJwt(header, payload, keyPair.privateKey);
+
+            const result = JwtUtils.decode(jwt);
+
+            expect(result).toEqual(
+                {
+                    "jti": jti,
+                    "htm": "GET",
+                    "htu": "http://test.com",
+                    "iat": iat,
+                });
         });
     });
 });

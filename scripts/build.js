@@ -62,7 +62,7 @@ try {
         globalName: "oidc",
         minify: true,
     });
-} catch (err) {
+} catch {
     // esbuild handles error reporting
     process.exitCode = 1;
 }

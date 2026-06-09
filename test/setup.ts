@@ -1,31 +1,23 @@
 import { Log } from "../src";
-import { TextEncoder } from "util";
-import { webcrypto } from "node:crypto";
+import "fake-indexeddb/auto";
+import { beforeAll, beforeEach, vi } from "vitest";
 
 beforeAll(() => {
-    globalThis.TextEncoder = TextEncoder;
-    Object.assign(globalThis.crypto, {
-        subtle: webcrypto.subtle,
-    });
-    globalThis.fetch = jest.fn();
+    globalThis.fetch = vi.fn();
 
-    const unload = () =>
-        setTimeout(() => window.dispatchEvent(new Event("unload")), 200);
+    const pageshow = () => window.dispatchEvent(new Event("pageshow"));
 
-    const location = Object.defineProperties(
-        {},
-        {
-            ...Object.getOwnPropertyDescriptors(window.location),
-            assign: {
-                enumerable: true,
-                value: jest.fn(unload),
-            },
-            replace: {
-                enumerable: true,
-                value: jest.fn(unload),
-            },
+    const location = Object.defineProperties({}, {
+        ...Object.getOwnPropertyDescriptors(window.location),
+        assign: {
+            enumerable: true,
+            value: vi.fn(pageshow),
         },
-    );
+        replace: {
+            enumerable: true,
+            value: vi.fn(pageshow),
+        },
+    });
     Object.defineProperty(window, "location", {
         enumerable: true,
         get: () => location,

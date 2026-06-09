@@ -1,6 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import { describe, it, expect } from "vitest";
 import { UserManagerSettingsStore } from "./UserManagerSettings";
 import type { WebStorageStateStore } from "./WebStorageStateStore";
 
@@ -379,15 +380,52 @@ describe("UserManagerSettings", () => {
 
     describe("extraTokenResponseKeys", () => {
         it("should return value from the initial settings", () => {
+            // act
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
                 client_id: "client",
                 redirect_uri: "redirect",
                 extraTokenResponseKeys: ["testProp"],
             });
+
+            // assert
             expect(subject.extraTokenResponseKeys).toEqual(["testProp"]);
         });
-        it("should return the default value", () => {
+    });
+    describe("silentRequestTimeoutInSeconds", () => {
+        it("should set if defined in the constructor", () => {
+            const temp = 100;
+
+            // act
+            const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                silentRequestTimeoutInSeconds : temp,
+            });
+
+            // assert
+            expect(subject.silentRequestTimeoutInSeconds).toEqual(temp);
+        });
+
+        it("should set to requestTimeoutInSeconds if defined in the constructor", () => {
+            const temp = 100;
+
+            // act
+            const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                requestTimeoutInSeconds : temp,
+            });
+
+            // assert
+            expect(subject.silentRequestTimeoutInSeconds).toEqual(temp);
+            expect(subject.silentRequestTimeoutInSeconds).toEqual(100);
+        });
+
+        it("should set to the default if neither requestTimeoutInSeconds are defined", () => {
+            // act
             const subject = new UserManagerSettingsStore({
                 authority: "authority",
                 client_id: "client",

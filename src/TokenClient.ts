@@ -109,14 +109,21 @@ export class TokenClient {
                 params.set(key, value);
             }
         }
+
+        // Validate client_secret if required before making any external calls
+        if ((this._settings.client_authentication === "client_secret_basic" ||
+             this._settings.client_authentication === "client_secret_jwt") &&
+            (client_secret === undefined || client_secret === null)) {
+            logger.throw(new Error("A client_secret is required"));
+            // eslint-disable-next-line @typescript-eslint/only-throw-error
+            throw null; // https://github.com/microsoft/TypeScript/issues/46972
+        }
+
         let basicAuth: string | undefined;
+        const url = await this._metadataService.getTokenEndpoint(false);
         switch (this._settings.client_authentication) {
             case "client_secret_basic":
-                if (!client_secret) {
-                    logger.throw(new Error("A client_secret is required"));
-                    throw null; // https://github.com/microsoft/TypeScript/issues/46972
-                }
-                basicAuth = CryptoUtils.generateBasicAuth(client_id, client_secret);
+                basicAuth = CryptoUtils.generateBasicAuth(client_id, client_secret!);
                 break;
             case "client_secret_post":
                 params.append("client_id", client_id);
@@ -124,12 +131,24 @@ export class TokenClient {
                     params.append("client_secret", client_secret);
                 }
                 break;
+            case "client_secret_jwt": {
+                const clientAssertion = await CryptoUtils.generateClientAssertionJwt(client_id, client_secret!, url, this._settings.token_endpoint_auth_signing_alg);
+                params.append("client_id", client_id);
+                params.append("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+                params.append("client_assertion", clientAssertion);
+                break;
+            }
         }
-
-        const url = await this._metadataService.getTokenEndpoint(false);
         logger.debug("got token endpoint");
 
-        const response = await this._jsonService.postForm(url, { body: params, basicAuth, initCredentials: this._settings.fetchRequestCredentials, extraHeaders });
+        const response = await this._jsonService.postForm(url, {
+            body: params,
+            basicAuth,
+            timeoutInSeconds: this._settings.requestTimeoutInSeconds,
+            initCredentials: this._settings.fetchRequestCredentials,
+            extraHeaders,
+        });
+
         logger.debug("got response");
 
         return response;
@@ -153,21 +172,30 @@ export class TokenClient {
             logger.throw(new Error("A client_id is required"));
         }
 
-        const params = new URLSearchParams({ grant_type, scope });
+        const params = new URLSearchParams({ grant_type });
+        if (!this._settings.omitScopeWhenRequesting) {
+            params.set("scope", scope);
+        }
         for (const [key, value] of Object.entries(args)) {
             if (value != null) {
                 params.set(key, value);
             }
         }
 
+        // Validate client_secret if required before making any external calls
+        if ((this._settings.client_authentication === "client_secret_basic" ||
+             this._settings.client_authentication === "client_secret_jwt") &&
+            (client_secret === undefined || client_secret === null)) {
+            logger.throw(new Error("A client_secret is required"));
+            // eslint-disable-next-line @typescript-eslint/only-throw-error
+            throw null; // https://github.com/microsoft/TypeScript/issues/46972
+        }
+
         let basicAuth: string | undefined;
+        const url = await this._metadataService.getTokenEndpoint(false);
         switch (this._settings.client_authentication) {
             case "client_secret_basic":
-                if (!client_secret) {
-                    logger.throw(new Error("A client_secret is required"));
-                    throw null; // https://github.com/microsoft/TypeScript/issues/46972
-                }
-                basicAuth = CryptoUtils.generateBasicAuth(client_id, client_secret);
+                basicAuth = CryptoUtils.generateBasicAuth(client_id, client_secret!);
                 break;
             case "client_secret_post":
                 params.append("client_id", client_id);
@@ -175,12 +203,17 @@ export class TokenClient {
                     params.append("client_secret", client_secret);
                 }
                 break;
+            case "client_secret_jwt": {
+                const clientAssertion = await CryptoUtils.generateClientAssertionJwt(client_id, client_secret!, url, this._settings.token_endpoint_auth_signing_alg);
+                params.append("client_id", client_id);
+                params.append("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+                params.append("client_assertion", clientAssertion);
+                break;
+            }
         }
-
-        const url = await this._metadataService.getTokenEndpoint(false);
         logger.debug("got token endpoint");
 
-        const response = await this._jsonService.postForm(url, { body: params, basicAuth, initCredentials: this._settings.fetchRequestCredentials });
+        const response = await this._jsonService.postForm(url, { body: params, basicAuth, timeoutInSeconds: this._settings.requestTimeoutInSeconds, initCredentials: this._settings.fetchRequestCredentials });
         logger.debug("got response");
 
         return response;
@@ -216,14 +249,21 @@ export class TokenClient {
                 params.set(key, value);
             }
         }
+
+        // Validate client_secret if required before making any external calls
+        if ((this._settings.client_authentication === "client_secret_basic" ||
+             this._settings.client_authentication === "client_secret_jwt") &&
+            (client_secret === undefined || client_secret === null)) {
+            logger.throw(new Error("A client_secret is required"));
+            // eslint-disable-next-line @typescript-eslint/only-throw-error
+            throw null; // https://github.com/microsoft/TypeScript/issues/46972
+        }
+
         let basicAuth: string | undefined;
+        const url = await this._metadataService.getTokenEndpoint(false);
         switch (this._settings.client_authentication) {
             case "client_secret_basic":
-                if (!client_secret) {
-                    logger.throw(new Error("A client_secret is required"));
-                    throw null; // https://github.com/microsoft/TypeScript/issues/46972
-                }
-                basicAuth = CryptoUtils.generateBasicAuth(client_id, client_secret);
+                basicAuth = CryptoUtils.generateBasicAuth(client_id, client_secret!);
                 break;
             case "client_secret_post":
                 params.append("client_id", client_id);
@@ -231,9 +271,14 @@ export class TokenClient {
                     params.append("client_secret", client_secret);
                 }
                 break;
+            case "client_secret_jwt": {
+                const clientAssertion = await CryptoUtils.generateClientAssertionJwt(client_id, client_secret!, url, this._settings.token_endpoint_auth_signing_alg);
+                params.append("client_id", client_id);
+                params.append("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+                params.append("client_assertion", clientAssertion);
+                break;
+            }
         }
-
-        const url = await this._metadataService.getTokenEndpoint(false);
         logger.debug("got token endpoint");
 
         const response = await this._jsonService.postForm(url, { body: params, basicAuth, timeoutInSeconds, initCredentials: this._settings.fetchRequestCredentials, extraHeaders });
@@ -268,7 +313,7 @@ export class TokenClient {
             params.set("client_secret", this._settings.client_secret);
         }
 
-        await this._jsonService.postForm(url, { body: params });
+        await this._jsonService.postForm(url, { body: params, timeoutInSeconds: this._settings.requestTimeoutInSeconds });
         logger.debug("got response");
     }
 }

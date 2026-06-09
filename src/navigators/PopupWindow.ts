@@ -15,6 +15,10 @@ const second = 1000;
 export interface PopupWindowParams {
     popupWindowFeatures?: PopupWindowFeatures;
     popupWindowTarget?: string;
+    /** An AbortSignal to set request's signal. */
+    popupSignal?: AbortSignal | null;
+    /** Abort navigator when the popup is lost */
+    popupAbortOnClose?: boolean;
 }
 
 /**
@@ -25,13 +29,25 @@ export class PopupWindow extends AbstractChildWindow {
 
     protected _window: WindowProxy | null;
 
+    protected abortOnClose: boolean;
+
     public constructor({
         popupWindowTarget = DefaultPopupTarget,
         popupWindowFeatures = {},
+        popupSignal,
+        popupAbortOnClose,
     }: PopupWindowParams) {
         super();
         const centeredPopup = PopupUtils.center({ ...DefaultPopupWindowFeatures, ...popupWindowFeatures });
         this._window = window.open(undefined, popupWindowTarget, PopupUtils.serialize(centeredPopup));
+        this.abortOnClose = Boolean(popupAbortOnClose);
+
+        if (popupSignal) {
+            popupSignal.addEventListener("abort", () => {
+                void this._abort.raise(new Error(popupSignal.reason ?? "Popup aborted"));
+            });
+        }
+
         if (popupWindowFeatures.closePopupWindowAfterInSeconds && popupWindowFeatures.closePopupWindowAfterInSeconds > 0) {
             setTimeout(() => {
                 if (!this._window || typeof this._window.closed !== "boolean" || this._window.closed) {
@@ -49,10 +65,17 @@ export class PopupWindow extends AbstractChildWindow {
 
         const popupClosedInterval = setInterval(() => {
             if (!this._window || this._window.closed) {
-                void this._abort.raise(new Error("Popup closed by user"));
+                this._logger.debug("Popup closed by user or isolated by redirect");
+                clearPopupClosedInterval();
+                this._disposeHandlers.delete(clearPopupClosedInterval);
+                
+                if (this.abortOnClose) {
+                    void this._abort.raise(new Error("Popup closed by user"));
+                }
             }
         }, checkForPopupClosedInterval);
-        this._disposeHandlers.add(() => clearInterval(popupClosedInterval));
+        const clearPopupClosedInterval = () => clearInterval(popupClosedInterval);
+        this._disposeHandlers.add(clearPopupClosedInterval);
 
         return await super.navigate(params);
     }
@@ -68,9 +91,9 @@ export class PopupWindow extends AbstractChildWindow {
     }
 
     public static notifyOpener(url: string, keepOpen: boolean): void {
-        if (!window.opener) {
-            throw new Error("No window.opener. Can't complete notification.");
+        super._notifyParent(window.opener, url, keepOpen);
+        if (!keepOpen && !window.opener) {
+            window.close();
         }
-        return super._notifyParent(window.opener, url, keepOpen);
     }
 }

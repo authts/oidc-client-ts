@@ -4,16 +4,20 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write # Required for pushing docs
+  id-token: write # Required for provenance
+
 jobs:
   publish:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       # Setup .npmrc file to publish to npm
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         with:
-          node-version: 18.x
+          node-version: 24.x
           cache: npm
           registry-url: https://registry.npmjs.org
 
@@ -23,6 +27,16 @@ jobs:
       - name: Publish package release
         if: "!github.event.release.prerelease"
         run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Publish package pre-release
+        if: "github.event.release.prerelease"
+        run: npm publish --tag next
+
+      - name: Generate API documentation
+        run: npm run typedoc
+
+      - name: Deploy pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/pages

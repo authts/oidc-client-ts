@@ -1,6 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ClaimsService } from "./ClaimsService";
 import { OidcClientSettingsStore } from "./OidcClientSettings";
 import type { UserProfile } from "./User";
@@ -20,7 +21,7 @@ describe("ClaimsService", () => {
     });
 
     afterEach(() => {
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
     });
 
     describe("filterProtocolClaims", () => {

@@ -1,15 +1,22 @@
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { IFrameWindow } from "./IFrameWindow";
 import type { NavigateParams } from "./IWindow";
 
 const flushPromises = () => new Promise(process.nextTick);
 
+class AbortableIFrameWindow extends IFrameWindow {
+    public abort(): void {
+        void this._abort.raise(new Error("test aborted"));
+    }
+}
+
 describe("IFrameWindow", () => {
-    const postMessageMock = jest.fn();
+    const postMessageMock = vi.fn();
     const fakeWindowOrigin = "https://fake-origin.com";
     const fakeUrl = "https://fakeurl.com";
 
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     describe("hidden frame", () => {
@@ -37,10 +44,10 @@ describe("IFrameWindow", () => {
 
     describe("close", () => {
         let subject: IFrameWindow;
-        const parentRemoveChild = jest.fn();
+        const parentRemoveChild = vi.fn();
         beforeEach(() => {
             subject = new IFrameWindow({});
-            jest.spyOn(subject["_frame"]!, "parentNode", "get").mockReturnValue({
+            vi.spyOn(subject["_frame"]!, "parentNode", "get").mockReturnValue({
                 removeChild: parentRemoveChild,
             } as unknown as ParentNode);
         });
@@ -52,8 +59,8 @@ describe("IFrameWindow", () => {
 
         describe("if frame defined", () => {
             it("should set blank url for contentWindow", () => {
-                const replaceMock = jest.fn();
-                jest.spyOn(subject["_frame"]!, "contentWindow", "get")
+                const replaceMock = vi.fn();
+                vi.spyOn(subject["_frame"]!, "contentWindow", "get")
                     .mockReturnValue({ location: { replace: replaceMock } } as unknown as WindowProxy);
 
                 subject.close();
@@ -68,10 +75,10 @@ describe("IFrameWindow", () => {
     });
 
     describe("navigate", () => {
-        const contentWindowMock = jest.fn();
+        const contentWindowMock = vi.fn();
 
         beforeAll(() => {
-            jest.spyOn(window, "parent", "get").mockReturnValue({
+            vi.spyOn(window, "parent", "get").mockReturnValue({
                 postMessage: postMessageMock,
             } as unknown as WindowProxy);
             Object.defineProperty(window, "location", {
@@ -80,11 +87,11 @@ describe("IFrameWindow", () => {
             });
 
             contentWindowMock.mockReturnValue(null);
-            jest.spyOn(window.document.body, "appendChild").mockImplementation();
-            jest.spyOn(window.document, "createElement").mockImplementation(() => ({
+            vi.spyOn(window.document.body, "appendChild").mockImplementation((child) => child);
+            vi.spyOn(window.document, "createElement").mockImplementation(() => ({
                 contentWindow: contentWindowMock(),
                 style: {},
-                setAttribute: jest.fn(),
+                setAttribute: vi.fn(),
             } as unknown as HTMLIFrameElement),
             );
         });
@@ -98,21 +105,21 @@ describe("IFrameWindow", () => {
 
         describe("when message received", () => {
             const fakeState = "fffaaakkkeee_state";
-            const fakeContentWindow = { location: { replace: jest.fn() } };
+            const fakeContentWindow = { location: { replace: vi.fn() } };
             const validNavigateParams = {
                 source: fakeContentWindow,
                 data: { source: "oidc-client",
                     url: `https://test.com?state=${fakeState}` },
                 origin: fakeWindowOrigin,
             };
-            const navigateParamsStub = jest.fn();
+            const navigateParamsStub = vi.fn();
 
             beforeAll(() => {
                 contentWindowMock.mockReturnValue(fakeContentWindow);
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                jest.spyOn(window, "addEventListener").mockImplementation((_, listener: any) => {
+                vi.spyOn(window, "addEventListener").mockImplementation((_, listener: any) => {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    listener(navigateParamsStub());
+                    setTimeout(() => { listener(navigateParamsStub()); });
                 });
             });
 
@@ -132,32 +139,34 @@ describe("IFrameWindow", () => {
                 let promiseDone = false;
                 navigateParamsStub.mockReturnValue({ ...validNavigateParams, origin: "http://different.com" });
 
-                const frameWindow = new IFrameWindow({});
+                const frameWindow = new AbortableIFrameWindow({});
                 const promise = frameWindow.navigate({ state: fakeState, url: fakeUrl, scriptOrigin: args.passedOrigin });
 
-                void promise.finally(() => promiseDone = true);
+                void promise.catch(() => {}).finally(() => promiseDone = true);
                 await flushPromises();
 
                 expect(promiseDone).toBe(false);
+                frameWindow.abort();
             });
 
             it("and data url parse fails should reject with error", async () => {
                 navigateParamsStub.mockReturnValue({ ...validNavigateParams, data: { ...validNavigateParams.data, url: undefined } });
                 const frameWindow = new IFrameWindow({});
-                await expect(frameWindow.navigate({ state: fakeState, url: fakeUrl })).rejects.toThrowError("Invalid response from window");
+                await expect(frameWindow.navigate({ state: fakeState, url: fakeUrl })).rejects.toThrow("Invalid response from window");
             });
 
             it("and args source with state do not match contentWindow should never resolve", async () => {
                 let promiseDone = false;
                 navigateParamsStub.mockReturnValue({ ...validNavigateParams, source: {} });
 
-                const frameWindow = new IFrameWindow({});
+                const frameWindow = new AbortableIFrameWindow({});
                 const promise = frameWindow.navigate({ state: "diff_state", url: fakeUrl });
 
-                void promise.finally(() => promiseDone = true);
+                void promise.catch(() => {}).finally(() => promiseDone = true);
                 await flushPromises();
 
                 expect(promiseDone).toBe(false);
+                frameWindow.abort();
             });
         });
     });

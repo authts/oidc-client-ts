@@ -23,6 +23,7 @@ To understand how to use this library see here:
 - [Resource Owner Password Credentials (ROPC) Grant](https://github.com/authts/oidc-client-ts/blob/main/docs/protocols/resource-owner-password-credentials-grant.md)
 - [Refresh Token Grant](https://github.com/authts/oidc-client-ts/blob/main/docs/protocols/refresh-token-grant.md)
 - [Silent Refresh Token in iframe Flow](https://github.com/authts/oidc-client-ts/blob/main/docs/protocols/silent-refresh-token-in-iframe-flow.md)
+- [Demonstrating Proof of Possession](https://github.com/authts/oidc-client-ts/blob/main/docs/protocols/demonstrating-proof-of-possession.md)
 
 # UserManager
 
@@ -81,18 +82,19 @@ The [User](classes/User.html) type is returned from the [UserManager](classes/Us
 
 
 # Logging
-The oidc-client-ts library supports logging. You can set a logger by assigning `Oidc.Log.logger` to anything that supports a `info`, `warn`, and `error` methods that accept a params array. By default, no logger is configured.
+The oidc-client-ts library supports logging. You can set a logger to anything that supports a `info`, `warn`, and `error` methods that accept a params array by calling `Log.setLogger()`. By default, no logger is configured.
 
 The `console` object in the browser supports these, so a common way to easily
 enable logging in the browser is to simply add this code:
 
 ```javascript
-Oidc.Log.setLogger(console);
+import { Log } from 'oidc-client-ts';
+Log.setLogger(console);
 ```
 
 Also, logging has levels so you can control the verbosity by calling
-`Oidc.Log.setLevel()` with one of `Oidc.Log.NONE`, `Oidc.Log.ERROR`,
-`Oidc.Log.WARN`, or `Oidc.Log.INFO`. The default is `Oidc.Log.INFO`.
+`Log.setLevel()` with one of `Log.NONE`, `Log.ERROR`,
+`Log.WARN`, or `Log.INFO`. The default is `Log.INFO`.
 
 # Provider specific settings
 Additional provider specific settings may be needed for a flawless operation:
@@ -134,11 +136,11 @@ The `url_state` will be appended to the opaque, unique value created by the libr
 
 
 # Hash-mode router (SPA)
-If your app is using hash-based routing, be aware that many OIDC providers append the query string after the hash instead of inserting it before:  
-**Correct:** `https://your.org/?code=ab&state=cd#/oidc-callback`  
+If your app is using hash-based routing, be aware that many OIDC providers append the query string after the hash instead of inserting it before:
+**Correct:** `https://your.org/?code=ab&state=cd#/oidc-callback`
 **Wrong:** `https://your.org/#/oidc-callback?code=ab&state=cd`
 
-Check out [this issue]([https://github.com/authts/oidc-client-ts/issues/734#issuecomment-1298381823](https://github.com/authts/oidc-client-ts/issues/734)) for details. (There are also workarounds, as long as your provider doesn't fix the issue)
+Check out [this issue](https://github.com/authts/oidc-client-ts/issues/734#issuecomment-1298381823) for details. (There are also workarounds, as long as your provider doesn't fix the issue)
 
 # Projects using oidc-client-ts
 

@@ -4,6 +4,7 @@
 import { ErrorResponse, ErrorTimeout } from "./errors";
 import type { ExtraHeader } from "./OidcClientSettings";
 import { Logger } from "./utils";
+import { ErrorDPoPNonce } from "./errors/ErrorDPoPNonce";
 
 /**
  * @internal
@@ -16,6 +17,7 @@ export type JwtHandler = (text: string) => Promise<Record<string, unknown>>;
 export interface GetJsonOpts {
     token?: string;
     credentials?: RequestCredentials;
+    timeoutInSeconds?: number;
 }
 
 /**
@@ -78,6 +80,7 @@ export class JsonService {
     public async getJson(url: string, {
         token,
         credentials,
+        timeoutInSeconds,
     }: GetJsonOpts = {}): Promise<Record<string, unknown>> {
         const logger = this._logger.create("getJson");
         const headers: HeadersInit = {
@@ -88,12 +91,12 @@ export class JsonService {
             headers["Authorization"] = "Bearer " + token;
         }
 
-        this.appendExtraHeaders(headers);
+        this._appendExtraHeaders(headers);
 
         let response: Response;
         try {
             logger.debug("url:", url);
-            response = await this.fetchWithTimeout(url, { method: "GET", headers, credentials });
+            response = await this.fetchWithTimeout(url, { method: "GET", headers, timeoutInSeconds, credentials });
         }
         catch (err) {
             logger.error("Network Error");
@@ -144,7 +147,7 @@ export class JsonService {
             headers["Authorization"] = "Basic " + basicAuth;
         }
 
-        this.appendExtraHeaders(headers);
+        this._appendExtraHeaders(headers);
 
         let response: Response;
         try {
@@ -178,6 +181,10 @@ export class JsonService {
 
         if (!response.ok) {
             logger.error("Error from server:", json);
+            if (response.headers.has("dpop-nonce")) {
+                const nonce = response.headers.get("dpop-nonce") as string;
+                throw new ErrorDPoPNonce(nonce, `${JSON.stringify(json)}`);
+            }
             if (json.error) {
                 throw new ErrorResponse(json, body);
             }
@@ -187,29 +194,36 @@ export class JsonService {
         return json;
     }
 
-    private appendExtraHeaders(
+    private _appendExtraHeaders(
         headers: Record<string, string>,
     ): void {
         const logger = this._logger.create("appendExtraHeaders");
         const customKeys = Object.keys(this._extraHeaders);
         const protectedHeaders = [
-            "authorization",
             "accept",
             "content-type",
+        ];
+        const preventOverride = [
+            "authorization",
         ];
         if (customKeys.length === 0) {
             return;
         }
         customKeys.forEach((headerName) => {
             if (protectedHeaders.includes(headerName.toLocaleLowerCase())) {
-                logger.warn("Protected header could not be overridden", headerName, protectedHeaders);
+                logger.warn("Protected header could not be set", headerName, protectedHeaders);
+                return;
+            }
+            if (preventOverride.includes(headerName.toLocaleLowerCase()) &&
+                Object.keys(headers).includes(headerName)) {
+                logger.warn("Header could not be overridden", headerName, preventOverride);
                 return;
             }
             const content = (typeof this._extraHeaders[headerName] === "function") ?
                 (this._extraHeaders[headerName] as ()=>string)() :
                 this._extraHeaders[headerName];
             if (content && content !== "") {
-                headers[headerName] = content as string;
+                headers[headerName] = content;
             }
         });
     }

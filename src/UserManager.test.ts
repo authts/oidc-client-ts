@@ -1,7 +1,6 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { once } from "events";
 import {
     RedirectNavigator,
     type PopupWindow,
@@ -19,7 +18,10 @@ import { WebStorageStateStore } from "./WebStorageStateStore";
 import type { SigninState } from "./SigninState";
 import type { State } from "./State";
 
-import { mocked } from "jest-mock";
+import { CryptoUtils } from "./utils";
+import { IndexedDbDPoPStore } from "./IndexedDbDPoPStore";
+import { DPoPState } from "./DPoPStore";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("UserManager", () => {
     let userStoreMock: WebStorageStateStore;
@@ -129,8 +131,8 @@ describe("UserManager", () => {
                 token_type: "token_type",
                 profile: {} as UserProfile,
             });
-            subject["_loadUser"] = jest.fn().mockReturnValue(user);
-            const loadMock = jest.spyOn(subject["_events"], "load");
+            subject["_loadUser"] = vi.fn().mockReturnValue(user);
+            const loadMock = vi.spyOn(subject["_events"], "load");
 
             // act
             const result = await subject.getUser();
@@ -140,10 +142,64 @@ describe("UserManager", () => {
             expect(loadMock).toHaveBeenCalledWith(user, false);
         });
 
+        it("should execute callbacks for userLoaded event if there is a user stored and the raiseEvent parameter is true", async () => {
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {} as UserProfile,
+            });
+            subject["_loadUser"] = vi.fn().mockReturnValue(user);
+            const cb = vi.fn();
+            subject.events.addUserLoaded(cb);
+
+            // act
+            await subject.getUser(true);
+
+            // assert
+            expect(cb).toHaveBeenCalled();
+        });
+
+        it("should not execute callbacks for userLoaded event if there is a user stored and the raiseEvent parameter is false", async () => {
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {} as UserProfile,
+            });
+            subject["_loadUser"] = vi.fn().mockReturnValue(user);
+            const cb = vi.fn();
+            subject.events.addUserLoaded(cb);
+
+            // act
+            await subject.getUser(false);
+
+            // assert
+            expect(cb).not.toHaveBeenCalled();
+        });
+
+        it("should not execute callbacks for userLoaded event if there is a user stored and the raiseEvent parameter is not defined", async () => {
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {} as UserProfile,
+            });
+            subject["_loadUser"] = vi.fn().mockReturnValue(user);
+            const cb = vi.fn();
+            subject.events.addUserLoaded(cb);
+
+            // act
+            await subject.getUser();
+
+            // assert
+            expect(cb).not.toHaveBeenCalled();
+        });
+
         it("should return null if there is no user stored", async () => {
             // arrange
-            subject["_loadUser"] = jest.fn().mockReturnValue(null);
-            const loadMock = jest.spyOn(subject["_events"], "load");
+            subject["_loadUser"] = vi.fn().mockReturnValue(null);
+            const loadMock = vi.spyOn(subject["_events"], "load");
 
             // act
             const result = await subject.getUser();
@@ -157,8 +213,8 @@ describe("UserManager", () => {
     describe("removeUser", () => {
         it("should remove user from store and event unload", async () => {
             // arrange
-            const storeUserMock = jest.spyOn(subject, "storeUser");
-            const unloadMock = jest.spyOn(subject["_events"], "unload");
+            const storeUserMock = vi.spyOn(subject, "storeUser");
+            const unloadMock = vi.spyOn(subject["_events"], "unload");
 
             // act
             await subject.removeUser();
@@ -169,6 +225,54 @@ describe("UserManager", () => {
         });
     });
 
+    describe("removeUser", () => {
+        it("should remove user from store", async () => {
+            // arrange
+            const storeUserMock = vi.spyOn(subject, "storeUser");
+            const unloadMock = vi.spyOn(subject["_events"], "unload");
+            // act
+            await subject.removeUser();
+
+            // assert
+            expect(storeUserMock).toHaveBeenCalledWith(null);
+            expect(unloadMock).toHaveBeenCalled();
+        });
+
+        it("should remove dpop key from store if DPoP enabled", async () => {
+            // arrange
+            subject = new UserManager({
+                authority: "http://sts/oidc",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                monitorSession : false,
+                userStore: userStoreMock,
+                metadata: {
+                    authorization_endpoint: "http://sts/oidc/authorize",
+                    end_session_endpoint:  "http://sts/oidc/logout",
+                    token_endpoint: "http://sts/oidc/token",
+                    revocation_endpoint: "http://sts/oidc/revoke",
+                },
+                dpop: {
+                    bind_authorization_code: false,
+                    store: new IndexedDbDPoPStore(),
+                },
+            });
+
+            const storeUserMock = vi.spyOn(subject, "storeUser");
+            const unloadMock = vi.spyOn(subject["_events"], "unload");
+
+            const dpopStoreMock = vi.spyOn(subject.settings.dpop!.store, "remove");
+
+            // act
+            await subject.removeUser();
+
+            // assert
+            expect(storeUserMock).toHaveBeenCalledWith(null);
+            expect(unloadMock).toHaveBeenCalled();
+            expect(dpopStoreMock).toHaveBeenCalled();
+        });
+    });
+
     describe("revokeTokens", () => {
         it("should revoke the token types specified", async () => {
             // arrange
@@ -176,9 +280,9 @@ describe("UserManager", () => {
                 access_token: "foo",
                 refresh_token: "bar",
             };
-            subject["_loadUser"] = jest.fn().mockReturnValue(user);
-            const revokeSpy = jest.spyOn(subject["_client"], "revokeToken").mockResolvedValue(undefined);
-            const storeUserSpy = jest.spyOn(subject, "storeUser").mockResolvedValue(undefined);
+            subject["_loadUser"] = vi.fn().mockReturnValue(user);
+            const revokeSpy = vi.spyOn(subject["_client"], "revokeToken").mockResolvedValue(undefined);
+            const storeUserSpy = vi.spyOn(subject, "storeUser").mockResolvedValue(undefined);
 
             // act
             await subject.revokeTokens(["access_token", "refresh_token"]);
@@ -195,11 +299,11 @@ describe("UserManager", () => {
 
         it("should skip revoking absent token types", async () => {
             // arrange
-            subject["_loadUser"] = jest.fn().mockReturnValue({
+            subject["_loadUser"] = vi.fn().mockReturnValue({
                 access_token: "foo",
             });
-            const revokeSpy = jest.spyOn(subject["_client"], "revokeToken").mockResolvedValue(undefined);
-            jest.spyOn(subject, "storeUser").mockResolvedValue(undefined);
+            const revokeSpy = vi.spyOn(subject["_client"], "revokeToken").mockResolvedValue(undefined);
+            vi.spyOn(subject, "storeUser").mockResolvedValue(undefined);
 
             // act
             await subject.revokeTokens(["access_token", "refresh_token"]);
@@ -220,31 +324,22 @@ describe("UserManager", () => {
     describe("signinRedirect", () => {
         it("should redirect the browser to the authorize url", async () => {
             // act
-            const spy = jest.fn();
-            void subject.signinRedirect().finally(spy);
-
-            // signinRedirect is a promise that will never resolve (since we
-            // want it to hold until the page has redirected), so we wait for
-            // the browser unload event before checking the test assertions.
-            await once(window, "unload");
+            await subject.signinRedirect();
 
             // assert
             expect(window.location.assign).toHaveBeenCalledWith(
                 expect.stringContaining(subject.settings.metadata!.authorization_endpoint!),
             );
-            const [location] = mocked(window.location.assign).mock.calls[0];
+            const [location] = vi.mocked(window.location.assign).mock.calls[0];
             const state = new URL(location).searchParams.get("state");
             const item = await userStoreMock.get(state!);
             expect(JSON.parse(item!)).toHaveProperty("request_type", "si:r");
-
-            // We check to make sure the promise has not resolved
-            expect(spy).not.toHaveBeenCalled();
         });
 
         it("should pass navigator params to navigator", async () => {
             // arrange
-            const prepareMock = jest.spyOn(subject["_redirectNavigator"], "prepare");
-            subject["_signinStart"] = jest.fn();
+            const prepareMock = vi.spyOn(subject["_redirectNavigator"], "prepare");
+            subject["_signinStart"] = vi.fn();
             const navParams: SigninRedirectArgs = {
                 redirectMethod: "assign",
             };
@@ -258,8 +353,8 @@ describe("UserManager", () => {
 
         it("should pass extra args to _signinStart", async () => {
             // arrange
-            jest.spyOn(subject["_redirectNavigator"], "prepare");
-            subject["_signinStart"] = jest.fn();
+            vi.spyOn(subject["_redirectNavigator"], "prepare");
+            subject["_signinStart"] = vi.fn();
             const extraArgs: SigninRedirectArgs = {
                 extraQueryParams: { q : "q" },
                 extraTokenParams: { t: "t" },
@@ -285,12 +380,51 @@ describe("UserManager", () => {
                 }),
             );
         });
+
+        it("should pass dpopJkt to _signin if dpop.bind_authorization_code is true", async () => {
+            // arrange
+            subject = new UserManager({
+                authority: "http://sts/oidc",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                monitorSession : false,
+                userStore: userStoreMock,
+                metadata: {
+                    authorization_endpoint: "http://sts/oidc/authorize",
+                    end_session_endpoint:  "http://sts/oidc/logout",
+                    token_endpoint: "http://sts/oidc/token",
+                    revocation_endpoint: "http://sts/oidc/revoke",
+                },
+                dpop: {
+                    bind_authorization_code: true,
+                    store: new IndexedDbDPoPStore(),
+                },
+            });
+            vi.spyOn(subject["_redirectNavigator"], "prepare");
+            subject["_signinStart"] = vi.fn();
+
+            const generateDPoPJktSpy = vi.spyOn(subject, "generateDPoPJkt");
+
+            const keyPair = await CryptoUtils.generateDPoPKeys();
+
+            await subject.settings.dpop?.store?.set("client", new DPoPState(keyPair));
+
+            // act
+            await subject.signinRedirect();
+
+            // assert
+            expect(generateDPoPJktSpy).toHaveBeenCalled();
+            expect(subject["_signinStart"]).toHaveBeenCalledWith({
+                request_type: "si:r",
+                dpopJkt: expect.any(String),
+            }, expect.any(Object));
+        });
     });
 
     describe("signinRedirectCallback", () => {
         it("should return a user", async () => {
             // arrange
-            const spy = jest.spyOn(subject["_client"], "processSigninResponse")
+            const spy = vi.spyOn(subject["_client"], "processSigninResponse")
                 .mockResolvedValue({} as SigninResponse);
 
             // act
@@ -305,7 +439,7 @@ describe("UserManager", () => {
     describe("signinResourceOwnerCredentials", () => {
         it("should fail on wrong credentials", async () => {
             // arrange
-            jest.spyOn(subject["_client"], "processResourceOwnerPasswordCredentials").mockRejectedValue(new Error("Wrong credentials"));
+            vi.spyOn(subject["_client"], "processResourceOwnerPasswordCredentials").mockRejectedValue(new Error("Wrong credentials"));
 
             // act
             await expect(subject.signinResourceOwnerCredentials({ username: "u", password: "p" }))
@@ -332,8 +466,8 @@ describe("UserManager", () => {
                 id_token: "id_token",
                 scope: "openid profile email",
             };
-            jest.spyOn(subject["_client"], "processResourceOwnerPasswordCredentials").mockResolvedValue(mockUser as SigninResponse);
-            jest.spyOn(subject["_events"], "load").mockImplementation(() => Promise.resolve());
+            vi.spyOn(subject["_client"], "processResourceOwnerPasswordCredentials").mockResolvedValue(mockUser as SigninResponse);
+            vi.spyOn(subject["_events"], "load").mockImplementation(() => Promise.resolve());
 
             // act
             const user:User = await subject.signinResourceOwnerCredentials({ username: "u", password: "p" });
@@ -348,10 +482,10 @@ describe("UserManager", () => {
     describe("signinPopup", () => {
         it("should pass navigator params to navigator", async () => {
             // arrange
-            const handle = { } as PopupWindow;
-            const prepareMock = jest.spyOn(subject["_popupNavigator"], "prepare")
+            const handle = {} as PopupWindow;
+            const prepareMock = vi.spyOn(subject["_popupNavigator"], "prepare")
                 .mockImplementation(() => Promise.resolve(handle));
-            subject["_signin"] = jest.fn();
+            subject["_signin"] = vi.fn();
             const navParams: SigninPopupArgs = {
                 popupWindowFeatures: {
                     location: false,
@@ -359,13 +493,14 @@ describe("UserManager", () => {
                     height: 100,
                 },
                 popupWindowTarget: "popupWindowTarget",
+                popupAbortOnClose: true,
             };
 
             // act
             await subject.signinPopup(navParams);
 
             // assert
-            expect(prepareMock).toHaveBeenCalledWith(navParams);
+            expect(prepareMock).toHaveBeenCalledWith(expect.objectContaining(navParams));
         });
 
         it("should pass extra args to _signinStart", async () => {
@@ -375,12 +510,12 @@ describe("UserManager", () => {
                 token_type: "token_type",
                 profile: {} as UserProfile,
             });
-            const handle = { } as PopupWindow;
-            jest.spyOn(subject["_popupNavigator"], "prepare")
+            const handle = {} as PopupWindow;
+            vi.spyOn(subject["_popupNavigator"], "prepare")
                 .mockImplementation(() => Promise.resolve(handle));
-            subject["_signin"] = jest.fn().mockResolvedValue(user);
+            subject["_signin"] = vi.fn().mockResolvedValue(user);
             const extraArgs: SigninPopupArgs = {
-                extraQueryParams: { q : "q" },
+                extraQueryParams: { q: "q" },
                 extraTokenParams: { t: "t" },
                 state: "state",
                 nonce: "random_nonce",
@@ -401,12 +536,67 @@ describe("UserManager", () => {
                 handle,
             );
         });
+
+        it("should pass dpopJkt to _signin if dpop.bind_authorization_code is true", async () => {
+            // arrange
+            subject = new UserManager({
+                authority: "http://sts/oidc",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                monitorSession : false,
+                userStore: userStoreMock,
+                metadata: {
+                    authorization_endpoint: "http://sts/oidc/authorize",
+                    end_session_endpoint:  "http://sts/oidc/logout",
+                    token_endpoint: "http://sts/oidc/token",
+                    revocation_endpoint: "http://sts/oidc/revoke",
+                },
+                dpop: {
+                    bind_authorization_code: true,
+                    store: new IndexedDbDPoPStore(),
+                },
+            });
+
+            const handle = {} as PopupWindow;
+            vi.spyOn(subject["_popupNavigator"], "prepare")
+                .mockImplementation(() => Promise.resolve(handle));
+            const generateDPoPJktSpy = vi.spyOn(subject, "generateDPoPJkt");
+
+            const keyPair = await CryptoUtils.generateDPoPKeys();
+            await subject.settings.dpop?.store?.set("client", new DPoPState(keyPair));
+
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {
+                    sub: "sub",
+                    nickname: "Nicholas",
+                } as UserProfile,
+            });
+
+            subject["_signin"] = vi.fn().mockResolvedValue(user);
+
+            subject["_loadUser"] = vi.fn().mockResolvedValue(user);
+
+            // act
+            await subject.signinPopup({ resource: "resource" });
+
+            // assert
+            expect(generateDPoPJktSpy).toHaveBeenCalled();
+            expect(subject["_signin"]).toHaveBeenCalledWith({
+                request_type: "si:p",
+                redirect_uri: "http://app/cb",
+                dpopJkt: expect.any(String),
+                resource: "resource",
+                display: "popup",
+            }, expect.any(Object));
+        });
     });
 
     describe("signinPopupCallback", () => {
         it("should call navigator callback", async () => {
             // arrange
-            const callbackMock = jest.spyOn(subject["_popupNavigator"], "callback").mockResolvedValue();
+            const callbackMock = vi.spyOn(subject["_popupNavigator"], "callback").mockResolvedValue();
             const url = "http://app/cb?state=test&code=code";
             const keepOpen = true;
 
@@ -432,11 +622,11 @@ describe("UserManager", () => {
                 silentRequestTimeoutInSeconds: 123,
                 silent_redirect_uri: "http://client/silent_callback",
             });
-            subject["_signin"] = jest.fn().mockResolvedValue(user);
+            subject["_signin"] = vi.fn().mockResolvedValue(user);
 
             // act
             await subject.signinSilent();
-            const [, navInstance] = mocked(subject["_signin"]).mock.calls[0];
+            const [, navInstance] = vi.mocked(subject["_signin"]).mock.calls[0];
 
             // assert
             expect(navInstance).toHaveProperty("_timeoutInSeconds", 123);
@@ -444,8 +634,8 @@ describe("UserManager", () => {
 
         it("should pass navigator params to navigator", async () => {
             // arrange
-            const prepareMock = jest.spyOn(subject["_iframeNavigator"], "prepare");
-            subject["_signin"] = jest.fn();
+            const prepareMock = vi.spyOn(subject["_iframeNavigator"], "prepare");
+            subject["_signin"] = vi.fn();
             const navParams: SigninSilentArgs = {
                 silentRequestTimeoutInSeconds: 234,
             };
@@ -464,8 +654,8 @@ describe("UserManager", () => {
                 token_type: "token_type",
                 profile: {} as UserProfile,
             });
-            jest.spyOn(subject["_popupNavigator"], "prepare");
-            subject["_signin"] = jest.fn().mockResolvedValue(user);
+            vi.spyOn(subject["_popupNavigator"], "prepare");
+            subject["_signin"] = vi.fn().mockResolvedValue(user);
             const extraArgs: SigninSilentArgs = {
                 extraQueryParams: { q : "q" },
                 extraTokenParams: { t: "t" },
@@ -503,7 +693,7 @@ describe("UserManager", () => {
             Object.assign(subject.settings, {
                 silent_redirect_uri: "http://client/silent_callback",
             });
-            subject["_signin"] = jest.fn().mockResolvedValue(user);
+            subject["_signin"] = vi.fn().mockResolvedValue(user);
 
             // act
             await subject.signinSilent();
@@ -521,14 +711,14 @@ describe("UserManager", () => {
                 } as UserProfile,
             });
 
-            const useRefreshTokenSpy = jest.spyOn(subject["_client"], "useRefreshToken").mockResolvedValue({
+            const useRefreshTokenSpy = vi.spyOn(subject["_client"], "useRefreshToken").mockResolvedValue({
                 access_token: "new_access_token",
                 profile: {
                     sub: "sub",
                     nickname: "Nicholas",
                 },
             } as unknown as SigninResponse);
-            subject["_loadUser"] = jest.fn().mockResolvedValue(user);
+            subject["_loadUser"] = vi.fn().mockResolvedValue(user);
 
             // act
             const refreshedUser = await subject.signinSilent();
@@ -557,14 +747,14 @@ describe("UserManager", () => {
                 } as UserProfile,
             });
 
-            const useRefreshTokenSpy = jest.spyOn(subject["_client"], "useRefreshToken").mockResolvedValue({
+            const useRefreshTokenSpy = vi.spyOn(subject["_client"], "useRefreshToken").mockResolvedValue({
                 access_token: "new_access_token",
                 profile: {
                     sub: "sub",
                     nickname: "Nicholas",
                 },
             } as unknown as SigninResponse);
-            subject["_loadUser"] = jest.fn().mockResolvedValue(user);
+            subject["_loadUser"] = vi.fn().mockResolvedValue(user);
 
             // act
             await subject.signinSilent({ resource: "resource" });
@@ -579,12 +769,134 @@ describe("UserManager", () => {
                 }),
             );
         });
+
+        it("should pass dpopJkt if dpop.bind_authorization_code is true", async () => {
+            // arrange
+            subject = new UserManager({
+                authority: "http://sts/oidc",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                monitorSession : false,
+                userStore: userStoreMock,
+                metadata: {
+                    authorization_endpoint: "http://sts/oidc/authorize",
+                    end_session_endpoint:  "http://sts/oidc/logout",
+                    token_endpoint: "http://sts/oidc/token",
+                    revocation_endpoint: "http://sts/oidc/revoke",
+                },
+                dpop: {
+                    bind_authorization_code: true,
+                    store: new IndexedDbDPoPStore(),
+                },
+            });
+
+            const keyPair = await CryptoUtils.generateDPoPKeys();
+            await subject.settings.dpop?.store?.set("client", new DPoPState(keyPair));
+
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {
+                    sub: "sub",
+                    nickname: "Nicholas",
+                } as UserProfile,
+            });
+
+            subject["_signin"] = vi.fn().mockResolvedValue(user);
+
+            subject["_loadUser"] = vi.fn().mockResolvedValue(user);
+
+            const generateDPoPJktSpy = vi.spyOn(subject, "generateDPoPJkt");
+
+            // act
+            await subject.signinSilent({ resource: "resource" });
+
+            // assert
+            expect(generateDPoPJktSpy).toHaveBeenCalled();
+            expect(subject["_signin"]).toHaveBeenCalledWith({
+                request_type: "si:s",
+                id_token_hint: undefined,
+                redirect_uri: "http://app/cb",
+                prompt: "none",
+                dpopJkt: expect.any(String),
+                resource: "resource",
+            }, expect.any(Object), expect.any(String));
+        });
+
+        it("should force iframe authentication when forceIframeAuth is true, even with refresh token", async () => {
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                refresh_token: "refresh_token", // refresh token is present
+                profile: {
+                    sub: "sub",
+                    nickname: "Nick",
+                } as UserProfile,
+            });
+
+            Object.assign(subject.settings, {
+                silent_redirect_uri: "http://client/silent_callback",
+            });
+
+            subject["_loadUser"] = vi.fn().mockResolvedValue(user);
+            subject["_signin"] = vi.fn().mockResolvedValue(user);
+            const useRefreshTokenSpy = vi.spyOn(subject["_client"], "useRefreshToken");
+
+            // act
+            await subject.signinSilent({ forceIframeAuth: true });
+
+            // assert
+            // Should NOT use refresh token when forceIframeAuth is true
+            expect(useRefreshTokenSpy).not.toHaveBeenCalled();
+            // Should use iframe-based signin instead
+            expect(subject["_signin"]).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    request_type: "si:s",
+                    prompt: "none",
+                }),
+                expect.any(Object),
+                expect.any(String),
+            );
+        });
+
+        it("should use refresh token when forceIframeAuth is false and refresh token is available", async () => {
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                refresh_token: "refresh_token",
+                profile: {
+                    sub: "sub",
+                    nickname: "Nick",
+                } as UserProfile,
+            });
+
+            const useRefreshTokenSpy = vi.spyOn(subject["_client"], "useRefreshToken").mockResolvedValue({
+                access_token: "new_access_token",
+                profile: {
+                    sub: "sub",
+                    nickname: "Nicholas",
+                },
+            } as unknown as SigninResponse);
+            subject["_loadUser"] = vi.fn().mockResolvedValue(user);
+            subject["_signin"] = vi.fn();
+
+            // act
+            await subject.signinSilent({ forceIframeAuth: false });
+
+            // assert
+            // Should use refresh token when forceIframeAuth is false
+            expect(useRefreshTokenSpy).toHaveBeenCalled();
+            // Should NOT use iframe-based signin
+            expect(subject["_signin"]).not.toHaveBeenCalled();
+        });
     });
 
     describe("signinSilentCallback", () => {
         it("should call navigator callback", async () => {
             // arrange
-            const callbackMock = jest.spyOn(subject["_iframeNavigator"], "callback");
+            const callbackMock = vi.spyOn(subject["_iframeNavigator"], "callback");
             const url = "http://app/cb?state=test&code=code";
 
             // act
@@ -607,9 +919,9 @@ describe("UserManager", () => {
                 state: { request_type: "si:r" } as SigninState,
                 response: { } as SigninResponse,
             };
-            jest.spyOn(subject["_client"], "readSigninResponseState")
+            vi.spyOn(subject["_client"], "readSigninResponseState")
                 .mockImplementation(() => Promise.resolve(responseState));
-            const signinRedirectCallbackMock = jest.spyOn(subject, "signinRedirectCallback")
+            const signinRedirectCallbackMock = vi.spyOn(subject, "signinRedirectCallback")
                 .mockImplementation(() => Promise.resolve(user));
             const url = "http://app/cb?state=test&code=code";
 
@@ -627,9 +939,9 @@ describe("UserManager", () => {
                 state: { request_type: "si:p" } as SigninState,
                 response: { } as SigninResponse,
             };
-            jest.spyOn(subject["_client"], "readSigninResponseState")
+            vi.spyOn(subject["_client"], "readSigninResponseState")
                 .mockImplementation(() => Promise.resolve(responseState));
-            const signinPopupCallbackMock = jest.spyOn(subject, "signinPopupCallback").mockResolvedValue();
+            const signinPopupCallbackMock = vi.spyOn(subject, "signinPopupCallback").mockResolvedValue();
             const url = "http://app/cb?state=test&code=code";
 
             // act
@@ -646,9 +958,9 @@ describe("UserManager", () => {
                 state: { request_type: "si:s" } as SigninState,
                 response: { } as SigninResponse,
             };
-            jest.spyOn(subject["_client"], "readSigninResponseState")
+            vi.spyOn(subject["_client"], "readSigninResponseState")
                 .mockImplementation(() => Promise.resolve(responseState));
-            const signinRedirectCallbackMock = jest.spyOn(subject, "signinSilentCallback").mockResolvedValue();
+            const signinRedirectCallbackMock = vi.spyOn(subject, "signinSilentCallback").mockResolvedValue();
             const url = "http://app/cb?state=test&code=code";
 
             // act
@@ -665,7 +977,7 @@ describe("UserManager", () => {
                 state: { request_type: "dummy" } as SigninState,
                 response: { } as SigninResponse,
             };
-            jest.spyOn(subject["_client"], "readSigninResponseState")
+            vi.spyOn(subject["_client"], "readSigninResponseState")
                 .mockImplementation(() => Promise.resolve(responseState));
 
             // act
@@ -682,10 +994,10 @@ describe("UserManager", () => {
                 state: { request_type: "so:r" } as State,
                 response: { } as SignoutResponse,
             };
-            jest.spyOn(subject["_client"], "readSignoutResponseState")
+            vi.spyOn(subject["_client"], "readSignoutResponseState")
                 .mockImplementation(() => Promise.resolve(responseState));
-            const signoutRedirectCallbackMock = jest.spyOn(subject, "signoutRedirectCallback")
-                .mockImplementation();
+            const signoutRedirectCallbackMock = vi.spyOn(subject, "signoutRedirectCallback")
+                .mockImplementation(() => Promise.resolve(responseState.response));
             const url = "http://app/cb?state=test&code=code";
 
             // act
@@ -701,10 +1013,10 @@ describe("UserManager", () => {
                 state: { request_type: "so:p" } as State,
                 response: { } as SignoutResponse,
             };
-            jest.spyOn(subject["_client"], "readSignoutResponseState")
+            vi.spyOn(subject["_client"], "readSignoutResponseState")
                 .mockImplementation(() => Promise.resolve(responseState));
-            const signoutPopupCallbackMock = jest.spyOn(subject, "signoutPopupCallback")
-                .mockImplementation();
+            const signoutPopupCallbackMock = vi.spyOn(subject, "signoutPopupCallback")
+                .mockImplementation(() => Promise.resolve());
             const url = "http://app/cb?state=test&code=code";
             const keepOpen = true;
 
@@ -721,10 +1033,10 @@ describe("UserManager", () => {
                 state: { request_type: "so:s" } as State,
                 response: { } as SignoutResponse,
             };
-            jest.spyOn(subject["_client"], "readSignoutResponseState")
+            vi.spyOn(subject["_client"], "readSignoutResponseState")
                 .mockImplementation(() => Promise.resolve(responseState));
-            const signoutSilentCallbackMock = jest.spyOn(subject, "signoutSilentCallback")
-                .mockImplementation();
+            const signoutSilentCallbackMock = vi.spyOn(subject, "signoutSilentCallback")
+                .mockImplementation(() => Promise.resolve());
             const url = "http://app/cb?state=test&code=code";
 
             // act
@@ -740,7 +1052,7 @@ describe("UserManager", () => {
                 state: undefined,
                 response: { } as SignoutResponse,
             };
-            jest.spyOn(subject["_client"], "readSignoutResponseState")
+            vi.spyOn(subject["_client"], "readSignoutResponseState")
                 .mockImplementation(() => Promise.resolve(responseState));
 
             // act & assert (no throw)
@@ -753,7 +1065,7 @@ describe("UserManager", () => {
                 state: { request_type: "dummy" } as State,
                 response: { } as SignoutResponse,
             };
-            jest.spyOn(subject["_client"], "readSignoutResponseState")
+            vi.spyOn(subject["_client"], "readSignoutResponseState")
                 .mockImplementation(() => Promise.resolve(responseState));
 
             // act
@@ -770,11 +1082,11 @@ describe("UserManager", () => {
                 silentRequestTimeoutInSeconds: 123,
                 silent_redirect_uri: "http://client/silent_callback",
             });
-            subject["_signout"] = jest.fn();
+            subject["_signout"] = vi.fn();
 
             // act
             await subject.signoutSilent();
-            const [, navInstance] = mocked(subject["_signout"]).mock.calls[0];
+            const [, navInstance] = vi.mocked(subject["_signout"]).mock.calls[0];
 
             // assert
             expect(navInstance).toHaveProperty("_timeoutInSeconds", 123);
@@ -782,8 +1094,8 @@ describe("UserManager", () => {
 
         it("should pass navigator params to navigator", async () => {
             // arrange
-            const prepareMock = jest.spyOn(subject["_iframeNavigator"], "prepare");
-            subject["_signout"] = jest.fn();
+            const prepareMock = vi.spyOn(subject["_iframeNavigator"], "prepare");
+            subject["_signout"] = vi.fn();
             const navParams: SignoutSilentArgs = {
                 silentRequestTimeoutInSeconds: 234,
             };
@@ -797,12 +1109,13 @@ describe("UserManager", () => {
 
         it("should pass extra args to _signoutStart", async () => {
             // arrange
-            jest.spyOn(subject["_popupNavigator"], "prepare");
-            subject["_signout"] = jest.fn();
+            vi.spyOn(subject["_popupNavigator"], "prepare");
+            subject["_signout"] = vi.fn();
             const extraArgs: SignoutSilentArgs = {
                 extraQueryParams: { q : "q" },
                 state: "state",
                 post_logout_redirect_uri: "http://app/extra_callback",
+                url_state: "foo",
             };
 
             // act
@@ -830,11 +1143,11 @@ describe("UserManager", () => {
                 token_type: "token_type",
                 profile: {} as UserProfile,
             });
-            subject["_loadUser"] = jest.fn().mockResolvedValue(user);
+            subject["_loadUser"] = vi.fn().mockResolvedValue(user);
             Object.assign(subject.settings, {
                 includeIdTokenInSilentSignout: true,
             });
-            subject["_signout"] = jest.fn().mockResolvedValue(user);
+            subject["_signout"] = vi.fn().mockResolvedValue(user);
 
             // act
             await subject.signoutSilent();
@@ -856,11 +1169,11 @@ describe("UserManager", () => {
                 token_type: "token_type",
                 profile: {} as UserProfile,
             });
-            subject["_loadUser"] = jest.fn().mockResolvedValue(user);
+            subject["_loadUser"] = vi.fn().mockResolvedValue(user);
             Object.assign(subject.settings, {
                 includeIdTokenInSilentSignout: false,
             });
-            subject["_signout"] = jest.fn().mockResolvedValue(user);
+            subject["_signout"] = vi.fn().mockResolvedValue(user);
 
             // act
             await subject.signoutSilent();
@@ -878,7 +1191,7 @@ describe("UserManager", () => {
     describe("signoutSilentCallback", () => {
         it("should call navigator callback", async () => {
             // arrange
-            const callbackMock = jest.spyOn(subject["_iframeNavigator"], "callback");
+            const callbackMock = vi.spyOn(subject["_iframeNavigator"], "callback");
             const url = "http://app/cb?state=test&code=code";
 
             // act
@@ -892,10 +1205,10 @@ describe("UserManager", () => {
     describe("signoutRedirect", () => {
         it("must remove the user before requesting the logout", async () => {
             // arrange
-            const navigateMock = jest.fn().mockReturnValue(Promise.resolve({
+            const navigateMock = vi.fn().mockReturnValue(Promise.resolve({
                 url: "http://localhost:8080",
             } as NavigateResponse));
-            jest.spyOn(subject["_redirectNavigator"], "prepare").mockReturnValue(Promise.resolve({
+            vi.spyOn(subject["_redirectNavigator"], "prepare").mockReturnValue(Promise.resolve({
                 navigate: navigateMock,
                 close: () => {},
             }));
@@ -920,9 +1233,9 @@ describe("UserManager", () => {
         it("should pass navigator params to navigator", async () => {
             // arrange
             const handle = { } as PopupWindow;
-            const prepareMock = jest.spyOn(subject["_popupNavigator"], "prepare")
+            const prepareMock = vi.spyOn(subject["_popupNavigator"], "prepare")
                 .mockImplementation(() => Promise.resolve(handle));
-            subject["_signout"] = jest.fn();
+            subject["_signout"] = vi.fn();
             const navParams: SignoutPopupArgs = {
                 popupWindowFeatures: {
                     location: false,
@@ -942,9 +1255,9 @@ describe("UserManager", () => {
         it("should pass extra args to _signoutStart", async () => {
             // arrange
             const handle = { } as PopupWindow;
-            jest.spyOn(subject["_popupNavigator"], "prepare")
+            vi.spyOn(subject["_popupNavigator"], "prepare")
                 .mockImplementation(() => Promise.resolve(handle));
-            subject["_signout"] = jest.fn().mockResolvedValue({} as SignoutResponse);
+            subject["_signout"] = vi.fn().mockResolvedValue({} as SignoutResponse);
             const extraArgs: SignoutPopupArgs = {
                 extraQueryParams: { q : "q" },
                 state: "state",
@@ -997,6 +1310,77 @@ describe("UserManager", () => {
             // assert
             const storageString = await subject.settings.userStore.get(subject["_userStoreKey"]);
             expect(storageString).toBeNull();
+        });
+
+        it("should remove dpop keys from the dpop store if dpop enabled", async () => {
+            // arrange
+            subject = new UserManager({
+                authority: "http://sts/oidc",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                monitorSession : false,
+                userStore: userStoreMock,
+                metadata: {
+                    authorization_endpoint: "http://sts/oidc/authorize",
+                    end_session_endpoint:  "http://sts/oidc/logout",
+                    token_endpoint: "http://sts/oidc/token",
+                    revocation_endpoint: "http://sts/oidc/revoke",
+                },
+                dpop: { store: new IndexedDbDPoPStore() },
+            });
+
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {} as UserProfile,
+            });
+            await subject.storeUser(user);
+            const dpopKeyPair = await CryptoUtils.generateDPoPKeys();
+            await subject.settings.dpop?.store.set("client", new DPoPState(dpopKeyPair));
+
+            // act
+            await subject.storeUser(null);
+
+            // assert
+            const storageString = await subject.settings.userStore.get(subject["_userStoreKey"]);
+            expect(storageString).toBeNull();
+            const dpopKeys = await subject.settings.dpop?.store.get("client");
+            expect(dpopKeys).toBeUndefined();
+        });
+    });
+
+    describe("getDPoPProof",() => {
+        it("should return a DPoP proof", async () => {
+            // arrange
+            subject = new UserManager({
+                authority: "http://sts/oidc",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                monitorSession : false,
+                userStore: userStoreMock,
+                metadata: {
+                    authorization_endpoint: "http://sts/oidc/authorize",
+                    end_session_endpoint:  "http://sts/oidc/logout",
+                    token_endpoint: "http://sts/oidc/token",
+                    revocation_endpoint: "http://sts/oidc/revoke",
+                },
+                dpop: {
+                    bind_authorization_code: false,
+                    store: new IndexedDbDPoPStore(),
+                },
+            });
+
+            const user = await subject.getUser() as User;
+            const keyPair = await CryptoUtils.generateDPoPKeys();
+            const mockDpopStore = vi.spyOn(subject.settings.dpop!.store, "get").mockResolvedValue(new DPoPState(keyPair));
+
+            // act
+            const dpopProof = await subject.dpopProof("http://some.url", user, "POST");
+
+            // assert
+            expect(mockDpopStore).toHaveBeenCalledWith("client");
+            expect(dpopProof).toBeDefined();
+            expect(typeof dpopProof).toBe("string");
         });
     });
 });

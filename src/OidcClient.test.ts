@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { JwtUtils } from "./utils";
+import { CryptoUtils, JwtUtils, URL_STATE_DELIMITER } from "./utils";
 import type { ErrorResponse } from "./errors";
 import type { JwtClaims } from "./Claims";
 import { OidcClient } from "./OidcClient";
@@ -14,6 +14,11 @@ import { SignoutResponse } from "./SignoutResponse";
 import { RefreshState } from "./RefreshState";
 import { SigninResponse } from "./SigninResponse";
 import type { UserProfile } from "./User";
+import { IndexedDbDPoPStore } from "./IndexedDbDPoPStore";
+import { ErrorDPoPNonce } from "./errors/ErrorDPoPNonce";
+import { DPoPState } from "./DPoPStore";
+import { fail } from "assert";
+import { describe, beforeEach, afterEach, vi, it, expect } from "vitest";
 
 describe("OidcClient", () => {
     let subject: OidcClient;
@@ -28,7 +33,7 @@ describe("OidcClient", () => {
     });
 
     afterEach(() => {
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
     });
 
     describe("constructor", () => {
@@ -56,7 +61,7 @@ describe("OidcClient", () => {
                 response_type: "code",
                 scope: "scope",
             };
-            jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
+            vi.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
 
             // act
             const request = await subject.createSigninRequest(args);
@@ -67,7 +72,7 @@ describe("OidcClient", () => {
 
         it("should pass params to SigninRequest", async () => {
             // arrange
-            jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
+            vi.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
 
             // act
             const request = await subject.createSigninRequest({
@@ -114,7 +119,7 @@ describe("OidcClient", () => {
 
         it("should pass state in place of data to SigninRequest", async () => {
             // arrange
-            jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
+            vi.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
 
             // act
             const request = await subject.createSigninRequest({
@@ -151,6 +156,34 @@ describe("OidcClient", () => {
             expect(url.match(/state=.*%3Burl_state/)).toBeTruthy();
         });
 
+        it("should exclude scope from SigninRequest if omitScopeWhenRequesting is true", async () => {
+            // arrange
+            vi.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
+
+            // act
+            const request = await subject.createSigninRequest({
+                state: "foo",
+                response_type: "code",
+                scope: "baz",
+                redirect_uri: "quux",
+                prompt: "p",
+                display: "d",
+                max_age: 42,
+                ui_locales: "u",
+                id_token_hint: "ith",
+                login_hint: "lh",
+                acr_values: "av",
+                resource: "res",
+                url_state: "url_state",
+                omitScopeWhenRequesting: true,
+            });
+
+            // assert
+            expect(request.state.data).toEqual("foo");
+            const url = request.url;
+            expect(url).not.toContain("scope");
+        });
+
         it("should fail if implicit flow requested", async () => {
             // arrange
             const args = {
@@ -177,7 +210,7 @@ describe("OidcClient", () => {
                 response_type: "code",
                 scope: "scope",
             };
-            jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockRejectedValue(new Error("test"));
+            vi.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockRejectedValue(new Error("test"));
 
             // act
             try {
@@ -197,8 +230,8 @@ describe("OidcClient", () => {
                 response_type: "code",
                 scope: "scope",
             };
-            jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
-            jest.spyOn(subject.settings.stateStore, "set").mockRejectedValue(new Error("foo"));
+            vi.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
+            vi.spyOn(subject.settings.stateStore, "set").mockRejectedValue(new Error("foo"));
 
             // act
             try {
@@ -218,8 +251,8 @@ describe("OidcClient", () => {
                 response_type: "code",
                 scope: "scope",
             };
-            jest.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
-            const setMock = jest.spyOn(subject.settings.stateStore, "set").mockImplementation(() => Promise.resolve());
+            vi.spyOn(subject.metadataService, "getAuthorizationEndpoint").mockImplementation(() => Promise.resolve("http://sts/authorize"));
+            const setMock = vi.spyOn(subject.settings.stateStore, "set").mockImplementation(() => Promise.resolve());
 
             // act
             await subject.createSigninRequest(args);
@@ -233,7 +266,7 @@ describe("OidcClient", () => {
 
         it("should fail if no state on response", async () => {
             // arrange
-            jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve("state"));
+            vi.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve("state"));
 
             // act
             try {
@@ -248,7 +281,7 @@ describe("OidcClient", () => {
 
         it("should fail if storage fails", async () => {
             // arrange
-            jest.spyOn(subject.settings.stateStore, "get").mockRejectedValue(new Error("fail"));
+            vi.spyOn(subject.settings.stateStore, "get").mockRejectedValue(new Error("fail"));
 
             // act
             try {
@@ -271,7 +304,7 @@ describe("OidcClient", () => {
                 scope: "scope",
                 request_type: "type",
             });
-            jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item.toStorageString()));
+            vi.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item.toStorageString()));
 
             // act
             const { state, response } = await subject.readSigninResponseState("http://app/cb?state=1");
@@ -288,7 +321,7 @@ describe("OidcClient", () => {
     describe("processSigninResponse", () => {
         it("should fail if no state on response", async () => {
             // arrange
-            jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve("state"));
+            vi.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve("state"));
 
             // act
             try {
@@ -303,7 +336,7 @@ describe("OidcClient", () => {
 
         it("should fail if storage fails", async () => {
             // arrange
-            jest.spyOn(subject.settings.stateStore, "remove").mockRejectedValue(new Error("fail"));
+            vi.spyOn(subject.settings.stateStore, "remove").mockRejectedValue(new Error("fail"));
 
             // act
             try {
@@ -326,9 +359,9 @@ describe("OidcClient", () => {
                 scope: "scope",
                 request_type: "type",
             });
-            jest.spyOn(subject.settings.stateStore, "remove")
+            vi.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(async () => item.toStorageString());
-            const validateSigninResponseMock = jest.spyOn(subject["_validator"], "validateSigninResponse")
+            const validateSigninResponseMock = vi.spyOn(subject["_validator"], "validateSigninResponse")
                 .mockResolvedValue();
 
             // act
@@ -351,9 +384,9 @@ describe("OidcClient", () => {
 
             const extraHeaders: Record<string, ExtraHeader> = { "foo": "bar" };
 
-            jest.spyOn(subject.settings.stateStore, "remove")
+            vi.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(async () => item.toStorageString());
-            const validateSigninResponseMock = jest.spyOn(subject["_validator"], "validateSigninResponse")
+            const validateSigninResponseMock = vi.spyOn(subject["_validator"], "validateSigninResponse")
                 .mockResolvedValue();
 
             // act
@@ -362,13 +395,109 @@ describe("OidcClient", () => {
             // assert
             expect(validateSigninResponseMock).toHaveBeenCalledWith(response, item, extraHeaders);
         });
+
+        it("should pass DPoP extraHeader if enabled", async () => {
+            subject = new OidcClient({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                post_logout_redirect_uri: "http://app",
+                dpop: {
+                    bind_authorization_code: false,
+                    store: new IndexedDbDPoPStore(),
+                },
+            });
+
+            // arrange
+            const item = await SigninState.create({
+                id: "1",
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                scope: "scope",
+                request_type: "type",
+            });
+            vi.spyOn(subject.settings.stateStore, "remove")
+                .mockImplementation(async () => item.toStorageString());
+            const validateSigninResponseMock = vi.spyOn(subject["_validator"], "validateSigninResponse")
+                .mockResolvedValue();
+            const metadataServiceMock = vi.spyOn(subject["metadataService"], "getTokenEndpoint").mockResolvedValue("http://sts/token");
+
+            // act
+            const response = await subject.processSigninResponse("http://app/cb?state=1");
+
+            // assert
+            expect(metadataServiceMock).toHaveBeenCalled();
+            expect(validateSigninResponseMock).toHaveBeenCalledWith(response, item, { "DPoP": expect.any(String) });
+        });
+
+        it("should retry code request if original fails with ErrorDPoPNonce exception", async () => {
+            subject = new OidcClient({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                post_logout_redirect_uri: "http://app",
+                dpop: {
+                    bind_authorization_code: false,
+                    store: new IndexedDbDPoPStore(),
+                },
+            });
+
+            // arrange
+            const item = await SigninState.create({
+                id: "1",
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                scope: "scope",
+                request_type: "type",
+            });
+            vi.spyOn(subject.settings.stateStore, "remove")
+                .mockImplementation(async () => item.toStorageString());
+            const validateSigninResponseMock = vi.spyOn(subject["_validator"], "validateSigninResponse")
+                .mockRejectedValueOnce(new ErrorDPoPNonce("some-nonce"));
+            const getDpopProofMock = vi.spyOn(subject, "getDpopProof");
+            const metadataServiceMock = vi.spyOn(subject["metadataService"], "getTokenEndpoint").mockResolvedValue("http://sts/token");
+            // act
+            await subject.processSigninResponse("http://app/cb?state=1");
+
+            // assert
+            expect(metadataServiceMock).toHaveBeenCalled();
+            expect(validateSigninResponseMock).toHaveBeenCalledTimes(2);
+            expect(getDpopProofMock).toHaveBeenCalledTimes(2);
+            expect(getDpopProofMock).toHaveBeenNthCalledWith(2, { "_dbName": "oidc", "_storeName": "dpop" }, "some-nonce");
+        });
+
+        it("should not delete state when removeState = false", async () => {
+            // arrange
+            const item = await SigninState.create({
+                id: "1",
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                scope: "scope",
+                request_type: "type",
+            });
+            const getStateMock = vi.spyOn(subject.settings.stateStore, "get")
+                .mockImplementation(async () => item.toStorageString());
+            const removeStateMock = vi.spyOn(subject.settings.stateStore, "remove")
+                .mockImplementation(async () => item.toStorageString());
+            vi.spyOn(subject["_validator"], "validateSigninResponse").mockResolvedValue();
+
+            // act
+            await subject.processSigninResponse("http://app/cb?state=1", undefined, false);
+
+            // assert
+            expect(getStateMock).toHaveBeenCalled();
+            expect(removeStateMock).not.toHaveBeenCalled();
+        });
     });
 
     describe("processResourceOwnerPasswordCredentials", () => {
 
         it("should fail on wrong credentials", async () => {
             // arrange
-            jest.spyOn(subject["_tokenClient"], "exchangeCredentials").mockRejectedValue(new Error("Wrong credentials"));
+            vi.spyOn(subject["_tokenClient"], "exchangeCredentials").mockRejectedValue(new Error("Wrong credentials"));
 
             // act
             await expect(subject.processResourceOwnerPasswordCredentials({ username: "u", password: "p", skipUserInfo: false }))
@@ -378,8 +507,8 @@ describe("OidcClient", () => {
 
         it("should fail on invalid response", async () => {
             // arrange
-            jest.spyOn(subject["_tokenClient"], "exchangeCredentials").mockResolvedValue({});
-            jest.spyOn(subject["_validator"], "validateCredentialsResponse").mockRejectedValue(new Error("Wrong response"));
+            vi.spyOn(subject["_tokenClient"], "exchangeCredentials").mockResolvedValue({});
+            vi.spyOn(subject["_validator"], "validateCredentialsResponse").mockRejectedValue(new Error("Wrong response"));
 
             // act
             await expect(subject.processResourceOwnerPasswordCredentials({ username: "u", password: "p", skipUserInfo: false }))
@@ -389,12 +518,12 @@ describe("OidcClient", () => {
 
         it("should return response on success", async () => {
             // arrange
-            jest.spyOn(subject["_tokenClient"], "exchangeCredentials").mockResolvedValue({
+            vi.spyOn(subject["_tokenClient"], "exchangeCredentials").mockResolvedValue({
                 access_token: "access_token",
                 id_token: "id_token",
                 scope: "openid profile email",
             });
-            jest.spyOn(subject["_validator"], "validateCredentialsResponse").mockImplementation(
+            vi.spyOn(subject["_validator"], "validateCredentialsResponse").mockImplementation(
                 async (response: SigninResponse): Promise<void> => {
                     Object.assign(response, { profile: { sub: "subsub" } });
                 },
@@ -419,7 +548,7 @@ describe("OidcClient", () => {
                 access_token: "new_access_token",
                 scope: "replacement scope",
             };
-            jest.spyOn(subject["_tokenClient"], "exchangeRefreshToken").mockResolvedValue(tokenResponse);
+            vi.spyOn(subject["_tokenClient"], "exchangeRefreshToken").mockResolvedValue(tokenResponse);
             const state = new RefreshState({
                 refresh_token: "refresh_token",
                 id_token: "id_token",
@@ -442,9 +571,9 @@ describe("OidcClient", () => {
                 access_token: "new_access_token",
             };
             const exchangeRefreshTokenMock =
-                jest.spyOn(subject["_tokenClient"], "exchangeRefreshToken")
+                vi.spyOn(subject["_tokenClient"], "exchangeRefreshToken")
                     .mockResolvedValue(tokenResponse);
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
             const state = new RefreshState({
                 refresh_token: "refresh_token",
                 id_token: "id_token",
@@ -484,9 +613,9 @@ describe("OidcClient", () => {
                 access_token: "new_access_token",
             };
             const exchangeRefreshTokenMock =
-                jest.spyOn(subject["_tokenClient"], "exchangeRefreshToken")
+                vi.spyOn(subject["_tokenClient"], "exchangeRefreshToken")
                     .mockResolvedValue(tokenResponse);
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
             const state = new RefreshState({
                 refresh_token: "refresh_token",
                 id_token: "id_token",
@@ -524,8 +653,8 @@ describe("OidcClient", () => {
                 access_token: "new_access_token",
                 id_token: "new_id_token",
             };
-            jest.spyOn(subject["_tokenClient"], "exchangeRefreshToken").mockResolvedValue(tokenResponse);
-            jest.spyOn(JwtUtils, "decode").mockImplementation((token) => profiles[token]);
+            vi.spyOn(subject["_tokenClient"], "exchangeRefreshToken").mockResolvedValue(tokenResponse);
+            vi.spyOn(JwtUtils, "decode").mockImplementation((token) => profiles[token]);
             const state = new RefreshState({
                 refresh_token: "refresh_token",
                 id_token: "id_token",
@@ -540,15 +669,109 @@ describe("OidcClient", () => {
                 .rejects.toThrow("sub in id_token does not match current sub");
         });
 
+        it("should pass DPoP extraHeader to tokenClient.exchangeRefreshToken if DPoP enabled", async () => {
+            // arrange
+            const settings: OidcClientSettings = {
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                post_logout_redirect_uri: "http://app",
+                dpop: {
+                    bind_authorization_code: false,
+                    store: new IndexedDbDPoPStore(),
+                },
+            };
+
+            subject = new OidcClient(settings);
+
+            const tokenResponse = {
+                access_token: "new_access_token",
+            };
+            const exchangeRefreshTokenMock =
+                vi.spyOn(subject["_tokenClient"], "exchangeRefreshToken")
+                    .mockResolvedValue(tokenResponse);
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
+            const mockMetaDataService = vi.spyOn(subject["metadataService"], "getTokenEndpoint").mockResolvedValue("http://sts/token");
+
+            const state = new RefreshState({
+                refresh_token: "refresh_token",
+                id_token: "id_token",
+                session_state: "session_state",
+                scope: "openid",
+                profile: {} as UserProfile,
+            });
+
+            // act
+            const response = await subject.useRefreshToken({ state, resource: "resource" });
+
+            // assert
+            expect(mockMetaDataService).toHaveBeenCalled();
+            expect(exchangeRefreshTokenMock).toHaveBeenCalledWith( {
+                refresh_token: "refresh_token",
+                scope: "openid",
+                timeoutInSeconds: undefined,
+                resource: "resource",
+                extraHeaders: { "DPoP": expect.any(String) },
+            });
+            expect(response).toBeInstanceOf(SigninResponse);
+            expect(response).toMatchObject(tokenResponse);
+            expect(response).toHaveProperty("session_state", state.session_state);
+            expect(response).toHaveProperty("scope", state.scope);
+        });
+
+        it("should retry token exchange if tokenClient exchange throws ErrorDPoPNonce exception", async () => {
+            // arrange
+            const settings: OidcClientSettings = {
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                post_logout_redirect_uri: "http://app",
+                dpop: {
+                    bind_authorization_code: false,
+                    store: new IndexedDbDPoPStore(),
+                },
+            };
+
+            subject = new OidcClient(settings);
+
+            const tokenResponse = {
+                access_token: "new_access_token",
+            };
+            const exchangeRefreshTokenMock =
+                vi.spyOn(subject["_tokenClient"], "exchangeRefreshToken")
+                    .mockRejectedValueOnce(new ErrorDPoPNonce("some-nonce"))
+                    .mockResolvedValueOnce(tokenResponse);
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
+            vi.spyOn(subject["metadataService"], "getTokenEndpoint").mockResolvedValue("http://sts/token");
+            const getDpopProofSpy = vi.spyOn(subject, "getDpopProof");
+
+            const state = new RefreshState({
+                refresh_token: "refresh_token",
+                id_token: "id_token",
+                session_state: "session_state",
+                scope: "openid",
+                profile: {} as UserProfile,
+            });
+
+            // act
+            await subject.useRefreshToken({ state, resource: "resource" });
+
+            // assert
+
+            expect(exchangeRefreshTokenMock).toHaveBeenCalledTimes(2);
+            expect(getDpopProofSpy).toHaveBeenCalledTimes(2);
+            expect(getDpopProofSpy).toHaveBeenNthCalledWith(2, { "_dbName": "oidc", "_storeName": "dpop" }, "some-nonce");
+        });
+
         it("should pass extraHeaders to tokenClient.exchangeRefreshToken if supplied", async () => {
             // arrange
             const tokenResponse = {
                 access_token: "new_access_token",
             };
             const exchangeRefreshTokenMock =
-                jest.spyOn(subject["_tokenClient"], "exchangeRefreshToken")
+                vi.spyOn(subject["_tokenClient"], "exchangeRefreshToken")
                     .mockResolvedValue(tokenResponse);
-            jest.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
+            vi.spyOn(JwtUtils, "decode").mockReturnValue({ sub: "sub" });
             const state = new RefreshState({
                 refresh_token: "refresh_token",
                 id_token: "id_token",
@@ -579,7 +802,7 @@ describe("OidcClient", () => {
     describe("createSignoutRequest", () => {
         it("should return SignoutRequest", async () => {
             // arrange
-            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
+            vi.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
 
             // act
             const request = await subject.createSignoutRequest();
@@ -590,7 +813,7 @@ describe("OidcClient", () => {
 
         it("should pass state in place of data to SignoutRequest", async () => {
             // arrange
-            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
+            vi.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
 
             // act
             const request = await subject.createSignoutRequest({
@@ -610,13 +833,14 @@ describe("OidcClient", () => {
 
         it("should pass params to SignoutRequest", async () => {
             // arrange
-            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
+            vi.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
 
             // act
             const request = await subject.createSignoutRequest({
                 state: "foo",
                 post_logout_redirect_uri: "bar",
                 id_token_hint: "baz",
+                url_state: "qux",
             });
 
             // assert
@@ -626,11 +850,12 @@ describe("OidcClient", () => {
             expect(url).toContain("http://sts/signout");
             expect(url).toContain("post_logout_redirect_uri=bar");
             expect(url).toContain("id_token_hint=baz");
+            expect(url).toContain(encodeURIComponent(URL_STATE_DELIMITER + "qux"));
         });
 
         it("should pass params to SignoutRequest w/o id_token_hint and client_id", async () => {
             // arrange
-            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
+            vi.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
 
             // act
             const request = await subject.createSignoutRequest({
@@ -649,7 +874,7 @@ describe("OidcClient", () => {
 
         it("should pass params to SignoutRequest with client_id", async () => {
             // arrange
-            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
+            vi.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
 
             // act
             const request = await subject.createSignoutRequest({
@@ -669,7 +894,7 @@ describe("OidcClient", () => {
 
         it("should fail if metadata fails", async () => {
             // arrange
-            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockRejectedValue(new Error("test"));
+            vi.spyOn(subject.metadataService, "getEndSessionEndpoint").mockRejectedValue(new Error("test"));
 
             // act
             try {
@@ -684,7 +909,7 @@ describe("OidcClient", () => {
 
         it("should fail if no signout endpoint on metadata", async () => {
             // arrange
-            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve(undefined));
+            vi.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve(undefined));
 
             // act
             try {
@@ -699,8 +924,8 @@ describe("OidcClient", () => {
 
         it("should store state", async () => {
             // arrange
-            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
-            const setMock = jest.spyOn(subject.settings.stateStore, "set").mockImplementation(() => Promise.resolve());
+            vi.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
+            const setMock = vi.spyOn(subject.settings.stateStore, "set").mockImplementation(() => Promise.resolve());
 
             // act
             await subject.createSignoutRequest({
@@ -713,8 +938,8 @@ describe("OidcClient", () => {
 
         it("should not generate state if no data", async () => {
             // arrange
-            jest.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
-            const setMock = jest.spyOn(subject.settings.stateStore, "set").mockImplementation(() => Promise.resolve());
+            vi.spyOn(subject.metadataService, "getEndSessionEndpoint").mockImplementation(() => Promise.resolve("http://sts/signout"));
+            const setMock = vi.spyOn(subject.settings.stateStore, "set").mockImplementation(() => Promise.resolve());
 
             // act
             await subject.createSignoutRequest();
@@ -757,7 +982,7 @@ describe("OidcClient", () => {
 
         it("should fail if storage fails", async () => {
             // arrange
-            jest.spyOn(subject.settings.stateStore, "get").mockRejectedValue(new Error("fail"));
+            vi.spyOn(subject.settings.stateStore, "get").mockRejectedValue(new Error("fail"));
 
             // act
             try {
@@ -773,7 +998,7 @@ describe("OidcClient", () => {
         it("should deserialize stored state and return state and response", async () => {
             // arrange
             const item = new State({ id: "1", request_type: "type" }).toStorageString();
-            jest.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item));
+            vi.spyOn(subject.settings.stateStore, "get").mockImplementation(() => Promise.resolve(item));
 
             // act
             const { state, response } = await subject.readSignoutResponseState("http://app/cb?state=1");
@@ -792,9 +1017,9 @@ describe("OidcClient", () => {
                 data: "bar",
                 request_type: "type",
             });
-            jest.spyOn(subject.settings.stateStore, "remove")
+            vi.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(() => Promise.resolve(item.toStorageString()));
-            const validateSignoutResponse = jest.spyOn(subject["_validator"], "validateSignoutResponse")
+            const validateSignoutResponse = vi.spyOn(subject["_validator"], "validateSignoutResponse")
                 .mockReturnValue();
 
             // act
@@ -838,7 +1063,7 @@ describe("OidcClient", () => {
 
         it("should fail if storage fails", async () => {
             // arrange
-            jest.spyOn(subject.settings.stateStore, "remove").mockRejectedValue(new Error("fail"));
+            vi.spyOn(subject.settings.stateStore, "remove").mockRejectedValue(new Error("fail"));
 
             // act
             try {
@@ -857,9 +1082,9 @@ describe("OidcClient", () => {
                 id: "1",
                 request_type: "type",
             });
-            jest.spyOn(subject.settings.stateStore, "remove")
+            vi.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(async () => item.toStorageString());
-            const validateSignoutResponse = jest.spyOn(subject["_validator"], "validateSignoutResponse")
+            const validateSignoutResponse = vi.spyOn(subject["_validator"], "validateSignoutResponse")
                 .mockReturnValue();
 
             // act
@@ -876,9 +1101,9 @@ describe("OidcClient", () => {
                 data: "bar",
                 request_type: "type",
             });
-            jest.spyOn(subject.settings.stateStore, "remove")
+            vi.spyOn(subject.settings.stateStore, "remove")
                 .mockImplementation(async () => item.toStorageString());
-            const validateSignoutResponse = jest.spyOn(subject["_validator"], "validateSignoutResponse")
+            const validateSignoutResponse = vi.spyOn(subject["_validator"], "validateSignoutResponse")
                 .mockReturnValue();
 
             // act
@@ -893,7 +1118,7 @@ describe("OidcClient", () => {
 
         it("should call State.clearStaleState", async () => {
             // arrange
-            const clearStaleState = jest.spyOn(State, "clearStaleState");
+            const clearStaleState = vi.spyOn(State, "clearStaleState");
 
             // act
             await subject.clearStaleState();
@@ -906,7 +1131,7 @@ describe("OidcClient", () => {
     describe("revokeToken", () => {
         it("revokes a token type", async () => {
             // arrange
-            const revokeSpy = jest.spyOn(subject["_tokenClient"], "revoke").mockResolvedValue();
+            const revokeSpy = vi.spyOn(subject["_tokenClient"], "revoke").mockResolvedValue();
 
             // act
             await subject.revokeToken("token", "access_token");
@@ -916,6 +1141,71 @@ describe("OidcClient", () => {
                 token: "token",
                 token_type_hint: "access_token",
             });
+        });
+    });
+
+    describe("getDpopProof", () => {
+        it("stores a nonce if one is provided", async () => {
+            // arrange
+            const store = new IndexedDbDPoPStore();
+            const keyPair = await CryptoUtils.generateDPoPKeys();
+            vi.spyOn(CryptoUtils, "generateDPoPKeys").mockResolvedValue(keyPair);
+
+            const settings: OidcClientSettings = {
+                authority: "authority",
+                client_id: "dpop_client",
+                redirect_uri: "redirect",
+                post_logout_redirect_uri: "http://app",
+                dpop: {
+                    bind_authorization_code: false,
+                    store: store,
+                },
+            };
+
+            subject = new OidcClient(settings);
+
+            vi.spyOn(subject["metadataService"], "getTokenEndpoint").mockResolvedValue("http://sts/token");
+
+            // act
+            await subject.getDpopProof(store, "some-nonce");
+            const storedDPoPState = await subject.settings.dpop?.store.get("dpop_client");
+            // assert
+
+            expect(storedDPoPState?.nonce).toEqual("some-nonce");
+        });
+
+        it("updates the stored nonce if a new one is provided", async () => {
+            // arrange
+            const store = new IndexedDbDPoPStore();
+            const keyPair = await CryptoUtils.generateDPoPKeys();
+            vi.spyOn(CryptoUtils, "generateDPoPKeys").mockResolvedValue(keyPair);
+            const dpopState = new DPoPState(keyPair, "some-nonce");
+
+            const settings: OidcClientSettings = {
+                authority: "authority",
+                client_id: "dpop_client",
+                redirect_uri: "redirect",
+                post_logout_redirect_uri: "http://app",
+                dpop: {
+                    bind_authorization_code: false,
+                    store: store,
+                },
+            };
+
+            subject = new OidcClient(settings);
+
+            vi.spyOn(subject["metadataService"], "getTokenEndpoint").mockResolvedValue("http://sts/token");
+            await subject.getDpopProof(store, "some-nonce");
+            let storedDPoPState = await subject.settings.dpop?.store.get("dpop_client");
+            expect(storedDPoPState?.nonce).toEqual("some-nonce");
+            dpopState.nonce = "some-other-nonce";
+
+            // act
+            await subject.getDpopProof(store, "some-other-nonce");
+            storedDPoPState = await subject.settings.dpop?.store.get("dpop_client");
+
+            // assert
+            expect(storedDPoPState?.nonce).toEqual("some-other-nonce");
         });
     });
 });

@@ -5,6 +5,8 @@ import { UserInfoService } from "./UserInfoService";
 import { MetadataService } from "./MetadataService";
 import type { JsonService } from "./JsonService";
 import { OidcClientSettingsStore } from "./OidcClientSettings";
+import { describe, beforeEach, it, expect, vi } from "vitest";
+import { fail } from "assert";
 
 describe("UserInfoService", () => {
     let subject: UserInfoService;
@@ -52,8 +54,8 @@ describe("UserInfoService", () => {
 
         it("should call userinfo endpoint and pass token", async () => {
             // arrange
-            jest.spyOn(metadataService, "getUserInfoEndpoint").mockImplementation(() => Promise.resolve("http://sts/userinfo"));
-            const getJsonMock = jest.spyOn(jsonService, "getJson")
+            vi.spyOn(metadataService, "getUserInfoEndpoint").mockImplementation(() => Promise.resolve("http://sts/userinfo"));
+            const getJsonMock = vi.spyOn(jsonService, "getJson")
                 .mockResolvedValue({ foo: "bar" });
 
             // act
@@ -70,7 +72,7 @@ describe("UserInfoService", () => {
 
         it("should fail when dependencies fail", async () => {
             // arrange
-            jest.spyOn(metadataService, "getUserInfoEndpoint").mockRejectedValue(new Error("test"));
+            vi.spyOn(metadataService, "getUserInfoEndpoint").mockRejectedValue(new Error("test"));
 
             // act
             try {
@@ -85,7 +87,7 @@ describe("UserInfoService", () => {
 
         it("should return claims", async () => {
             // arrange
-            jest.spyOn(metadataService, "getUserInfoEndpoint").mockImplementation(() => Promise.resolve("http://sts/userinfo"));
+            vi.spyOn(metadataService, "getUserInfoEndpoint").mockImplementation(() => Promise.resolve("http://sts/userinfo"));
             const expectedClaims = {
                 foo: 1, bar: "test",
                 aud:"some_aud", iss:"issuer",
@@ -94,7 +96,7 @@ describe("UserInfoService", () => {
                 nonce:"nonce", at_hash:"athash",
                 iat:5, nbf:10, exp:20,
             };
-            jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(expectedClaims));
+            vi.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve(expectedClaims));
 
             // act
             const claims = await subject.getClaims("token");
@@ -105,8 +107,8 @@ describe("UserInfoService", () => {
 
         it("should use settings fetchRequestCredentials to set credentials on user info request", async () => {
             // arrange
-            jest.spyOn(metadataService, "getUserInfoEndpoint").mockImplementation(() => Promise.resolve("http://sts/userinfo"));
-            const getJsonMock = jest.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({}));
+            vi.spyOn(metadataService, "getUserInfoEndpoint").mockImplementation(() => Promise.resolve("http://sts/userinfo"));
+            const getJsonMock = vi.spyOn(jsonService, "getJson").mockImplementation(() => Promise.resolve({}));
 
             // act
             await subject.getClaims("token");

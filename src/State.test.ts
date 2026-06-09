@@ -5,6 +5,7 @@ import { State } from "./State";
 
 import { InMemoryWebStorage } from "./InMemoryWebStorage";
 import { WebStorageStateStore } from "./WebStorageStateStore";
+import { describe, it, expect } from "vitest";
 
 describe("State", () => {
     describe("constructor", () => {

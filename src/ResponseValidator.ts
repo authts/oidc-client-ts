@@ -21,14 +21,17 @@ import type { ClaimsService } from "./ClaimsService";
  */
 export class ResponseValidator {
     protected readonly _logger = new Logger("ResponseValidator");
-    protected readonly _userInfoService = new UserInfoService(this._settings, this._metadataService);
-    protected readonly _tokenClient = new TokenClient(this._settings, this._metadataService);
+    protected readonly _userInfoService: UserInfoService;
+    protected readonly _tokenClient: TokenClient;
 
     public constructor(
         protected readonly _settings: OidcClientSettingsStore,
         protected readonly _metadataService: MetadataService,
         protected readonly _claimsService: ClaimsService,
-    ) {}
+    ) {
+        this._userInfoService = new UserInfoService(this._settings, this._metadataService);
+        this._tokenClient = new TokenClient(this._settings, this._metadataService);
+    }
 
     public async validateSigninResponse(response: SigninResponse, state: SigninState, extraHeaders?: Record<string, ExtraHeader>): Promise<void> {
         const logger = this._logger.create("validateSigninResponse");
@@ -40,7 +43,7 @@ export class ResponseValidator {
         logger.debug("code processed");
 
         if (response.isOpenId) {
-            this._validateIdTokenAttributes(response);
+            this._validateIdTokenAttributes(response, "", state.nonce);
         }
         logger.debug("tokens validated");
 
@@ -50,13 +53,14 @@ export class ResponseValidator {
 
     public async validateCredentialsResponse(response: SigninResponse, skipUserInfo: boolean): Promise<void> {
         const logger = this._logger.create("validateCredentialsResponse");
+        const shouldValidateSubClaim = response.isOpenId && !!response.id_token;
 
-        if (response.isOpenId && !!response.id_token) {
+        if (shouldValidateSubClaim) {
             this._validateIdTokenAttributes(response);
         }
         logger.debug("tokens validated");
 
-        await this._processClaims(response, skipUserInfo, response.isOpenId);
+        await this._processClaims(response, skipUserInfo, shouldValidateSubClaim);
         logger.debug("claims processed");
     }
 
@@ -188,7 +192,7 @@ export class ResponseValidator {
         }
     }
 
-    protected _validateIdTokenAttributes(response: SigninResponse, existingToken?: string): void {
+    protected _validateIdTokenAttributes(response: SigninResponse, existingToken?: string, nonce?: string): void {
         const logger = this._logger.create("_validateIdTokenAttributes");
 
         logger.debug("decoding ID Token JWT");
@@ -196,6 +200,10 @@ export class ResponseValidator {
 
         if (!incoming.sub) {
             logger.throw(new Error("ID Token is missing a subject claim"));
+        }
+
+        if (nonce && incoming.nonce !== nonce) {
+            logger.throw(new Error("nonce in id_token does not match nonce in client storage"));
         }
 
         if (existingToken) {

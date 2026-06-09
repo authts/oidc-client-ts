@@ -22,3 +22,6 @@ node_modules/
 .vscode/
 temp/
 .history/
+
+# Jetbrains IDEs
+.idea/

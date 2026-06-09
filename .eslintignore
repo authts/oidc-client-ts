@@ -1,7 +1,0 @@
-/.yarn/
-/.pnp.*
-node_modules/
-dist/
-docs/pages/
-lib/
-samples/

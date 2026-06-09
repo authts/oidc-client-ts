@@ -5,6 +5,7 @@ import { type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSe
 import type { PopupWindowFeatures } from "./utils/PopupUtils";
 import { WebStorageStateStore } from "./WebStorageStateStore";
 import { InMemoryWebStorage } from "./InMemoryWebStorage";
+import type { StateStore } from "./StateStore";
 
 export const DefaultPopupWindowFeatures: PopupWindowFeatures = {
     location: false,
@@ -84,12 +85,18 @@ export interface UserManagerSettings extends OidcClientSettings {
      * Any additional properties returned by the OIDC/OAuth2 token response will be ignored unlesss explicitly listed here.
      */
     extraTokenResponseKeys?: string[];
+    /**
+     * Maximum number of timeout retries before raising silentRenewError event.
+     * Set to 0 to fail immediately on timeout.
+     * Undefined means infinite retries (maintains backward compatibility, default behavior).
+     */
+    maxSilentRenewTimeoutRetries?: number;
 
     /**
      * Storage object used to persist User for currently authenticated user (default: window.sessionStorage, InMemoryWebStorage iff no window).
      *  E.g. `userStore: new WebStorageStateStore({ store: window.localStorage })`
      */
-    userStore?: WebStorageStateStore;
+    userStore?: StateStore;
 }
 
 /**
@@ -126,10 +133,11 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly includeIdTokenInSilentSignout: boolean;
 
     public readonly accessTokenExpiringNotificationTimeInSeconds: number;
+    public readonly maxSilentRenewTimeoutRetries?: number;
 
     public readonly extraTokenResponseKeys: string[];
 
-    public readonly userStore: WebStorageStateStore;
+    public readonly userStore: StateStore;
 
     public constructor(args: UserManagerSettings) {
         const {
@@ -143,8 +151,9 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             iframeNotifyParentOrigin = args.iframeNotifyParentOrigin,
             iframeScriptOrigin = args.iframeScriptOrigin,
 
+            requestTimeoutInSeconds,
             silent_redirect_uri = args.redirect_uri,
-            silentRequestTimeoutInSeconds = DefaultSilentRequestTimeoutInSeconds,
+            silentRequestTimeoutInSeconds,
             automaticSilentRenew = true,
             validateSubOnSilentRenew = true,
             includeIdTokenInSilentRenew = false,
@@ -161,6 +170,9 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
             accessTokenExpiringNotificationTimeInSeconds = DefaultAccessTokenExpiringNotificationTimeInSeconds,
             extraTokenResponseKeys = [],
+
+            maxSilentRenewTimeoutRetries,
+
             userStore,
         } = args;
 
@@ -177,7 +189,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
         this.iframeScriptOrigin = iframeScriptOrigin;
 
         this.silent_redirect_uri = silent_redirect_uri;
-        this.silentRequestTimeoutInSeconds = silentRequestTimeoutInSeconds;
+        this.silentRequestTimeoutInSeconds = silentRequestTimeoutInSeconds || requestTimeoutInSeconds || DefaultSilentRequestTimeoutInSeconds;
         this.automaticSilentRenew = automaticSilentRenew;
         this.validateSubOnSilentRenew = validateSubOnSilentRenew;
         this.includeIdTokenInSilentRenew = includeIdTokenInSilentRenew;
@@ -194,6 +206,7 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
         this.accessTokenExpiringNotificationTimeInSeconds = accessTokenExpiringNotificationTimeInSeconds;
         this.extraTokenResponseKeys = extraTokenResponseKeys;
+        this.maxSilentRenewTimeoutRetries = maxSilentRenewTimeoutRetries;
 
         if (userStore) {
             this.userStore = userStore;

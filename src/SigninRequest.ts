@@ -21,6 +21,7 @@ export interface SigninRequestCreateArgs {
     response_mode?: "query" | "fragment";
     nonce?: string;
     display?: string;
+    dpopJkt?: string;
     prompt?: string;
     max_age?: number;
     ui_locales?: string;
@@ -43,6 +44,7 @@ export interface SigninRequestCreateArgs {
     /** custom "state", which can be used by a caller to have "data" round tripped */
     state_data?: unknown;
     url_state?: string;
+    omitScopeWhenRequesting?: boolean;
 }
 
 /**
@@ -72,6 +74,8 @@ export class SigninRequest {
         extraQueryParams,
         extraTokenParams,
         disablePKCE,
+        dpopJkt,
+        omitScopeWhenRequesting,
         ...optionalParams
     }: SigninRequestCreateArgs): Promise<SigninRequest> {
         if (!url) {
@@ -108,15 +112,22 @@ export class SigninRequest {
             response_mode,
             client_secret, scope, extraTokenParams,
             skipUserInfo,
+            nonce,
         });
 
         const parsedUrl = new URL(url);
         parsedUrl.searchParams.append("client_id", client_id);
         parsedUrl.searchParams.append("redirect_uri", redirect_uri);
         parsedUrl.searchParams.append("response_type", response_type);
-        parsedUrl.searchParams.append("scope", scope);
+        if (!omitScopeWhenRequesting) {
+            parsedUrl.searchParams.append("scope", scope);
+        }
         if (nonce) {
             parsedUrl.searchParams.append("nonce", nonce);
+        }
+
+        if (dpopJkt) {
+            parsedUrl.searchParams.append("dpop_jkt", dpopJkt);
         }
 
         let stateParam = state.id;

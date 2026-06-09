@@ -23,7 +23,7 @@ export class AccessTokenEvents {
         this._expiringNotificationTimeInSeconds = args.expiringNotificationTimeInSeconds;
     }
 
-    public load(container: User): void {
+    public async load(container: User): Promise<void> {
         const logger = this._logger.create("load");
         // only register events if there's an access token and it has an expiration
         if (container.access_token && container.expires_in !== undefined) {
@@ -56,7 +56,7 @@ export class AccessTokenEvents {
         }
     }
 
-    public unload(): void {
+    public async unload(): Promise<void> {
         this._logger.debug("unload: canceling existing access token timers");
         this._expiringTimer.cancel();
         this._expiredTimer.cancel();
