@@ -4,7 +4,7 @@ module.exports = function (app) {
     app.use(
         "/oidc/",
         createProxyMiddleware({
-            target: "http://localhost:15000/",
+            target: "http://localhost:15000/oidc",
         })
     );
 
