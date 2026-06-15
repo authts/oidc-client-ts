@@ -5,13 +5,14 @@ import { Logger } from "../utils";
 import { ErrorTimeout } from "../errors";
 import type { NavigateParams, NavigateResponse } from "./IWindow";
 import { AbstractChildWindow } from "./AbstractChildWindow";
-import { DefaultSilentRequestTimeoutInSeconds } from "../UserManagerSettings";
+import { DefaultIFrameAttributes, DefaultSilentRequestTimeoutInSeconds } from "../UserManagerSettings";
 
 /**
  * @public
  */
 export interface IFrameWindowParams {
     silentRequestTimeoutInSeconds?: number;
+    iframeAttributes?: Record<string, string>;
 }
 
 /**
@@ -24,15 +25,16 @@ export class IFrameWindow extends AbstractChildWindow {
 
     public constructor({
         silentRequestTimeoutInSeconds = DefaultSilentRequestTimeoutInSeconds,
+        iframeAttributes = DefaultIFrameAttributes,
     }: IFrameWindowParams) {
         super();
         this._timeoutInSeconds = silentRequestTimeoutInSeconds;
 
-        this._frame = IFrameWindow.createHiddenIframe();
+        this._frame = IFrameWindow.createHiddenIframe(iframeAttributes);
         this._window = this._frame.contentWindow;
     }
 
-    private static createHiddenIframe(): HTMLIFrameElement {
+    private static createHiddenIframe(iframeAttributes: Record<string, string> | undefined): HTMLIFrameElement {
         const iframe = window.document.createElement("iframe");
 
         // shotgun approach
@@ -42,6 +44,12 @@ export class IFrameWindow extends AbstractChildWindow {
         iframe.style.top = "0";
         iframe.width = "0";
         iframe.height = "0";
+
+        if (iframeAttributes) {
+            for (const attr in iframeAttributes) {
+                iframe.setAttribute(attr, iframeAttributes[attr]);
+            }
+        }
 
         window.document.body.appendChild(iframe);
         return iframe;

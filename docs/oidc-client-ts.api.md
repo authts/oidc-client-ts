@@ -132,6 +132,8 @@ export interface IdTokenClaims extends Mandatory<OidcStandardClaims, "sub">, Man
 // @public (undocumented)
 export interface IFrameWindowParams {
     // (undocumented)
+    iframeAttributes?: Record<string, string>;
+    // (undocumented)
     silentRequestTimeoutInSeconds?: number;
 }
 
@@ -1120,6 +1122,7 @@ export interface UserManagerSettings extends OidcClientSettings {
     accessTokenExpiringNotificationTimeInSeconds?: number;
     automaticSilentRenew?: boolean;
     checkSessionIntervalInSeconds?: number;
+    iframeAttributes?: Record<string, string> | undefined;
     iframeNotifyParentOrigin?: string;
     iframeScriptOrigin?: string;
     includeIdTokenInSilentRenew?: boolean;
@@ -1156,6 +1159,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     readonly automaticSilentRenew: boolean;
     // (undocumented)
     readonly checkSessionIntervalInSeconds: number;
+    // (undocumented)
+    readonly iframeAttributes?: Record<string, string>;
     // (undocumented)
     readonly iframeNotifyParentOrigin: string | undefined;
     // (undocumented)

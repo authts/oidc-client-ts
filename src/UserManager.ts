@@ -45,7 +45,7 @@ export type SigninPopupArgs = PopupWindowParams & ExtraSigninRequestArgs;
 /**
  * @public
  */
-export type ExtraSignInSilentArgs = { 
+export type ExtraSignInSilentArgs = {
     // forceIframeAuth bypasses refresh token usage and forces iframe-based silent authentication
     forceIframeAuth?: boolean;
 };
@@ -313,6 +313,7 @@ export class UserManager {
         const logger = this._logger.create("signinSilent");
         const {
             silentRequestTimeoutInSeconds,
+            iframeAttributes,
             ...requestArgs
         } = args;
         // first determine if we have a refresh token, or need to use iframe
@@ -346,7 +347,7 @@ export class UserManager {
             verifySub = user.profile.sub;
         }
 
-        const handle = await this._iframeNavigator.prepare({ silentRequestTimeoutInSeconds });
+        const handle = await this._iframeNavigator.prepare({ silentRequestTimeoutInSeconds, iframeAttributes });
         user = await this._signin({
             request_type: "si:s",
             redirect_uri: url,
