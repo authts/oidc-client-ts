@@ -373,7 +373,7 @@ export class UserManager {
             timeoutInSeconds: this.settings.silentRequestTimeoutInSeconds,
             ...args,
         });
-        const user = new User({ ...args.state, ...response });
+        const user = new User({ ...args.state, ...response }, this.settings.extraTokenResponseKeys);
 
         await this.storeUser(user);
         await this._events.load(user);
@@ -548,7 +548,7 @@ export class UserManager {
 
     protected async _buildUser(signinResponse: SigninResponse, verifySub?: string) {
         const logger = this._logger.create("_buildUser");
-        const user = new User(signinResponse);
+        const user = new User(signinResponse, this.settings.extraTokenResponseKeys);
         if (verifySub) {
             if (verifySub !== user.profile.sub) {
                 logger.debug("current user does not match user returned from signin. sub from signin:", user.profile.sub);

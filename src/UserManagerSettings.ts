@@ -93,6 +93,13 @@ export interface UserManagerSettings extends OidcClientSettings {
     maxSilentRenewTimeoutRetries?: number;
 
     /**
+     * By default the user object only preserves the standard properties
+     * (access_token, session_state, id_token, refresh_token, token_type, scope, profile, and expiration).
+     * Any additional properties returned by the OIDC/OAuth2 token response will be ignored unless explicitly listed here. (default: [])
+     */
+    extraTokenResponseKeys?: string[];
+
+    /**
      * Storage object used to persist User for currently authenticated user (default: window.sessionStorage, InMemoryWebStorage iff no window).
      *  E.g. `userStore: new WebStorageStateStore({ store: window.localStorage })`
      */
@@ -136,6 +143,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
     public readonly accessTokenExpiringNotificationTimeInSeconds: number;
     public readonly maxSilentRenewTimeoutRetries?: number;
 
+    public readonly extraTokenResponseKeys: string[];
+
     public readonly userStore: StateStore;
 
     public constructor(args: UserManagerSettings) {
@@ -169,8 +178,9 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
             includeIdTokenInSilentSignout = false,
 
             accessTokenExpiringNotificationTimeInSeconds = DefaultAccessTokenExpiringNotificationTimeInSeconds,
-
             maxSilentRenewTimeoutRetries,
+
+            extraTokenResponseKeys = [],
 
             userStore,
         } = args;
@@ -206,6 +216,8 @@ export class UserManagerSettingsStore extends OidcClientSettingsStore {
 
         this.accessTokenExpiringNotificationTimeInSeconds = accessTokenExpiringNotificationTimeInSeconds;
         this.maxSilentRenewTimeoutRetries = maxSilentRenewTimeoutRetries;
+
+        this.extraTokenResponseKeys = extraTokenResponseKeys;
 
         if (userStore) {
             this.userStore = userStore;

@@ -421,4 +421,24 @@ describe("UserManagerSettings", () => {
             expect(subject.silentRequestTimeoutInSeconds).toEqual(10);
         });
     });
+
+    describe("extraTokenResponseKeys", () => {
+        it("should return value from the initial settings", () => {
+            const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+                extraTokenResponseKeys: ["testProp"],
+            });
+            expect(subject.extraTokenResponseKeys).toEqual(["testProp"]);
+        });
+        it("should return the default value", () => {
+            const subject = new UserManagerSettingsStore({
+                authority: "authority",
+                client_id: "client",
+                redirect_uri: "redirect",
+            });
+            expect(subject.extraTokenResponseKeys).toEqual([]);
+        });
+    });
 });
