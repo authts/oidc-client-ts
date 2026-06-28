@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { Logger } from "../utils";
-import { ErrorTimeout } from "../errors";
+import { ErrorResponse, ErrorTimeout } from "../errors";
 import type { NavigateParams, NavigateResponse } from "./IWindow";
 import { AbstractChildWindow } from "./AbstractChildWindow";
 import { DefaultIFrameAttributes, DefaultSilentRequestTimeoutInSeconds } from "../UserManagerSettings";
@@ -59,6 +59,28 @@ export class IFrameWindow extends AbstractChildWindow {
         this._logger.debug("navigate: Using timeout of:", this._timeoutInSeconds);
         const timer = setTimeout(() => void this._abort.raise(new ErrorTimeout("IFrame timed out without a response")), this._timeoutInSeconds * 1000);
         this._disposeHandlers.add(() => clearTimeout(timer));
+        // Detect error in iframe URL immediately after load to avoid waiting for timeout
+        const frame = this._frame!;
+        const iframeLoadHandler = () => {
+            try {
+                if (!frame?.contentWindow) {
+                    return;
+                }
+                const url = frame.contentWindow.location.href;
+                const urlParams = new URL(url, window.location.origin);
+                const error = urlParams.searchParams.get("error");
+                if (error) {
+                    clearTimeout(timer);
+                    this._logger.debug("Detected error in iframe URL:", error);
+                    const errorDescription = urlParams.searchParams.get("error_description") || `${error}`;
+                    void this._abort.raise(new ErrorResponse({ error, error_description: errorDescription }));
+                }
+            } catch {
+                // Cross-origin access - can't read URL, ignore
+            }
+        };
+        frame.addEventListener("load", iframeLoadHandler);
+        this._disposeHandlers.add(() => frame?.removeEventListener("load", iframeLoadHandler));
 
         return await super.navigate(params);
     }
