@@ -12,7 +12,7 @@
     "jsrsasign": "^11.1.1"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1",
+    "concurrently": "^10.0.3",
     "parcel": "^2.16.4"
   }
 }
