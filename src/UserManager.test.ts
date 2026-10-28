@@ -735,6 +735,64 @@ describe("UserManager", () => {
             );
         });
 
+        it("should use silentRequestTimeoutInSeconds from settings for the refresh_token grant", async () => {
+            // arrange
+            subject = new UserManager({
+                authority: "http://sts/oidc",
+                client_id: "client",
+                redirect_uri: "http://app/cb",
+                monitorSession: false,
+                userStore: userStoreMock,
+                silentRequestTimeoutInSeconds: 5,
+            });
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                refresh_token: "refresh_token",
+                profile: {
+                    sub: "sub",
+                } as UserProfile,
+            });
+            const useRefreshTokenSpy = vi.spyOn(subject["_client"], "useRefreshToken").mockResolvedValue({
+                access_token: "new_access_token",
+                profile: { sub: "sub" },
+            } as unknown as SigninResponse);
+            subject["_loadUser"] = vi.fn().mockResolvedValue(user);
+
+            // act
+            await subject.signinSilent();
+
+            // assert
+            expect(useRefreshTokenSpy).toHaveBeenCalledWith(
+                expect.objectContaining({ timeoutInSeconds: 5 }),
+            );
+        });
+
+        it("should prefer silentRequestTimeoutInSeconds from the args for the refresh_token grant", async () => {
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                refresh_token: "refresh_token",
+                profile: {
+                    sub: "sub",
+                } as UserProfile,
+            });
+            const useRefreshTokenSpy = vi.spyOn(subject["_client"], "useRefreshToken").mockResolvedValue({
+                access_token: "new_access_token",
+                profile: { sub: "sub" },
+            } as unknown as SigninResponse);
+            subject["_loadUser"] = vi.fn().mockResolvedValue(user);
+
+            // act
+            await subject.signinSilent({ silentRequestTimeoutInSeconds: 42 });
+
+            // assert
+            expect(useRefreshTokenSpy).toHaveBeenCalledWith(
+                expect.objectContaining({ timeoutInSeconds: 42 }),
+            );
+        });
+
         it("should use the resource from settings when a refresh token is present", async () => {
             // arrange
             const user = new User({
