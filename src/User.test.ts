@@ -1,5 +1,6 @@
 import { describe, beforeEach, vi, afterEach, it, expect } from "vitest";
 import { User } from "./User";
+import type { UserProfile } from "./User";
 import { Timer } from "./utils";
 
 describe("User", () => {
@@ -99,6 +100,26 @@ describe("User", () => {
             expect(extra2).toEqual(args.extra2);
             const extra3 = actualTokenProps["extra3"];
             expect(extra3).not.toBeDefined();
+        });
+    });
+
+    describe("toStorageString", () => {
+        it("should keep custom state through a storage round trip", () => {
+            // arrange
+            const subject = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {} as UserProfile,
+                userState: { returnTo: "/billing" },
+                url_state: "tab=security",
+            });
+
+            // act
+            const result = User.fromStorageString(subject.toStorageString());
+
+            // assert
+            expect(result.state).toEqual({ returnTo: "/billing" });
+            expect(result.url_state).toEqual("tab=security");
         });
     });
 });

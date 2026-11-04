@@ -627,6 +627,7 @@ export class RefreshState {
         scope?: string;
         profile: UserProfile;
         state?: unknown;
+        url_state?: string;
     });
     readonly data?: unknown;
     // (undocumented)
@@ -639,6 +640,7 @@ export class RefreshState {
     readonly scope?: string;
     // (undocumented)
     readonly session_state: string | null;
+    readonly url_state?: string;
 }
 
 // @public (undocumented)

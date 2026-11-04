@@ -735,6 +735,30 @@ describe("UserManager", () => {
             );
         });
 
+        it("should keep custom state when renewing with the refresh_token grant", async () => {
+            // arrange
+            await subject.storeUser(new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                refresh_token: "refresh_token",
+                profile: { sub: "sub" } as UserProfile,
+                userState: { returnTo: "/billing" },
+                url_state: "tab=security",
+            }));
+            vi.spyOn(subject["_client"]["_tokenClient"], "exchangeRefreshToken").mockResolvedValue({
+                access_token: "new_access_token",
+                token_type: "Bearer",
+            });
+
+            // act
+            const refreshedUser = await subject.signinSilent();
+
+            // assert
+            expect(refreshedUser).toHaveProperty("access_token", "new_access_token");
+            expect(refreshedUser?.state).toEqual({ returnTo: "/billing" });
+            expect(refreshedUser?.url_state).toEqual("tab=security");
+        });
+
         it("should use the resource from settings when a refresh token is present", async () => {
             // arrange
             const user = new User({
@@ -1310,6 +1334,25 @@ describe("UserManager", () => {
             // assert
             const storageString = await subject.settings.userStore.get(subject["_userStoreKey"]);
             expect(storageString).toBeNull();
+        });
+
+        it("should keep custom state when the stored user is loaded", async () => {
+            // arrange
+            const user = new User({
+                access_token: "access_token",
+                token_type: "token_type",
+                profile: {} as UserProfile,
+                userState: { returnTo: "/billing" },
+                url_state: "tab=security",
+            });
+            await subject.storeUser(user);
+
+            // act
+            const result = await subject.getUser();
+
+            // assert
+            expect(result?.state).toEqual({ returnTo: "/billing" });
+            expect(result?.url_state).toEqual("tab=security");
         });
 
         it("should remove dpop keys from the dpop store if dpop enabled", async () => {
