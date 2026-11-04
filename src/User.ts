@@ -133,11 +133,14 @@ export class User {
             scope: this.scope,
             profile: this.profile,
             expires_at: this.expires_at,
+            user_state: this.state,
+            url_state: this.url_state,
         });
     }
 
     public static fromStorageString(storageString: string): User {
         Logger.createStatic("User", "fromStorageString");
-        return new User(JSON.parse(storageString));
+        const { user_state, ...args } = JSON.parse(storageString);
+        return new User({ ...args, userState: user_state });
     }
 }

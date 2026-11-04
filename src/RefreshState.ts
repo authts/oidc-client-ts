@@ -11,6 +11,8 @@ import type { UserProfile } from "./User";
 export class RefreshState {
     /** custom "state", which can be used by a caller to have "data" round tripped */
     public readonly data?: unknown;
+    /** custom url state from the initial signin request, round tripped like `data` */
+    public readonly url_state?: string;
 
     public readonly refresh_token: string;
     public readonly id_token?: string;
@@ -26,6 +28,7 @@ export class RefreshState {
         profile: UserProfile;
 
         state?: unknown;
+        url_state?: string;
     }) {
         this.refresh_token = args.refresh_token;
         this.id_token = args.id_token;
@@ -34,6 +37,7 @@ export class RefreshState {
         this.profile = args.profile;
 
         this.data = args.state;
+        this.url_state = args.url_state;
 
     }
 }
