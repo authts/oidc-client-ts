@@ -1,3 +1,4 @@
+export * from "./Clock";
 export * from "./CryptoUtils";
 export * from "./Event";
 export * from "./JwtUtils";

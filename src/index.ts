@@ -3,7 +3,7 @@
 
 export { ErrorResponse, ErrorTimeout } from "./errors";
 export type { INavigator, IFrameWindowParams, IWindow, NavigateParams, NavigateResponse, PopupWindowParams, RedirectParams } from "./navigators";
-export { Log, Logger } from "./utils";
+export { Clock, Log, Logger } from "./utils";
 export type { ILogger, PopupWindowFeatures } from "./utils";
 export type { OidcAddressClaim, OidcStandardClaims, IdTokenClaims, JwtClaims } from "./Claims";
 

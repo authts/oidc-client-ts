@@ -1,6 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { Clock } from "./Clock";
 import { CryptoUtils } from "./CryptoUtils";
-import { jwtVerify, decodeProtectedHeader, importJWK, type JWK } from "jose";
+import { jwtVerify, decodeJwt, decodeProtectedHeader, importJWK, type JWK } from "jose";
 
 const pattern = /^[0-9a-f]{8}[0-9a-f]{4}4[0-9a-f]{3}[89ab][0-9a-f]{3}[0-9a-f]{12}$/;
 
@@ -65,6 +66,38 @@ describe("CryptoUtils", () => {
     });
 
     describe("generateDPoPProof", () => {
+        afterEach(() => {
+            Clock.reset();
+            vi.useRealTimers();
+        });
+
+        it("should set iat from the local clock by default", async () => {
+            // arrange
+            vi.useFakeTimers({ toFake: ["Date"] });
+            vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
+            const keyPair = await CryptoUtils.generateDPoPKeys();
+
+            // act
+            const dpopProof = await CryptoUtils.generateDPoPProof({ url: "https://localhost:5005/token", httpMethod: "POST", keyPair });
+
+            // assert
+            expect(decodeJwt(dpopProof).iat).toEqual(Date.parse("2026-01-01T00:00:00.000Z") / 1000);
+        });
+
+        it("should apply the clock offset to iat", async () => {
+            // arrange
+            vi.useFakeTimers({ toFake: ["Date"] });
+            vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
+            Clock.setOffset(-120_000);
+            const keyPair = await CryptoUtils.generateDPoPKeys();
+
+            // act
+            const dpopProof = await CryptoUtils.generateDPoPProof({ url: "https://localhost:5005/token", httpMethod: "POST", keyPair });
+
+            // assert
+            expect(decodeJwt(dpopProof).iat).toEqual(Date.parse("2025-12-31T23:58:00.000Z") / 1000);
+        });
+
         it("should generate a valid proof without an access token", async () => {
             // arrange
             const url = "https://localhost:5005/identity";

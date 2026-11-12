@@ -1,3 +1,4 @@
+import { Clock } from "./Clock";
 import { Logger } from "./Logger";
 import { JwtUtils } from "./JwtUtils";
 
@@ -146,7 +147,7 @@ export class CryptoUtils {
             "jti": window.crypto.randomUUID(),
             "htm": httpMethod ?? "GET",
             "htu": url,
-            "iat": Math.floor(Date.now() / 1000),
+            "iat": Clock.getEpochTime(),
         };
 
         if (accessToken) {
@@ -213,7 +214,7 @@ export class CryptoUtils {
      * @param algorithm The HMAC algorithm to use (HS256, HS384, HS512). Defaults to HS256
      */
     public static async generateClientAssertionJwt(client_id: string, client_secret: string, audience: string, algorithm: string = "HS256"): Promise<string> {
-        const now = Math.floor(Date.now() / 1000);
+        const now = Clock.getEpochTime();
 
         const header = {
             "alg": algorithm,

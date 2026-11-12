@@ -96,6 +96,21 @@ Also, logging has levels so you can control the verbosity by calling
 `Log.setLevel()` with one of `Log.NONE`, `Log.ERROR`,
 `Log.WARN`, or `Log.INFO`. The default is `Log.INFO`.
 
+# Clock offset
+Some timestamps are signed by the library itself and validated by the authorization server against its own clock, such as the `iat` of DPoP proofs and client assertions. When the device clock is wrong, those requests are rejected (for example with `DPoP proof is not active`).
+
+If your application knows the server time, set the offset (server time minus local time, in milliseconds) by calling `Clock.setOffset()`. It applies globally, like the logger. `Clock.reset()` goes back to the local clock. Token expiration is computed from relative durations and is not affected.
+
+```javascript
+import { Clock } from 'oidc-client-ts';
+
+const response = await fetch('/', { method: 'HEAD', cache: 'no-store' });
+const serverTime = Date.parse(response.headers.get('date'));
+if (Number.isFinite(serverTime)) {
+    Clock.setOffset(serverTime - Date.now());
+}
+```
+
 # Provider specific settings
 Additional provider specific settings may be needed for a flawless operation:
 
