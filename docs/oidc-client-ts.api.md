@@ -45,6 +45,16 @@ export class CheckSessionIFrame {
     stop(): void;
 }
 
+// @public
+export namespace Clock {
+    // (undocumented)
+    export function getEpochTime(): number;
+    // (undocumented)
+    export function reset(): void;
+    // (undocumented)
+    export function setOffset(value: number): void;
+}
+
 // @public (undocumented)
 export interface CreateSigninRequestArgs extends Omit<SigninRequestCreateArgs, "url" | "authority" | "client_id" | "redirect_uri" | "response_type" | "scope" | "state_data"> {
     // (undocumented)
