@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ErrorHttpResponse, ErrorResponse } from "./errors";
 import { MetadataService } from "./MetadataService";
 import { type OidcClientSettings, OidcClientSettingsStore } from "./OidcClientSettings";
 
@@ -32,6 +33,28 @@ describe("MetadataService", () => {
     });
 
     describe("getMetadata", () => {
+        it.each([
+            ["text/plain", "Too Many Requests", "ErrorHttpResponse", "Invalid response Content-Type: text/plain, from URL: authority/.well-known/openid-configuration"],
+            ["application/json", "Too Many Requests", "ErrorHttpResponse", "Too Many Requests (429)"],
+            ["application/json", "{}", "ErrorHttpResponse", "Too Many Requests (429): {}"],
+            ["application/json", "null", "ErrorHttpResponse", "Too Many Requests (429): null"],
+            ["application/json", "{\"error\":\"temporarily_unavailable\"}", "ErrorResponse", "temporarily_unavailable"],
+        ])("preserves the HTTP response for %s (%s)", async (contentType, body, name, message) => {
+            const response = new Response(body, {
+                status: 429,
+                statusText: "Too Many Requests",
+                headers: { "Content-Type": contentType, "Retry-After": "42", "RateLimit-Reset": "90" },
+            });
+            vi.mocked(fetch).mockResolvedValueOnce(response);
+
+            const error = await subject.getMetadata().then(() => undefined, (reason: unknown) => reason);
+            expect(error).toMatchObject({ name, message });
+            if (!(error instanceof ErrorHttpResponse || error instanceof ErrorResponse)) {
+                throw new Error("Expected an HTTP or protocol error");
+            }
+            expect(error.response).toBe(response);
+        });
+
         it("should use metadata on settings", async () => {
             // arrange
             settings = {

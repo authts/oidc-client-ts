@@ -37,6 +37,8 @@ export class ErrorResponse extends Error {
         },
         /** The x-www-form-urlencoded request body sent to the authority server */
         public readonly form?: URLSearchParams,
+        /** The HTTP response when the error was returned by a JSON GET request. Its body has already been read. */
+        public readonly response?: Response,
     ) {
         super(args.error_description || args.error || "");
 

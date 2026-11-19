@@ -73,6 +73,15 @@ export class DPoPState {
 }
 
 // @public
+export class ErrorHttpResponse extends Error {
+    constructor(message: string,
+    response: Response);
+    // (undocumented)
+    readonly name = "ErrorHttpResponse";
+    readonly response: Response;
+}
+
+// @public
 export class ErrorResponse extends Error {
     constructor(args: {
         error?: string | null;
@@ -82,12 +91,14 @@ export class ErrorResponse extends Error {
         session_state?: string | null;
         url_state?: string;
     },
-    form?: URLSearchParams | undefined);
+    form?: URLSearchParams | undefined,
+    response?: Response | undefined);
     readonly error: string | null;
     readonly error_description: string | null;
     readonly error_uri: string | null;
     readonly form?: URLSearchParams | undefined;
     readonly name: string;
+    readonly response?: Response | undefined;
     // (undocumented)
     readonly session_state: string | null;
     state?: unknown;

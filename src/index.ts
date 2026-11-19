@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-export { ErrorResponse, ErrorTimeout } from "./errors";
+export { ErrorHttpResponse, ErrorResponse, ErrorTimeout } from "./errors";
 export type { INavigator, IFrameWindowParams, IWindow, NavigateParams, NavigateResponse, PopupWindowParams, RedirectParams } from "./navigators";
 export { Log, Logger } from "./utils";
 export type { ILogger, PopupWindowFeatures } from "./utils";
