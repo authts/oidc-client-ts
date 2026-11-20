@@ -76,8 +76,7 @@ export class DPoPState {
 export class ErrorHttpResponse extends Error {
     constructor(message: string,
     response: Response);
-    // (undocumented)
-    readonly name = "ErrorHttpResponse";
+    readonly name: string;
     readonly response: Response;
 }
 
