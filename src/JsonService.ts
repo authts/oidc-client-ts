@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { ErrorResponse, ErrorTimeout } from "./errors";
+import { ErrorHttpResponse, ErrorResponse, ErrorTimeout } from "./errors";
 import type { ExtraHeader } from "./OidcClientSettings";
 import { Logger } from "./utils";
 import { ErrorDPoPNonce } from "./errors/ErrorDPoPNonce";
@@ -106,7 +106,8 @@ export class JsonService {
         logger.debug("HTTP response received, status", response.status);
         const contentType = response.headers.get("Content-Type");
         if (contentType && !this._contentTypes.find(item => contentType.startsWith(item))) {
-            logger.throw(new Error(`Invalid response Content-Type: ${(contentType ?? "undefined")}, from URL: ${url}`));
+            const message = `Invalid response Content-Type: ${contentType}, from URL: ${url}`;
+            logger.throw(response.ok ? new Error(message) : new ErrorHttpResponse(message, response));
         }
         if (response.ok && this._jwtHandler && contentType?.startsWith("application/jwt")) {
             return await this._jwtHandler(await response.text());
@@ -118,14 +119,14 @@ export class JsonService {
         catch (err) {
             logger.error("Error parsing JSON response", err);
             if (response.ok) throw err;
-            throw new Error(`${response.statusText} (${response.status})`);
+            throw new ErrorHttpResponse(`${response.statusText} (${response.status})`, response);
         }
         if (!response.ok) {
             logger.error("Error from server:", json);
-            if (json.error) {
-                throw new ErrorResponse(json);
+            if (json?.error) {
+                throw new ErrorResponse(json, undefined, response);
             }
-            throw new Error(`${response.statusText} (${response.status}): ${JSON.stringify(json)}`);
+            throw new ErrorHttpResponse(`${response.statusText} (${response.status}): ${JSON.stringify(json)}`, response);
         }
         return json;
     }

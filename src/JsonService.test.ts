@@ -1,7 +1,7 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-import { ErrorResponse } from "./errors";
+import { ErrorHttpResponse, ErrorResponse } from "./errors";
 import { JsonService } from "./JsonService";
 
 import type { ExtraHeader } from "./OidcClientSettings";
@@ -188,6 +188,30 @@ describe("JsonService", () => {
             await expect(subject.getJson("http://test"))
                 // assert
                 .rejects.toThrow(/server error.+500/);
+        });
+
+        it.each([
+            ["text/plain", "Too Many Requests", ErrorHttpResponse, "Invalid response Content-Type: text/plain, from URL: http://test"],
+            ["application/json", "Too Many Requests", ErrorHttpResponse, "Too Many Requests (429)"],
+            ["application/json", "{}", ErrorHttpResponse, "Too Many Requests (429): {}"],
+            ["application/json", "null", ErrorHttpResponse, "Too Many Requests (429): null"],
+            ["application/json", "{\"error\":\"temporarily_unavailable\"}", ErrorResponse, "temporarily_unavailable"],
+        ])("should keep the http response when a %s reply is not 200 (%s)", async (contentType, body, errorClass, message) => {
+            // arrange
+            const response = new Response(body, {
+                status: 429,
+                statusText: "Too Many Requests",
+                headers: { "Content-Type": contentType, "Retry-After": "42" },
+            });
+            vi.mocked(fetch).mockResolvedValue(response);
+
+            // act
+            const error = await subject.getJson("http://test").then(() => undefined, (reason: unknown) => reason);
+
+            // assert
+            expect(error).toBeInstanceOf(errorClass);
+            expect(error).toMatchObject({ name: errorClass.name, message });
+            expect((error as ErrorHttpResponse | ErrorResponse).response).toBe(response);
         });
 
         it("should reject promise when http response is error", async () => {
