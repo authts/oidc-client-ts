@@ -464,5 +464,74 @@ describe("TokenClient", () => {
                 }),
             );
         });
+
+        it("should use basic auth when using client_secret_basic", async () => {
+            // arrange
+            settings.client_authentication = "client_secret_basic";
+            settings.client_secret = "client_secret";
+            subject = new TokenClient(new OidcClientSettingsStore(settings), metadataService);
+            vi.spyOn(subject["_metadataService"], "getRevocationEndpoint")
+                .mockResolvedValue("http://sts/revoke_endpoint");
+            const postFormMock = vi.spyOn(subject["_jsonService"], "postForm")
+                .mockResolvedValue({});
+
+            // act
+            await subject.revoke({ token: "token", token_type_hint: "access_token" });
+
+            // assert
+            expect(postFormMock).toHaveBeenCalledWith(
+                "http://sts/revoke_endpoint",
+                expect.objectContaining({
+                    basicAuth: CryptoUtils.generateBasicAuth("client_id", "client_secret"),
+                }),
+            );
+            const body = postFormMock.mock.calls[0][1].body;
+            expect(body.has("client_secret")).toBe(false);
+        });
+
+        it("should include client secret in body when using client_secret_post", async () => {
+            // arrange
+            settings.client_authentication = "client_secret_post";
+            settings.client_secret = "client_secret";
+            subject = new TokenClient(new OidcClientSettingsStore(settings), metadataService);
+            vi.spyOn(subject["_metadataService"], "getRevocationEndpoint")
+                .mockResolvedValue("http://sts/revoke_endpoint");
+            const postFormMock = vi.spyOn(subject["_jsonService"], "postForm")
+                .mockResolvedValue({});
+
+            // act
+            await subject.revoke({ token: "token", token_type_hint: "access_token" });
+
+            // assert
+            const options = postFormMock.mock.calls[0][1];
+            expect(options.basicAuth).toBeUndefined();
+            const body = options.body;
+            expect(body.get("client_id")).toBe("client_id");
+            expect(body.get("client_secret")).toBe("client_secret");
+        });
+
+        it("should send client assertion instead of secret when using client_secret_jwt", async () => {
+            // arrange
+            settings.client_authentication = "client_secret_jwt";
+            settings.client_secret = "client_secret";
+            subject = new TokenClient(new OidcClientSettingsStore(settings), metadataService);
+            vi.spyOn(subject["_metadataService"], "getRevocationEndpoint")
+                .mockResolvedValue("http://sts/revoke_endpoint");
+            vi.spyOn(CryptoUtils, "generateClientAssertionJwt")
+                .mockResolvedValue("assertion");
+            const postFormMock = vi.spyOn(subject["_jsonService"], "postForm")
+                .mockResolvedValue({});
+
+            // act
+            await subject.revoke({ token: "token", token_type_hint: "access_token" });
+
+            // assert
+            const options = postFormMock.mock.calls[0][1];
+            expect(options.basicAuth).toBeUndefined();
+            const body = options.body;
+            expect(body.has("client_secret")).toBe(false);
+            expect(body.get("client_assertion")).toBe("assertion");
+            expect(body.get("client_assertion_type")).toBe("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+        });
     });
 });
